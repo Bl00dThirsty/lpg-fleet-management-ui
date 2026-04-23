@@ -1,0 +1,314 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './theme.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  html {
+    @apply overflow-x-hidden;
+  }
+  body {
+    @apply min-h-svh w-full bg-background text-foreground has-[div[data-variant='inset']]:bg-sidebar;
+  }
+
+  /* Override Radix scroll locking for sticky headers */
+  body[data-scroll-locked] {
+    overflow: unset !important;
+  }
+
+  /* Cursor pointer for buttons */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Prevent focus zoom on mobile devices */
+  @media screen and (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
+
+@utility no-scrollbar {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility faded-bottom {
+  @apply after:pointer-events-none after:absolute after:inset-s-0 after:bottom-0 after:hidden after:h-32 after:w-full after:rounded-b-2xl after:bg-[linear-gradient(180deg,transparent_10%,var(--background)_70%)] md:after:block;
+}
+
+/* styles.css */
+.CollapsibleContent {
+  overflow: hidden;
+}
+.CollapsibleContent[data-state='open'] {
+  animation: slideDown 300ms ease-out;
+}
+.CollapsibleContent[data-state='closed'] {
+  animation: slideUp 300ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* LPG liquid gauge */
+.lpg-tank {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--border) 85%, transparent);
+  background:
+    radial-gradient(
+      circle at 30% 15%,
+      color-mix(in oklab, white 68%, transparent),
+      transparent 45%
+    ),
+    color-mix(in oklab, var(--muted) 92%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--background) 42%, transparent),
+    inset 0 -8px 18px color-mix(in oklab, black 18%, transparent);
+}
+
+.lpg-liquid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform: translateY(100%);
+  will-change: transform;
+}
+
+.lpg-fill-body {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #fbbf24 0%, #f59e0b 56%, #d97706 100%),
+    linear-gradient(
+      110deg,
+      rgba(255, 255, 255, 0.08) 10%,
+      transparent 44%,
+      rgba(255, 255, 255, 0.12) 66%,
+      transparent 90%
+    );
+}
+
+.lpg-wave {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 200%;
+  height: 200%;
+  border-radius: 45%;
+  transform: translate(-50%, -75%) rotate(0deg);
+  will-change: transform;
+}
+
+.lpg-wave-back {
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.52);
+  animation: lpg-wave-rotate-back 5.2s linear infinite;
+  animation-delay: -1.4s;
+  opacity: 0.9;
+}
+
+.lpg-wave-main {
+  z-index: 3;
+  background: rgba(136, 61, 12, 0.62);
+  animation: lpg-wave-rotate-main 3.6s linear infinite;
+  opacity: 0.92;
+}
+
+.lpg-wave-highlight {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.52) 0%,
+      rgba(255, 255, 255, 0.2) 8%,
+      transparent 14%
+    ),
+    radial-gradient(
+      circle at 24% 18%,
+      rgba(255, 255, 255, 0.22),
+      transparent 45%
+    ),
+    linear-gradient(
+      120deg,
+      transparent 16%,
+      rgba(255, 255, 255, 0.12) 38%,
+      transparent 61%
+    );
+  pointer-events: none;
+}
+
+@keyframes lpg-wave-rotate-main {
+  0% {
+    transform: translate(-50%, -82%) rotate(0deg);
+  }
+  50% {
+    transform: translate(-50%, -66%) rotate(180deg);
+  }
+  100% {
+    transform: translate(-50%, -82%) rotate(360deg);
+  }
+}
+
+@keyframes lpg-wave-rotate-back {
+  0% {
+    transform: translate(-50%, -67%) rotate(360deg);
+  }
+  50% {
+    transform: translate(-50%, -83%) rotate(180deg);
+  }
+  100% {
+    transform: translate(-50%, -67%) rotate(0deg);
+  }
+}
+
+/* ArcGIS map theme bridge */
+.fleet-arcgis-map {
+  --fleet-map-popup-bg: color-mix(in oklab, var(--background) 96%, transparent);
+  --fleet-map-popup-fg: var(--foreground);
+  --fleet-map-popup-muted: var(--muted-foreground);
+  --fleet-map-popup-border: color-mix(in oklab, var(--border) 84%, transparent);
+  --fleet-map-popup-accent: #16a34a;
+  --calcite-color-background: var(--background);
+  --calcite-color-foreground-1: var(--background);
+  --calcite-color-foreground-2: var(--muted);
+  --calcite-color-foreground-3: var(--muted);
+  --calcite-color-text-1: var(--foreground);
+  --calcite-color-text-2: var(--muted-foreground);
+  --calcite-color-text-3: var(--muted-foreground);
+  --calcite-color-border-1: var(--border);
+  --calcite-color-border-2: var(--border);
+  --calcite-color-border-3: var(--border);
+  --calcite-color-brand: #16a34a;
+  --calcite-color-brand-hover: #15803d;
+  --calcite-color-brand-press: #166534;
+}
+
+.fleet-arcgis-map[data-map-theme='dark'] {
+  --fleet-map-popup-bg: rgba(15, 23, 42, 0.96);
+  --fleet-map-popup-fg: #f8fafc;
+  --fleet-map-popup-muted: #94a3b8;
+  --fleet-map-popup-border: rgba(148, 163, 184, 0.28);
+  --fleet-map-popup-accent: #86efac;
+  --calcite-color-background: #0f172a;
+  --calcite-color-foreground-1: #111827;
+  --calcite-color-foreground-2: #1f2937;
+  --calcite-color-foreground-3: #273449;
+  --calcite-color-text-1: #f8fafc;
+  --calcite-color-text-2: #cbd5e1;
+  --calcite-color-text-3: #94a3b8;
+  --calcite-color-border-1: rgba(148, 163, 184, 0.34);
+  --calcite-color-border-2: rgba(148, 163, 184, 0.28);
+  --calcite-color-border-3: rgba(148, 163, 184, 0.2);
+  --calcite-color-brand: #86efac;
+  --calcite-color-brand-hover: #4ade80;
+  --calcite-color-brand-press: #22c55e;
+}
+
+.fleet-arcgis-map .esri-widget,
+.fleet-arcgis-map .esri-widget--button,
+.fleet-arcgis-map .esri-popup__main-container,
+.fleet-arcgis-map .esri-popup__header,
+.fleet-arcgis-map .esri-popup__footer {
+  background-color: var(--fleet-map-popup-bg);
+  color: var(--fleet-map-popup-fg);
+}
+
+.fleet-arcgis-map .esri-widget,
+.fleet-arcgis-map .esri-widget--button,
+.fleet-arcgis-map .esri-popup__main-container {
+  border-color: var(--fleet-map-popup-border);
+}
+
+.fleet-arcgis-map .esri-popup__main-container {
+  border: 1px solid var(--fleet-map-popup-border);
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.3);
+  overflow: hidden;
+}
+
+.fleet-arcgis-map .esri-popup__header-title,
+.fleet-arcgis-map .esri-popup__content,
+.fleet-arcgis-map .esri-popup__button {
+  color: var(--fleet-map-popup-fg);
+}
+
+.fleet-arcgis-map .esri-popup__button:hover,
+.fleet-arcgis-map .esri-widget--button:hover {
+  background-color: color-mix(
+    in oklab,
+    var(--fleet-map-popup-accent) 14%,
+    transparent
+  );
+}
+
+.fleet-truck-popup {
+  min-width: 230px;
+  color: var(--fleet-map-popup-fg);
+}
+
+.fleet-truck-popup__row {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  align-items: baseline;
+  margin: 0;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--fleet-map-popup-border);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.fleet-truck-popup__row:last-child {
+  border-bottom: 0;
+}
+
+.fleet-truck-popup__row strong {
+  color: var(--fleet-map-popup-muted);
+  font-weight: 500;
+}
+
+.fleet-truck-popup__row span {
+  color: var(--fleet-map-popup-fg);
+  text-align: right;
+  font-weight: 600;
+}
