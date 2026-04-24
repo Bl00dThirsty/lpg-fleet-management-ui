@@ -103,13 +103,10 @@ export const routeStatusLabels: Record<RouteTripStatus, string> = {
 }
 
 export const routeStatusClasses: Record<RouteTripStatus, string> = {
-  planned: 'border border-slate-500/20 bg-slate-500/10 text-slate-700',
-  'in-progress':
-    'border border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300',
-  completed:
-    'border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-  incident:
-    'border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-300',
+  planned: 'bg-slate-500/10 text-slate-700',
+  'in-progress': 'bg-sky-500/10 text-sky-700 dark:text-sky-300',
+  completed: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  incident: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
 }
 
 export const routeSeverityLabels: Record<RouteEventSeverity, string> = {
@@ -119,10 +116,9 @@ export const routeSeverityLabels: Record<RouteEventSeverity, string> = {
 }
 
 export const routeSeverityClasses: Record<RouteEventSeverity, string> = {
-  low: 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-  medium:
-    'border border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  high: 'border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-300',
+  low: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  medium: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  high: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
 }
 
 export const routeStatusOptions = [

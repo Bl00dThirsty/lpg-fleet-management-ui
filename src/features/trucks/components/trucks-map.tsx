@@ -11,6 +11,7 @@ import type { ClickEvent } from '@arcgis/core/views/input/types.js'
 import { AlertTriangle, Wifi } from 'lucide-react'
 import lpgSphereIconUrl from '@/assets/lpg-sphere.png'
 import lpgCenterSvgRaw from '@/assets/lpg.svg?raw'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
   siteStatusLabels,
@@ -289,7 +290,10 @@ export function TrucksMap({
 
   return (
     <div
-      className='fleet-arcgis-map relative min-h-[560px] overflow-hidden bg-muted md:min-h-[620px]'
+      className={cn(
+        'fleet-arcgis-map relative min-h-[560px] overflow-hidden bg-muted md:min-h-[620px]',
+        mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light'
+      )}
       data-map-theme={mapTheme}
     >
       <div
@@ -298,20 +302,20 @@ export function TrucksMap({
       />
 
       <div className='pointer-events-none absolute top-4 right-16 flex flex-wrap items-center justify-end gap-2'>
-        <Badge className='gap-1 border border-emerald-500/25 bg-background/90 text-foreground shadow-sm backdrop-blur'>
+        <Badge className='gap-1 border-transparent bg-background/90 text-foreground shadow-sm backdrop-blur'>
           <Wifi className='size-3 text-emerald-500' />
           ArcGIS
         </Badge>
         <Badge
           variant='outline'
-          className='border bg-background/90 shadow-sm backdrop-blur'
+          className='border-transparent bg-background/90 shadow-sm backdrop-blur'
         >
           {trucks.length} camions
         </Badge>
         {sites.length > 0 ? (
           <Badge
             variant='outline'
-            className='border bg-background/90 shadow-sm backdrop-blur'
+            className='border-transparent bg-background/90 shadow-sm backdrop-blur'
           >
             {sites.length} sites
           </Badge>
@@ -325,7 +329,7 @@ export function TrucksMap({
       ) : null}
 
       {sites.length > 0 ? (
-        <div className='pointer-events-none absolute bottom-20 left-4 max-w-[260px] rounded-lg border border-border/45 bg-background/65 p-3 text-xs shadow-sm backdrop-blur-md'>
+        <div className='pointer-events-none absolute bottom-20 left-4 max-w-[260px] rounded-2xl bg-background/70 p-3 text-xs shadow-sm backdrop-blur-md'>
           <p className='font-medium text-foreground/90'>Reseau logistique seed</p>
           <div className='mt-2 space-y-2'>
             {Object.entries(siteTotals)
@@ -354,7 +358,7 @@ export function TrucksMap({
       ) : null}
 
       {loadFailed ? (
-        <div className='absolute inset-x-4 top-16 rounded-lg border border-amber-500/30 bg-background/95 px-3 py-2 text-sm text-amber-700 shadow-sm backdrop-blur dark:text-amber-300'>
+        <div className='absolute inset-x-4 top-16 rounded-lg bg-background/95 px-3 py-2 text-sm text-amber-700 shadow-sm backdrop-blur dark:text-amber-300'>
           La carte ArcGIS n'a pas pu charger. Verifie la cle API et les
           restrictions de domaine.
         </div>

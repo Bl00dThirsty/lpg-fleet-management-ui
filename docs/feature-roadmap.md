@@ -46,12 +46,12 @@ Responsabilite:
 - comparaison `niveau au chargement` vs `niveau en cours` vs `niveau a la livraison`
 - trajet entre depot, point de livraison, marketers, centres emplisseurs
 - timeline d'une tournee
-- carte de tournee avec etapes
+- carte de tournée avec etapes
 
 Sous-domaines dans cette feature:
 
 - `route-list`: liste des tournees
-- `route-details`: detail d'une tournee
+- `route-details`: détail d'une tournée
 - `route-map`: carte et trace GPS
 - `route-telemetry`: variation du GPL, pression, volumes delivres, anomalies
 

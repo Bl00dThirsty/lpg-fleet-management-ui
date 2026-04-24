@@ -38,7 +38,7 @@ export function RouteTelemetryChart({
   }))
 
   return (
-    <Card className='overflow-hidden'>
+    <Card className='overflow-hidden border-transparent shadow-sm'>
       <CardHeader className='border-b bg-muted/20'>
         <CardTitle>Telemetrie GPL</CardTitle>
         <CardDescription>
@@ -47,7 +47,7 @@ export function RouteTelemetryChart({
         </CardDescription>
       </CardHeader>
       <CardContent className='space-y-4 p-4'>
-        <div className='h-[320px] rounded-2xl border bg-background px-2 py-4'>
+        <div className='h-[320px] rounded-2xl bg-muted/25 px-2 py-4 shadow-inner'>
           <ResponsiveContainer width='100%' height='100%'>
             <ComposedChart data={chartData}>
               <defs>
@@ -109,7 +109,7 @@ export function RouteTelemetryChart({
                   )?.value
 
                   return (
-                    <div className='rounded-xl border bg-background/95 px-3 py-2 shadow-lg'>
+                    <div className='rounded-xl bg-background/95 px-3 py-2 shadow-lg'>
                       <p className='text-xs font-medium text-muted-foreground'>
                         {label}
                       </p>
@@ -198,7 +198,7 @@ function TelemetrySignal({
   hint: string
 }) {
   return (
-    <div className='rounded-xl border bg-background px-4 py-3'>
+    <div className='rounded-xl bg-muted/30 px-4 py-3 shadow-xs'>
       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
         <Icon className='size-3.5' />
         {label}
