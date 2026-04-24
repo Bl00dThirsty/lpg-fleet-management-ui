@@ -247,7 +247,7 @@ export function TrucksPage() {
           <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
             <div>
               <h1 className='text-[30px] leading-none font-semibold tracking-tight sm:text-3xl'>
-                Dashboard Operationnel
+                Dashboard Opérationnel
               </h1>
               <p className='mt-1 inline-flex items-center gap-2 text-xs text-muted-foreground sm:text-sm'>
                 <CalendarDays className='size-4' />

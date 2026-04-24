@@ -1,139 +1,149 @@
-import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { type ElementType, startTransition, useMemo, useState } from 'react'
+import { Clock3, Package, ShieldAlert, Truck } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Main } from '@/components/layout/main'
+import { RouteDetailsView } from './components/route-details-view'
+import { RoutesTable } from './components/routes-table'
 import {
-  getKeySites,
-  siteTypeLabels,
-  siteTypeOptions,
-  sites,
-} from '@/features/sites/data/sites'
+  buildRouteSummary,
+  getRouteCustomerOptions,
+  getRouteTripsView,
+} from './data/routes'
 
-const routeSignals = [
-  'Variation du niveau GPL entre chargement, trajet et livraison',
-  'Visualisation des points de chargement et de dechargement sur la carte',
-  'Suivi de la quantite livree chez les marketers et centres emplisseurs',
-]
+type RoutesTab = 'trips' | 'details'
 
 export function RoutesPage() {
-  const keySites = getKeySites()
+  const trips = useMemo(() => getRouteTripsView(), [])
+  const summary = useMemo(() => buildRouteSummary(trips), [trips])
+  const customerOptions = useMemo(() => getRouteCustomerOptions(trips), [trips])
+  const [activeTab, setActiveTab] = useState<RoutesTab>('trips')
+  const [selectedTripId, setSelectedTripId] = useState(trips[0]?.id ?? '')
+
+  const selectedTrip =
+    trips.find((trip) => trip.id === selectedTripId) ?? trips[0] ?? null
+
+  const handleOpenDetails = (routeId: string) => {
+    startTransition(() => {
+      setSelectedTripId(routeId)
+      setActiveTab('details')
+    })
+  }
+
+  const handleSelectTrip = (routeId: string) => {
+    startTransition(() => {
+      setSelectedTripId(routeId)
+    })
+  }
 
   return (
-    <Main className='space-y-6'>
-      <section className='space-y-3'>
-        <Badge variant='outline'>Operations</Badge>
-        <div className='space-y-1'>
-          <h1 className='text-3xl font-semibold tracking-tight'>
-            Tournees GPL
-          </h1>
-          <p className='text-muted-foreground max-w-3xl'>
-            Cette feature pilotera les trajets de livraison de bout en bout,
-            depuis le point de chargement jusqu'au site de livraison, avec le
-            suivi de la variation du niveau GPL pendant la tournee.
-          </p>
+    <Main className='space-y-4 bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900'>
+      <section className='rounded-2xl border bg-background/88 p-4 shadow-sm backdrop-blur-sm'>
+        <div className='flex flex-col gap-4'>
+          <div className='flex flex-wrap items-center gap-2'>
+            <HeaderPill
+              icon={Truck}
+              label='Tournees actives'
+              value={summary.activeTrips}
+            />
+            <HeaderPill
+              icon={Package}
+              label='Volume engage'
+              value={formatKg(summary.activeVolumeKg)}
+            />
+            <HeaderPill
+              icon={Clock3}
+              label='Respect ETA'
+              value={`${summary.onTimeRate}%`}
+            />
+            <HeaderPill
+              icon={ShieldAlert}
+              label='Trajets a surveiller'
+              value={summary.attentionCount}
+            />
+          </div>
+
+          <div className='space-y-3'>
+            <div className='space-y-1'>
+              <h1 className='text-3xl font-semibold tracking-tight'>
+                Tournees GPL
+              </h1>
+              <p className='max-w-3xl text-sm text-muted-foreground sm:text-base'>
+                La vue est maintenant decoupee en deux onglets: un tableau pour
+                selectionner la tournee et un detail pilote par l identifiant de
+                la ligne choisie.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className='grid gap-4 lg:grid-cols-3'>
-        <Card className='lg:col-span-2'>
-          <CardHeader>
-            <CardTitle>Perimetre fonctionnel</CardTitle>
-            <CardDescription>
-              Ce module doit sortir la logique de tournee du simple detail
-              camion.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-3 text-sm'>
-            {routeSignals.map((signal) => (
-              <div
-                key={signal}
-                className='rounded-lg border px-4 py-3 text-foreground'
-              >
-                {signal}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as RoutesTab)}
+        className='space-y-4'
+      >
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+          <TabsList className='h-10'>
+            <TabsTrigger value='trips'>Tournées</TabsTrigger>
+            <TabsTrigger value='details'>Détails</TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sites prioritaires</CardTitle>
-            <CardDescription>
-              Premier referentiel metier a poser sur la carte.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-3 text-sm'>
-            {keySites.map((site) => (
-              <div
-                key={site.id}
-                className='rounded-lg border px-4 py-3 text-foreground'
-              >
-                <p className='font-medium'>{site.name}</p>
-                <p className='mt-1 text-xs text-muted-foreground'>
-                  {site.city} - {siteTypeLabels[site.type]}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </section>
+          <Card className='border-border/60 shadow-none'>
+            <CardContent className='flex items-center gap-3 p-3 text-sm'>
+              <span className='font-medium'>
+                Selection courante: {selectedTrip?.reference ?? '--'}
+              </span>
+              <span className='text-muted-foreground'>
+                {selectedTrip
+                  ? `${selectedTrip.originSite.city} -> ${selectedTrip.destinationSite.city}`
+                  : 'Aucune tournee'}
+              </span>
+            </CardContent>
+          </Card>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ordre de construction recommande</CardTitle>
-          <CardDescription>
-            Base saine avant l'integration des vraies donnees terrain.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='grid gap-3 md:grid-cols-3'>
-          <div className='rounded-lg border px-4 py-4'>
-            <p className='text-sm font-medium'>1. Sites</p>
-            <p className='text-muted-foreground mt-1 text-sm'>
-              Modeliser Bipaga, SCDP Douala, SCDP Yaounde et les centres.
-            </p>
-          </div>
-          <div className='rounded-lg border px-4 py-4'>
-            <p className='text-sm font-medium'>2. Tournees</p>
-            <p className='text-muted-foreground mt-1 text-sm'>
-              Relier camion, origine, destination, waypoints et statut.
-            </p>
-          </div>
-          <div className='rounded-lg border px-4 py-4'>
-            <p className='text-sm font-medium'>3. Telemetrie GPL</p>
-            <p className='text-muted-foreground mt-1 text-sm'>
-              Suivre la baisse du niveau GPL sur la duree du trajet.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value='trips'>
+          <RoutesTable
+            data={trips}
+            customerOptions={customerOptions}
+            selectedTripId={selectedTrip?.id ?? null}
+            onOpenDetails={handleOpenDetails}
+          />
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Seed logistique disponible</CardTitle>
-          <CardDescription>
-            Les donnees seed de sites sont deja mutualisees dans la feature
-            `sites`.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='grid gap-3 md:grid-cols-2 xl:grid-cols-5'>
-          {siteTypeOptions.map((option) => {
-            const total = sites.filter((site) => site.type === option.value)
-              .length
-
-            return (
-              <div key={option.value} className='rounded-lg border px-4 py-4'>
-                <p className='text-sm font-medium'>{option.label}</p>
-                <p className='mt-1 text-2xl font-semibold'>{total}</p>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
+        <TabsContent value='details'>
+          <RouteDetailsView
+            trip={selectedTrip}
+            trips={trips}
+            onSelectTrip={handleSelectTrip}
+          />
+        </TabsContent>
+      </Tabs>
     </Main>
   )
+}
+
+function HeaderPill({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: ElementType
+  label: string
+  value: string | number
+}) {
+  return (
+    <div className='inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 text-xs shadow-xs'>
+      <Icon className='size-3.5 text-primary' />
+      <span className='text-muted-foreground'>{label}</span>
+      <span className='font-semibold'>{value}</span>
+    </div>
+  )
+}
+
+function formatKg(value: number) {
+  return `${new Intl.NumberFormat('fr-FR', {
+    maximumFractionDigits: 0,
+  }).format(value)} kg`
 }
