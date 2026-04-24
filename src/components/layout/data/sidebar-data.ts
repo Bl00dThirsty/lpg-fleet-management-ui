@@ -12,7 +12,7 @@ export const sidebarData: SidebarData = {
           icon: Truck,
         },
         {
-          title: 'Tournees GPL',
+          title: 'Tournées GPL',
           url: '/routes',
           icon: Route,
         },

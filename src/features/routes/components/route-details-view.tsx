@@ -36,6 +36,7 @@ import {
   type RouteTripView,
 } from '../data/routes'
 import { RouteCorridorMap } from './route-corridor-map'
+import { RouteLpgVariationPanel } from './route-lpg-variation-panel'
 import { RouteTelemetryChart } from './route-telemetry-chart'
 
 type RouteDetailsViewProps = {
@@ -54,10 +55,9 @@ export function RouteDetailsView({
       <Card>
         <CardContent className='flex min-h-[420px] items-center justify-center p-6'>
           <div className='max-w-md text-center'>
-            <p className='text-lg font-semibold'>Aucune tournee a afficher</p>
+            <p className='text-lg font-semibold'>Aucune tournée à afficher</p>
             <p className='mt-2 text-sm text-muted-foreground'>
-              Selectionne une ligne depuis l onglet `Tournees` pour afficher son
-              detail ici.
+              Selectionnez une tournée dans la liste pour afficher ses détails.
             </p>
           </div>
         </CardContent>
@@ -74,13 +74,12 @@ export function RouteDetailsView({
 
   return (
     <div className='space-y-4'>
-      <Card className='border-border/60'>
+      <Card className='border-transparent bg-background/80 shadow-sm'>
         <CardContent className='flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between'>
           <div className='space-y-1'>
-            <p className='text-sm font-medium'>Tournée sélectionnée</p>
+            <p className='text-sm font-medium'>Tournée active</p>
             <p className='text-sm text-muted-foreground'>
-              L identifiant sélectionné depuis l onglet `Tournees` pilote le
-              contenu de cet onglet.
+              Change rapidement de mission sans revenir à la liste.
             </p>
           </div>
 
@@ -124,18 +123,18 @@ export function RouteDetailsView({
         </CardContent>
       </Card>
 
-      <Card className='overflow-hidden border-border/60'>
+      <Card className='overflow-hidden border-transparent shadow-sm'>
         <div className='bg-[linear-gradient(135deg,rgba(15,23,42,1),rgba(15,23,42,0.96),rgba(6,78,59,0.96))] px-6 py-6 text-slate-50'>
           <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
             <div className='space-y-4'>
               <div className='flex flex-wrap gap-2'>
-                <Badge className='border-white/10 bg-white/10 text-white'>
+                <Badge className='border-transparent bg-white/10 text-white'>
                   {trip.reference}
                 </Badge>
-                <Badge className='border-white/10 bg-white/10 text-white'>
+                <Badge className='border-transparent bg-white/10 text-white'>
                   {routeStatusLabels[trip.status]}
                 </Badge>
-                <Badge className='border-white/10 bg-white/10 text-white'>
+                <Badge className='border-transparent bg-white/10 text-white'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>
               </div>
@@ -147,9 +146,9 @@ export function RouteDetailsView({
                   {trip.destinationSite.name}
                 </h2>
                 <p className='max-w-3xl text-sm text-slate-300'>
-                  Tournee pilote pour {trip.customerName}. On suit ici le
-                  camion, la charge GPL, les points de passage et les alertes
-                  operationnelles sans quitter la vue.
+                  Tournee {trip.reference} pour {trip.customerName}. Le suivi
+                  rassemble le camion, le niveau GPL, les étapes logistiques et
+                  les alertes terrain dans un seul ecran.
                 </p>
               </div>
             </div>
@@ -181,7 +180,10 @@ export function RouteDetailsView({
                     {trip.progressPercent}% du corridor logistique couvert
                   </p>
                 </div>
-                <Badge variant='outline'>
+                <Badge
+                  variant='outline'
+                  className='border-transparent bg-muted/35 text-foreground'
+                >
                   Prochaine étape: {trip.nextStop.site.name}
                 </Badge>
               </div>
@@ -223,7 +225,7 @@ export function RouteDetailsView({
             </div>
           </div>
 
-          <div className='rounded-2xl border bg-muted/20 p-4'>
+          <div className='rounded-2xl bg-muted/30 p-4 shadow-xs'>
             <p className='text-sm font-medium'>Equipe engagée</p>
             <div className='mt-4 space-y-3 text-sm'>
               <InfoRow
@@ -251,6 +253,8 @@ export function RouteDetailsView({
         </CardContent>
       </Card>
 
+      <RouteLpgVariationPanel trip={trip} formatKg={formatKg} />
+
       <section className='grid gap-4 2xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]'>
         <RouteCorridorMap trip={trip} formatDateTime={formatDateTime} />
         <RouteTelemetryChart
@@ -277,12 +281,12 @@ export function RouteDetailsView({
                   <div className='flex flex-col items-center'>
                     <div
                       className={cn(
-                        'flex size-10 items-center justify-center rounded-full border text-sm font-semibold',
+                        'flex size-10 items-center justify-center rounded-full text-sm font-semibold shadow-xs',
                         stop.completed
-                          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                          ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                           : isCurrent
-                            ? 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300'
-                            : 'border-border bg-muted text-muted-foreground'
+                            ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                            : 'bg-muted/45 text-muted-foreground'
                       )}
                     >
                       {index + 1}
@@ -292,12 +296,17 @@ export function RouteDetailsView({
                     ) : null}
                   </div>
 
-                  <div className='flex-1 rounded-2xl border bg-background px-4 py-4'>
+                  <div className='flex-1 rounded-2xl bg-muted/20 px-4 py-4 shadow-xs'>
                     <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
                       <div>
                         <div className='flex flex-wrap items-center gap-2'>
                           <p className='text-sm font-semibold'>{stop.title}</p>
-                          <Badge variant='outline'>{stop.site.city}</Badge>
+                          <Badge
+                            variant='outline'
+                            className='border-transparent bg-background/75'
+                          >
+                            {stop.site.city}
+                          </Badge>
                         </div>
                         <p className='mt-1 text-sm text-muted-foreground'>
                           {stop.site.name}
@@ -305,11 +314,12 @@ export function RouteDetailsView({
                       </div>
                       <Badge
                         className={cn(
+                          'border-transparent',
                           stop.completed
-                            ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                             : isCurrent
-                              ? 'border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300'
-                              : 'border-slate-500/20 bg-slate-500/10 text-slate-700 dark:text-slate-300'
+                              ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                              : 'bg-slate-500/10 text-slate-700 dark:text-slate-300'
                         )}
                       >
                         {stop.completed
@@ -350,7 +360,7 @@ export function RouteDetailsView({
           <CardHeader>
             <CardTitle>Alertes et coordination</CardTitle>
             <CardDescription>
-              Points de vigilance à présenter au client pendant la PoC.
+              Points de vigilance pour le suivi operationnel.
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
@@ -385,7 +395,7 @@ export function RouteDetailsView({
               {trip.events.map((event) => (
                 <div
                   key={event.id}
-                  className='rounded-2xl border bg-background px-4 py-4'
+                  className='rounded-2xl bg-muted/25 px-4 py-4 shadow-xs'
                 >
                   <div className='flex items-start justify-between gap-3'>
                     <div>
@@ -413,7 +423,7 @@ export function RouteDetailsView({
 
 function HeroMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className='min-w-[130px] rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur'>
+    <div className='min-w-[130px] rounded-2xl bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur'>
       <p className='text-xs tracking-wide text-slate-300 uppercase'>{label}</p>
       <p className='mt-1 text-lg font-semibold text-white'>{value}</p>
     </div>
@@ -432,7 +442,7 @@ function DetailSignal({
   hint: string
 }) {
   return (
-    <div className='rounded-2xl border bg-background px-4 py-4'>
+    <div className='rounded-2xl bg-muted/30 px-4 py-4 shadow-xs'>
       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
         <Icon className='size-3.5' />
         {label}

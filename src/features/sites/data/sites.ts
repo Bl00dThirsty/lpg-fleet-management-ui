@@ -54,7 +54,7 @@ export const sites: Site[] = [
     latitude: 3.09783,
     longitude: 9.98989,
     description:
-      'Point de chargement GPL dans la zone de Bipaga, alimente les tournees vers les marketers et centres emplisseurs.',
+      'Point de chargement GPL dans la zone de Bipaga, alimente les tournées vers les marketers et centres emplisseurs.',
     status: 'active',
     isKeySite: true,
   },
@@ -136,7 +136,7 @@ export const sites: Site[] = [
     latitude: 4.0912,
     longitude: 9.7411,
     description:
-      'Point marketer de distribution pour le nord de Douala et les tournees de proximite.',
+      'Point marketer de distribution pour le nord de Douala et les tournées de proximite.',
     status: 'active',
   },
   {
@@ -149,7 +149,7 @@ export const sites: Site[] = [
     latitude: 2.9167,
     longitude: 11.15,
     description:
-      'Point de livraison seed pour illustrer les tournees entre zone de chargement et destinations de distribution.',
+      'Point de livraison seed pour illustrer les tournées entre zone de chargement et destinations de distribution.',
     status: 'active',
   },
 ]

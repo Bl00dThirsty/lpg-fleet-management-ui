@@ -180,7 +180,7 @@ export function TrucksPage() {
       id='main-content'
       className='flex-1 space-y-4 bg-gradient-to-b from-slate-50 via-white to-slate-100 p-4 sm:p-6 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900'
     >
-      <section className='rounded-2xl border bg-background/90 p-3 shadow-sm backdrop-blur-sm sm:p-4'>
+      <section className='rounded-2xl border-transparent bg-background/88 p-3 shadow-sm backdrop-blur-sm sm:p-4'>
         <div className='flex flex-col gap-3'>
           <div className='flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between'>
             <div className='flex flex-wrap items-center gap-2'>
@@ -217,7 +217,7 @@ export function TrucksPage() {
                 type='button'
                 variant='outline'
                 size='icon'
-                className='size-9'
+                className='size-9 border-transparent bg-background/85 shadow-xs'
                 onClick={() =>
                   setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
                 }
@@ -231,7 +231,7 @@ export function TrucksPage() {
               </Button>
               <Button
                 variant='outline'
-                className='h-9 justify-start gap-2 px-2'
+                className='h-9 justify-start gap-2 border-transparent bg-background/85 px-2 shadow-xs'
               >
                 <Avatar className='size-6 rounded-md'>
                   <AvatarFallback className='rounded-md bg-primary/15 text-xs font-semibold text-primary'>
@@ -255,7 +255,10 @@ export function TrucksPage() {
               </p>
             </div>
 
-            <Button variant='outline' className='h-9 w-fit gap-2'>
+            <Button
+              variant='outline'
+              className='h-9 w-fit gap-2 border-transparent bg-background/85 shadow-xs'
+            >
               Last 7 days
               <ChevronDown className='size-4 text-muted-foreground' />
             </Button>
@@ -263,7 +266,7 @@ export function TrucksPage() {
         </div>
       </section>
 
-      <section className='rounded-2xl border bg-background/88 p-4 shadow-sm backdrop-blur-sm'>
+      <section className='rounded-2xl border-transparent bg-background/88 p-4 shadow-sm backdrop-blur-sm'>
         <div className='grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_280px_minmax(0,0.95fr)]'>
           <ToolbarGroup
             icon={TruckIcon}
@@ -291,7 +294,7 @@ export function TrucksPage() {
           <ToolbarGroup
             icon={SlidersHorizontal}
             title='Affichage'
-            className='xl:border-x xl:px-5'
+            className='xl:px-5'
           >
             <div className='grid gap-2.5'>
               <ToggleCard
@@ -318,7 +321,7 @@ export function TrucksPage() {
                   value={siteFilter}
                   onValueChange={(value) => setSiteFilter(value as SiteFilter)}
                 >
-                  <SelectTrigger className='h-10 w-full rounded-xl border-border/70 bg-background/80'>
+                  <SelectTrigger className='h-10 w-full rounded-xl border-transparent bg-background/80 shadow-xs'>
                     <SelectValue placeholder={selectedSiteFilterLabel} />
                   </SelectTrigger>
                   <SelectContent>
@@ -351,7 +354,7 @@ export function TrucksPage() {
         </div>
       </section>
 
-      <section className='relative overflow-hidden rounded-2xl border bg-muted shadow-sm'>
+      <section className='relative overflow-hidden rounded-2xl border-transparent bg-muted/70 shadow-sm'>
         <TrucksMap
           sites={filteredSites}
           trucks={filteredTrucks}
@@ -362,7 +365,7 @@ export function TrucksPage() {
         />
       </section>
 
-      <section className='space-y-4 rounded-xl border bg-background p-4 shadow-sm'>
+      <section className='space-y-4 rounded-xl border-transparent bg-background/92 p-4 shadow-sm'>
         <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between'>
           <div>
             <h2 className='text-xl font-semibold tracking-tight'>
@@ -373,7 +376,12 @@ export function TrucksPage() {
               colonnes a afficher.
             </p>
           </div>
-          <Badge variant='outline'>{trucks.length} camions</Badge>
+          <Badge
+            variant='outline'
+            className='border-transparent bg-muted/35 text-foreground'
+          >
+            {trucks.length} camions
+          </Badge>
         </div>
         <TrucksTable
           data={trucks}
@@ -404,7 +412,7 @@ function TopStat({
   value: string | number
 }) {
   return (
-    <div className='inline-flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1 text-xs shadow-xs'>
+    <div className='inline-flex items-center gap-1.5 rounded-full border-transparent bg-background/90 px-2.5 py-1 text-xs shadow-xs'>
       <Icon className='size-3.5 text-primary' />
       <span className='text-muted-foreground'>{label}</span>
       <span className='font-semibold'>{value}</span>
@@ -457,8 +465,8 @@ function FilterChip({
       className={cn(
         'h-10 rounded-full px-4 text-sm shadow-xs',
         active
-          ? 'border-primary/80 shadow-sm'
-          : 'border-border/70 bg-background hover:bg-muted/35'
+          ? 'border-transparent shadow-sm'
+          : 'border-transparent bg-background/85 hover:bg-muted/35'
       )}
       onClick={onClick}
     >

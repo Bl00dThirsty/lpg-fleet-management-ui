@@ -50,7 +50,7 @@ export function TruckDetailsSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       {truck && telemetry ? (
         <SheetContent className='w-full overflow-y-auto sm:max-w-xl'>
-          <SheetHeader className='border-b pb-4'>
+          <SheetHeader className='pb-4'>
             <div className='flex items-start justify-between gap-3 pe-8'>
               <div>
                 <SheetTitle className='text-xl'>{truck.id}</SheetTitle>
@@ -99,7 +99,7 @@ export function TruckDetailsSheet({
               </TabsList>
 
               <TabsContent value='resume' className='space-y-3'>
-                <Card>
+                <Card className='border-transparent bg-muted/20 shadow-xs'>
                   <CardHeader className='pb-2'>
                     <CardTitle className='flex items-center gap-2 text-sm'>
                       <Route className='size-4 text-primary' />
@@ -134,7 +134,7 @@ export function TruckDetailsSheet({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className='border-transparent bg-muted/20 shadow-xs'>
                   <CardHeader className='pb-2'>
                     <CardTitle className='flex items-center gap-2 text-sm'>
                       <UserRound className='size-4 text-primary' />
@@ -180,7 +180,7 @@ export function TruckDetailsSheet({
               </TabsContent>
 
               <TabsContent value='maintenance' className='space-y-3'>
-                <Card>
+                <Card className='border-transparent bg-muted/20 shadow-xs'>
                   <CardHeader className='pb-2'>
                     <CardTitle className='flex items-center gap-2 text-sm'>
                       <Wrench className='size-4 text-primary' />
@@ -255,7 +255,7 @@ function MetricCard({
   className?: string
 }) {
   return (
-    <div className={cn('rounded-lg border bg-muted/25 p-3', className)}>
+    <div className={cn('rounded-lg bg-muted/25 p-3 shadow-xs', className)}>
       <p className='text-xs text-muted-foreground'>{label}</p>
       <p className='mt-1 text-lg leading-none font-semibold'>{value}</p>
       <p className='mt-1 text-xs text-muted-foreground'>{detail}</p>
@@ -281,13 +281,13 @@ function DocumentStatus({ label, value }: { label: string; value: string }) {
     daysLeft < 0 ? 'Expire' : daysLeft <= 45 ? 'Expire bientot' : 'Valide'
   const className =
     daysLeft < 0
-      ? 'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300'
+      ? 'bg-red-500/10 text-red-700 dark:text-red-300'
       : daysLeft <= 45
-        ? 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300'
-        : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+        ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+        : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
 
   return (
-    <div className='rounded-lg border p-3'>
+    <div className='rounded-lg bg-muted/20 p-3 shadow-xs'>
       <div className='flex items-start justify-between gap-3'>
         <div className='flex items-start gap-2'>
           <ShieldCheck className='mt-0.5 size-4 text-primary' />
@@ -298,7 +298,7 @@ function DocumentStatus({ label, value }: { label: string; value: string }) {
             </p>
           </div>
         </div>
-        <Badge variant='outline' className={cn(className)}>
+        <Badge variant='outline' className={cn('border-transparent', className)}>
           {status}
         </Badge>
       </div>
@@ -316,7 +316,7 @@ function MiniSignal({
   value: string
 }) {
   return (
-    <div className='rounded-lg border bg-muted/20 p-3'>
+    <div className='rounded-lg bg-muted/20 p-3 shadow-xs'>
       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
         {icon}
         {label}
