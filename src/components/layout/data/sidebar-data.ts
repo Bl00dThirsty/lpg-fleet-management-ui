@@ -1,4 +1,4 @@
-import { Truck } from 'lucide-react'
+import { LayoutDashboard, Route, Truck } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
@@ -10,6 +10,21 @@ export const sidebarData: SidebarData = {
           title: 'Camions',
           url: '/trucks',
           icon: Truck,
+        },
+        {
+          title: 'Tournées GPL',
+          url: '/routes',
+          icon: Route,
+        },
+      ],
+    },
+    {
+      title: 'Pilotage',
+      items: [
+        {
+          title: 'Tableau de bord global',
+          url: '/dashboard',
+          icon: LayoutDashboard,
         },
       ],
     },

@@ -62,12 +62,12 @@ export const statusLabels: Record<TruckStatus, string> = {
 
 export const statusClasses: Record<TruckStatus, string> = {
   available:
-    'border border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+    'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
   in_transit:
-    'border border-sky-500/25 bg-sky-500/10 text-sky-700 dark:text-sky-300',
+    'bg-sky-500/10 text-sky-700 dark:text-sky-300',
   maintenance:
-    'border border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  inactive: 'border border-muted bg-muted text-muted-foreground',
+    'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  inactive: 'bg-muted text-muted-foreground',
 }
 
 export const riskLabels: Record<TruckRiskLevel, string> = {
@@ -77,10 +77,10 @@ export const riskLabels: Record<TruckRiskLevel, string> = {
 }
 
 export const riskClasses: Record<TruckRiskLevel, string> = {
-  low: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  low: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
   medium:
-    'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300',
-  high: 'border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300',
+    'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  high: 'bg-red-500/10 text-red-700 dark:text-red-300',
 }
 
 export const truckStatusOptions = [

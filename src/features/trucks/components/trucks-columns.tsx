@@ -198,7 +198,12 @@ export function getTrucksColumns({
         <DataTableColumnHeader column={column} title='Contrat' />
       ),
       cell: ({ row }) => (
-        <Badge variant='outline'>{row.original.contractTier}</Badge>
+        <Badge
+          variant='outline'
+          className='border-transparent bg-muted/35 text-foreground'
+        >
+          {row.original.contractTier}
+        </Badge>
       ),
       filterFn: (row, id, value) =>
         (value as string[]).includes(String(row.getValue(id))),

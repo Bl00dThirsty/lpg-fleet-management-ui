@@ -2,41 +2,50 @@ import { type ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { getRouteApi } from '@tanstack/react-router'
 import {
   Activity,
-  AlertTriangle,
   CalendarDays,
   ChevronDown,
   Clock3,
   Gauge,
-  MapPin,
+  Layers3,
   Moon,
   Search,
+  SlidersHorizontal,
   Sun,
   Truck as TruckIcon,
   Users,
-  X,
 } from 'lucide-react'
-import lpgTankImage from '@/assets/lpg-tank.png'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/theme-provider'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import {
+  siteTypeLabels,
+  siteTypeOptions,
+  sites,
+  type SiteType,
+} from '@/features/sites/data/sites'
 import { TruckDetailsSheet } from './components/truck-details-sheet'
 import { TrucksMap } from './components/trucks-map'
 import { TrucksTable } from './components/trucks-table'
 import {
   getTruckTelemetry,
-  statusClasses,
-  statusLabels,
   trucks,
   type Truck,
   type TruckStatus,
-  type TruckTelemetry,
 } from './data/trucks'
 
 type TruckFilter = 'all' | TruckStatus
+type SiteFilter = 'all' | SiteType
 
 const route = getRouteApi('/_authenticated/trucks/')
 
@@ -54,8 +63,8 @@ export function TrucksPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<TruckFilter>('all')
   const [showRoutes, setShowRoutes] = useState(true)
-  const [showAlerts, setShowAlerts] = useState(true)
-  const [showInfoPanel, setShowInfoPanel] = useState(true)
+  const [showSites, setShowSites] = useState(true)
+  const [siteFilter, setSiteFilter] = useState<SiteFilter>('all')
   const [activeTruckId, setActiveTruckId] = useState(trucks[0].id)
   const [detailsTruck, setDetailsTruck] = useState<Truck | null>(null)
   const { resolvedTheme, setTheme } = useTheme()
@@ -103,7 +112,13 @@ export function TrucksPage() {
     filteredTrucks.find((truck) => truck.id === activeTruckId) ??
     filteredTrucks[0] ??
     trucks[0]
-  const selectedTelemetry = getTruckTelemetry(selectedTruck.id)
+  const filteredSites = useMemo(() => {
+    if (!showSites) return []
+
+    return sites.filter((site) => {
+      return siteFilter === 'all' ? true : site.type === siteFilter
+    })
+  }, [showSites, siteFilter])
 
   const totals = useMemo(() => {
     return {
@@ -136,13 +151,36 @@ export function TrucksPage() {
 
   const activeTrucks = totals.available + totals.in_transit
   const etaRate = 94
+  const siteTotals = useMemo(() => {
+    return {
+      all: sites.length,
+      depot: sites.filter((site) => site.type === 'depot').length,
+      scdp: sites.filter((site) => site.type === 'scdp').length,
+      'filling-center': sites.filter(
+        (site) => site.type === 'filling-center'
+      ).length,
+      marketer: sites.filter((site) => site.type === 'marketer').length,
+      'delivery-point': sites.filter(
+        (site) => site.type === 'delivery-point'
+      ).length,
+    } satisfies Record<SiteFilter, number>
+  }, [])
+  const siteFilters = [
+    { label: 'Tous sites', value: 'all' as const },
+    ...siteTypeOptions.map((option) => ({
+      label: option.label,
+      value: option.value,
+    })),
+  ]
+  const selectedSiteFilterLabel =
+    siteFilter === 'all' ? 'Tous sites' : siteTypeLabels[siteFilter]
 
   return (
     <main
       id='main-content'
       className='flex-1 space-y-4 bg-gradient-to-b from-slate-50 via-white to-slate-100 p-4 sm:p-6 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900'
     >
-      <section className='rounded-2xl border bg-background/90 p-3 shadow-sm backdrop-blur-sm sm:p-4'>
+      <section className='rounded-2xl border-transparent bg-background/88 p-3 shadow-sm backdrop-blur-sm sm:p-4'>
         <div className='flex flex-col gap-3'>
           <div className='flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between'>
             <div className='flex flex-wrap items-center gap-2'>
@@ -179,7 +217,7 @@ export function TrucksPage() {
                 type='button'
                 variant='outline'
                 size='icon'
-                className='size-9'
+                className='size-9 border-transparent bg-background/85 shadow-xs'
                 onClick={() =>
                   setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
                 }
@@ -193,7 +231,7 @@ export function TrucksPage() {
               </Button>
               <Button
                 variant='outline'
-                className='h-9 justify-start gap-2 px-2'
+                className='h-9 justify-start gap-2 border-transparent bg-background/85 px-2 shadow-xs'
               >
                 <Avatar className='size-6 rounded-md'>
                   <AvatarFallback className='rounded-md bg-primary/15 text-xs font-semibold text-primary'>
@@ -217,7 +255,10 @@ export function TrucksPage() {
               </p>
             </div>
 
-            <Button variant='outline' className='h-9 w-fit gap-2'>
+            <Button
+              variant='outline'
+              className='h-9 w-fit gap-2 border-transparent bg-background/85 shadow-xs'
+            >
               Last 7 days
               <ChevronDown className='size-4 text-muted-foreground' />
             </Button>
@@ -225,78 +266,106 @@ export function TrucksPage() {
         </div>
       </section>
 
-      <section className='flex flex-col gap-3 rounded-2xl border bg-background/85 p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between'>
-        <div className='flex flex-wrap items-center gap-2'>
-          {filters.map((filter) => {
-            const isActive = statusFilter === filter.value
-            const count =
-              filter.value === 'all' ? totals.all : totals[filter.value]
+      <section className='rounded-2xl border-transparent bg-background/88 p-4 shadow-sm backdrop-blur-sm'>
+        <div className='grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_280px_minmax(0,0.95fr)]'>
+          <ToolbarGroup
+            icon={TruckIcon}
+            title='Statuts'
+            className='xl:pr-2'
+          >
+            <div className='flex flex-wrap gap-2.5'>
+              {filters.map((filter) => {
+                const count =
+                  filter.value === 'all' ? totals.all : totals[filter.value]
 
-            return (
-              <Button
-                key={filter.value}
-                type='button'
-                variant={isActive ? 'default' : 'outline'}
-                size='sm'
-                className='h-8 rounded-full px-3'
-                onClick={() => setStatusFilter(filter.value)}
-              >
-                <span>{filter.label}</span>
-                <Badge
-                  className={cn(
-                    'ms-2 rounded-full px-1.5 py-0 text-[10px]',
-                    isActive
-                      ? 'bg-primary-foreground/20 text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
-                  )}
+                return (
+                  <FilterChip
+                    key={filter.value}
+                    label={filter.label}
+                    count={count}
+                    active={statusFilter === filter.value}
+                    onClick={() => setStatusFilter(filter.value)}
+                  />
+                )
+              })}
+            </div>
+          </ToolbarGroup>
+
+          <ToolbarGroup
+            icon={SlidersHorizontal}
+            title='Affichage'
+            className='xl:px-5'
+          >
+            <div className='grid gap-2.5'>
+              <ToggleCard
+                label='Routes'
+                value={showRoutes}
+                onChange={setShowRoutes}
+              />
+              <ToggleCard
+                label='Sites'
+                value={showSites}
+                onChange={setShowSites}
+              />
+            </div>
+          </ToolbarGroup>
+
+          <ToolbarGroup
+            icon={Layers3}
+            title='Reseau logistique'
+            className='xl:pl-2'
+          >
+            {showSites ? (
+              <div className='space-y-2.5'>
+                <Select
+                  value={siteFilter}
+                  onValueChange={(value) => setSiteFilter(value as SiteFilter)}
                 >
-                  {count}
-                </Badge>
-              </Button>
-            )
-          })}
-        </div>
+                  <SelectTrigger className='h-10 w-full rounded-xl border-transparent bg-background/80 shadow-xs'>
+                    <SelectValue placeholder={selectedSiteFilterLabel} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {siteFilters.map((filter) => {
+                      const optionLabel =
+                        filter.value === 'all'
+                          ? filter.label
+                          : siteTypeLabels[filter.value]
 
-        <div className='flex flex-wrap items-center gap-x-5 gap-y-2'>
-          <ToggleLine
-            label='Routes'
-            value={showRoutes}
-            onChange={setShowRoutes}
-          />
-          <ToggleLine
-            label='Alertes'
-            value={showAlerts}
-            onChange={setShowAlerts}
-          />
-          <ToggleLine
-            label='Infos camion'
-            value={showInfoPanel}
-            onChange={setShowInfoPanel}
-          />
+                      return (
+                        <SelectItem key={filter.value} value={filter.value}>
+                          {`${optionLabel} (${siteTotals[filter.value]})`}
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+
+                <p className='px-1 text-xs text-muted-foreground'>
+                  Filtre actif: {selectedSiteFilterLabel.toLowerCase()}
+                </p>
+              </div>
+            ) : (
+              <div className='rounded-xl bg-muted/25 px-3 py-3 text-sm text-muted-foreground'>
+                Active l'affichage des sites pour filtrer les depots, sites SCDP
+                et centres emplisseurs.
+              </div>
+            )}
+          </ToolbarGroup>
         </div>
       </section>
 
-      <section className='relative overflow-hidden rounded-2xl border bg-muted shadow-sm'>
+      <section className='relative overflow-hidden rounded-2xl border-transparent bg-muted/70 shadow-sm'>
         <TrucksMap
+          sites={filteredSites}
           trucks={filteredTrucks}
           selectedTruck={selectedTruck}
           mapTheme={resolvedTheme}
           showRoutes={showRoutes}
           onSelectTruck={handleSelectTruck}
         />
-
-        {showInfoPanel ? (
-          <FloatingTruckPanel
-            truck={selectedTruck}
-            telemetry={selectedTelemetry}
-            showAlerts={showAlerts}
-            onClose={() => setShowInfoPanel(false)}
-            onViewDetails={handleViewDetails}
-          />
-        ) : null}
       </section>
 
-      <section className='space-y-4 rounded-xl border bg-background p-4 shadow-sm'>
+      <section className='space-y-4 rounded-xl border-transparent bg-background/92 p-4 shadow-sm'>
         <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between'>
           <div>
             <h2 className='text-xl font-semibold tracking-tight'>
@@ -307,7 +376,12 @@ export function TrucksPage() {
               colonnes a afficher.
             </p>
           </div>
-          <Badge variant='outline'>{trucks.length} camions</Badge>
+          <Badge
+            variant='outline'
+            className='border-transparent bg-muted/35 text-foreground'
+          >
+            {trucks.length} camions
+          </Badge>
         </div>
         <TrucksTable
           data={trucks}
@@ -338,7 +412,7 @@ function TopStat({
   value: string | number
 }) {
   return (
-    <div className='inline-flex items-center gap-1.5 rounded-full border bg-background px-2.5 py-1 text-xs shadow-xs'>
+    <div className='inline-flex items-center gap-1.5 rounded-full border-transparent bg-background/90 px-2.5 py-1 text-xs shadow-xs'>
       <Icon className='size-3.5 text-primary' />
       <span className='text-muted-foreground'>{label}</span>
       <span className='font-semibold'>{value}</span>
@@ -346,7 +420,73 @@ function TopStat({
   )
 }
 
-function ToggleLine({
+function ToolbarGroup({
+  icon: Icon,
+  title,
+  className,
+  children,
+}: {
+  icon: React.ElementType
+  title: string
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className={cn('space-y-3', className)}>
+      <div className='flex items-center gap-2 text-sm font-medium'>
+        <span className='flex size-8 items-center justify-center rounded-full bg-muted/55 text-muted-foreground'>
+          <Icon className='size-4' />
+        </span>
+        <span>{title}</span>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function FilterChip({
+  label,
+  count,
+  active,
+  onClick,
+  icon: Icon,
+}: {
+  label: string
+  count: number
+  active: boolean
+  onClick: () => void
+  icon?: React.ElementType
+}) {
+  return (
+    <Button
+      type='button'
+      variant={active ? 'default' : 'outline'}
+      size='sm'
+      className={cn(
+        'h-10 rounded-full px-4 text-sm shadow-xs',
+        active
+          ? 'border-transparent shadow-sm'
+          : 'border-transparent bg-background/85 hover:bg-muted/35'
+      )}
+      onClick={onClick}
+    >
+      {Icon ? <Icon className='size-4' /> : null}
+      <span>{label}</span>
+      <Badge
+        className={cn(
+          'ms-2 rounded-full px-1.5 py-0 text-[10px]',
+          active
+            ? 'bg-primary-foreground/20 text-primary-foreground'
+            : 'bg-muted text-muted-foreground'
+        )}
+      >
+        {count}
+      </Badge>
+    </Button>
+  )
+}
+
+function ToggleCard({
   label,
   value,
   onChange,
@@ -356,153 +496,9 @@ function ToggleLine({
   onChange: (value: boolean) => void
 }) {
   return (
-    <label className='inline-flex items-center gap-2 text-xs sm:text-sm'>
+    <label className='flex items-center justify-between gap-3 rounded-xl bg-muted/35 px-3 py-2.5 text-sm shadow-xs'>
       <span className='text-muted-foreground'>{label}</span>
       <Switch checked={value} onCheckedChange={onChange} />
     </label>
-  )
-}
-
-function FloatingTruckPanel({
-  truck,
-  telemetry,
-  showAlerts,
-  onClose,
-  onViewDetails,
-}: {
-  truck: Truck
-  telemetry: TruckTelemetry
-  showAlerts: boolean
-  onClose: () => void
-  onViewDetails: (truck: Truck) => void
-}) {
-  const loadedLiters = Math.round(
-    (truck.tankCapacityLiters * telemetry.lpgLevelPercent) / 100
-  )
-
-  return (
-    <div className='pointer-events-none absolute inset-x-3 top-3 z-10 md:inset-x-auto md:top-5 md:left-5 md:w-[390px]'>
-      <div className='pointer-events-auto rounded-xl border bg-background/92 p-4 shadow-2xl backdrop-blur-md'>
-        <div className='flex items-start gap-3'>
-          <div className='flex h-14 w-24 shrink-0 items-center justify-center rounded-lg border bg-muted/35 p-2'>
-            <img
-              src={lpgTankImage}
-              alt=''
-              className='max-h-full max-w-full object-contain'
-            />
-          </div>
-
-          <div className='min-w-0 flex-1'>
-            <div className='flex items-start justify-between gap-2'>
-              <div className='min-w-0'>
-                <p className='text-xs text-muted-foreground'>Camion actif</p>
-                <h2 className='truncate text-lg font-semibold tracking-tight'>
-                  {truck.id}
-                </h2>
-              </div>
-              <div className='flex shrink-0 items-center gap-1'>
-                <Badge
-                  className={cn('font-medium', statusClasses[truck.status])}
-                >
-                  {statusLabels[truck.status]}
-                </Badge>
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='icon'
-                  className='size-7 rounded-full'
-                  onClick={onClose}
-                  aria-label='Masquer les infos camion'
-                >
-                  <X className='size-4' />
-                </Button>
-              </div>
-            </div>
-            <p className='mt-1 truncate text-xs text-muted-foreground'>
-              {truck.makeModel} - {truck.plateNumber}
-            </p>
-          </div>
-        </div>
-
-        <div className='mt-4 rounded-lg bg-muted/25 p-3'>
-          <div className='flex items-center justify-between gap-3 text-xs'>
-            <span className='inline-flex min-w-0 items-center gap-1.5 text-muted-foreground'>
-              <MapPin className='size-3.5 shrink-0' />
-              <span className='truncate'>{truck.currentLocation}</span>
-            </span>
-            <span className='shrink-0 font-medium'>
-              {telemetry.distanceKm} km
-            </span>
-          </div>
-          <div className='mt-2 h-1.5 overflow-hidden rounded-full bg-muted'>
-            <div
-              className='h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-500'
-              style={{ width: `${telemetry.routeProgress}%` }}
-            />
-          </div>
-          <div className='mt-2 flex items-center justify-between gap-3 text-xs'>
-            <span className='truncate text-muted-foreground'>
-              {truck.assignedRoute}
-            </span>
-            <span className='shrink-0 font-medium'>{truck.destination}</span>
-          </div>
-        </div>
-
-        <div className='mt-3 space-y-2 text-sm'>
-          <InfoMetric label='ETA' value={telemetry.etaText} />
-          <InfoMetric
-            label='Pression'
-            value={`${telemetry.pressureBar.toFixed(1)} bar`}
-          />
-          <InfoMetric label='Chauffeur' value={truck.assignedDriver} />
-          <InfoMetric
-            label='Charge GPL'
-            value={`${loadedLiters.toLocaleString()} L`}
-          />
-        </div>
-
-        <div className='mt-3'>
-          <div className='mb-1 flex items-center justify-between text-xs'>
-            <span className='text-muted-foreground'>Niveau GPL</span>
-            <span className='font-semibold'>{telemetry.lpgLevelPercent}%</span>
-          </div>
-          <div className='h-2 overflow-hidden rounded-full bg-muted'>
-            <div
-              className='h-full rounded-full bg-emerald-500'
-              style={{ width: `${telemetry.lpgLevelPercent}%` }}
-            />
-          </div>
-        </div>
-
-        {showAlerts ? (
-          <div className='mt-3 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300'>
-            <span className='inline-flex items-center gap-1.5 font-medium'>
-              <AlertTriangle className='size-3.5' />
-              Pause requise:
-            </span>{' '}
-            30 min apres 8h de conduite.
-          </div>
-        ) : null}
-
-        <Button
-          type='button'
-          variant='outline'
-          size='sm'
-          className='mt-3 h-8 w-full'
-          onClick={() => onViewDetails(truck)}
-        >
-          Voir les details du camion
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-function InfoMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className='flex min-w-0 items-center justify-between gap-3'>
-      <span className='text-muted-foreground'>{label}</span>
-      <span className='truncate text-right font-medium'>{value}</span>
-    </div>
   )
 }
