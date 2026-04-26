@@ -56,7 +56,7 @@ export function getRoutesColumns({
     {
       accessorKey: 'reference',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID Tournee' />
+        <DataTableColumnHeader column={column} title='ID Tournée' />
       ),
       cell: ({ row }) => (
         <button
@@ -92,7 +92,7 @@ export function getRoutesColumns({
           .includes(query)
       },
       meta: {
-        label: 'ID Tournee',
+        label: 'ID Tournée',
         className: cn(
           'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)]',
           'inset-s-6 ps-0.5 max-md:sticky @4xl/content:table-cell @4xl/content:drop-shadow-none'

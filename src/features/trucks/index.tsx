@@ -346,7 +346,7 @@ export function TrucksPage() {
               </div>
             ) : (
               <div className='rounded-xl bg-muted/25 px-3 py-3 text-sm text-muted-foreground'>
-                Active l'affichage des sites pour filtrer les depots, sites SCDP
+                Active l'affichage des sites pour filtrer les dépôts, sites SCDP
                 et centres emplisseurs.
               </div>
             )}

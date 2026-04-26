@@ -4,7 +4,7 @@
 
 Faire evoluer l'application d'un simple module `Camions` vers une plateforme de pilotage GPL structuree autour de:
 
-1. l'operationnel des tournees
+1. l'operationnel des tournées
 2. le tableau de bord global
 
 Le but est de garder une architecture simple, lisible et scalable, sans tout melanger dans la feature `trucks`.
@@ -33,7 +33,7 @@ Responsabilite:
 
 Ne doit pas contenir:
 
-- logique de simulation ou suivi de tournee multi-etapes
+- logique de simulation ou suivi de tournée multi-etapes
 - agregats globaux de flotte
 - catalogue des depots et centres
 
@@ -41,16 +41,16 @@ Ne doit pas contenir:
 
 Responsabilite:
 
-- suivi des tournees GPL
+- suivi des tournées GPL
 - evolution du niveau de GPL pendant le trajet
 - comparaison `niveau au chargement` vs `niveau en cours` vs `niveau a la livraison`
 - trajet entre depot, point de livraison, marketers, centres emplisseurs
-- timeline d'une tournee
+- timeline d'une tournée
 - carte de tournée avec etapes
 
 Sous-domaines dans cette feature:
 
-- `route-list`: liste des tournees
+- `route-list`: liste des tournées
 - `route-details`: détail d'une tournée
 - `route-map`: carte et trace GPS
 - `route-telemetry`: variation du GPL, pression, volumes delivres, anomalies
@@ -167,7 +167,7 @@ type RouteTrip = {
 }
 ```
 
-### Telemetrie de tournee
+### Télémétrie de tournée
 
 ```ts
 type RouteTelemetryPoint = {
@@ -201,13 +201,13 @@ Livrables:
 
 Objectif:
 
-- suivre une tournee de bout en bout
+- suivre une tournée de bout en bout
 
 Livrables:
 
 - page `Tournees GPL`
-- liste des tournees
-- detail d'une tournee
+- liste des tournées
+- detail d'une tournée
 - courbe ou indicateur de variation du GPL
 - trace sur la carte
 - affichage chargement -> trajet -> livraison
@@ -271,9 +271,9 @@ Nom de branche:
 
 Contenu:
 
-- modeliser une tournee
+- modeliser une tournée
 - relier camion, origine, destination, niveau GPL
-- afficher la variation du GPL sur la tournee
+- afficher la variation du GPL sur la tournée
 
 ### Feature 4
 
@@ -324,7 +324,7 @@ Le meilleur prochain pas pour ce projet est:
 1. creer la feature `sites`
 2. ajouter `Tournees GPL` dans la sidebar
 3. ajouter `Tableau de bord global` dans la sidebar
-4. ne pas mettre toute la logique de tournee dans `trucks`
+4. ne pas mettre toute la logique de tournée dans `trucks`
 
 En bref:
 

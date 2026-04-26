@@ -96,7 +96,7 @@ export function RoutesTable({
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher tournee, client, camion...'
+        searchPlaceholder='Rechercher tournée, client, camion...'
         searchKey='reference'
         filters={[
           {
@@ -179,7 +179,7 @@ export function RoutesTable({
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  Aucune tournee ne correspond aux filtres.
+                  Aucune tournée ne correspond aux filtres.
                 </TableCell>
               </TableRow>
             )}

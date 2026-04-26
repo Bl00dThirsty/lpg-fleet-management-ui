@@ -40,10 +40,10 @@ export function RouteTelemetryChart({
   return (
     <Card className='overflow-hidden border-transparent shadow-sm'>
       <CardHeader className='border-b bg-muted/20'>
-        <CardTitle>Telemetrie GPL</CardTitle>
+        <CardTitle>Télémétrie GPL</CardTitle>
         <CardDescription>
           Evolution du niveau GPL, de la pression et du volume estime pendant la
-          tournee.
+          tournée.
         </CardDescription>
       </CardHeader>
       <CardContent className='space-y-4 p-4'>

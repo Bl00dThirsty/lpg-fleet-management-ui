@@ -95,12 +95,12 @@ export function RoutesPage() {
           <Card className='border-transparent bg-muted/30 shadow-none'>
             <CardContent className='flex items-center gap-3 p-3 text-sm'>
               <span className='font-medium'>
-                Selection courante: {selectedTrip?.reference ?? '--'}
+                Sélection courante: {selectedTrip?.reference ?? '--'}
               </span>
               <span className='text-muted-foreground'>
                 {selectedTrip
                   ? `${selectedTrip.originSite.city} -> ${selectedTrip.destinationSite.city}`
-                  : 'Aucune tournee'}
+                  : 'Aucune tournée'}
               </span>
             </CardContent>
           </Card>

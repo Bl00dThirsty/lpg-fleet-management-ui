@@ -146,9 +146,9 @@ export function RouteDetailsView({
                   {trip.destinationSite.name}
                 </h2>
                 <p className='max-w-3xl text-sm text-slate-300'>
-                  Tournee {trip.reference} pour {trip.customerName}. Le suivi
+                  Tournée {trip.reference} pour {trip.customerName}. Le suivi
                   rassemble le camion, le niveau GPL, les étapes logistiques et
-                  les alertes terrain dans un seul ecran.
+                  les alertes terrain dans un seul écran.
                 </p>
               </div>
             </div>
@@ -267,7 +267,7 @@ export function RouteDetailsView({
       <section className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]'>
         <Card>
           <CardHeader>
-            <CardTitle>Timeline d exécution</CardTitle>
+            <CardTitle>Timeline d'exécution</CardTitle>
             <CardDescription>
               Lecture métier de la tournée, du chargement à la livraison.
             </CardDescription>

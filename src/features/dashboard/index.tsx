@@ -11,19 +11,19 @@ import {
 const kpis = [
   {
     title: 'GPL transporte',
-    description: 'Quantite totale de GPL en circulation par les flottes.',
+    description: 'Quantité totale de GPL en circulation par les flottes.',
   },
   {
     title: 'GPL en reserve',
-    description: 'Volume disponible dans les depots et points de stockage.',
+    description: 'Volume disponible dans les dépots et points de stockage.',
   },
   {
     title: 'Vue par flotte',
-    description: 'Comparaison des volumes transportes par entreprise.',
+    description: 'Comparaison des volumes transportés par entreprise.',
   },
   {
     title: 'Vue par site',
-    description: 'Lecture des stocks et mouvements par depot ou centre.',
+    description: 'Lecture des stocks et mouvements par dépôt ou centre.',
   },
 ]
 
@@ -68,7 +68,7 @@ export function DashboardPage() {
               Indicateurs globaux sur le GPL transporte
             </div>
             <div className='rounded-lg border px-4 py-3'>
-              Reserve disponible par site ou depot
+              Reserve disponible par site ou dépôt
             </div>
             <div className='rounded-lg border px-4 py-3'>
               Repartition des volumes par flotte
@@ -80,16 +80,16 @@ export function DashboardPage() {
           <CardHeader>
             <CardTitle>Regle d'architecture</CardTitle>
             <CardDescription>
-              Le dashboard consomme des donnees agregees, il ne les fabrique pas
+              Le dashboard consomme des données agregées, il ne les fabrique pas
               dans la page.
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-3 text-sm'>
             <div className='rounded-lg border px-4 py-3'>
-              `sites` gere le referentiel geographique
+              `sites` gère le referentiel geographique
             </div>
             <div className='rounded-lg border px-4 py-3'>
-              `routes` gere la logique de tournee et de livraison
+              `routes` gère la logique de tournée et de livraison
             </div>
             <div className='rounded-lg border px-4 py-3'>
               `dashboard` consomme les agregats de synthese

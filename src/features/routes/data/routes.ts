@@ -232,7 +232,7 @@ const routeStopsByTripId: Record<string, RouteTripStop[]> = {
       id: 'trip-2401-stop-origin',
       siteId: 'site-bipaga',
       role: 'loading',
-      title: 'Chargement confirme',
+      title: 'Chargement confirmé',
       completed: true,
       windowLabel: '06:00 - 06:30',
       note: 'Chargement initial valide et documents chauffeur emis.',
@@ -297,7 +297,7 @@ const routeStopsByTripId: Record<string, RouteTripStop[]> = {
       completed: false,
       deliveredQuantityKg: 9500,
       windowLabel: '12:20 - 12:35',
-      note: 'Fenetre courte, coordination client deja confirme.',
+      note: 'Fenêtre courte, coordination client déja confirmé.',
     },
   ],
   'route-trip-douala-bonamoussadi': [
@@ -308,17 +308,17 @@ const routeStopsByTripId: Record<string, RouteTripStop[]> = {
       title: 'Chargement Douala',
       completed: true,
       windowLabel: '04:35 - 04:55',
-      note: 'Chargement termine sans anomalie.',
+      note: 'Chargement terminé sans anomalie.',
     },
     {
       id: 'trip-2398-stop-destination',
       siteId: 'site-total-bonamoussadi',
       role: 'delivery',
-      title: 'Reception client signee',
+      title: 'Reception client signée',
       completed: true,
       deliveredQuantityKg: 11050,
       windowLabel: '06:00 - 06:10',
-      note: 'Reception client confirmee et bon de livraison cloture.',
+      note: 'Réception client confirmée et bon de livraison cloture.',
     },
   ],
 }
@@ -541,7 +541,7 @@ const routeEventsByTripId: Record<string, RouteEvent[]> = {
       routeTripId: 'route-trip-bipaga-bonaberi',
       occurredAt: '2026-04-24T09:30:00+01:00',
       severity: 'medium',
-      title: 'Fenetre Bonaberi resserree',
+      title: 'Fenêtre Bonaberi resserrée',
       description:
         'Le centre emplisseur demande un repositionnement de quai dans les 20 prochaines minutes.',
     },
@@ -550,9 +550,9 @@ const routeEventsByTripId: Record<string, RouteEvent[]> = {
       routeTripId: 'route-trip-bipaga-bonaberi',
       occurredAt: '2026-04-24T10:05:00+01:00',
       severity: 'low',
-      title: 'Controle pression stable',
+      title: 'Contrôle pression stable',
       description:
-        'La pression reste dans la zone nominale apres le drop intermediaire SCDP.',
+        'La pression reste dans la zone nominale après le drop intermediaire SCDP.',
     },
   ],
   'route-trip-nsam-ebolowa': [
@@ -561,9 +561,9 @@ const routeEventsByTripId: Record<string, RouteEvent[]> = {
       routeTripId: 'route-trip-nsam-ebolowa',
       occurredAt: '2026-04-24T09:05:00+01:00',
       severity: 'high',
-      title: 'Ecart de charge detecte',
+      title: 'Ecart de charge détecté',
       description:
-        'La baisse de GPL observee n est pas coherente avec la progression du trajet. Verification securite declenchee.',
+        'La baisse de GPL observée n\'est pas cohérente avec la progression du trajet. Vérification securité déclenchée.',
     },
     {
       id: 'trip-2402-event-2',
@@ -572,7 +572,7 @@ const routeEventsByTripId: Record<string, RouteEvent[]> = {
       severity: 'medium',
       title: 'Contact chauffeur renforce',
       description:
-        'Le chauffeur a ete bascule en suivi serre avec appel exploitation toutes les 15 minutes.',
+        'Le chauffeur a été bascule en suivi serré avec appel exploitation toutes les 15 minutes.',
     },
   ],
   'route-trip-bonaberi-akwa': [
@@ -581,9 +581,9 @@ const routeEventsByTripId: Record<string, RouteEvent[]> = {
       routeTripId: 'route-trip-bonaberi-akwa',
       occurredAt: '2026-04-24T10:15:00+01:00',
       severity: 'low',
-      title: 'Ordre de mission confirme',
+      title: 'Ordre de mission confirmé',
       description:
-        'Le point de livraison a confirme la fenetre d arrivage avant 12h35.',
+        'Le point de livraison à confirmé la fenêtre d\' arrivage avant 12h35.',
     },
   ],
   'route-trip-douala-bonamoussadi': [
@@ -592,9 +592,9 @@ const routeEventsByTripId: Record<string, RouteEvent[]> = {
       routeTripId: 'route-trip-douala-bonamoussadi',
       occurredAt: '2026-04-24T06:12:00+01:00',
       severity: 'low',
-      title: 'Livraison signee',
+      title: 'Livraison signée',
       description:
-        'Le bon de livraison est signe et le retour depot peut etre engage.',
+        'Le bon de livraison est signé et le retour dépôt peut être engagé.',
     },
   ],
 }

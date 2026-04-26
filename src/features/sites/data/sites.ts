@@ -22,7 +22,7 @@ export type Site = {
 }
 
 export const siteTypeLabels: Record<SiteType, string> = {
-  depot: 'Depots',
+  depot: 'Dépôts',
   scdp: 'Sites SCDP',
   'filling-center': 'Centres emplisseurs',
   marketer: 'Marketers',
@@ -36,7 +36,7 @@ export const siteStatusLabels: Record<SiteStatus, string> = {
 }
 
 export const siteTypeOptions = [
-  { label: 'Depots', value: 'depot' },
+  { label: 'Dépôts', value: 'depot' },
   { label: 'Sites SCDP', value: 'scdp' },
   { label: 'Centres emplisseurs', value: 'filling-center' },
   { label: 'Marketers', value: 'marketer' },
@@ -46,7 +46,7 @@ export const siteTypeOptions = [
 export const sites: Site[] = [
   {
     id: 'site-bipaga',
-    name: 'Depot GPL de Bipaga',
+    name: 'Dépôt GPL de Bipaga',
     type: 'depot',
     city: 'Kribi',
     region: 'Sud',

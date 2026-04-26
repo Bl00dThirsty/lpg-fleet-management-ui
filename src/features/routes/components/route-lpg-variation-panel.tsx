@@ -115,13 +115,13 @@ export function RouteLpgVariationPanel({
         <div className='grid gap-3 md:grid-cols-3'>
           <MetricTile
             icon={Package}
-            label='Livraison comptabilisee'
+            label='Livraison comptabilisée'
             value={formatKg(variation.deliveredKg)}
-            hint={`${variation.deliveredPercent}% deja livres`}
+            hint={`${variation.deliveredPercent}% déjà livrés`}
           />
           <MetricTile
             icon={ArrowRight}
-            label='Prochaine etape'
+            label='Prochaine étape'
             value={
               variation.nextDropKg > 0
                 ? formatKg(variation.nextDropKg)
@@ -129,7 +129,7 @@ export function RouteLpgVariationPanel({
             }
             hint={
               trip.status === 'completed'
-                ? 'Tournee finalisee'
+                ? 'Tournée finalisée'
                 : trip.nextStop.site.name
             }
           />
@@ -143,8 +143,8 @@ export function RouteLpgVariationPanel({
             }
             hint={
               variation.telemetryGapKg > 0
-                ? 'A rapprocher du stock declare'
-                : 'Stock declare coherent'
+                ? 'À rapprocher du stock déclaré'
+                : 'Stock déclaré cohérent'
             }
           />
         </div>

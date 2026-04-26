@@ -82,7 +82,7 @@ export function RouteCorridorMap({
     const initialTrip = initialTripRef.current
     const initialTheme = initialThemeRef.current
     const graphicsLayer = new GraphicsLayer({
-      title: `Tournee ${initialTrip.reference}`,
+      title: `Tournée ${initialTrip.reference}`,
     })
     const map = new ArcGISMap({
       basemap: getArcgisBasemap(initialTheme),
@@ -160,7 +160,7 @@ export function RouteCorridorMap({
         <CardHeader className='border-b bg-muted/20'>
           <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
             <div>
-              <CardTitle>Carte de tournee</CardTitle>
+              <CardTitle>Carte de tournée</CardTitle>
               <CardDescription>
                 Trace GPS entre sites logistiques et point de livraison.
               </CardDescription>
@@ -190,7 +190,7 @@ export function RouteCorridorMap({
               <p className='text-sm font-medium'>ArcGIS indisponible</p>
               <p className='text-sm text-muted-foreground'>
                 Renseigne `VITE_ARCGIS_API_KEY` dans `.env` pour afficher la
-                vraie carte de tournee.
+                vraie carte de tournée.
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function RouteCorridorMap({
       <CardHeader className='border-b bg-muted/20'>
         <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
           <div>
-            <CardTitle>Carte de tournee</CardTitle>
+            <CardTitle>Carte de tournée</CardTitle>
             <CardDescription>
               Trace GPS entre sites logistiques et point de livraison.
             </CardDescription>
@@ -337,11 +337,11 @@ function MapSignals({
       />
       <SignalTile
         label='Sites traverses'
-        value={`${trip.stops.length} etapes`}
+        value={`${trip.stops.length} étapes`}
         icon={RouteIcon}
       />
       <SignalTile
-        label='Derniere maj'
+        label='Dernière maj'
         value={formatDateTime(trip.latestTelemetry.recordedAt)}
         icon={Clock3}
       />
@@ -368,7 +368,7 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme) {
       style: 'solid',
     },
     popupTemplate: {
-      title: `Tournee ${trip.reference}`,
+      title: `Tournée ${trip.reference}`,
       content: createRoutePopupContent(trip),
     },
   })
@@ -455,9 +455,9 @@ function createRoutePopupContent(trip: RouteTripView) {
       ${popupLine('Client', trip.customerName)}
       ${popupLine('Corridor', `${trip.originSite.city} -> ${trip.destinationSite.city}`)}
       ${popupLine('Charge initiale', formatKg(trip.loadedQuantityKg))}
-      ${popupLine('Volume livre', formatKg(trip.deliveredQuantityKg))}
+      ${popupLine('Volume livré', formatKg(trip.deliveredQuantityKg))}
       ${popupLine('Volume restant', formatKg(trip.remainingQuantityKg))}
-      ${popupLine('Prochaine etape', trip.nextStop.site.name)}
+      ${popupLine('Prochaine étape', trip.nextStop.site.name)}
     </div>
   `
 }
@@ -468,12 +468,12 @@ function createStopPopupContent(
 ) {
   return `
     <div class="fleet-truck-popup">
-      ${popupLine('Role', stopRoleStyles[stop.role].label)}
+      ${popupLine('Rôle', stopRoleStyles[stop.role].label)}
       ${popupLine('Site', stop.site.name)}
       ${popupLine('Type site', siteTypeLabels[stop.site.type])}
       ${popupLine('Statut', stop.completed ? 'Termine' : 'En attente')}
-      ${popupLine('Fenetre', stop.windowLabel)}
-      ${popupLine('Tournee', trip.reference)}
+      ${popupLine('Fenêtre', stop.windowLabel)}
+      ${popupLine('Tournée', trip.reference)}
     </div>
   `
 }
@@ -504,7 +504,7 @@ function createTelemetryPopupContent(
 ) {
   return `
     <div class="fleet-truck-popup">
-      ${popupLine('Tournee', trip.reference)}
+      ${popupLine('Tournée', trip.reference)}
       ${popupLine('Releve', new Intl.DateTimeFormat('fr-FR', {
         hour: '2-digit',
         minute: '2-digit',
