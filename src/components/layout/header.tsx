@@ -13,36 +13,36 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
 
   useEffect(() => {
     const onScroll = () => {
-      setOffset(document.body.scrollTop || document.documentElement.scrollTop)
+      setOffset(window.scrollY || document.documentElement.scrollTop)
     }
 
-    // Add scroll listener to the body
-    document.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
 
-    // Clean up the event listener on unmount
-    return () => document.removeEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
     <header
       className={cn(
-        'z-50 h-16',
-        fixed && 'header-fixed peer/header sticky top-0 w-[inherit]',
-        offset > 10 && fixed ? 'shadow' : 'shadow-none',
+        'z-40 h-16 w-full transition-all duration-200',
+        fixed && 'header-fixed peer/header sticky top-0',
+        fixed &&
+          (offset > 12
+            ? 'border-b border-border/70 bg-background/75 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-background/60'
+            : 'border-b border-transparent bg-background/0'),
         className
       )}
       {...props}
     >
       <div
-        className={cn(
-          'relative flex h-full items-center gap-3 p-4 sm:gap-4',
-          offset > 10 &&
-            fixed &&
-            'after:absolute after:inset-0 after:-z-10 after:bg-background/20 after:backdrop-blur-lg'
-        )}
+        className={cn('flex h-full items-center gap-3 px-4 sm:gap-4 sm:px-6')}
       >
-        <SidebarTrigger variant='outline' className='max-md:scale-125' />
-        <Separator orientation='vertical' className='h-6' />
+        <SidebarTrigger
+          variant='outline'
+          className='rounded-xl border-border/60 bg-background/80 max-md:scale-125'
+        />
+        <Separator orientation='vertical' className='hidden h-6 sm:block' />
         {children}
       </div>
     </header>

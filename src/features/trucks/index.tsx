@@ -7,16 +7,13 @@ import {
   Clock3,
   Gauge,
   Layers3,
-  Moon,
   Search,
   SlidersHorizontal,
-  Sun,
   Truck as TruckIcon,
   Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/theme-provider'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -67,7 +64,7 @@ export function TrucksPage() {
   const [siteFilter, setSiteFilter] = useState<SiteFilter>('all')
   const [activeTruckId, setActiveTruckId] = useState(trucks[0].id)
   const [detailsTruck, setDetailsTruck] = useState<Truck | null>(null)
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme } = useTheme()
 
   const handleViewDetails = useCallback((truck: Truck) => {
     setActiveTruckId(truck.id)
@@ -213,34 +210,6 @@ export function TrucksPage() {
                   className='h-9 ps-9'
                 />
               </div>
-              <Button
-                type='button'
-                variant='outline'
-                size='icon'
-                className='size-9 border-transparent bg-background/85 shadow-xs'
-                onClick={() =>
-                  setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
-                }
-                aria-label='Basculer theme'
-              >
-                {resolvedTheme === 'dark' ? (
-                  <Sun className='size-4' />
-                ) : (
-                  <Moon className='size-4' />
-                )}
-              </Button>
-              <Button
-                variant='outline'
-                className='h-9 justify-start gap-2 border-transparent bg-background/85 px-2 shadow-xs'
-              >
-                <Avatar className='size-6 rounded-md'>
-                  <AvatarFallback className='rounded-md bg-primary/15 text-xs font-semibold text-primary'>
-                    JD
-                  </AvatarFallback>
-                </Avatar>
-                <span className='text-sm'>John Davis</span>
-                <ChevronDown className='size-4 text-muted-foreground' />
-              </Button>
             </div>
           </div>
 
@@ -359,7 +328,7 @@ export function TrucksPage() {
           sites={filteredSites}
           trucks={filteredTrucks}
           selectedTruck={selectedTruck}
-          mapTheme={resolvedTheme}
+          mapTheme={resolvedTheme === 'dark' ? 'dark' : 'light'}
           showRoutes={showRoutes}
           onSelectTruck={handleSelectTruck}
         />

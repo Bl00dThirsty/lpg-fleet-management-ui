@@ -2,6 +2,7 @@ import { Outlet } from '@tanstack/react-router'
 import { getCookie } from '@/lib/cookies'
 import { cn } from '@/lib/utils'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { AppHeader } from '@/components/layout/app-header'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { SkipToMain } from '@/components/skip-to-main'
 
@@ -18,9 +19,10 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
       <SidebarInset
         className={cn(
           // Set content container, so we can use container queries
-          '@container/content'
+          '@container/content bg-muted/20'
         )}
       >
+        <AppHeader />
         {children ?? <Outlet />}
       </SidebarInset>
     </SidebarProvider>
