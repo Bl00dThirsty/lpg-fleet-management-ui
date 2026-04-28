@@ -124,7 +124,7 @@ src/
 
 ### Truck
 
-Donnees deja presentes ou proches de l'existant:
+Donnees déjà presentes ou proches de l'existant:
 
 - id
 - immatriculation

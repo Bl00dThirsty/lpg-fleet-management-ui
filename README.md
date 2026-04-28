@@ -48,7 +48,7 @@ Le projet est une SPA Vite frontend-only. Il est pret pour:
 - Netlify
 - toute plateforme statique qui publie le dossier `dist`
 
-Les routes SPA sont deja gerees:
+Les routes SPA sont déjà gerees:
 
 - `vercel.json` pour Vercel
 - `netlify.toml` et `public/_redirects` pour Netlify et les hebergeurs compatibles
