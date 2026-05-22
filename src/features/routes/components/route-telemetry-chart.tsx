@@ -42,7 +42,7 @@ export function RouteTelemetryChart({
       <CardHeader className='border-b bg-muted/20'>
         <CardTitle>Télémétrie GPL</CardTitle>
         <CardDescription>
-          Evolution du niveau GPL, de la pression et du volume estime pendant la
+          Évolution du niveau GPL, de la pression et du volume estime pendant la
           tournée.
         </CardDescription>
       </CardHeader>

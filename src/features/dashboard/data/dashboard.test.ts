@@ -103,4 +103,40 @@ describe('buildDashboardView', () => {
       'reserve-site-scdp-yaounde-watch',
     ])
   })
+
+  it('keeps route-level contribution details for volume traceability', () => {
+    const dashboard = buildDashboardView()
+
+    expect(dashboard.routeContributions).toEqual([
+      expect.objectContaining({
+        reference: 'TRP-2401',
+        carrierName: 'Tradex',
+        plateNumber: 'CE 7753 AE',
+        driverName: 'Ekane Samuel',
+        loadedQuantityKg: 18500,
+        deliveredQuantityKg: 6050,
+        transportedSharePercent: 35,
+      }),
+      expect.objectContaining({
+        reference: 'TRP-2402',
+        carrierName: 'Total Cameroun',
+        plateNumber: 'LT 8870 AD',
+        loadedQuantityKg: 14000,
+        unaccountedKg: 1850,
+        status: 'incident',
+      }),
+      expect.objectContaining({
+        reference: 'TRP-2398',
+        carrierName: 'Total Cameroun',
+        deliveredQuantityKg: 11050,
+        deliveredSharePercent: 65,
+      }),
+      expect.objectContaining({
+        reference: 'TRP-2403',
+        carrierName: 'Tradex',
+        loadedQuantityKg: 9500,
+        status: 'planned',
+      }),
+    ])
+  })
 })

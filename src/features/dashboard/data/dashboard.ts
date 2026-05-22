@@ -2,6 +2,8 @@ import {
   buildRouteSummary,
   getRouteTripsView,
   type RouteEventSeverity,
+  type RouteTripStatus,
+  type RouteTripView,
 } from '@/features/routes/data/routes'
 import { sites } from '@/features/sites/data/sites'
 import { getTruckTelemetry, trucks } from '@/features/trucks/data/trucks'
@@ -108,6 +110,27 @@ export type DashboardRecentActivity = {
   status: DashboardActivityStatus
 }
 
+export type DashboardRouteContribution = {
+  id: string
+  reference: string
+  carrierName: string
+  truckId: string
+  plateNumber: string
+  driverName: string
+  missionLead: string
+  customerName: string
+  originLabel: string
+  destinationLabel: string
+  loadedQuantityKg: number
+  deliveredQuantityKg: number
+  remainingQuantityKg: number
+  unaccountedKg: number
+  transportedSharePercent: number
+  deliveredSharePercent: number
+  status: RouteTripStatus
+  onTime: boolean
+}
+
 export type DashboardOverview = {
   dateRangeLabel: string
   generatedAt: string
@@ -136,6 +159,7 @@ export type DashboardView = {
   flowBreakdown: DashboardBreakdownItem[]
   reserveSummary: DashboardBreakdownItem[]
   fleets: DashboardFleetSummary[]
+  routeContributions: DashboardRouteContribution[]
   reserveSites: DashboardReserveSite[]
   alerts: DashboardAlert[]
   recentActivities: DashboardRecentActivity[]
@@ -429,8 +453,8 @@ function buildCadence(
       period === 'daily'
         ? 'Douala concentre la charge du jour, avec Bonaberi encore sous tension.'
         : period === 'weekly'
-          ? 'La cadence reste soutenue, mais le reseau Centre demande plus de couverture.'
-          : 'Le volume mensuel tient la trajectoire, la reserve demande un reequilibrage plus fin.'
+          ? 'La cadence reste soutenue, mais le réseau Centre demande plus de couverture.'
+          : 'Le volume mensuel tient la trajectoire, la réserve demande un rééquilibrage plus fin.'
 
     return {
       period,
@@ -665,6 +689,41 @@ function buildReserveSummary(reserveSites: readonly DashboardReserveSite[]) {
   return summary
 }
 
+function buildRouteContributions(
+  routeViews: readonly RouteTripView[],
+  totalTransportedKg: number,
+  totalDeliveredKg: number
+) {
+  return routeViews
+    .map((trip) => ({
+      id: trip.id,
+      reference: trip.reference,
+      carrierName: trip.truck.tenantName,
+      truckId: trip.truck.id,
+      plateNumber: trip.truck.plateNumber,
+      driverName: trip.truck.assignedDriver,
+      missionLead: trip.missionLead,
+      customerName: trip.customerName,
+      originLabel: trip.originSite.city,
+      destinationLabel: trip.destinationSite.city,
+      loadedQuantityKg: trip.loadedQuantityKg,
+      deliveredQuantityKg: trip.deliveredQuantityKg,
+      remainingQuantityKg: trip.remainingQuantityKg,
+      unaccountedKg: trip.unaccountedKg,
+      transportedSharePercent:
+        totalTransportedKg === 0
+          ? 0
+          : round((trip.loadedQuantityKg / totalTransportedKg) * 100),
+      deliveredSharePercent:
+        totalDeliveredKg === 0
+          ? 0
+          : round((trip.deliveredQuantityKg / totalDeliveredKg) * 100),
+      status: trip.status,
+      onTime: trip.onTime,
+    }))
+    .sort((left, right) => right.loadedQuantityKg - left.loadedQuantityKg)
+}
+
 function buildAlerts(reserveSites: readonly DashboardReserveSite[]) {
   const routeViews = getRouteTripsView()
   const alerts: DashboardAlert[] = []
@@ -678,16 +737,16 @@ function buildAlerts(reserveSites: readonly DashboardReserveSite[]) {
         description:
           'Le niveau disponible est trop bas pour absorber sereinement les prochains flux.',
         scope: site.siteName,
-        owner: 'Stock reseau',
+        owner: 'Stock réseau',
         metricValue: `${site.fillPercent}% de remplissage`,
       })
     } else if (site.status === 'watch') {
       alerts.push({
         id: `reserve-${site.siteId}-watch`,
         severity: 'medium',
-        title: `Réserve a surveiller ${site.siteName}`,
+        title: `Réserve à surveiller ${site.siteName}`,
         description:
-          'Le site reste operationnel mais la marge est courte face aux sorties prevues.',
+          'Le site reste opérationnel mais la marge est courte face aux sorties prévues.',
         scope: site.siteName,
         owner: 'Appro GPL',
         metricValue: `${site.fillPercent}% de remplissage`,
@@ -700,12 +759,12 @@ function buildAlerts(reserveSites: readonly DashboardReserveSite[]) {
       alerts.push({
         id: `${trip.id}-loss`,
         severity: 'high',
-        title: `Ecart de charge ${trip.reference}`,
+        title: `Écart de charge ${trip.reference}`,
         description:
-          'La baisse de GPL constatee ne correspond pas aux volumes déjà traces sur la tournee.',
+          'La baisse de GPL constatée ne correspond pas aux volumes déjà tracés sur la tournée.',
         scope: `${trip.originSite.city} -> ${trip.destinationSite.city}`,
         owner: trip.missionLead,
-        metricValue: `${trip.unaccountedKg} kg a verifier`,
+        metricValue: `${trip.unaccountedKg} kg à vérifier`,
       })
     }
 
@@ -713,9 +772,9 @@ function buildAlerts(reserveSites: readonly DashboardReserveSite[]) {
       alerts.push({
         id: `${trip.id}-eta`,
         severity: 'medium',
-        title: `ETA degradee ${trip.reference}`,
+        title: `ETA dégradée ${trip.reference}`,
         description:
-          'Le respect de la fenetre client est degrade et demande un suivi exploitation resserre.',
+          'Le respect de la fenêtre client est dégradé et demande un suivi exploitation resserré.',
         scope: trip.customerName,
         owner: trip.missionLead,
         metricValue: `${trip.progressPercent}% de progression`,
@@ -756,11 +815,11 @@ function buildRecentActivities(
       id: `activity-reserve-${site.siteId}`,
       title:
         site.status === 'critical'
-          ? `Reserve basse a ${site.city}`
-          : `Reserve a surveiller a ${site.city}`,
-      description: `${site.fillPercent}% de remplissage avec ${site.scheduledInboundKg} kg en inbound programme.`,
+          ? `Réserve basse à ${site.city}`
+          : `Réserve à surveiller à ${site.city}`,
+      description: `${site.fillPercent}% de remplissage avec ${site.scheduledInboundKg} kg en inbound programmé.`,
       happenedAt: shiftMinutes(generatedAt, -(index * 9 + 2)),
-      owner: site.status === 'critical' ? 'Stock reseau' : 'Appro GPL',
+      owner: site.status === 'critical' ? 'Stock réseau' : 'Appro GPL',
       location: site.siteName,
       volumeKg: site.reserveKg,
       status: 'attention',
@@ -789,8 +848,8 @@ function buildRecentActivities(
       if (trip.status === 'completed') {
         return {
           id: `activity-trip-${trip.id}`,
-          title: `Livraison finalisee ${trip.reference}`,
-          description: `${trip.deliveredQuantityKg} kg livres vers ${trip.destinationSite.name}.`,
+          title: `Livraison finalisée ${trip.reference}`,
+          description: `${trip.deliveredQuantityKg} kg livrés vers ${trip.destinationSite.name}.`,
           happenedAt: trip.lastUpdatedAt,
           owner: trip.missionLead,
           location: trip.destinationSite.name,
@@ -802,8 +861,8 @@ function buildRecentActivities(
       if (trip.status === 'planned') {
         return {
           id: `activity-trip-${trip.id}`,
-          title: `Preparation de charge ${trip.reference}`,
-          description: `${trip.loadedQuantityKg} kg reserves pour ${trip.destinationSite.name}.`,
+          title: `Préparation de charge ${trip.reference}`,
+          description: `${trip.loadedQuantityKg} kg réservés pour ${trip.destinationSite.name}.`,
           happenedAt: trip.lastUpdatedAt,
           owner: trip.missionLead,
           location: trip.originSite.name,
@@ -815,7 +874,7 @@ function buildRecentActivities(
       return {
         id: `activity-trip-${trip.id}`,
         title: `Acheminement en cours ${trip.reference}`,
-        description: `${trip.remainingQuantityKg} kg encore a delivrer vers ${trip.destinationSite.name}.`,
+        description: `${trip.remainingQuantityKg} kg encore à délivrer vers ${trip.destinationSite.name}.`,
         happenedAt: trip.lastUpdatedAt,
         owner: trip.missionLead,
         location: `${trip.originSite.city} -> ${trip.destinationSite.city}`,
@@ -881,6 +940,11 @@ export function buildDashboardView(): DashboardView {
   const fleets = buildFleetSummaries(totalTransportedKg)
   const flowBreakdown = buildFlowBreakdown(fleets, totalTransportedKg)
   const reserveSummary = buildReserveSummary(reserveSites)
+  const routeContributions = buildRouteContributions(
+    routeViews,
+    totalTransportedKg,
+    totalDeliveredKg
+  )
   const recentActivities = buildRecentActivities(
     routeViews,
     reserveSites,
@@ -914,7 +978,7 @@ export function buildDashboardView(): DashboardView {
     metrics: [
       {
         id: 'transported',
-        title: 'Volumes transportes',
+        title: 'Volumes transportés',
         value: totalTransportedKg,
         unit: 'kg',
         tone: 'sky',
@@ -925,7 +989,7 @@ export function buildDashboardView(): DashboardView {
         deltaDirection: getTrendDirection(
           dailyCurrent.transportedKg - dailyPrevious.transportedKg
         ),
-        description: "Volume charge sur l'ensemble des tournées visibles.",
+        description: "Volume chargé sur l'ensemble des tournées visibles.",
         highlight: `${routeSummary.activeTrips} tournées actives`,
       },
       {
@@ -957,7 +1021,7 @@ export function buildDashboardView(): DashboardView {
         deltaDirection: getTrendDirection(
           dailyCurrent.deliveredKg - dailyPrevious.deliveredKg
         ),
-        description: 'Volume déjà delivre ou depose sur les etapes confirmees.',
+        description: 'Volume déjà délivré ou déposé sur les étapes confirmées.',
         highlight: `${routeSummary.onTimeRate}% de service`,
       },
       {
@@ -974,7 +1038,7 @@ export function buildDashboardView(): DashboardView {
           dailyCurrent.alertCount - dailyPrevious.alertCount
         ),
         description:
-          'Ecarts de charge, réserve basse et retards a traiter par priorite.',
+          'Écarts de charge, réserve basse et retards à traiter par priorité.',
         highlight: `${alerts.filter((alert) => alert.severity === 'high').length} critiques`,
       },
     ],
@@ -983,6 +1047,7 @@ export function buildDashboardView(): DashboardView {
     flowBreakdown,
     reserveSummary,
     fleets,
+    routeContributions,
     reserveSites,
     alerts,
     recentActivities,

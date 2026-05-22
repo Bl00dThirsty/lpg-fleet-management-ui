@@ -4,27 +4,27 @@ import { type SidebarData } from '../types'
 export const sidebarData: SidebarData = {
   navGroups: [
     {
-      title: 'Operations',
-      items: [
-        {
-          title: 'Camions',
-          url: '/trucks',
-          icon: Truck,
-        },
-        {
-          title: 'Tournées GPL',
-          url: '/routes',
-          icon: Route,
-        },
-      ],
-    },
-    {
       title: 'Pilotage',
       items: [
         {
           title: 'Tableau de bord global',
           url: '/dashboard',
           icon: LayoutDashboard,
+        },
+      ],
+    },
+    {
+      title: 'Opérations',
+      items: [
+        {
+          title: 'Tournées GPL',
+          url: '/routes',
+          icon: Route,
+        },
+        {
+          title: 'Camions',
+          url: '/trucks',
+          icon: Truck,
         },
       ],
     },
