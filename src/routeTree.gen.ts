@@ -13,7 +13,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedTrucksIndexRouteImport } from './routes/_authenticated/trucks/index'
 import { Route as AuthenticatedRoutesIndexRouteImport } from './routes/_authenticated/routes/index'
+import { Route as AuthenticatedMarketersIndexRouteImport } from './routes/_authenticated/marketers/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
+import { Route as AuthenticatedMarketersMarketerIdRouteImport } from './routes/_authenticated/marketers/$marketerId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -36,22 +38,38 @@ const AuthenticatedRoutesIndexRoute =
     path: '/routes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMarketersIndexRoute =
+  AuthenticatedMarketersIndexRouteImport.update({
+    id: '/marketers/',
+    path: '/marketers/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/dashboard/',
     path: '/dashboard/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMarketersMarketerIdRoute =
+  AuthenticatedMarketersMarketerIdRouteImport.update({
+    id: '/marketers/$marketerId',
+    path: '/marketers/$marketerId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/marketers/': typeof AuthenticatedMarketersIndexRoute
   '/routes/': typeof AuthenticatedRoutesIndexRoute
   '/trucks/': typeof AuthenticatedTrucksIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
+  '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/marketers': typeof AuthenticatedMarketersIndexRoute
   '/routes': typeof AuthenticatedRoutesIndexRoute
   '/trucks': typeof AuthenticatedTrucksIndexRoute
 }
@@ -59,20 +77,36 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/marketers/': typeof AuthenticatedMarketersIndexRoute
   '/_authenticated/routes/': typeof AuthenticatedRoutesIndexRoute
   '/_authenticated/trucks/': typeof AuthenticatedTrucksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard/' | '/routes/' | '/trucks/'
+  fullPaths:
+    | '/'
+    | '/marketers/$marketerId'
+    | '/dashboard/'
+    | '/marketers/'
+    | '/routes/'
+    | '/trucks/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/routes' | '/trucks'
+  to:
+    | '/'
+    | '/marketers/$marketerId'
+    | '/dashboard'
+    | '/marketers'
+    | '/routes'
+    | '/trucks'
   id:
     | '__root__'
     | '/_authenticated'
     | '/_authenticated/'
+    | '/_authenticated/marketers/$marketerId'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/marketers/'
     | '/_authenticated/routes/'
     | '/_authenticated/trucks/'
   fileRoutesById: FileRoutesById
@@ -111,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRoutesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/marketers/': {
+      id: '/_authenticated/marketers/'
+      path: '/marketers'
+      fullPath: '/marketers/'
+      preLoaderRoute: typeof AuthenticatedMarketersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/dashboard'
@@ -118,19 +159,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/marketers/$marketerId': {
+      id: '/_authenticated/marketers/$marketerId'
+      path: '/marketers/$marketerId'
+      fullPath: '/marketers/$marketerId'
+      preLoaderRoute: typeof AuthenticatedMarketersMarketerIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedMarketersMarketerIdRoute: typeof AuthenticatedMarketersMarketerIdRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedMarketersIndexRoute: typeof AuthenticatedMarketersIndexRoute
   AuthenticatedRoutesIndexRoute: typeof AuthenticatedRoutesIndexRoute
   AuthenticatedTrucksIndexRoute: typeof AuthenticatedTrucksIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedMarketersMarketerIdRoute: AuthenticatedMarketersMarketerIdRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedMarketersIndexRoute: AuthenticatedMarketersIndexRoute,
   AuthenticatedRoutesIndexRoute: AuthenticatedRoutesIndexRoute,
   AuthenticatedTrucksIndexRoute: AuthenticatedTrucksIndexRoute,
 }
