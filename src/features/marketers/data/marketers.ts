@@ -41,3 +41,7 @@ export const marketers: Marketer[] = [
   { id: 'MKT-024', name: 'TABE PET.', status: 'active', region: 'National', contactEmail: 'contact@tabepet.cm', contactPhone: '+237 600000024' },
   { id: 'MKT-025', name: 'GDC', status: 'active', region: 'National', contactEmail: 'contact@gdc.cm', contactPhone: '+237 600000025' },
 ]
+
+export function getMarketerById(id: string): Marketer | undefined {
+  return marketers.find((m) => m.id === id)
+}

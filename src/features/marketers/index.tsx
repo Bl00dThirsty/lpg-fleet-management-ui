@@ -9,6 +9,10 @@ export function MarketersPage() {
   const search = route.useSearch()
   const navigate = route.useNavigate()
 
+  const handleViewDetails = (marketer: { id: string }) => {
+    navigate({ to: `/marketers/${marketer.id}` })
+  }
+
   return (
     <main
       id='main-content'
@@ -24,6 +28,7 @@ export function MarketersPage() {
           data={marketers}
           search={search}
           navigate={navigate}
+          onViewDetails={handleViewDetails}
         />
       </section>
     </main>

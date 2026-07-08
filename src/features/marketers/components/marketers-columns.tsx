@@ -6,7 +6,13 @@ import { DataTableColumnHeader } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
 import { marketerStatusOptions, type Marketer } from '../data/marketers'
 
-export function getMarketersColumns(): ColumnDef<Marketer>[] {
+type MarketersColumnsProps = {
+  onViewDetails: (marketer: Marketer) => void
+}
+
+export function getMarketersColumns({
+  onViewDetails,
+}: MarketersColumnsProps): ColumnDef<Marketer>[] {
   return [
     {
       id: 'select',
@@ -41,9 +47,13 @@ export function getMarketersColumns(): ColumnDef<Marketer>[] {
         <DataTableColumnHeader column={column} title='ID Marketer' />
       ),
       cell: ({ row }) => (
-        <div className='ps-3 text-left font-medium'>
+        <button
+          type='button'
+          onClick={() => onViewDetails(row.original)}
+          className='ps-3 text-left font-medium text-primary underline-offset-4 hover:underline'
+        >
           {row.original.id}
-        </div>
+        </button>
       ),
       meta: {
         label: 'ID Marketer',

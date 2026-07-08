@@ -29,17 +29,22 @@ type MarketersTableProps = {
   data: Marketer[]
   search: Record<string, unknown>
   navigate: NavigateFn
+  onViewDetails: (marketer: Marketer) => void
 }
 
 export function MarketersTable({
   data,
   search,
   navigate,
+  onViewDetails,
 }: MarketersTableProps) {
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
-  const columns = useMemo(() => getMarketersColumns(), [])
+  const columns = useMemo(
+    () => getMarketersColumns({ onViewDetails }),
+    [onViewDetails]
+  )
 
   const {
     columnFilters,
@@ -140,6 +145,7 @@ export function MarketersTable({
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                   className='group/row'
+                  onDoubleClick={() => onViewDetails(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
