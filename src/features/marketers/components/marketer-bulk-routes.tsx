@@ -2,7 +2,7 @@ import { type Marketer } from '../data/marketers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-export function MarketerBulkRoutes({ marketer }: { marketer: Marketer }) {
+export function MarketerBulkRoutes({ marketer: _marketer }: { marketer: Marketer }) {
   // Données simulées pour les tournées vrac
   const bulkRoutes = [
     { id: 'RT-V-01', truck: 'LT 1234 AB', origin: 'Dépôt Bonaberi', destination: 'Station Akwa', status: 'en cours', volume: '18 000 L' },
