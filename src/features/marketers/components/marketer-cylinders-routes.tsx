@@ -2,7 +2,7 @@ import { type Marketer } from '../data/marketers'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
-export function MarketerCylindersRoutes({ marketer }: { marketer: Marketer }) {
+export function MarketerCylindersRoutes({ marketer: _marketer }: { marketer: Marketer }) {
   // Données simulées pour les tournées 50 kg
   const cylinderRoutes = [
     { id: 'RT-C-01', truck: 'LT 5555 ZZ', origin: 'Centre Emplisseur Bonaberi', destination: 'Boulangerie Saker', status: 'en cours', quantity: '45 Bouteilles' },
