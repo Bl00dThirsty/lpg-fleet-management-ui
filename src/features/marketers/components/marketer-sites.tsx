@@ -1,16 +1,11 @@
 import { type Marketer } from '../data/marketers'
+import { getMarketerSites } from '../data/marketer-sites'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { sites, siteTypeLabels, type SiteType } from '@/features/sites/data/sites'
+import { siteTypeLabels, type SiteType } from '@/features/sites/data/sites'
 import { Badge } from '@/components/ui/badge'
 
 export function MarketerSites({ marketer }: { marketer: Marketer }) {
-  // Filtre simulé : on prend quelques sites au hasard pour ce marketer ou ceux qui contiennent son nom.
-  const marketerSites = sites.filter(
-    (site) =>
-      site.operator.toLowerCase().includes(marketer.name.toLowerCase()) ||
-      site.type === 'depot' ||
-      site.type === 'marketer'
-  ).slice(0, 5)
+  const sites = getMarketerSites(marketer.id)
 
   return (
     <Card>
@@ -20,7 +15,7 @@ export function MarketerSites({ marketer }: { marketer: Marketer }) {
       <CardContent className='px-0 sm:px-6'>
         {/* Mobile: card list */}
         <div className='flex flex-col gap-3 sm:hidden'>
-          {marketerSites.map((site) => (
+          {sites.map((site) => (
             <div key={site.id} className='border rounded-lg p-3 mx-3'>
               <div className='flex items-start justify-between gap-2'>
                 <p className='font-medium text-sm leading-tight'>{site.name}</p>
@@ -35,9 +30,9 @@ export function MarketerSites({ marketer }: { marketer: Marketer }) {
               </div>
             </div>
           ))}
-          {marketerSites.length === 0 && (
+          {sites.length === 0 && (
             <p className='p-4 text-center text-muted-foreground'>
-              Aucun site trouvé pour ce marketer.
+              Aucun site enregistré pour ce marketer.
             </p>
           )}
         </div>
@@ -50,15 +45,17 @@ export function MarketerSites({ marketer }: { marketer: Marketer }) {
                 <th className='p-3 font-medium'>Nom du Site</th>
                 <th className='p-3 font-medium'>Type</th>
                 <th className='p-3 font-medium'>Ville</th>
+                <th className='p-3 font-medium'>Région</th>
                 <th className='p-3 font-medium'>Statut</th>
               </tr>
             </thead>
             <tbody>
-              {marketerSites.map((site) => (
+              {sites.map((site) => (
                 <tr key={site.id} className='border-t'>
                   <td className='p-3 font-medium'>{site.name}</td>
                   <td className='p-3'>{siteTypeLabels[site.type as SiteType]}</td>
                   <td className='p-3'>{site.city}</td>
+                  <td className='p-3'>{site.region}</td>
                   <td className='p-3'>
                     <Badge variant={site.status === 'active' ? 'default' : 'secondary'}>
                       {site.status}
@@ -66,10 +63,10 @@ export function MarketerSites({ marketer }: { marketer: Marketer }) {
                   </td>
                 </tr>
               ))}
-              {marketerSites.length === 0 && (
+              {sites.length === 0 && (
                 <tr>
-                  <td colSpan={4} className='p-4 text-center text-muted-foreground'>
-                    Aucun site trouvé pour ce marketer.
+                  <td colSpan={5} className='p-4 text-center text-muted-foreground'>
+                    Aucun site enregistré pour ce marketer.
                   </td>
                 </tr>
               )}

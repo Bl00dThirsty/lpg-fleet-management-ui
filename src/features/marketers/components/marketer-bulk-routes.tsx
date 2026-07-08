@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge'
 export function MarketerBulkRoutes({ marketer: _marketer }: { marketer: Marketer }) {
   // Données simulées pour les tournées vrac
   const bulkRoutes = [
-    { id: 'RT-V-01', truck: 'LT 1234 AB', origin: 'Dépôt Bonaberi', destination: 'Station Akwa', status: 'en cours', volume: '18 000 L' },
-    { id: 'RT-V-02', truck: 'CE 9876 XY', origin: 'SCDP Yaounde', destination: 'Station Nsam', status: 'terminé', volume: '22 000 L' },
+    { id: 'RT-V-01', truck: 'LT 1234 AB', origin: 'Dépôt Bonaberi', destination: 'Station Akwa', status: 'en cours', volume: '18 TM' },
+    { id: 'RT-V-02', truck: 'CE 9876 XY', origin: 'SCDP Yaounde', destination: 'Station Nsam', status: 'terminé', volume: '22 TM' },
   ]
 
   return (

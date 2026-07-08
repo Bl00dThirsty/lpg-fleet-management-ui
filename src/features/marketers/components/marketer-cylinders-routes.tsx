@@ -13,7 +13,7 @@ export function MarketerCylindersRoutes({ marketer: _marketer }: { marketer: Mar
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-base sm:text-lg'>Tournées 50 kg (Clients Industriels)</CardTitle>
+        <CardTitle className='text-base sm:text-lg'>Tournées 50 kg (B2B)</CardTitle>
       </CardHeader>
       <CardContent className='px-0 sm:px-6'>
         {/* Mobile: card list */}
