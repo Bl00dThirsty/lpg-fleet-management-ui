@@ -9,10 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
-import type { Tournee } from '../data/tournee-data'
-import { TourneeRouteMap } from './tournee-route-map'
+import type { Trip } from '../data/trip-data'
+import { TripRouteMap } from './trip-route-map'
 
-const progressRingClasses: Record<Tournee['status'], string> = {
+const progressRingClasses: Record<Trip['status'], string> = {
   Planifié: 'text-slate-400',
   'En transit': 'text-blue-500',
   'En livraison': 'text-amber-500',
@@ -20,7 +20,7 @@ const progressRingClasses: Record<Tournee['status'], string> = {
   Retardé: 'text-rose-500',
 }
 
-const statusBadgeClasses: Record<Tournee['status'], string> = {
+const statusBadgeClasses: Record<Trip['status'], string> = {
   Planifié: 'border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
   'En transit': 'border-blue-200 bg-blue-100 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400',
   'En livraison': 'border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400',
@@ -28,11 +28,11 @@ const statusBadgeClasses: Record<Tournee['status'], string> = {
   Retardé: 'border-rose-200 bg-rose-100 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-400',
 }
 
-type TourneeDetailsProps = {
-  tournee: Tournee | null
+type TripDetailsProps = {
+  trip: Trip | null
 }
 
-function EmptyTourneeOverview() {
+function EmptyTripOverview() {
   return (
     <div className='grid min-h-[12rem] place-items-center rounded-lg border border-dashed text-muted-foreground text-sm'>
       Sélectionnez une tournée pour voir les détails.
@@ -40,27 +40,27 @@ function EmptyTourneeOverview() {
   )
 }
 
-function TourneeOverview({ tournee }: { tournee: Tournee }) {
+function TripOverview({ trip }: { trip: Trip }) {
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
         <div className='flex items-center gap-2'>
-          <h1 className='font-medium text-lg tabular-nums tracking-tight sm:text-xl'>{tournee.id}</h1>
+          <h1 className='font-medium text-lg tabular-nums tracking-tight sm:text-xl'>{trip.id}</h1>
           <Button variant='ghost' size='icon' className='h-8 w-8' aria-label='Copier ID'>
             <Copy className='h-4 w-4' />
           </Button>
         </div>
 
         <div className='flex items-center gap-2 text-xs sm:text-sm'>
-          <Badge variant='outline' className={cn('gap-1.5', statusBadgeClasses[tournee.status])}>
-            <span className={cn('size-1.5 rounded-full bg-current', progressRingClasses[tournee.status])} />
-            {tournee.status}
+          <Badge variant='outline' className={cn('gap-1.5', statusBadgeClasses[trip.status])}>
+            <span className={cn('size-1.5 rounded-full bg-current', progressRingClasses[trip.status])} />
+            {trip.status}
           </Badge>
           <span className='text-muted-foreground'>·</span>
-          <span className='text-foreground tabular-nums'>{tournee.progress}% complété</span>
+          <span className='text-foreground tabular-nums'>{trip.progress}% complété</span>
           <span className='text-muted-foreground'>·</span>
           <span className='text-foreground tabular-nums'>
-            ETA: {tournee.eta} {tournee.etaMeta && <span className='text-muted-foreground'>({tournee.etaMeta})</span>}
+            ETA: {trip.eta} {trip.etaMeta && <span className='text-muted-foreground'>({trip.etaMeta})</span>}
           </span>
         </div>
       </div>
@@ -71,12 +71,12 @@ function TourneeOverview({ tournee }: { tournee: Tournee }) {
         <div className='flex items-center gap-3'>
           <Avatar className='h-10 w-10'>
             <AvatarFallback className='rounded-md bg-primary/10 text-primary font-bold'>
-              {tournee.marketer.initials}
+              {trip.marketer.initials}
             </AvatarFallback>
           </Avatar>
 
           <div className='flex flex-col'>
-            <div className='font-medium text-sm'>{tournee.marketer.name}</div>
+            <div className='font-medium text-sm'>{trip.marketer.name}</div>
             <div className='text-muted-foreground text-xs'>Marketer</div>
           </div>
         </div>
@@ -84,7 +84,7 @@ function TourneeOverview({ tournee }: { tournee: Tournee }) {
         <div className='flex flex-col items-end gap-1'>
           <Badge variant='secondary' className='gap-1'>
             <Star className='h-3 w-3 fill-amber-400 text-amber-400' />
-            {tournee.marketer.tier}
+            {trip.marketer.tier}
           </Badge>
         </div>
       </div>
@@ -105,26 +105,26 @@ function TourneeOverview({ tournee }: { tournee: Tournee }) {
             <div className='text-muted-foreground text-xs'>Marchandise</div>
             <div className='text-sm font-medium flex items-center gap-2'>
               <PackageOpen className='h-4 w-4 text-muted-foreground' />
-              {tournee.cargo}
+              {trip.cargo}
             </div>
           </div>
 
           <div className='flex flex-col gap-1.5'>
             <div className='text-muted-foreground text-xs'>Volume / Quantité</div>
-            <div className='text-sm font-medium'>{tournee.volume}</div>
+            <div className='text-sm font-medium'>{trip.volume}</div>
           </div>
 
           <div className='flex flex-col gap-1.5'>
             <div className='text-muted-foreground text-xs'>Camion assigné</div>
             <div className='text-sm font-medium flex items-center gap-2'>
               <Truck className='h-4 w-4 text-muted-foreground' />
-              {tournee.truckPlate}
+              {trip.truckPlate}
             </div>
           </div>
 
           <div className='flex flex-col gap-1.5 md:text-right'>
             <div className='text-muted-foreground text-xs'>Chauffeur</div>
-            <div className='text-sm font-medium'>{tournee.driver}</div>
+            <div className='text-sm font-medium'>{trip.driver}</div>
           </div>
         </div>
       </div>
@@ -133,21 +133,21 @@ function TourneeOverview({ tournee }: { tournee: Tournee }) {
 
       <Alert className={cn(
         'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/50 dark:text-amber-200',
-        tournee.handling.tags.some(t => t.type === 'info') && 'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-200'
+        trip.handling.tags.some(t => t.type === 'info') && 'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/50 dark:text-blue-200'
       )}>
-        {tournee.handling.tags.some(t => t.type === 'info') ? (
+        {trip.handling.tags.some(t => t.type === 'info') ? (
           <Info className='h-4 w-4' />
         ) : (
           <AlertTriangleIcon className='h-4 w-4' />
         )}
-        <AlertTitle className='font-semibold'>{tournee.handling.label}</AlertTitle>
+        <AlertTitle className='font-semibold'>{trip.handling.label}</AlertTitle>
         <AlertDescription className='mt-2 space-y-3'>
           <div className='text-sm'>
-            {tournee.handling.note}
+            {trip.handling.note}
           </div>
           
           <div className='flex flex-wrap gap-2'>
-            {tournee.handling.tags.map((tag) => (
+            {trip.handling.tags.map((tag) => (
               <Badge
                 key={tag.label}
                 variant='outline'
@@ -166,15 +166,15 @@ function TourneeOverview({ tournee }: { tournee: Tournee }) {
   )
 }
 
-export function TourneeDetails({ tournee }: TourneeDetailsProps) {
-  if (!tournee) {
+export function TripDetails({ trip }: TripDetailsProps) {
+  if (!trip) {
     return (
       <div className='grid h-full min-h-0 grid-rows-[320px_1fr] overflow-hidden lg:grid-rows-[420px_1fr]'>
         <div className='min-h-0 overflow-hidden border-b'>
-          <TourneeRouteMap tournee={null} />
+          <TripRouteMap trip={null} />
         </div>
         <div className='min-h-0 overflow-auto p-4 sm:p-6'>
-          <EmptyTourneeOverview />
+          <EmptyTripOverview />
         </div>
       </div>
     )
@@ -183,7 +183,7 @@ export function TourneeDetails({ tournee }: TourneeDetailsProps) {
   return (
     <div className='grid h-full min-h-0 grid-rows-[320px_1fr] overflow-hidden lg:grid-rows-[420px_1fr]'>
       <div className='min-h-0 overflow-hidden border-b'>
-        <TourneeRouteMap tournee={tournee} />
+        <TripRouteMap trip={trip} />
       </div>
       <div className='min-h-0 overflow-hidden'>
         <div className='h-full min-h-0'>
@@ -213,7 +213,7 @@ export function TourneeDetails({ tournee }: TourneeDetailsProps) {
             
             <ScrollArea className='flex-1'>
               <TabsContent value='overview' className='m-0 p-4 sm:p-6'>
-                <TourneeOverview tournee={tournee} />
+                <TripOverview trip={trip} />
               </TabsContent>
               <TabsContent value='documents' className='m-0 p-4 sm:p-6'>
                 <div className='grid min-h-[12rem] place-items-center rounded-lg border border-dashed text-muted-foreground text-sm'>

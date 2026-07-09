@@ -1,12 +1,12 @@
-import { type Transporteur } from '../data/transporteurs'
-import { getTransporteurTrucks } from '../data/transporteur-trucks'
-import { getTransporteurRoutes } from '../data/transporteur-routes'
+import { type Transporter } from '../data/transporters'
+import { getTransporterTrucks } from '../data/transporter-trucks'
+import { getTransporterRoutes } from '../data/transporter-routes'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Truck, Route, Phone, Mail, MapPin } from 'lucide-react'
 
-export function TransporteurOverview({ transporteur }: { transporteur: Transporteur }) {
-  const trucks = getTransporteurTrucks(transporteur.id)
-  const routes = getTransporteurRoutes(transporteur.id)
+export function TransporterOverview({ transporter }: { transporter: Transporter }) {
+  const trucks = getTransporterTrucks(transporter.id)
+  const routes = getTransporterRoutes(transporter.id)
   const activeTrucks = trucks.filter((t) => t.status === 'in_transit').length
   const activeRoutes = routes.filter((r) => r.status === 'en cours').length
 
@@ -48,8 +48,8 @@ export function TransporteurOverview({ transporteur }: { transporteur: Transport
           <Truck className='w-4 h-4 text-muted-foreground' />
         </CardHeader>
         <CardContent>
-          <div className='text-2xl font-bold capitalize'>{transporteur.status === 'active' ? 'Actif' : 'Inactif'}</div>
-          <p className='text-xs text-muted-foreground'>Région : {transporteur.region}</p>
+          <div className='text-2xl font-bold capitalize'>{transporter.status === 'active' ? 'Actif' : 'Inactif'}</div>
+          <p className='text-xs text-muted-foreground'>Région : {transporter.region}</p>
         </CardContent>
       </Card>
 
@@ -60,15 +60,15 @@ export function TransporteurOverview({ transporteur }: { transporteur: Transport
         <CardContent className='flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-8 sm:gap-y-3'>
           <div className='flex items-center gap-2 min-w-0'>
             <MapPin className='w-4 h-4 shrink-0 text-muted-foreground' />
-            <span className='text-sm truncate'>Région: {transporteur.region}</span>
+            <span className='text-sm truncate'>Région: {transporter.region}</span>
           </div>
           <div className='flex items-center gap-2 min-w-0'>
             <Mail className='w-4 h-4 shrink-0 text-muted-foreground' />
-            <span className='text-sm truncate'>{transporteur.contactEmail}</span>
+            <span className='text-sm truncate'>{transporter.contactEmail}</span>
           </div>
           <div className='flex items-center gap-2 min-w-0'>
             <Phone className='w-4 h-4 shrink-0 text-muted-foreground' />
-            <span className='text-sm truncate'>{transporteur.contactPhone}</span>
+            <span className='text-sm truncate'>{transporter.contactPhone}</span>
           </div>
         </CardContent>
       </Card>

@@ -22,27 +22,27 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import { transporteurStatusOptions, type Transporteur } from '../data/transporteurs'
-import { getTransporteursColumns } from './transporteurs-columns'
+import { transporterStatusOptions, type Transporter } from '../data/transporters'
+import { getTransportersColumns } from './transporters-columns'
 
-type TransporteursTableProps = {
-  data: Transporteur[]
+type TransportersTableProps = {
+  data: Transporter[]
   search: Record<string, unknown>
   navigate: NavigateFn
-  onViewDetails: (transporteur: Transporteur) => void
+  onViewDetails: (transporter: Transporter) => void
 }
 
-export function TransporteursTable({
+export function TransportersTable({
   data,
   search,
   navigate,
   onViewDetails,
-}: TransporteursTableProps) {
+}: TransportersTableProps) {
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
   const columns = useMemo(
-    () => getTransporteursColumns({ onViewDetails }),
+    () => getTransportersColumns({ onViewDetails }),
     [onViewDetails]
   )
 
@@ -101,13 +101,13 @@ export function TransporteursTable({
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher transporteur...'
+        searchPlaceholder='Rechercher transporter...'
         searchKey='name'
         filters={[
           {
             columnId: 'status',
             title: 'Statut',
-            options: transporteurStatusOptions,
+            options: transporterStatusOptions,
           },
         ]}
       />

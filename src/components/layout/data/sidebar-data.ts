@@ -39,7 +39,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Transporteurs',
           icon: Handshake,
-          url: '/transporteurs',
+          url: '/transporters',
         },
       ],
     },
@@ -49,7 +49,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Suivi de mes tournées',
           icon: MapIcon,
-          url: '/activite/suivi-tournees',
+          url: '/activity/trip-tracking',
         },
       ],
     },

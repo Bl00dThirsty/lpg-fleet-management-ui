@@ -1,5 +1,5 @@
-import { type Transporteur } from '../data/transporteurs'
-import { getTransporteurTrucks, truckStatusLabels } from '../data/transporteur-trucks'
+import { type Transporter } from '../data/transporters'
+import { getTransporterTrucks, truckStatusLabels } from '../data/transporter-trucks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -9,13 +9,13 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
   maintenance: 'secondary',
 }
 
-export function TransporteurTrucksList({ transporteur }: { transporteur: Transporteur }) {
-  const trucks = getTransporteurTrucks(transporteur.id)
+export function TransporterTrucksList({ transporter }: { transporter: Transporter }) {
+  const trucks = getTransporterTrucks(transporter.id)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-base sm:text-lg'>Camions de {transporteur.name}</CardTitle>
+        <CardTitle className='text-base sm:text-lg'>Camions de {transporter.name}</CardTitle>
       </CardHeader>
       <CardContent className='px-0 sm:px-6'>
         {/* Mobile: card list */}
@@ -49,7 +49,7 @@ export function TransporteurTrucksList({ transporteur }: { transporteur: Transpo
           ))}
           {trucks.length === 0 && (
             <p className='p-4 text-center text-muted-foreground'>
-              Aucun camion enregistré pour ce transporteur.
+              Aucun camion enregistré pour ce transporter.
             </p>
           )}
         </div>
@@ -85,7 +85,7 @@ export function TransporteurTrucksList({ transporteur }: { transporteur: Transpo
               {trucks.length === 0 && (
                 <tr>
                   <td colSpan={6} className='p-4 text-center text-muted-foreground'>
-                    Aucun camion enregistré pour ce transporteur.
+                    Aucun camion enregistré pour ce transporter.
                   </td>
                 </tr>
               )}

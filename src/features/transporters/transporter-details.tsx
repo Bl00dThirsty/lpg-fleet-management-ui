@@ -2,24 +2,24 @@ import { getRouteApi } from '@tanstack/react-router'
 import { Truck as TruckIcon, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { getTransporteurById } from './data/transporteurs'
-import { TransporteurOverview } from './components/transporteur-overview'
-import { TransporteurTrucksList } from './components/transporteur-trucks-list'
-import { TransporteurHistory } from './components/transporteur-history'
+import { getTransporterById } from './data/transporters'
+import { TransporterOverview } from './components/transporter-overview'
+import { TransporterTrucksList } from './components/transporter-trucks-list'
+import { TransporterHistory } from './components/transporter-history'
 
-const route = getRouteApi('/_authenticated/transporteurs/$transporteurId')
+const route = getRouteApi('/_authenticated/transporters/$transporterId')
 
-export function TransporteurDetailsPage() {
-  const { transporteurId } = route.useParams()
+export function TransporterDetailsPage() {
+  const { transporterId } = route.useParams()
   const navigate = route.useNavigate()
-  const transporteur = getTransporteurById(transporteurId)
+  const transporter = getTransporterById(transporterId)
 
-  if (!transporteur) {
+  if (!transporter) {
     return (
       <main className='flex-1 p-4 sm:p-6'>
         <div className='flex flex-col items-center justify-center h-[50vh] space-y-4'>
-          <h2 className='text-2xl font-bold'>Transporteur non trouvé</h2>
-          <Button variant='outline' onClick={() => navigate({ to: '/transporteurs' })}>
+          <h2 className='text-2xl font-bold'>Transporter non trouvé</h2>
+          <Button variant='outline' onClick={() => navigate({ to: '/transporters' })}>
             Retour à la liste
           </Button>
         </div>
@@ -38,7 +38,7 @@ export function TransporteurDetailsPage() {
             variant='ghost'
             size='icon'
             className='shrink-0'
-            onClick={() => navigate({ to: '/transporteurs' })}
+            onClick={() => navigate({ to: '/transporters' })}
           >
             <ArrowLeft className='h-5 w-5' />
           </Button>
@@ -47,8 +47,8 @@ export function TransporteurDetailsPage() {
               <TruckIcon className='h-6 w-6 text-primary' />
             </div>
             <div className='min-w-0'>
-              <h1 className='text-xl sm:text-2xl font-bold tracking-tight truncate'>{transporteur.name}</h1>
-              <p className='text-xs sm:text-sm text-muted-foreground truncate'>{transporteur.region} • {transporteur.contactEmail}</p>
+              <h1 className='text-xl sm:text-2xl font-bold tracking-tight truncate'>{transporter.name}</h1>
+              <p className='text-xs sm:text-sm text-muted-foreground truncate'>{transporter.region} • {transporter.contactEmail}</p>
             </div>
           </div>
         </div>
@@ -64,13 +64,13 @@ export function TransporteurDetailsPage() {
         </div>
         <div className='mt-4'>
           <TabsContent value='overview' className='m-0'>
-            <TransporteurOverview transporteur={transporteur} />
+            <TransporterOverview transporter={transporter} />
           </TabsContent>
           <TabsContent value='trucks' className='m-0'>
-            <TransporteurTrucksList transporteur={transporteur} />
+            <TransporterTrucksList transporter={transporter} />
           </TabsContent>
           <TabsContent value='history' className='m-0'>
-            <TransporteurHistory transporteur={transporteur} />
+            <TransporterHistory transporter={transporter} />
           </TabsContent>
         </div>
       </Tabs>

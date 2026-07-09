@@ -11,7 +11,7 @@ import Point from '@arcgis/core/geometry/Point'
 import esriConfig from '@arcgis/core/config'
 import { Loader2, Navigation } from 'lucide-react'
 
-import type { Tournee } from '../data/tournee-data'
+import type { Trip } from '../data/trip-data'
 
 // Configure API Key (make sure it's defined in .env)
 if (import.meta.env.VITE_ARCGIS_API_KEY) {
@@ -20,11 +20,11 @@ if (import.meta.env.VITE_ARCGIS_API_KEY) {
 
 const routeUrl = 'https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World'
 
-type TourneeRouteMapProps = {
-  tournee: Tournee | null
+type TripRouteMapProps = {
+  trip: Trip | null
 }
 
-export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
+export function TripRouteMap({ trip }: TripRouteMapProps) {
   const mapDiv = useRef<HTMLDivElement>(null)
   const viewRef = useRef<MapView | null>(null)
   const routeLayerRef = useRef<GraphicsLayer | null>(null)
@@ -61,9 +61,9 @@ export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
     }
   }, [])
 
-  // Update Route when tournee changes
+  // Update Route when trip changes
   useEffect(() => {
-    if (!viewRef.current || !routeLayerRef.current || !tournee) return
+    if (!viewRef.current || !routeLayerRef.current || !trip) return
 
     const view = viewRef.current
     const routeLayer = routeLayerRef.current
@@ -73,13 +73,13 @@ export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
     setError(null)
 
     const originPoint = new Point({
-      longitude: tournee.origin.coordinates[0],
-      latitude: tournee.origin.coordinates[1],
+      longitude: trip.origin.coordinates[0],
+      latitude: trip.origin.coordinates[1],
     })
 
     const destinationPoint = new Point({
-      longitude: tournee.destination.coordinates[0],
-      latitude: tournee.destination.coordinates[1],
+      longitude: trip.destination.coordinates[0],
+      latitude: trip.destination.coordinates[1],
     })
 
     // Define marker styles
@@ -108,13 +108,13 @@ export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
     const originGraphic = new Graphic({
       geometry: originPoint,
       symbol: originSymbol,
-      attributes: { Name: tournee.origin.name },
+      attributes: { Name: trip.origin.name },
     })
 
     const destinationGraphic = new Graphic({
       geometry: destinationPoint,
       symbol: destSymbol,
-      attributes: { Name: tournee.destination.name },
+      attributes: { Name: trip.destination.name },
     })
 
     routeLayer.addMany([originGraphic, destinationGraphic])
@@ -156,9 +156,9 @@ export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
       .finally(() => {
         setIsCalculating(false)
       })
-  }, [tournee])
+  }, [trip])
 
-  if (!tournee) {
+  if (!trip) {
     return (
       <div className='flex h-full w-full items-center justify-center bg-muted/30'>
         <div className='flex flex-col items-center text-muted-foreground'>

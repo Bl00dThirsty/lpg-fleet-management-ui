@@ -1,16 +1,16 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Truck as TruckIcon } from 'lucide-react'
-import { TransporteursTable } from './components/transporteurs-table'
-import { transporteurs } from './data/transporteurs'
+import { TransportersTable } from './components/transporters-table'
+import { transporters } from './data/transporters'
 
-const route = getRouteApi('/_authenticated/transporteurs/')
+const route = getRouteApi('/_authenticated/transporters/')
 
-export function TransporteursPage() {
+export function TransportersPage() {
   const search = route.useSearch()
   const navigate = route.useNavigate()
 
-  const handleViewDetails = (transporteur: { id: string }) => {
-    navigate({ to: `/transporteurs/${transporteur.id}` })
+  const handleViewDetails = (transporter: { id: string }) => {
+    navigate({ to: `/transporters/${transporter.id}` })
   }
 
   return (
@@ -20,12 +20,12 @@ export function TransporteursPage() {
     >
       <div className='flex items-center gap-2 mb-4'>
         <TruckIcon className='h-6 w-6 text-primary' />
-        <h1 className='text-2xl font-bold tracking-tight'>Transporteurs</h1>
+        <h1 className='text-2xl font-bold tracking-tight'>Transporters</h1>
       </div>
 
       <section className='rounded-2xl border-transparent bg-background/88 p-3 shadow-sm backdrop-blur-sm sm:p-4'>
-        <TransporteursTable
-          data={transporteurs}
+        <TransportersTable
+          data={transporters}
           search={search}
           navigate={navigate}
           onViewDetails={handleViewDetails}

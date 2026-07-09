@@ -1,5 +1,5 @@
-import { type Transporteur } from '../data/transporteurs'
-import { getTransporteurRoutes } from '../data/transporteur-routes'
+import { type Transporter } from '../data/transporters'
+import { getTransporterRoutes } from '../data/transporter-routes'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -9,8 +9,8 @@ const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
   'planifié': 'outline',
 }
 
-export function TransporteurHistory({ transporteur }: { transporteur: Transporteur }) {
-  const routes = getTransporteurRoutes(transporteur.id)
+export function TransporterHistory({ transporter }: { transporter: Transporter }) {
+  const routes = getTransporterRoutes(transporter.id)
 
   return (
     <Card>
@@ -57,7 +57,7 @@ export function TransporteurHistory({ transporteur }: { transporteur: Transporte
           ))}
           {routes.length === 0 && (
             <p className='p-4 text-center text-muted-foreground'>
-              Aucune tournée enregistrée pour ce transporteur.
+              Aucune tournée enregistrée pour ce transporter.
             </p>
           )}
         </div>
@@ -97,7 +97,7 @@ export function TransporteurHistory({ transporteur }: { transporteur: Transporte
               {routes.length === 0 && (
                 <tr>
                   <td colSpan={8} className='p-4 text-center text-muted-foreground'>
-                    Aucune tournée enregistrée pour ce transporteur.
+                    Aucune tournée enregistrée pour ce transporter.
                   </td>
                 </tr>
               )}

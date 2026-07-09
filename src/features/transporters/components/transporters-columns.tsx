@@ -3,15 +3,15 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table'
-import { transporteurStatusOptions, type Transporteur } from '../data/transporteurs'
+import { transporterStatusOptions, type Transporter } from '../data/transporters'
 
-type TransporteursColumnsProps = {
-  onViewDetails: (transporteur: Transporteur) => void
+type TransportersColumnsProps = {
+  onViewDetails: (transporter: Transporter) => void
 }
 
-export function getTransporteursColumns({
+export function getTransportersColumns({
   onViewDetails,
-}: TransporteursColumnsProps): ColumnDef<Transporteur>[] {
+}: TransportersColumnsProps): ColumnDef<Transporter>[] {
   return [
     {
       id: 'select',
@@ -80,7 +80,7 @@ export function getTransporteursColumns({
       ),
       cell: ({ row }) => {
         const status = row.original.status
-        const label = transporteurStatusOptions.find((o) => o.value === status)?.label
+        const label = transporterStatusOptions.find((o) => o.value === status)?.label
         return (
           <Badge variant={status === 'active' ? 'default' : 'secondary'}>
             {label}

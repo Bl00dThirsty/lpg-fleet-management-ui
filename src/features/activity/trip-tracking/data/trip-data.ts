@@ -1,4 +1,4 @@
-export type TourneeStatus =
+export type TripStatus =
   | 'Planifié'
   | 'En transit'
   | 'En livraison'
@@ -7,7 +7,7 @@ export type TourneeStatus =
 
 export type Coordinate = [number, number] // [longitude, latitude]
 
-export type TourneeLocation = {
+export type TripLocation = {
   name: string
   city: string
   coordinates: Coordinate
@@ -20,12 +20,12 @@ export type MarketerInfo = {
   tier: string
 }
 
-export type Tournee = {
+export type Trip = {
   id: string
-  status: TourneeStatus
+  status: TripStatus
   progress: number
-  origin: TourneeLocation
-  destination: TourneeLocation
+  origin: TripLocation
+  destination: TripLocation
   marketer: MarketerInfo
   cargo: string // e.g. "GPL Vrac" or "Bouteilles 12kg"
   volume: string // e.g. "18 TM" or "600 Bouteilles"
@@ -40,7 +40,7 @@ export type Tournee = {
   }
 }
 
-export const tournees: Tournee[] = [
+export const trips: Trip[] = [
   {
     id: 'TRN-2045',
     status: 'En transit',

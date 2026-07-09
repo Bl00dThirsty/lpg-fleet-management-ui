@@ -7,9 +7,9 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
-import type { Tournee } from '../data/tournee-data'
+import type { Trip } from '../data/trip-data'
 
-const progressRingClasses: Record<Tournee['status'], string> = {
+const progressRingClasses: Record<Trip['status'], string> = {
   Planifié: 'text-slate-400',
   'En transit': 'text-blue-500',
   'En livraison': 'text-amber-500',
@@ -17,27 +17,27 @@ const progressRingClasses: Record<Tournee['status'], string> = {
   Retardé: 'text-rose-500',
 }
 
-function getProgressRingClass(status: Tournee['status']) {
+function getProgressRingClass(status: Trip['status']) {
   return cn(
     'grid size-3 place-items-center rounded-full p-[0.5px] bg-[conic-gradient(currentColor_0deg_var(--angle),transparent_var(--angle)_360deg)]',
     progressRingClasses[status]
   )
 }
 
-type TourneeCardProps = {
+type TripCardProps = {
   active?: boolean
-  onSelectTournee: (id: Tournee['id']) => void
-  tournee: Tournee
+  onSelectTrip: (id: Trip['id']) => void
+  trip: Trip
 }
 
-type TourneeListProps = {
-  onSelectTournee: (id: Tournee['id']) => void
-  selectedTourneeId: Tournee['id'] | null
-  tournees: Tournee[]
+type TripListProps = {
+  onSelectTrip: (id: Trip['id']) => void
+  selectedTripId: Trip['id'] | null
+  trips: Trip[]
 }
 
-function TourneeCard({ tournee, active, onSelectTournee }: TourneeCardProps) {
-  const angle = (tournee.progress / 100) * 360
+function TripCard({ trip, active, onSelectTrip }: TripCardProps) {
+  const angle = (trip.progress / 100) * 360
 
   return (
     <button
@@ -45,7 +45,7 @@ function TourneeCard({ tournee, active, onSelectTournee }: TourneeCardProps) {
       aria-pressed={active}
       onClick={(event) => {
         event.currentTarget.blur()
-        onSelectTournee(tournee.id)
+        onSelectTrip(trip.id)
       }}
       className={cn(
         'flex w-full flex-col gap-5 rounded-xl border p-3 text-left transition-colors',
@@ -54,33 +54,33 @@ function TourneeCard({ tournee, active, onSelectTournee }: TourneeCardProps) {
       )}
     >
       <div className='flex items-center justify-between'>
-        <div className='font-medium'>{tournee.id}</div>
+        <div className='font-medium'>{trip.id}</div>
 
         <div className='flex items-center gap-1'>
           <div
             style={{ '--angle': `${angle}deg` } as React.CSSProperties}
-            className={getProgressRingClass(tournee.status)}
+            className={getProgressRingClass(trip.status)}
           >
             <div className='grid size-2 place-items-center rounded-full bg-card'>
               <div className='size-1 rounded-full bg-current' />
             </div>
           </div>
-          <div className='text-muted-foreground text-xs font-medium'>{tournee.status}</div>
+          <div className='text-muted-foreground text-xs font-medium'>{trip.status}</div>
         </div>
       </div>
 
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-1.5'>
           <div className='flex flex-col gap-0.5'>
-            <div className='font-medium text-xs leading-none'>{tournee.origin.city},</div>
-            <div className='text-muted-foreground text-xs'>{tournee.origin.name}</div>
+            <div className='font-medium text-xs leading-none'>{trip.origin.city},</div>
+            <div className='text-muted-foreground text-xs'>{trip.origin.name}</div>
           </div>
         </div>
 
         <div className='flex items-center gap-1.5 text-right'>
           <div className='flex flex-col gap-0.5 text-right'>
-            <div className='font-medium text-xs leading-none'>{tournee.destination.city},</div>
-            <div className='text-muted-foreground text-xs'>{tournee.destination.name}</div>
+            <div className='font-medium text-xs leading-none'>{trip.destination.city},</div>
+            <div className='text-muted-foreground text-xs'>{trip.destination.name}</div>
           </div>
         </div>
       </div>
@@ -88,26 +88,26 @@ function TourneeCard({ tournee, active, onSelectTournee }: TourneeCardProps) {
       <div className='flex items-center gap-0.5'>
         <span
           className='h-px min-w-0 border-foreground border-t border-dashed'
-          style={{ flexGrow: tournee.progress, flexBasis: 0 }}
+          style={{ flexGrow: trip.progress, flexBasis: 0 }}
         />
         <Truck className='size-4 text-primary' />
         <span
           className='h-px min-w-0 border-border border-t border-dashed'
-          style={{ flexGrow: 100 - tournee.progress, flexBasis: 0 }}
+          style={{ flexGrow: 100 - trip.progress, flexBasis: 0 }}
         />
       </div>
 
       <div className='flex items-center justify-between'>
         <div>
           <div className='text-muted-foreground text-xs leading-none'>Chargement</div>
-          <div className='truncate text-sm tracking-tight font-medium'>{tournee.cargo} - {tournee.volume}</div>
+          <div className='truncate text-sm tracking-tight font-medium'>{trip.cargo} - {trip.volume}</div>
         </div>
         <div className='text-right'>
           <div className='text-muted-foreground text-xs leading-none'>Arrivée estimée</div>
           <div className='text-sm tabular-nums tracking-tight font-medium'>
-            {tournee.eta}
-            {tournee.etaMeta && (
-              <span className='ml-1 font-normal text-muted-foreground text-xs'>{tournee.etaMeta}</span>
+            {trip.eta}
+            {trip.etaMeta && (
+              <span className='ml-1 font-normal text-muted-foreground text-xs'>{trip.etaMeta}</span>
             )}
           </div>
         </div>
@@ -116,7 +116,7 @@ function TourneeCard({ tournee, active, onSelectTournee }: TourneeCardProps) {
   )
 }
 
-export function TourneeList({ tournees, selectedTourneeId, onSelectTournee }: TourneeListProps) {
+export function TripList({ trips, selectedTripId, onSelectTrip }: TripListProps) {
   return (
     <Card className='h-full rounded-none ring-0 border-y-0 border-l-0 shadow-none'>
       <CardHeader className='pb-3'>
@@ -144,12 +144,12 @@ export function TourneeList({ tournees, selectedTourneeId, onSelectTournee }: To
 
         <ScrollArea className='flex-1'>
           <div className='flex flex-col gap-3 px-4 pb-4'>
-            {tournees.map((tournee) => (
-              <TourneeCard
-                active={tournee.id === selectedTourneeId}
-                key={tournee.id}
-                tournee={tournee}
-                onSelectTournee={onSelectTournee}
+            {trips.map((trip) => (
+              <TripCard
+                active={trip.id === selectedTripId}
+                key={trip.id}
+                trip={trip}
+                onSelectTrip={onSelectTrip}
               />
             ))}
           </div>

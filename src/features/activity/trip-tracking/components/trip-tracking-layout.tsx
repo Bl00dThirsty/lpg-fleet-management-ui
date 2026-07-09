@@ -1,18 +1,18 @@
 import * as React from 'react'
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { tournees } from '../data/tournee-data'
-import { TourneeDetails } from './tournee-details'
-import { TourneeList } from './tournee-list'
+import { trips } from '../data/trip-data'
+import { TripDetails } from './trip-details'
+import { TripList } from './trip-list'
 
-export function SuiviTourneesLayout() {
+export function SuiviTripsLayout() {
   const [detailsOpen, setDetailsOpen] = React.useState(false)
-  const [selectedTourneeId, setSelectedTourneeId] = React.useState<string | null>(tournees[0].id)
+  const [selectedTripId, setSelectedTripId] = React.useState<string | null>(trips[0].id)
   
-  const selectedTournee = tournees.find((tournee) => tournee.id === selectedTourneeId) ?? tournees[0]
+  const selectedTrip = trips.find((trip) => trip.id === selectedTripId) ?? trips[0]
 
-  function handleSelectTournee(tourneeId: string) {
-    setSelectedTourneeId(tourneeId)
+  function handleSelectTrip(tripId: string) {
+    setSelectedTripId(tripId)
 
     // On mobile screens (< 1024px in this context, matching lg breakpoint), open the sheet
     if (window.innerWidth < 1024) {
@@ -26,14 +26,14 @@ export function SuiviTourneesLayout() {
         className='grid h-[calc(100vh-var(--header-height,64px))] overflow-hidden lg:grid-cols-[400px_minmax(0,1fr)] lg:divide-x border-t'
       >
         <div className='h-full overflow-hidden bg-muted/10'>
-          <TourneeList
-            tournees={tournees}
-            selectedTourneeId={selectedTourneeId}
-            onSelectTournee={handleSelectTournee}
+          <TripList
+            trips={trips}
+            selectedTripId={selectedTripId}
+            onSelectTrip={handleSelectTrip}
           />
         </div>
         <div className='hidden h-full overflow-hidden lg:block bg-background'>
-          <TourneeDetails tournee={selectedTournee} />
+          <TripDetails trip={selectedTrip} />
         </div>
       </div>
 
@@ -43,10 +43,10 @@ export function SuiviTourneesLayout() {
           className='w-full gap-0 p-0 sm:max-w-none md:w-3/4'
         >
           <SheetHeader className='sr-only'>
-            <SheetTitle>{selectedTournee ? `Tournée ${selectedTournee.id}` : 'Détails de la tournée'}</SheetTitle>
+            <SheetTitle>{selectedTrip ? `Tournée ${selectedTrip.id}` : 'Détails de la tournée'}</SheetTitle>
             <SheetDescription>Détails de la tournée sélectionnée et suivi du trajet.</SheetDescription>
           </SheetHeader>
-          <TourneeDetails tournee={selectedTournee} />
+          <TripDetails trip={selectedTrip} />
         </SheetContent>
       </Sheet>
     </>
