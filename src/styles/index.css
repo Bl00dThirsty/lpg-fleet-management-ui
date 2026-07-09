@@ -201,32 +201,38 @@
   }
 }
 
-/* ArcGIS map theme bridge */
+/* ArcGIS map theme bridge using Calcite variables */
 .fleet-arcgis-map .esri-popup__main-container {
   border-radius: 12px;
   box-shadow: 0 18px 50px rgba(15, 23, 42, 0.3);
   overflow: hidden;
 }
 
-.dark .fleet-arcgis-map .esri-popup__main-container,
-.dark .fleet-arcgis-map .esri-widget,
-.dark .fleet-arcgis-map .esri-popup__pointer-direction,
-.dark .fleet-arcgis-map .esri-popup__header,
-.dark .fleet-arcgis-map .esri-popup__footer {
+.dark {
+  --calcite-color-foreground-1: var(--background);
+  --calcite-color-foreground-2: var(--muted);
+  --calcite-color-foreground-3: var(--muted);
+  --calcite-color-text-1: var(--foreground);
+  --calcite-color-text-2: var(--muted-foreground);
+  --calcite-color-text-3: var(--muted-foreground);
+  --calcite-color-border-1: var(--border);
+  --calcite-color-border-2: var(--border);
+  --calcite-color-border-3: var(--border);
+  --calcite-color-background: var(--background);
+  
+  --esri-popup-background: var(--background);
+  --esri-widget-background: var(--background);
+  --esri-widget-color: var(--foreground);
+}
+
+.dark .esri-popup__main-container,
+.dark .esri-widget {
   background-color: var(--background) !important;
   color: var(--foreground) !important;
 }
 
-.dark .fleet-arcgis-map .esri-popup__header-title,
-.dark .fleet-arcgis-map .esri-popup__button,
-.dark .fleet-arcgis-map .esri-widget-button {
-  color: var(--foreground) !important;
-  background-color: transparent !important;
-}
-
-.dark .fleet-arcgis-map .esri-popup__button:hover,
-.dark .fleet-arcgis-map .esri-widget-button:hover {
-  background-color: var(--muted) !important;
+.dark .esri-popup__pointer-direction {
+  background-color: var(--background) !important;
 }
 
 .fleet-arcgis-map .esri-popup__button:hover,
