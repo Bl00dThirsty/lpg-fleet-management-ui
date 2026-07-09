@@ -39,7 +39,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
   const { resolvedTheme } = useTheme()
   const mapTheme: MapTheme = resolvedTheme === 'dark' ? 'dark' : 'light'
 
-  // Initialize Map
+  // Initialize Map (only once)
   useEffect(() => {
     if (!mapDiv.current) return
 
@@ -48,8 +48,10 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     routeLayerRef.current = routeLayer
     sitesLayerRef.current = sitesLayer
 
+    const initialTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+
     const map = new Map({
-      basemap: mapTheme === 'dark' ? 'streets-night-vector' : 'arcgis-navigation',
+      basemap: initialTheme === 'dark' ? 'streets-night-vector' : 'streets-navigation-vector',
       layers: [sitesLayer, routeLayer],
     })
 
@@ -62,7 +64,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
       popup: {
         dockEnabled: false,
       },
-      theme: mapTheme === 'dark'
+      theme: initialTheme === 'dark'
         ? { accentColor: '#86efac', textColor: '#f8fafc' }
         : { accentColor: '#16a34a', textColor: '#0f172a' },
     })
@@ -72,7 +74,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
       const response = await view.hitTest(event)
       const siteHit = response.results.find((r) => {
         const graphic = (r as { graphic?: Graphic }).graphic
-        return graphic?.attributes?.kind === 'site'
+        return graphic?.attributes?.kind === 'site' || graphic?.attributes?.kind === 'trip-marker'
       }) as { graphic?: Graphic } | undefined
 
       if (siteHit?.graphic) {
@@ -85,6 +87,17 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
 
     viewRef.current = view
 
+    view.when().then(() => {
+      // Trigger a resize to ensure map fills container properly
+      setTimeout(() => {
+        if (viewRef.current) {
+          viewRef.current.container.style.display = 'none'
+          viewRef.current.container.offsetHeight // force reflow
+          viewRef.current.container.style.display = 'block'
+        }
+      }, 50)
+    })
+
     return () => {
       clickHandle.remove()
       if (viewRef.current) {
@@ -92,6 +105,18 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
         viewRef.current = null
       }
     }
+  }, []) // Empty dependency array, run once
+
+  // Update theme dynamically without recreating map
+  useEffect(() => {
+    const map = viewRef.current?.map
+    const view = viewRef.current
+    if (!map || !view) return
+
+    map.basemap = (mapTheme === 'dark' ? 'streets-night-vector' : 'streets-navigation-vector') as any
+    view.theme = mapTheme === 'dark'
+      ? { accentColor: '#86efac', textColor: '#f8fafc' }
+      : { accentColor: '#16a34a', textColor: '#0f172a' }
   }, [mapTheme])
 
   // Update sites on map
@@ -152,12 +177,34 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
       geometry: originPoint,
       symbol: originSymbol,
       attributes: { Name: trip.origin.name, kind: 'trip-marker' },
+      popupTemplate: {
+        title: trip.origin.name,
+        content: `
+          <div class="fleet-truck-popup" data-popup-theme="${mapTheme}">
+            <p class="fleet-truck-popup__row">
+              <strong>Type</strong>
+              <span>Point de départ</span>
+            </p>
+          </div>
+        `,
+      }
     })
 
     const destinationGraphic = new Graphic({
       geometry: destinationPoint,
       symbol: destSymbol,
       attributes: { Name: trip.destination.name, kind: 'trip-marker' },
+      popupTemplate: {
+        title: trip.destination.name,
+        content: `
+          <div class="fleet-truck-popup" data-popup-theme="${mapTheme}">
+            <p class="fleet-truck-popup__row">
+              <strong>Type</strong>
+              <span>Point d'arrivée</span>
+            </p>
+          </div>
+        `,
+      }
     })
 
     routeLayer.addMany([originGraphic, destinationGraphic])
@@ -199,7 +246,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
       .finally(() => {
         setIsCalculating(false)
       })
-  }, [trip])
+  }, [trip, mapTheme]) // Added mapTheme so popups update with theme!
 
   if (!trip) {
     return (
@@ -215,9 +262,10 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
   return (
     <div
       className={cn(
-        'fleet-arcgis-map relative h-full w-full min-h-[300px] overflow-hidden bg-slate-50',
+        'fleet-arcgis-map relative h-full w-full min-h-[300px] overflow-hidden bg-muted/30', // changed to bg-muted/30
         mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light'
       )}
+      data-map-theme={mapTheme} // added data-map-theme
     >
       {/* Map Container */}
       <div ref={mapDiv} className='absolute inset-0 outline-none' />
