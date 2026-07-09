@@ -228,9 +228,10 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
             routeLayer.add(routeResult)
 
             // Zoom to route
-            if (routeResult.geometry && routeResult.geometry.extent) {
+            const extent = routeResult.geometry?.extent
+            if (extent) {
               view.when().then(() => {
-                view.goTo({ target: routeResult.geometry.extent.expand(1.2) }).catch(() => {})
+                view.goTo({ target: extent.expand(1.2) }).catch(() => {})
               }).catch(() => {})
             }
           }
