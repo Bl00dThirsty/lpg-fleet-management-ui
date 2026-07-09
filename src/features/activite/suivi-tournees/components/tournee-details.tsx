@@ -13,19 +13,19 @@ import type { Tournee } from '../data/tournee-data'
 import { TourneeRouteMap } from './tournee-route-map'
 
 const progressRingClasses: Record<Tournee['status'], string> = {
-  Planifié: 'text-muted-foreground',
-  'En transit': 'text-primary',
-  'En livraison': 'text-primary',
-  Livré: 'text-green-600',
-  Retardé: 'text-destructive',
+  Planifié: 'text-slate-400',
+  'En transit': 'text-blue-500',
+  'En livraison': 'text-amber-500',
+  Livré: 'text-emerald-500',
+  Retardé: 'text-rose-500',
 }
 
 const statusBadgeClasses: Record<Tournee['status'], string> = {
-  Planifié: 'border-muted bg-muted/50 text-muted-foreground',
-  'En transit': 'border-primary/20 bg-primary/10 text-primary',
-  'En livraison': 'border-primary/20 bg-primary/10 text-primary',
-  Livré: 'border-green-600/20 bg-green-600/10 text-green-600',
-  Retardé: 'border-destructive/20 bg-destructive/10 text-destructive',
+  Planifié: 'border-slate-200 bg-slate-100 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400',
+  'En transit': 'border-blue-200 bg-blue-100 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400',
+  'En livraison': 'border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400',
+  Livré: 'border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-400',
+  Retardé: 'border-rose-200 bg-rose-100 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-400',
 }
 
 type TourneeDetailsProps = {
@@ -193,19 +193,19 @@ export function TourneeDetails({ tournee }: TourneeDetailsProps) {
             >
               <TabsTrigger
                 value='overview'
-                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
               >
                 Vue d'ensemble
               </TabsTrigger>
               <TabsTrigger
                 value='documents'
-                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
               >
                 Documents & BL
               </TabsTrigger>
               <TabsTrigger
                 value='activity'
-                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
               >
                 Journal d'activité
               </TabsTrigger>

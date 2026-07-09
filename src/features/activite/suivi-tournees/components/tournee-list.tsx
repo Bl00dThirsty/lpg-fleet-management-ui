@@ -10,11 +10,11 @@ import { cn } from '@/lib/utils'
 import type { Tournee } from '../data/tournee-data'
 
 const progressRingClasses: Record<Tournee['status'], string> = {
-  Planifié: 'text-muted-foreground',
-  'En transit': 'text-primary',
-  'En livraison': 'text-primary',
-  Livré: 'text-green-600',
-  Retardé: 'text-destructive',
+  Planifié: 'text-slate-400',
+  'En transit': 'text-blue-500',
+  'En livraison': 'text-amber-500',
+  Livré: 'text-emerald-500',
+  Retardé: 'text-rose-500',
 }
 
 function getProgressRingClass(status: Tournee['status']) {
