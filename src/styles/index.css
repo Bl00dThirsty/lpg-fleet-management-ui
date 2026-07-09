@@ -208,6 +208,27 @@
   overflow: hidden;
 }
 
+.dark .fleet-arcgis-map .esri-popup__main-container,
+.dark .fleet-arcgis-map .esri-widget,
+.dark .fleet-arcgis-map .esri-popup__pointer-direction,
+.dark .fleet-arcgis-map .esri-popup__header,
+.dark .fleet-arcgis-map .esri-popup__footer {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .fleet-arcgis-map .esri-popup__header-title,
+.dark .fleet-arcgis-map .esri-popup__button,
+.dark .fleet-arcgis-map .esri-widget-button {
+  color: var(--foreground) !important;
+  background-color: transparent !important;
+}
+
+.dark .fleet-arcgis-map .esri-popup__button:hover,
+.dark .fleet-arcgis-map .esri-widget-button:hover {
+  background-color: var(--muted) !important;
+}
+
 .fleet-arcgis-map .esri-popup__button:hover,
 .fleet-arcgis-map .esri-popup__button:focus,
 .fleet-arcgis-map .esri-popup__header-button:hover,
@@ -236,6 +257,18 @@
   border-bottom: 1px solid var(--calcite-color-border-3);
   font-size: 12px;
   line-height: 1.35;
+}
+
+.dark .fleet-truck-popup__row {
+  border-bottom-color: var(--border) !important;
+}
+
+.dark .fleet-truck-popup__row strong {
+  color: var(--muted-foreground) !important;
+}
+
+.dark .fleet-truck-popup__row span {
+  color: var(--foreground) !important;
 }
 
 .fleet-truck-popup__row:last-child {
