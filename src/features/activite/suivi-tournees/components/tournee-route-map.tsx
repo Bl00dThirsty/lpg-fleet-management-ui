@@ -170,9 +170,9 @@ export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
   }
 
   return (
-    <div className='relative h-full w-full overflow-hidden'>
+    <div className='relative h-full w-full min-h-[300px] overflow-hidden bg-slate-50'>
       {/* Map Container */}
-      <div ref={mapDiv} className='h-full w-full outline-none' />
+      <div ref={mapDiv} className='absolute inset-0 outline-none' />
 
       {/* Loading Overlay */}
       {isCalculating && (
