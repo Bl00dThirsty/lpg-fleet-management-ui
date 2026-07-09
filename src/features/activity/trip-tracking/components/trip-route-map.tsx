@@ -10,8 +10,13 @@ import FeatureSet from '@arcgis/core/rest/support/FeatureSet'
 import Point from '@arcgis/core/geometry/Point'
 import esriConfig from '@arcgis/core/config'
 import { Loader2, Navigation } from 'lucide-react'
+import type { ClickEvent } from '@arcgis/core/views/input/types'
+import { useTheme } from '@/context/theme-provider'
 
 import type { Trip } from '../data/trip-data'
+import { sites } from '@/features/sites/data/sites'
+import { createSiteGraphics, type MapTheme } from '@/features/sites/utils/site-graphics'
+import { cn } from '@/lib/utils'
 
 // Configure API Key (make sure it's defined in .env)
 if (import.meta.env.VITE_ARCGIS_API_KEY) {
@@ -28,19 +33,24 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
   const mapDiv = useRef<HTMLDivElement>(null)
   const viewRef = useRef<MapView | null>(null)
   const routeLayerRef = useRef<GraphicsLayer | null>(null)
+  const sitesLayerRef = useRef<GraphicsLayer | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { resolvedTheme } = useTheme()
+  const mapTheme: MapTheme = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   // Initialize Map
   useEffect(() => {
     if (!mapDiv.current) return
 
     const routeLayer = new GraphicsLayer()
+    const sitesLayer = new GraphicsLayer()
     routeLayerRef.current = routeLayer
+    sitesLayerRef.current = sitesLayer
 
     const map = new Map({
-      basemap: 'navigation-vector', // Clean basemap for routing
-      layers: [routeLayer],
+      basemap: mapTheme === 'dark' ? 'streets-night-vector' : 'arcgis-navigation',
+      layers: [sitesLayer, routeLayer],
     })
 
     const view = new MapView({
@@ -49,17 +59,50 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
       center: [11.5167, 3.8667], // Default center (Yaoundé)
       zoom: 6,
       ui: { components: ['zoom'] }, // minimal UI
+      popup: {
+        dockEnabled: false,
+      },
+      theme: mapTheme === 'dark'
+        ? { accentColor: '#86efac', textColor: '#f8fafc' }
+        : { accentColor: '#16a34a', textColor: '#0f172a' },
+    })
+
+    // Handle clicks for popups on sites
+    const clickHandle = view.on('click', async (event: ClickEvent) => {
+      const response = await view.hitTest(event)
+      const siteHit = response.results.find((r) => {
+        const graphic = (r as { graphic?: Graphic }).graphic
+        return graphic?.attributes?.kind === 'site'
+      }) as { graphic?: Graphic } | undefined
+
+      if (siteHit?.graphic) {
+        await view.openPopup({
+          features: [siteHit.graphic],
+          location: siteHit.graphic.geometry as Point,
+        })
+      }
     })
 
     viewRef.current = view
 
     return () => {
+      clickHandle.remove()
       if (viewRef.current) {
         viewRef.current.destroy()
         viewRef.current = null
       }
     }
-  }, [])
+  }, [mapTheme])
+
+  // Update sites on map
+  useEffect(() => {
+    const sitesLayer = sitesLayerRef.current
+    if (!sitesLayer) return
+
+    const siteGraphics = sites.flatMap((site) => createSiteGraphics(site, mapTheme))
+    sitesLayer.removeAll()
+    sitesLayer.addMany(siteGraphics)
+  }, [mapTheme])
 
   // Update Route when trip changes
   useEffect(() => {
@@ -108,13 +151,13 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     const originGraphic = new Graphic({
       geometry: originPoint,
       symbol: originSymbol,
-      attributes: { Name: trip.origin.name },
+      attributes: { Name: trip.origin.name, kind: 'trip-marker' },
     })
 
     const destinationGraphic = new Graphic({
       geometry: destinationPoint,
       symbol: destSymbol,
-      attributes: { Name: trip.destination.name },
+      attributes: { Name: trip.destination.name, kind: 'trip-marker' },
     })
 
     routeLayer.addMany([originGraphic, destinationGraphic])
@@ -170,7 +213,12 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
   }
 
   return (
-    <div className='relative h-full w-full min-h-[300px] overflow-hidden bg-slate-50'>
+    <div
+      className={cn(
+        'fleet-arcgis-map relative h-full w-full min-h-[300px] overflow-hidden bg-slate-50',
+        mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light'
+      )}
+    >
       {/* Map Container */}
       <div ref={mapDiv} className='absolute inset-0 outline-none' />
 
