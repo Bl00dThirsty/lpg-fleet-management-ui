@@ -107,12 +107,16 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     }
   }, []) // Empty dependency array, run once
 
+  const lastAppliedTheme = useRef<MapTheme>(mapTheme)
+
   // Update theme dynamically without recreating map
   useEffect(() => {
     const map = viewRef.current?.map
     const view = viewRef.current
     if (!map || !view) return
-
+    if (lastAppliedTheme.current === mapTheme) return
+    
+    lastAppliedTheme.current = mapTheme
     map.basemap = (mapTheme === 'dark' ? 'dark-gray-vector' : 'streets-navigation-vector') as any
     view.theme = mapTheme === 'dark'
       ? { accentColor: '#86efac', textColor: '#f8fafc' }
