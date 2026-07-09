@@ -51,7 +51,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     const initialTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
 
     const map = new Map({
-      basemap: initialTheme === 'dark' ? 'arcgis-dark-gray' : 'arcgis-navigation',
+      basemap: initialTheme === 'dark' ? 'dark-gray-vector' : 'streets-navigation-vector',
       layers: [sitesLayer, routeLayer],
     })
 
@@ -113,7 +113,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     const view = viewRef.current
     if (!map || !view) return
 
-    map.basemap = (mapTheme === 'dark' ? 'arcgis-dark-gray' : 'arcgis-navigation') as any
+    map.basemap = (mapTheme === 'dark' ? 'dark-gray-vector' : 'streets-navigation-vector') as any
     view.theme = mapTheme === 'dark'
       ? { accentColor: '#86efac', textColor: '#f8fafc' }
       : { accentColor: '#16a34a', textColor: '#0f172a' }

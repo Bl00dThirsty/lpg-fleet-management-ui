@@ -589,8 +589,8 @@ function createRouteGraphic(truck: Truck, mapTheme: MapTheme) {
 
 function getArcgisBasemap(mapTheme: MapTheme) {
   return mapTheme === 'dark'
-    ? 'arcgis-dark-gray'
-    : 'arcgis-navigation'
+    ? 'dark-gray-vector'
+    : 'streets-navigation-vector'
 }
 
 function getArcgisViewTheme(mapTheme: MapTheme) {
