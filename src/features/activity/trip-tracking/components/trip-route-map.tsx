@@ -88,15 +88,8 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     viewRef.current = view
 
     view.when().then(() => {
-      // Trigger a resize to ensure map fills container properly
-      setTimeout(() => {
-        if (viewRef.current) {
-          viewRef.current.container.style.display = 'none'
-          viewRef.current.container.offsetHeight // force reflow
-          viewRef.current.container.style.display = 'block'
-        }
-      }, 50)
-    })
+      // Map is ready
+    }).catch(() => {})
 
     return () => {
       clickHandle.remove()
@@ -238,7 +231,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
             if (routeResult.geometry && routeResult.geometry.extent) {
               view.when().then(() => {
                 view.goTo({ target: routeResult.geometry.extent.expand(1.2) }).catch(() => {})
-              })
+              }).catch(() => {})
             }
           }
         }
@@ -249,7 +242,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
         // Still zoom to stops even if routing fails
         view.when().then(() => {
           view.goTo({ target: [originGraphic, destinationGraphic] }).catch(() => {})
-        })
+        }).catch(() => {})
       })
       .finally(() => {
         setIsCalculating(false)
