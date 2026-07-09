@@ -51,7 +51,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     const initialTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
 
     const map = new Map({
-      basemap: initialTheme === 'dark' ? 'streets-night-vector' : 'streets-navigation-vector',
+      basemap: initialTheme === 'dark' ? 'arcgis-dark-gray' : 'arcgis-navigation',
       layers: [sitesLayer, routeLayer],
     })
 
@@ -113,7 +113,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
     const view = viewRef.current
     if (!map || !view) return
 
-    map.basemap = (mapTheme === 'dark' ? 'streets-night-vector' : 'streets-navigation-vector') as any
+    map.basemap = (mapTheme === 'dark' ? 'arcgis-dark-gray' : 'arcgis-navigation') as any
     view.theme = mapTheme === 'dark'
       ? { accentColor: '#86efac', textColor: '#f8fafc' }
       : { accentColor: '#16a34a', textColor: '#0f172a' }
@@ -232,7 +232,9 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
 
             // Zoom to route
             if (routeResult.geometry && routeResult.geometry.extent) {
-              view.goTo({ target: routeResult.geometry.extent.expand(1.2) })
+              view.when().then(() => {
+                view.goTo({ target: routeResult.geometry.extent.expand(1.2) }).catch(() => {})
+              })
             }
           }
         }
@@ -241,7 +243,9 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
         console.error('Routing error:', err)
         setError("Impossible de calculer l'itinéraire exact.")
         // Still zoom to stops even if routing fails
-        view.goTo({ target: [originGraphic, destinationGraphic] })
+        view.when().then(() => {
+          view.goTo({ target: [originGraphic, destinationGraphic] }).catch(() => {})
+        })
       })
       .finally(() => {
         setIsCalculating(false)
