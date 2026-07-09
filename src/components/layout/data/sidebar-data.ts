@@ -1,4 +1,4 @@
-import { LayoutDashboard, Route, Truck, Building2 } from 'lucide-react'
+import { LayoutDashboard, Route, Truck, Building2, Handshake, MapIcon } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
@@ -35,6 +35,21 @@ export const sidebarData: SidebarData = {
           title: 'Marketers',
           icon: Building2,
           url: '/marketers',
+        },
+        {
+          title: 'Transporteurs',
+          icon: Handshake,
+          url: '/transporters',
+        },
+      ],
+    },
+    {
+      title: 'Activité',
+      items: [
+        {
+          title: 'Suivi de mes tournées',
+          icon: MapIcon,
+          url: '/activity/trip-tracking',
         },
       ],
     },
