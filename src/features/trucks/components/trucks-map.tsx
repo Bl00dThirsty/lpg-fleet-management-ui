@@ -218,7 +218,8 @@ export function TrucksMap({
         setLoadFailed(false)
         setIsReady(true)
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err && err.name === 'AbortError') return
         setLoadFailed(true)
       })
 
@@ -232,11 +233,15 @@ export function TrucksMap({
     }
   }, [])
 
+  const lastAppliedTheme = useRef<MapTheme>(mapTheme)
+
   useEffect(() => {
     const map = mapRef.current
     const view = viewRef.current
     if (!isReady || !map || !view) return
+    if (lastAppliedTheme.current === mapTheme) return
 
+    lastAppliedTheme.current = mapTheme
     map.basemap = getArcgisBasemap(mapTheme)
     view.theme = getArcgisViewTheme(mapTheme)
   }, [isReady, mapTheme])
@@ -589,7 +594,7 @@ function createRouteGraphic(truck: Truck, mapTheme: MapTheme) {
 
 function getArcgisBasemap(mapTheme: MapTheme) {
   return mapTheme === 'dark'
-    ? 'streets-night-vector'
+    ? 'dark-gray-vector'
     : 'streets-navigation-vector'
 }
 
