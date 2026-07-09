@@ -1,9 +1,10 @@
 import { Bell, Moon, Search, Sun } from 'lucide-react'
 import { useTheme } from '@/context/theme-provider'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Header } from './header'
+import csphLogo from '@/assets/logo-csph-small.png'
 
 export function AppHeader() {
   const { resolvedTheme, setTheme } = useTheme()
@@ -60,9 +61,10 @@ export function AppHeader() {
             <p className='text-xs text-muted-foreground'>Centre de pilotage</p>
           </div>
 
-          <Avatar className='size-9 rounded-full border'>
+          <Avatar className='size-9 rounded-full border bg-white p-0.5'>
+            <AvatarImage src={csphLogo} alt='CSPH' className='object-contain' />
             <AvatarFallback className='bg-primary/10 text-sm font-semibold text-primary'>
-              JD
+              CS
             </AvatarFallback>
           </Avatar>
         </div>
