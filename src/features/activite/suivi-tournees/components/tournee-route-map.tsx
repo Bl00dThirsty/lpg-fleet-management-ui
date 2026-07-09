@@ -1,11 +1,163 @@
-import { Truck, MapPin, Navigation } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import '@arcgis/core/assets/esri/themes/light/main.css'
+import Map from '@arcgis/core/Map'
+import MapView from '@arcgis/core/views/MapView'
+import Graphic from '@arcgis/core/Graphic'
+import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
+import * as route from '@arcgis/core/rest/route'
+import RouteParameters from '@arcgis/core/rest/support/RouteParameters'
+import FeatureSet from '@arcgis/core/rest/support/FeatureSet'
+import Point from '@arcgis/core/geometry/Point'
+import esriConfig from '@arcgis/core/config'
+import { Loader2, Navigation } from 'lucide-react'
+
 import type { Tournee } from '../data/tournee-data'
+
+// Configure API Key (make sure it's defined in .env)
+if (import.meta.env.VITE_ARCGIS_API_KEY) {
+  esriConfig.apiKey = import.meta.env.VITE_ARCGIS_API_KEY
+}
+
+const routeUrl = 'https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World'
 
 type TourneeRouteMapProps = {
   tournee: Tournee | null
 }
 
 export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
+  const mapDiv = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<MapView | null>(null)
+  const routeLayerRef = useRef<GraphicsLayer | null>(null)
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Initialize Map
+  useEffect(() => {
+    if (!mapDiv.current) return
+
+    const routeLayer = new GraphicsLayer()
+    routeLayerRef.current = routeLayer
+
+    const map = new Map({
+      basemap: 'navigation-vector', // Clean basemap for routing
+      layers: [routeLayer],
+    })
+
+    const view = new MapView({
+      container: mapDiv.current,
+      map: map,
+      center: [11.5167, 3.8667], // Default center (Yaoundé)
+      zoom: 6,
+      ui: { components: ['zoom'] }, // minimal UI
+    })
+
+    viewRef.current = view
+
+    return () => {
+      if (viewRef.current) {
+        viewRef.current.destroy()
+        viewRef.current = null
+      }
+    }
+  }, [])
+
+  // Update Route when tournee changes
+  useEffect(() => {
+    if (!viewRef.current || !routeLayerRef.current || !tournee) return
+
+    const view = viewRef.current
+    const routeLayer = routeLayerRef.current
+
+    routeLayer.removeAll()
+    setIsCalculating(true)
+    setError(null)
+
+    const originPoint = new Point({
+      longitude: tournee.origin.coordinates[0],
+      latitude: tournee.origin.coordinates[1],
+    })
+
+    const destinationPoint = new Point({
+      longitude: tournee.destination.coordinates[0],
+      latitude: tournee.destination.coordinates[1],
+    })
+
+    // Define marker styles
+    const originSymbol = {
+      type: 'simple-marker' as const,
+      style: 'circle' as const,
+      color: [255, 255, 255],
+      size: '14px',
+      outline: {
+        color: [34, 197, 94], // green for origin
+        width: 3,
+      },
+    }
+
+    const destSymbol = {
+      type: 'simple-marker' as const,
+      style: 'circle' as const,
+      color: [255, 255, 255],
+      size: '14px',
+      outline: {
+        color: [59, 130, 246], // blue for destination
+        width: 3,
+      },
+    }
+
+    const originGraphic = new Graphic({
+      geometry: originPoint,
+      symbol: originSymbol,
+      attributes: { Name: tournee.origin.name },
+    })
+
+    const destinationGraphic = new Graphic({
+      geometry: destinationPoint,
+      symbol: destSymbol,
+      attributes: { Name: tournee.destination.name },
+    })
+
+    routeLayer.addMany([originGraphic, destinationGraphic])
+
+    const routeParams = new RouteParameters({
+      stops: new FeatureSet({
+        features: [originGraphic, destinationGraphic],
+      }),
+      returnDirections: false,
+      returnRoutes: true,
+    })
+
+    route
+      .solve(routeUrl, routeParams)
+      .then((data) => {
+        if (data.routeResults && data.routeResults.length > 0) {
+          const routeResult = data.routeResults[0].route
+          if (routeResult) {
+            routeResult.symbol = {
+              type: 'simple-line',
+              color: [59, 130, 246, 0.8], // blue line
+              width: 4,
+            } as any
+            routeLayer.add(routeResult)
+
+            // Zoom to route
+            if (routeResult.geometry && routeResult.geometry.extent) {
+              view.goTo({ target: routeResult.geometry.extent.expand(1.2) })
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Routing error:', err)
+        setError("Impossible de calculer l'itinéraire exact.")
+        // Still zoom to stops even if routing fails
+        view.goTo({ target: [originGraphic, destinationGraphic] })
+      })
+      .finally(() => {
+        setIsCalculating(false)
+      })
+  }, [tournee])
+
   if (!tournee) {
     return (
       <div className='flex h-full w-full items-center justify-center bg-muted/30'>
@@ -18,67 +170,35 @@ export function TourneeRouteMap({ tournee }: TourneeRouteMapProps) {
   }
 
   return (
-    <div className='relative h-full w-full overflow-hidden bg-slate-100 dark:bg-slate-900'>
-      {/* Decorative background representing a simplified map/grid */}
-      <div
-        className='absolute inset-0'
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-          opacity: 0.3
-        }}
-      />
+    <div className='relative h-full w-full overflow-hidden'>
+      {/* Map Container */}
+      <div ref={mapDiv} className='h-full w-full outline-none' />
+
+      {/* Loading Overlay */}
+      {isCalculating && (
+        <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/20 backdrop-blur-[2px] transition-all duration-300'>
+          <div className='flex items-center gap-2 rounded-full border bg-background px-4 py-2 text-sm font-medium shadow-md'>
+            <Loader2 className='h-4 w-4 animate-spin text-primary' />
+            Calcul de l'itinéraire optimal...
+          </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && !isCalculating && (
+        <div className='absolute bottom-6 left-1/2 z-10 -translate-x-1/2'>
+          <div className='rounded-full border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive shadow-md backdrop-blur-sm'>
+            {error}
+          </div>
+        </div>
+      )}
       
-      <div className='absolute inset-0 flex flex-col items-center justify-center p-8'>
-        {/* Simple visual representation of the route */}
-        <div className='flex w-full max-w-md items-center justify-between relative'>
-          
-          {/* Line connecting origin and destination */}
-          <div className='absolute left-8 right-8 top-1/2 h-1.5 -translate-y-1/2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800'>
-            <div 
-              className='h-full bg-primary transition-all duration-1000'
-              style={{ width: `${tournee.progress}%` }}
-            />
-          </div>
-
-          {/* Origin */}
-          <div className='relative z-10 flex flex-col items-center gap-2'>
-            <div className='flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-slate-800 text-white shadow-md dark:border-slate-950'>
-              <MapPin className='h-5 w-5' />
-            </div>
-            <div className='text-center'>
-              <p className='font-bold text-slate-900 dark:text-slate-100'>{tournee.origin.city}</p>
-              <p className='text-xs text-slate-500'>{tournee.origin.name}</p>
-            </div>
-          </div>
-
-          {/* Truck (moving) */}
-          <div 
-            className='absolute top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-1000'
-            style={{ left: `calc(2rem + ${tournee.progress}% * 0.7)` }} // Approximate positioning
-          >
-            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-white dark:ring-slate-950'>
-              <Truck className='h-5 w-5' />
-            </div>
-          </div>
-
-          {/* Destination */}
-          <div className='relative z-10 flex flex-col items-center gap-2'>
-            <div className='flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-slate-300 text-slate-700 shadow-md dark:border-slate-950 dark:bg-slate-700 dark:text-slate-300'>
-              <MapPin className='h-5 w-5' />
-            </div>
-            <div className='text-center'>
-              <p className='font-bold text-slate-900 dark:text-slate-100'>{tournee.destination.city}</p>
-              <p className='text-xs text-slate-500'>{tournee.destination.name}</p>
-            </div>
-          </div>
-
-        </div>
-
-        <div className='mt-12 rounded-full bg-white/80 px-4 py-2 text-xs font-medium text-slate-600 shadow-sm backdrop-blur-sm dark:bg-slate-950/80 dark:text-slate-400'>
-          Carte interactive complète à venir
-        </div>
-      </div>
+      {/* Map styling overrides to hide esri widgets if we want it fully clean */}
+      <style>{`
+        .esri-view .esri-view-surface:focus::after {
+          outline: none !important;
+        }
+      `}</style>
     </div>
   )
 }
