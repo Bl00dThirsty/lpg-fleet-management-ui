@@ -193,19 +193,19 @@ export function TourneeDetails({ tournee }: TourneeDetailsProps) {
             >
               <TabsTrigger
                 value='overview'
-                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
+                className='rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
               >
                 Vue d'ensemble
               </TabsTrigger>
               <TabsTrigger
                 value='documents'
-                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
+                className='rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
               >
                 Documents & BL
               </TabsTrigger>
               <TabsTrigger
                 value='activity'
-                className='rounded-none border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
+                className='rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-2 py-3 data-[state=active]:border-primary data-[state=active]:!bg-transparent data-[state=active]:!shadow-none data-[state=active]:text-foreground text-muted-foreground hover:text-foreground'
               >
                 Journal d'activité
               </TabsTrigger>
