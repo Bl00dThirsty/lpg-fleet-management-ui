@@ -169,11 +169,11 @@ function TripOverview({ trip }: { trip: Trip }) {
 export function TripDetails({ trip }: TripDetailsProps) {
   if (!trip) {
     return (
-      <div className='grid h-full min-h-0 grid-rows-[320px_1fr] overflow-hidden lg:grid-rows-[420px_1fr]'>
-        <div className='min-h-0 overflow-hidden border-b'>
+      <div className='flex h-full min-h-0 flex-col overflow-hidden'>
+        <div className='h-[40vh] min-h-[200px] shrink-0 overflow-hidden border-b lg:h-[420px]'>
           <TripRouteMap trip={null} />
         </div>
-        <div className='min-h-0 overflow-auto p-4 sm:p-6'>
+        <div className='min-h-0 flex-1 overflow-auto p-4 sm:p-6'>
           <EmptyTripOverview />
         </div>
       </div>
@@ -181,11 +181,11 @@ export function TripDetails({ trip }: TripDetailsProps) {
   }
 
   return (
-    <div className='grid h-full min-h-0 grid-rows-[320px_1fr] overflow-hidden lg:grid-rows-[420px_1fr]'>
-      <div className='min-h-0 overflow-hidden border-b'>
+    <div className='flex h-full min-h-0 flex-col overflow-hidden'>
+      <div className='h-[40vh] min-h-[200px] shrink-0 overflow-hidden border-b lg:h-[420px]'>
         <TripRouteMap trip={trip} />
       </div>
-      <div className='min-h-0 overflow-hidden'>
+      <div className='min-h-0 flex-1 overflow-hidden'>
         <div className='h-full min-h-0'>
           <Tabs defaultValue='overview' className='flex h-full flex-col'>
             <TabsList
