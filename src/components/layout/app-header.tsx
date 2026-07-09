@@ -57,7 +57,7 @@ export function AppHeader() {
           </Button>
 
           <div className='hidden text-right text-sm md:block'>
-            <p className='font-medium'>Operations GPL</p>
+            <p className='font-medium'>Admin CSPH</p>
             <p className='text-xs text-muted-foreground'>Centre de pilotage</p>
           </div>
 
