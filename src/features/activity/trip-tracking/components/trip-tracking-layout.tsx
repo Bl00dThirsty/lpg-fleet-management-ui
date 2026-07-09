@@ -23,7 +23,7 @@ export function SuiviTripsLayout() {
   return (
     <>
       <div
-        className='grid h-[calc(100vh-var(--header-height,64px))] overflow-hidden lg:grid-cols-[400px_minmax(0,1fr)] lg:divide-x border-t'
+        className='grid flex-1 min-h-0 overflow-hidden lg:grid-cols-[400px_minmax(0,1fr)] lg:divide-x border-t'
       >
         <div className='h-full overflow-hidden bg-muted/10'>
           <TripList

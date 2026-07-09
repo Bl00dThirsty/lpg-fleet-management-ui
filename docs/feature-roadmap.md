@@ -2,243 +2,99 @@
 
 ## Objectif
 
-Faire evoluer l'application d'un simple module `Camions` vers une plateforme de pilotage GPL structuree autour de:
+Faire evoluer l'application d'un simple module `Camions` vers une plateforme de pilotage GPL structurée autour de:
 
 1. l'operationnel des tournées
 2. le tableau de bord global
 
 Le but est de garder une architecture simple, lisible et scalable, sans tout melanger dans la feature `trucks`.
 
-## Sidebar cible
+Nous avons principalement 7 acteurs dans notre système
+- La CSPH qui est le régulateur la plateforme lui est directement dédiée
+- La SCDP chargé de l'approvisionnement et stockage
+- La SNH chargé de la production locale de GPL
+- Les Marketers qui eux sont chargés de la distribution et la commercialisation (ce sont leurs sactivités que nous devons mettre en évidence à travers notre plateforme)
+- Le centres emplisseurs : ils servent à conditionner les bouteilles de GPL (un marketer peut posséder 0 ou 1 à plusieurs centres emplisseurs répendus sur l'ensemble du territoire nationale)
+- Transporteurs : Achemenement des produits pétroliers (un marketer peut avoir ses propres camions ou passer par un transporteurs indépendants)
+- Les clients : Industries, Hotels, restos, cafés, boulangeries etc ( vu qu'on veut mettre en évidence la vente du GPL vrac et bouteilles de 50kg destinés aux entreprises les infos sur les clients doivent être entrée dans le système )
 
-### Groupe `Operations`
+Je veux hiérarchiser toutes ces informations pour avoir l'arborescence la plus propres possible 
 
-- `Camions` -> `/trucks`
-- `Tournees GPL` -> `/routes`
-
-### Groupe `Pilotage`
-
-- `Tableau de bord global` -> `/dashboard`
-
-## Decoupage fonctionnel recommande
-
-### 1. Feature `trucks`
-
-Responsabilite:
-
-- liste des camions
-- details d'un camion
-- position temps reel sur la carte
-- etat du camion, chauffeur, pression, charge, ETA
-
-Ne doit pas contenir:
-
-- logique de simulation ou suivi de tournée multi-etapes
-- agregats globaux de flotte
-- catalogue des depots et centres
-
-### 2. Feature `routes`
-
-Responsabilite:
-
-- suivi des tournées GPL
-- evolution du niveau de GPL pendant le trajet
-- comparaison `niveau au chargement` vs `niveau en cours` vs `niveau a la livraison`
-- trajet entre depot, point de livraison, marketers, centres emplisseurs
-- timeline d'une tournée
-- carte de tournée avec etapes
-
-Sous-domaines dans cette feature:
-
-- `route-list`: liste des tournées
-- `route-details`: détail d'une tournée
-- `route-map`: carte et trace GPS
-- `route-telemetry`: variation du GPL, pression, volumes delivres, anomalies
-
-### 3. Feature `sites`
-
-Responsabilite:
-
-- referentiel geographique metier
-- depots et centres
-- points de chargement / dechargement
-
-Premiers sites a integrer:
-
-- Depot de Bipaga
-- SCDP Douala
-- SCDP Yaounde
-- certains centres emplisseurs
-
-Pourquoi separer `sites`:
-
-- ces donnees seront reutilisees par `trucks`, `routes` et `dashboard`
-- on evite de coder les marqueurs de sites directement dans `trucks-map.tsx`
-
-### 4. Feature `dashboard`
-
-Responsabilite:
-
-- quantite totale de GPL transportee
-- quantite en reserve
-- repartition par flotte
-- volumes par depot
-- synthese journaliere / hebdomadaire / mensuelle
-- alertes de stock ou baisse anormale
-
-## Structure technique recommandee
-
-```text
-src/
-  features/
-    trucks/
-      components/
-      data/
-      hooks/
-      index.tsx
-    routes/
-      components/
-      data/
-      hooks/
-      index.tsx
-    sites/
-      data/
-      map/
-      utils/
-    dashboard/
-      components/
-      data/
-      hooks/
-      index.tsx
-  routes/
-    _authenticated/
-      trucks/
-        index.tsx
-      routes/
-        index.tsx
-      dashboard/
-        index.tsx
-```
-
-## Donnees a modeliser
-
-### Truck
-
-Donnees déjà presentes ou proches de l'existant:
-
-- id
-- immatriculation
-- flotte / entreprise
-- chauffeur
-- position
-- niveau GPL
-- pression
-- destination
-
-### Site
-
-```ts
-type Site = {
-  id: string
-  name: string
-  type: 'depot' | 'scdp' | 'filling-center' | 'marketer' | 'delivery-point'
-  latitude: number
-  longitude: number
-  city: string
-  status?: 'active' | 'inactive'
+Voici l'exemple d'un corps de réponse d'une demande de service SR (service request) dans IBM Maximo
+je veux prendre l'utilisation de "org_id" et "site_id" pour les marketers qui ont plusieurs sites (dépôts et centres emplisseurs ou rien), ces sites sont géolocalisés dans le système, la traçabilité historique et le reporting de chaque modification por les dates de dernières modifications avoir une liste des modifications avec les dates et id de la personne ayant apporté ces modifis... dans le système, tout ce qui peut être nécessaire au bon fonctionnement de notre système 
+{
+            "historyflag": false,
+            "actlabcost": 0.0,
+            "createwomulti_description": "Create Multi Records",
+            "imax_sr_criticality": "MAJR",
+            "ticketuid": 3983,
+            "plusgrelatetolocal": false,
+            "plusgisreviewreqd": false,
+            "plusgccf": false,
+            "plusgislesslearned": false,
+            "plusgmigrationreq": false,
+            "imax_sr_type_description": "Corrective (COR)",
+            "sitevisit": false,
+            "_rowstamp": "86089935",
+            "plusgrcfaapp": false,
+            "siteid": "PAD_DLA",
+            "isknownerror": false,
+            "plusgrootcauseiden": false,
+            "href": "http://localhost/maxrest/oslc/os/mxsr/_U1IvQ09SMDU2OQ--",
+            "affectedperson": "MAXADMIN",
+            "status_description": "ATTENTE APPROBATION",
+            "plusghassafetycrit": false,
+            "plusgmanrca": false,
+            "changedate": "2025-10-19T09:30:16+00:00",
+            "plusgreltoregional": false,
+            "actlabhrs": 0.0,
+            "imax_sr_type": "COR",
+            "plusgmanhf": false,
+            "orgid": "PAD_CM",
+            "createwomulti": "MULTI",
+            "plusganalysiscomp": false,
+            "plusgmanrcfa": false,
+            "plusgislocal": false,
+            "reportedemail": "grp_dpisi_sisr@pad.cm",
+            "plusgglobalincident": false,
+            "plusgreportable": false,
+            "status": "ATTAPPR",
+            "plusgisinvestig": false,
+            "template": false,
+            "selfservsolaccess": true,
+            "inheritstatus": true,
+            "reportdate": "2025-10-19T09:30:16+00:00",
+            "class_description": "Service Request",
+            "plusgdefectelim": false,
+            "description": "Le navire ne démarre pas",
+            "reportedby": "MAXADMIN",
+            "plusgisdefect": false,
+            "assetnum": "NAVD001",
+            "assetsiteid": "PAD_DLA",
+            "class": "SR",
+            "plusgfailfix": false,
+            "plusgnonconaccept": false,
+            "assetorgid": "PAD_CM",
+            "plusgstrategic": false,
+            "ticketid": "COR0569",
+            "plusgacceptinc": false,
+            "classstructureid": "SR0197",
+            "changeby": "MAXADMIN",
+            "affectedemail": "grp_dpisi_sisr@pad.cm",
+            "imax_sr_criticality_description": "Majeur",
+            "plusgisregional": false,
+            "relatedtoglobal": false,
+            "hasactivity": false,
+            "statusdate": "2025-10-19T09:30:16+00:00",
+            "failurecode": "F000691",
+            "hassolution": false,
+            "plusghfapp": false,
+            "plusghighcontext": false,
+            "plusginvestreqd": false,
+            "location": "QUAI025",
+            "isglobal": false,
+            "plussisgis": false
 }
-```
-
-### Tournee
-
-```ts
-type RouteTrip = {
-  id: string
-  truckId: string
-  originSiteId: string
-  destinationSiteId: string
-  waypoints?: string[]
-  startedAt: string
-  expectedArrivalAt?: string
-  deliveredQuantityKg?: number
-  loadedQuantityKg: number
-  remainingQuantityKg: number
-  status: 'planned' | 'in-progress' | 'completed' | 'incident'
-}
-```
-
-### Télémétrie de tournée
-
-```ts
-type RouteTelemetryPoint = {
-  id: string
-  routeTripId: string
-  recordedAt: string
-  latitude: number
-  longitude: number
-  lpgLevelPercent: number
-  pressureBar: number
-  estimatedVolumeKg?: number
-}
-```
-
-## Ordre de livraison conseille
-
-### Epic 1 - Reseau logistique
-
-Objectif:
-
-- afficher sur la carte les sites metier fixes
-
-Livrables:
-
-- dataset mock `sites.ts`
-- marqueurs des depots et centres
-- legende simple
-- filtres par type de site
-
-### Epic 2 - Tournees GPL
-
-Objectif:
-
-- suivre une tournée de bout en bout
-
-Livrables:
-
-- page `Tournees GPL`
-- liste des tournées
-- detail d'une tournée
-- courbe ou indicateur de variation du GPL
-- trace sur la carte
-- affichage chargement -> trajet -> livraison
-
-### Epic 3 - Tableau de bord global
-
-Objectif:
-
-- piloter les volumes transportes et les reserves
-
-Livrables:
-
-- KPI principaux
-- repartition par flotte
-- volume transporte
-- stock restant / reserve
-- vue par depot
-
-## Definition of Done par feature
-
-Chaque feature doit avoir:
-
-- sa route
-- ses composants propres
-- ses donnees mock ou ses appels API
-- ses tests minimums sur les transformations critiques
-- ses labels et textes metier coherents
-- un build qui passe
-
-## Tickets recommandes
-
 ### Feature 1
 
 Nom de branche:
@@ -305,7 +161,7 @@ git rebase origin/develop
 git push origin feature/routes-lpg-variation --force-with-lease
 ```
 
-## Regle pro a garder
+## Regle pro à garder
 
 Une feature = un objectif metier clair.
 
