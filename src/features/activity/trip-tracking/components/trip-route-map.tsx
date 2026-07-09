@@ -264,7 +264,7 @@ export function TripRouteMap({ trip }: TripRouteMapProps) {
   return (
     <div
       className={cn(
-        'fleet-arcgis-map relative h-full w-full min-h-[300px] overflow-hidden bg-muted/30', // changed to bg-muted/30
+        'fleet-arcgis-map relative h-full w-full min-h-[200px] overflow-hidden bg-muted/30', // reduced min-h for landscape
         mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light'
       )}
       data-map-theme={mapTheme} // added data-map-theme

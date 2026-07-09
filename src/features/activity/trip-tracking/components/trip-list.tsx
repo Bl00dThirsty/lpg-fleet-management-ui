@@ -118,16 +118,16 @@ function TripCard({ trip, active, onSelectTrip }: TripCardProps) {
 
 export function TripList({ trips, selectedTripId, onSelectTrip }: TripListProps) {
   return (
-    <Card className='h-full rounded-none ring-0 border-y-0 border-l-0 shadow-none'>
-      <CardHeader className='pb-3'>
+    <Card className='flex h-full flex-col rounded-none border-l-0 border-y-0 shadow-none ring-0'>
+      <CardHeader className='shrink-0 pb-3'>
         <div className='flex items-center justify-between'>
-          <CardTitle className='font-semibold text-lg'>Tournées actives</CardTitle>
+          <CardTitle className='text-lg font-semibold'>Tournées actives</CardTitle>
           <Button size='icon' variant='ghost' className='h-8 w-8'>
             <SlidersHorizontal className='h-4 w-4' />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className='flex flex-1 flex-col gap-4 overflow-hidden px-0 h-[calc(100vh-140px)]'>
+      <CardContent className='flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-0'>
         <Tabs defaultValue='all' className='px-4'>
           <TabsList className='w-full'>
             <TabsTrigger className='flex-1 text-xs' value='all'>Toutes (24)</TabsTrigger>
