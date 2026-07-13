@@ -1,13 +1,34 @@
-import { Bell, Moon, Search, Sun } from 'lucide-react'
+import { Bell, Moon, Search, Sun, LogOut } from 'lucide-react'
 import { useTheme } from '@/context/theme-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Header } from './header'
 import csphLogo from '@/assets/logo-csph-small.png'
+import totalLogo from '@/assets/logo-total.png'
+import { usePermissions } from '@/context/PermissionsProvider'
+import { useNavigate } from '@tanstack/react-router'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export function AppHeader() {
   const { resolvedTheme, setTheme } = useTheme()
+  const { session, logout } = usePermissions()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate({ to: '/login' })
+  }
+
+  const getLogo = () => {
+    if (session?.orgName === 'TotalEnergies') return totalLogo
+    return csphLogo // Default or CSPH
+  }
 
   return (
     <Header fixed>
@@ -56,17 +77,29 @@ export function AppHeader() {
             )}
           </Button>
 
-          <div className='hidden text-right text-sm md:block'>
-            <p className='font-medium'>Admin CSPH</p>
-            <p className='text-xs text-muted-foreground'>Centre de pilotage</p>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='flex gap-2 pl-2 pr-0 hover:bg-transparent'>
+                <div className='hidden text-right text-sm md:block mr-1'>
+                  <p className='font-medium'>{session?.subRole || session?.orgName}</p>
+                  <p className='text-xs text-muted-foreground'>{session?.role}</p>
+                </div>
+                <Avatar className='size-9 rounded-full border bg-white p-0.5'>
+                  <AvatarImage src={getLogo()} alt={session?.orgName || 'Logo'} className='object-contain' />
+                  <AvatarFallback className='bg-primary/10 text-sm font-semibold text-primary'>
+                    {session?.orgName?.substring(0, 2).toUpperCase() || 'CS'}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/50 cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Se déconnecter</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          <Avatar className='size-9 rounded-full border bg-white p-0.5'>
-            <AvatarImage src={csphLogo} alt='CSPH' className='object-contain' />
-            <AvatarFallback className='bg-primary/10 text-sm font-semibold text-primary'>
-              CS
-            </AvatarFallback>
-          </Avatar>
         </div>
       </div>
     </Header>

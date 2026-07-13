@@ -27,7 +27,7 @@ export type Trip = {
   origin: TripLocation
   destination: TripLocation
   marketer: MarketerInfo
-  cargo: string // e.g. "GPL Vrac" or "Bouteilles 12kg"
+  cargo: string // e.g. "GPL Vrac" or "Bouteilles 50kg"
   volume: string // e.g. "18 TM" or "600 Bouteilles"
   truckPlate: string
   driver: string
@@ -64,7 +64,7 @@ export const trips: Trip[] = [
     cargo: 'GPL Vrac',
     volume: '20 TM',
     truckPlate: 'LT 3344 AB',
-    driver: 'Nguemo Paul',
+    driver: 'Azambou Yvana',
     eta: '16:30',
     etaMeta: "Aujourd'hui",
     handling: {
@@ -93,10 +93,10 @@ export const trips: Trip[] = [
       initials: 'TR',
       tier: 'Standard',
     },
-    cargo: 'Bouteilles 12.5kg',
+    cargo: 'BouteilleS 50kg',
     volume: '500 Bouteilles',
     truckPlate: 'CE 1100 MN',
-    driver: 'Onana Pierre',
+    driver: 'Eteme Jean',
     eta: '11:00',
     etaMeta: "Aujourd'hui",
     handling: {
@@ -128,7 +128,7 @@ export const trips: Trip[] = [
     cargo: 'GPL Vrac',
     volume: '18 TM',
     truckPlate: 'LT 5566 CD',
-    driver: 'Fotso Michel',
+    driver: 'Malonguem Laura',
     eta: '08:00',
     etaMeta: 'Demain',
     handling: {

@@ -12,6 +12,7 @@ import { handleServerError } from '@/lib/handle-server-error'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
 import { ThemeProvider } from './context/theme-provider'
+import { PermissionsProvider } from './context/PermissionsProvider'
 // Generated Routes
 import { routeTree } from './routeTree.gen'
 // Styles
@@ -87,7 +88,9 @@ if (!rootElement.innerHTML) {
         <ThemeProvider defaultTheme='light'>
           <FontProvider>
             <DirectionProvider>
-              <RouterProvider router={router} />
+              <PermissionsProvider>
+                <RouterProvider router={router} />
+              </PermissionsProvider>
             </DirectionProvider>
           </FontProvider>
         </ThemeProvider>
