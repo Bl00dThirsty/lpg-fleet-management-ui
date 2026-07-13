@@ -1,0 +1,37 @@
+2026-07-10T13:04:33.799148Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo"), AnchoredSystemPathBuf(".turbo\\cookies\\.turbo-cookie"), AnchoredSystemPathBuf(".turbo\\cookies\\1.cookie"), AnchoredSystemPathBuf(".turbo\\cookies")}
+2026-07-10T13:04:33.799267Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2026-07-10T13:04:33.936695Z  WARN daemon_server: turborepo_lib::commands::daemon: daemon already running
+2026-07-10T13:04:34.992002Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\1e8459216206aaa5-turbo.log.2026-07-10")}
+2026-07-10T13:04:34.992026Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2026-07-10T13:04:36.193515Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\1e8459216206aaa5-turbo.log.2026-07-10")}
+2026-07-10T13:04:36.193539Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2026-07-10T13:04:38.791938Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\driver\\vite.config.ts.timestamp-1783688678787-51351f63274f18.mjs"), AnchoredSystemPathBuf("apps\\driver")}
+2026-07-10T13:04:38.791965Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/driver"), path: AnchoredSystemPathBuf("apps\\driver") }}))
+2026-07-10T13:04:39.078141Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\driver\\vite.config.ts.timestamp-1783688678787-51351f63274f18.mjs"), AnchoredSystemPathBuf("apps\\driver")}
+2026-07-10T13:04:39.078170Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/driver"), path: AnchoredSystemPathBuf("apps\\driver") }}))
+2026-07-10T13:04:39.078205Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2026-07-10T13:39:43.999293Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\context\\PermissionsProvider.tsx")}
+2026-07-10T13:39:43.999762Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T13:39:53.415647Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages\\permissions\\src\\index.ts")}
+2026-07-10T13:39:53.415683Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/permissions"), path: AnchoredSystemPathBuf("packages\\permissions") }}))
+2026-07-10T13:40:10.392789Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\routes"), AnchoredSystemPathBuf("apps\\back-office\\src\\routes\\login.tsx")}
+2026-07-10T13:40:10.392850Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T13:40:10.880973Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src"), AnchoredSystemPathBuf("apps\\back-office\\.tanstack\\tmp"), AnchoredSystemPathBuf("apps\\back-office\\.tanstack"), AnchoredSystemPathBuf("apps\\back-office"), AnchoredSystemPathBuf("apps\\back-office\\.tanstack\\tmp\\e97b84c5-ec90a6bef7d869cd164b20d1bf00295e"), AnchoredSystemPathBuf("apps\\back-office\\src\\routeTree.gen.ts")}
+2026-07-10T13:40:10.880992Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T13:40:10.881146Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2026-07-10T13:44:43.095018Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\routes\\_authenticated\\route.tsx")}
+2026-07-10T13:44:43.095051Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T13:44:51.914838Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\routes\\_authenticated\\route.tsx")}
+2026-07-10T13:44:51.914866Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T13:59:45.203086Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\assets"), AnchoredSystemPathBuf("apps\\back-office\\src\\assets\\logo-total.png")}
+2026-07-10T13:59:45.203120Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T14:01:11.110181Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\components\\layout\\app-header.tsx")}
+2026-07-10T14:01:11.110211Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T14:02:24.503177Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\context\\PermissionsProvider.tsx")}
+2026-07-10T14:02:24.503202Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T14:02:32.297992Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\routes\\login.tsx")}
+2026-07-10T14:02:32.298022Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T14:10:13.098189Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("apps\\back-office\\src\\assets\\logo-total.png")}
+2026-07-10T14:10:13.098243Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@lpg/back-office"), path: AnchoredSystemPathBuf("apps\\back-office") }}))
+2026-07-10T14:56:48.637329Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("")}
+2026-07-10T14:56:48.637363Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({}))

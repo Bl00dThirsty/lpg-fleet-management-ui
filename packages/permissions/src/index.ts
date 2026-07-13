@@ -1,6 +1,6 @@
 import { AbilityBuilder, createMongoAbility, MongoAbility } from '@casl/ability';
 
-export type Role = 'CSPH' | 'MARKETER' | 'TRANSPORTER' | 'DRIVER';
+export type Role = 'CSPH' | 'MARKETER' | 'TRANSPORTER' | 'DRIVER' | 'GUEST';
 
 export type AppAction = 'manage' | 'read' | 'create' | 'update' | 'delete';
 export type AppSubject = 'Trip' | 'Truck' | 'Marketer' | 'Transporter' | 'all';
@@ -11,6 +11,9 @@ export function defineAbilitiesFor(role: Role): AppAbility {
   const { can, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
 
   switch (role) {
+    case 'GUEST':
+      // Cannot do anything
+      break;
     case 'CSPH':
       can('manage', 'all'); // CSPH has full access
       break;

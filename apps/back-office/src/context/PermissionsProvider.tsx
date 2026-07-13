@@ -2,18 +2,42 @@ import { createContext, useContext, ReactNode, useState } from 'react';
 import { defineAbilitiesFor, Role } from '@lpg/permissions';
 import { AbilityContext } from './AbilityContext';
 
-export const PermissionsContext = createContext<{
+export interface MockSession {
   role: Role;
-  setRole: (role: Role) => void;
+  orgName: string;
+  subRole?: string; // e.g. "Superadmin", "Admin Info"
+}
+
+export const PermissionsContext = createContext<{
+  session: MockSession | null;
+  setSession: (session: MockSession | null) => void;
+  logout: () => void;
 } | null>(null);
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {
-  // For demo/development purposes, default to CSPH. In a real app, this comes from auth token
-  const [role, setRole] = useState<Role>('CSPH');
-  const ability = defineAbilitiesFor(role);
+  const [session, setSessionState] = useState<MockSession | null>(() => {
+    const saved = localStorage.getItem('lpg-mock-session');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const setSession = (newSession: MockSession | null) => {
+    setSessionState(newSession);
+    if (newSession) {
+      localStorage.setItem('lpg-mock-session', JSON.stringify(newSession));
+    } else {
+      localStorage.removeItem('lpg-mock-session');
+    }
+  };
+
+  const logout = () => {
+    setSession(null);
+  };
+
+  // If no session, they have a generic "GUEST" ability with no access (empty ability)
+  const ability = defineAbilitiesFor(session?.role || ('GUEST' as Role));
 
   return (
-    <PermissionsContext.Provider value={{ role, setRole }}>
+    <PermissionsContext.Provider value={{ session, setSession, logout }}>
       <AbilityContext.Provider value={ability}>
         {children}
       </AbilityContext.Provider>
