@@ -1,0 +1,7 @@
+[
+  { "id": "dec-1", "reference": "DEC-2026-0001", "marketeurId": "user-6", "siteId": "site-3", "status": "submitted", "bottlesIn": 1200, "bottlesOut": 1180, "declaredAt": "2026-07-15T08:30:00Z" },
+  { "id": "dec-2", "reference": "DEC-2026-0002", "marketeurId": "user-6", "siteId": "site-2", "status": "validated", "bottlesIn": 800, "bottlesOut": 795, "declaredAt": "2026-07-14T14:10:00Z" },
+  { "id": "dec-3", "reference": "DEC-2026-0003", "marketeurId": "user-6", "siteId": "site-1", "status": "draft", "bottlesIn": 0, "bottlesOut": 0, "declaredAt": "2026-07-15T06:00:00Z" },
+  { "id": "dec-4", "reference": "DEC-2026-0004", "marketeurId": "user-6", "siteId": "site-4", "status": "rejected", "bottlesIn": 500, "bottlesOut": 480, "declaredAt": "2026-07-13T11:45:00Z" },
+  { "id": "dec-5", "reference": "DEC-2026-0005", "marketeurId": "user-6", "siteId": "site-6", "status": "submitted", "bottlesIn": 640, "bottlesOut": 632, "declaredAt": "2026-07-15T09:20:00Z" }
+]

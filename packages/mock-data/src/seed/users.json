@@ -1,0 +1,9 @@
+[
+  { "id": "user-1", "email": "superadmin@lpg.cm", "firstName": "Aminata", "lastName": "Ndiaye", "role": "SUPER_ADMIN", "organizationId": "org-1", "active": true },
+  { "id": "user-2", "email": "admin@lpg.cm", "firstName": "Paul", "lastName": "Biya", "role": "ADMIN", "organizationId": "org-1", "active": true },
+  { "id": "user-3", "email": "supervisor@lpg.cm", "firstName": "Chantal", "lastName": "Ebongo", "role": "SUPERVISOR", "organizationId": "org-1", "active": true },
+  { "id": "user-4", "email": "integrateur@lpg.cm", "firstName": "Marc", "lastName": "Fotso", "role": "INTEGRATEUR", "organizationId": "org-1", "active": true },
+  { "id": "user-5", "email": "agent@lpg.cm", "firstName": "Sandra", "lastName": "Mbarga", "role": "AGENT", "organizationId": "org-1", "active": true },
+  { "id": "user-6", "email": "marketeur@lpg.cm", "firstName": "Jean", "lastName": "Nkono", "role": "MARKETEUR", "organizationId": "org-4", "active": true },
+  { "id": "user-7", "email": "livreur@lpg.cm", "firstName": "Andre", "lastName": "Tchoumi", "role": "LIVREUR", "organizationId": "org-5", "active": true }
+]

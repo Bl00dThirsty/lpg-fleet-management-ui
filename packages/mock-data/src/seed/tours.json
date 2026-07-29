@@ -1,0 +1,7 @@
+[
+  { "id": "tour-1", "reference": "TR-2026-0001", "truckId": "truck-2", "driverId": "user-7", "status": "in_progress", "plannedDate": "2026-07-15", "stops": 6 },
+  { "id": "tour-2", "reference": "TR-2026-0002", "truckId": "truck-5", "driverId": "user-7", "status": "planned", "plannedDate": "2026-07-15", "stops": 4 },
+  { "id": "tour-3", "reference": "TR-2026-0003", "truckId": "truck-1", "driverId": "user-7", "status": "completed", "plannedDate": "2026-07-14", "stops": 5 },
+  { "id": "tour-4", "reference": "TR-2026-0004", "truckId": "truck-4", "driverId": "user-7", "status": "planned", "plannedDate": "2026-07-16", "stops": 3 },
+  { "id": "tour-5", "reference": "TR-2026-0005", "truckId": "truck-3", "driverId": "user-7", "status": "cancelled", "plannedDate": "2026-07-13", "stops": 2 }
+]

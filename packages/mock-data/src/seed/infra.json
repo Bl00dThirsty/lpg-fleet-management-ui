@@ -1,0 +1,6 @@
+[
+  { "id": "infra-1", "service": "api-gateway", "cpu": 42, "memory": 61, "status": "healthy", "measuredAt": "2026-07-15T10:15:00Z" },
+  { "id": "infra-2", "service": "tracking-ingest", "cpu": 88, "memory": 79, "status": "degraded", "measuredAt": "2026-07-15T10:15:00Z" },
+  { "id": "infra-3", "service": "auth-service", "cpu": 23, "memory": 40, "status": "healthy", "measuredAt": "2026-07-15T10:15:00Z" },
+  { "id": "infra-4", "service": "report-worker", "cpu": 0, "memory": 0, "status": "down", "measuredAt": "2026-07-15T09:50:00Z" }
+]

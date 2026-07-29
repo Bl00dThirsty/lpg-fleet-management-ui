@@ -26,10 +26,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
+.agents
+.tanstack
+.turbo
+skills-lock.json
 # Test coverage
 /coverage
 
 # Vitest artifacts (browser screenshots/attachments)
 **/__screenshots__/
 .vitest-attachments/
+
+# TypeScript build info
+*.tsbuildinfo

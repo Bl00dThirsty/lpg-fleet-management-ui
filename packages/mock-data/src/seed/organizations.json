@@ -1,0 +1,7 @@
+[
+  { "id": "org-1", "name": "CSPH Siège", "type": "csph", "code": "CSPH", "region": "Dakar", "active": true },
+  { "id": "org-2", "name": "SCDP Nord", "type": "scdp", "code": "SCDP", "region": "Saint-Louis", "active": true },
+  { "id": "org-3", "name": "SNH Gas", "type": "snh", "code": "SNH", "region": "Thiès", "active": true },
+  { "id": "org-4", "name": "PetroPlus", "type": "marketeur", "code": "PP", "region": "Dakar", "active": true },
+  { "id": "org-5", "name": "TransLog", "type": "transporteur", "code": "TL", "region": "Mbour", "active": false }
+]

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "@/*": ["./*"],
+      "@lpg/types": ["../../packages/types/src/index.ts"],
+      "@lpg/permissions": ["../../packages/permissions/src/index.ts"],
+      "@lpg/ui": ["../../packages/ui/src/index.ts"],
+      "@lpg/config": ["../../packages/config/src/index.ts"],
+      "@lpg/api-client": ["../../packages/api-client/src/index.ts"]
+    }
+  },
+  "include": ["main.tsx", "vite-env.d.ts", "routeTree.gen.ts", "tanstack-table.d.ts", "**/*.ts", "**/*.tsx"]
+}

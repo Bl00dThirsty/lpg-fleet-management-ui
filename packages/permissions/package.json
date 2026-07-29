@@ -1,0 +1,13 @@
+{
+  "name": "@lpg/permissions",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@casl/ability": "^6.7.1",
+    "@lpg/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

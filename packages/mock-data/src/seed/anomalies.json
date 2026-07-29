@@ -1,0 +1,6 @@
+[
+  { "id": "ano-1", "type": "gps", "severity": "high", "resourceId": "truck-2", "message": "Perte de signal GPS depuis 12 min sur LT-002-B", "detectedAt": "2026-07-15T09:52:00Z", "resolved": false },
+  { "id": "ano-2", "type": "rfid", "severity": "medium", "resourceId": "truck-4", "message": "Lecture RFID echec au point Approvisionnement PetroPlus", "detectedAt": "2026-07-15T08:05:00Z", "resolved": false },
+  { "id": "ano-3", "type": "weight", "severity": "low", "resourceId": "truck-1", "message": "Ecarts de pesee < 2% sur tournee TR-2026-0003", "detectedAt": "2026-07-14T16:40:00Z", "resolved": true },
+  { "id": "ano-4", "type": "iot", "severity": "high", "resourceId": "pda-1", "message": "Batterie PDA critique (3%)", "detectedAt": "2026-07-15T10:10:00Z", "resolved": false }
+]

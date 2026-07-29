@@ -1,0 +1,6 @@
+[
+  { "id": "rep-1", "title": "Rapport operationnel hebdo - Reseau Littoral", "category": "operations", "generatedAt": "2026-07-15T07:00:00Z", "author": "SUPERVISOR" },
+  { "id": "rep-2", "title": "Rapport de conformite SCDP Bonaberie", "category": "compliance", "generatedAt": "2026-07-14T18:30:00Z", "author": "AGENT" },
+  { "id": "rep-3", "title": "Synthese financiere - Marketers Juin", "category": "finance", "generatedAt": "2026-07-13T12:00:00Z", "author": "ADMIN" },
+  { "id": "rep-4", "title": "Rapport anomalies GPS - Grand Nord", "category": "operations", "generatedAt": "2026-07-15T09:00:00Z", "author": "SUPERVISOR" }
+]
