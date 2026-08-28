@@ -1,0 +1,8 @@
+2d34243 chore: add /.turbo to .gitignore
+09fc537 chore: add scripts/dev-kill.js stub
+3205f16 chore: add root vercel.json for @lpg/web build filtering
+a93e092 chore: add monorepo root package.json with turbo scripts
+c6dc081 chore: add turbo.json with build, lint, and dev config
+63a065d chore: add pnpm-workspace.yaml with package overrides
+d705c9c docs(plans): add implementation plan for @lpg/web monorepo migration
+23a8118 docs(specs): add design for upgrading to @lpg/web monorepo

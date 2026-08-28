@@ -1,0 +1,14 @@
+{
+  "name": "@lpg/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@lpg/mock-data": "workspace:*",
+    "@lpg/types": "workspace:*",
+    "axios": "^1.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

@@ -1,0 +1,420 @@
+{
+  "metadata": {
+    "description": "CSPH GPL Traceability System — Settings, Reports, Audit Logs, RFID Tags, Custom Roles seed data",
+    "settings_note": "All business thresholds are referenced from the settings table by key. No hardcoded thresholds in application logic."
+  },
+  "settings": [
+    {
+      "id": "set-0001-geo-conf-auto",
+      "setting_key": "geo.confidence_auto_verify_threshold",
+      "setting_value": "80",
+      "value_type": "NUMBER",
+      "category": "GEO",
+      "description": "Confidence score at which a client site auto-promotes to ACTIVE after 5 deliveries",
+      "is_encrypted": false,
+      "min_value": 0,
+      "max_value": 100,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0002-geo-conf-flag",
+      "setting_key": "geo.confidence_flag_threshold",
+      "setting_value": "30",
+      "value_type": "NUMBER",
+      "category": "GEO",
+      "description": "Confidence score below which a site is flagged for manual review",
+      "is_encrypted": false,
+      "min_value": 0,
+      "max_value": 100,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0003-dev-batt-crit",
+      "setting_key": "device.battery_critical_threshold",
+      "setting_value": "15",
+      "value_type": "NUMBER",
+      "category": "DEVICE",
+      "description": "Battery level percent that triggers the critical battery flag",
+      "is_encrypted": false,
+      "min_value": 0,
+      "max_value": 100,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0004-dev-offline",
+      "setting_key": "device.offline_alert_minutes",
+      "setting_value": "30",
+      "value_type": "NUMBER",
+      "category": "DEVICE",
+      "description": "Minutes of silence before a device is considered offline",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 1440,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0005-rec-tol-pct",
+      "setting_key": "reconciliation.volume_gap_tolerance_percent",
+      "setting_value": "2.5",
+      "value_type": "NUMBER",
+      "category": "COMPLIANCE",
+      "description": "Max accepted volume gap percent before a redressement is issued",
+      "is_encrypted": false,
+      "min_value": 0,
+      "max_value": 100,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0006-tour-ack-timeout",
+      "setting_key": "tournee.transporter_ack_timeout_hours",
+      "setting_value": "4",
+      "value_type": "NUMBER",
+      "category": "TOURNEE",
+      "description": "Hours a transporter has to acknowledge an assigned tournee",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 168,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0007-tour-unassigned",
+      "setting_key": "tournee.unassigned_alert_hours",
+      "setting_value": "12",
+      "value_type": "NUMBER",
+      "category": "TOURNEE",
+      "description": "Hours after planning before an unassigned tournee alerts supervisors",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 720,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0008-audit-retention",
+      "setting_key": "audit.retention_years",
+      "setting_value": "5",
+      "value_type": "NUMBER",
+      "category": "AUDIT",
+      "description": "Years audit logs are retained before archiving",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 25,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0009-mfa-roles",
+      "setting_key": "mfa.enforced_for_roles",
+      "setting_value": "[\"ADMIN\",\"SUPERADMIN\",\"SUPERVISOR\"]",
+      "value_type": "JSON",
+      "category": "SECURITY",
+      "description": "Roles required to complete MFA setup before sensitive actions",
+      "is_encrypted": false,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0010-gps-interval",
+      "setting_key": "gps.capture_interval_minutes",
+      "setting_value": "60",
+      "value_type": "NUMBER",
+      "category": "GPS",
+      "description": "Default GPS position capture interval on tour start",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 1440,
+      "requires_restart": true
+    },
+    {
+      "id": "set-0011-report-expiry",
+      "setting_key": "report.default_expiry_days",
+      "setting_value": "30",
+      "value_type": "NUMBER",
+      "category": "REPORT",
+      "description": "Days a generated report is downloadable before expiry",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 365,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0008-subsidy-rate",
+      "setting_key": "reconciliation.subsidy_rate_per_tm",
+      "setting_value": 1000,
+      "value_type": "NUMBER",
+      "category": "COMPLIANCE",
+      "description": "Subsidy recovery rate (XOF) applied per TM of non-recovered volume gap",
+      "is_encrypted": false,
+      "min_value": 0,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0012-reserve-critical",
+      "setting_key": "reserve.critical_fill_percent",
+      "setting_value": "35",
+      "value_type": "NUMBER",
+      "category": "RESERVE",
+      "description": "Site fill percent below which the useful reserve is flagged critical",
+      "is_encrypted": false,
+      "min_value": 0,
+      "max_value": 100,
+      "requires_restart": false
+    },
+    {
+      "id": "set-0013-pickup-source-functions",
+      "setting_key": "flux1.pickup_source_functions",
+      "setting_value": "[\"CENTREEMPLISSEUR\",\"POINTAPPROVISIONABLE\"]",
+      "value_type": "JSON",
+      "category": "FLUX1",
+      "description": "site_function values allowed as the source (enlèvement origin) of a pickup request. ENTREPOT-only sites are pure storage and cannot be a pickup origin.",
+      "is_encrypted": false,
+      "requires_restart": false
+    }
+  ],
+  "reports": [
+    {
+      "id": "rep-0001-oper-sctm",
+      "name": "Volume GPL livré — SCTM",
+      "type": "OPERATIONAL",
+      "format": "EXCEL",
+      "parameters_json": {
+        "org_id": "org-0002-sctm-0000-000000000001",
+        "period": "2024-11"
+      },
+      "status": "READY",
+      "generated_at": "2024-12-02T09:30:00Z",
+      "file_url": "/reports/rep-0001-oper-sctm.xlsx",
+      "file_size": 245760,
+      "generated_by": "user-0002-csph-admin",
+      "expires_at": "2025-01-01T09:30:00Z"
+    },
+    {
+      "id": "rep-0002-fin-national",
+      "name": "Synthèse financière subventions",
+      "type": "FINANCIAL",
+      "format": "PDF",
+      "parameters_json": {
+        "period": "2024-Q4"
+      },
+      "status": "READY",
+      "generated_at": "2025-01-06T14:00:00Z",
+      "file_url": "/reports/rep-0002-fin-national.pdf",
+      "file_size": 512000,
+      "generated_by": "user-0001-csph-super",
+      "expires_at": "2025-02-05T14:00:00Z"
+    },
+    {
+      "id": "rep-0003-compliance-redress",
+      "name": "Suivi redressements émis",
+      "type": "COMPLIANCE",
+      "format": "CSV",
+      "parameters_json": {
+        "status": "ISSUED"
+      },
+      "status": "PENDING",
+      "generated_by": "user-0005-csph-investigator"
+    },
+    {
+      "id": "rep-0004-oper-total",
+      "name": "Mouvements véhicules — TotalEnergies",
+      "type": "OPERATIONAL",
+      "format": "CSV",
+      "parameters_json": {
+        "org_id": "org-0003-total-0000-000000000001",
+        "period": "2024-11"
+      },
+      "status": "GENERATING",
+      "generated_by": "user-0014-total-admin"
+    },
+    {
+      "id": "rep-0005-compliance-audit",
+      "name": "Rapport d'audit — vérifications terrain",
+      "type": "COMPLIANCE",
+      "format": "PDF",
+      "parameters_json": {
+        "region": "LITTORAL"
+      },
+      "status": "FAILED",
+      "generated_by": "user-0005-csph-investigator",
+      "created_at": "2025-01-15T10:00:00Z"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "aud-0001-login-super",
+      "user_id": "user-0001-csph-super",
+      "action": "LOGINSUCCESS",
+      "resource_table": "sessions",
+      "ip_address": "41.202.210.1",
+      "risk_score": 0,
+      "created_at": "2025-01-20T08:00:00Z"
+    },
+    {
+      "id": "aud-0002-tournee-created",
+      "user_id": "user-0006-sctm-admin",
+      "action": "TOURNEECREATED",
+      "resource_table": "delivery_tours",
+      "resource_id": "tour-0001-20241112-sctm-001",
+      "old_value": null,
+      "new_value": {
+        "status": "DRAFT"
+      },
+      "ip_address": "41.202.210.15",
+      "risk_score": 0,
+      "created_at": "2025-01-20T09:12:00Z"
+    },
+    {
+      "id": "aud-0003-reconcil-verified",
+      "user_id": "user-0002-csph-admin",
+      "action": "RECONCILIATIONVERIFIED",
+      "resource_table": "reconciliations",
+      "resource_id": "rec-0001-2024-11-sctm",
+      "new_value": {
+        "status": "VERIFIED"
+      },
+      "ip_address": "41.202.210.2",
+      "risk_score": 0,
+      "created_at": "2025-01-21T11:40:00Z"
+    },
+    {
+      "id": "aud-0004-permission-denied",
+      "user_id": "user-0008-sctm-supervisor",
+      "action": "PERMISSIONDENIED",
+      "resource_table": "risk_scores",
+      "resource_id": "risk-001-sctm-nov2024",
+      "ip_address": "41.202.210.20",
+      "risk_score": 40,
+      "created_at": "2025-01-21T15:05:00Z"
+    },
+    {
+      "id": "aud-0005-device-removed",
+      "user_id": "user-0014-total-admin",
+      "action": "DEVICEREMOVED",
+      "resource_table": "devices",
+      "resource_id": "dev-0020-gps-total-001",
+      "new_value": {
+        "status": "REMOVED"
+      },
+      "ip_address": "41.202.210.30",
+      "risk_score": 0,
+      "created_at": "2025-01-22T10:22:00Z"
+    },
+    {
+      "id": "aud-0006-setting-changed",
+      "user_id": "user-0001-csph-super",
+      "action": "SETTINGCHANGED",
+      "resource_table": "settings",
+      "resource_id": "set-0005-rec-tol-pct",
+      "old_value": {
+        "setting_value": "2.5"
+      },
+      "new_value": {
+        "setting_value": "3.0"
+      },
+      "ip_address": "41.202.210.1",
+      "risk_score": 0,
+      "created_at": "2025-01-23T16:00:00Z"
+    }
+  ],
+  "rfid_tags": [
+    {
+      "id": "rfid-0001",
+      "tag_id": "RFID-A1B2C3D4",
+      "bottle_serial": "BTL20240001",
+      "status": "ASSIGNEDTOBOTTLE",
+      "current_site_id": "site-0002-sctm-yaounde",
+      "created_at": "2024-10-01T09:00:00Z"
+    },
+    {
+      "id": "rfid-0002",
+      "tag_id": "RFID-E5F6G7H8",
+      "bottle_serial": "BTL20240002",
+      "status": "ASSIGNEDTOBOTTLE",
+      "current_client_site_id": "csite-0001-shc-principal",
+      "created_at": "2024-10-01T09:05:00Z"
+    },
+    {
+      "id": "rfid-0003",
+      "tag_id": "RFID-J9K0L1M2",
+      "status": "AVAILABLE",
+      "created_at": "2024-10-02T10:00:00Z"
+    },
+    {
+      "id": "rfid-0004",
+      "tag_id": "RFID-N3P4Q5R6",
+      "status": "INTRANSITOUT",
+      "current_site_id": "site-0002-sctm-yaounde",
+      "created_at": "2024-11-15T08:30:00Z"
+    },
+    {
+      "id": "rfid-0005",
+      "tag_id": "RFID-S7T8U9V0",
+      "status": "LOST",
+      "created_at": "2024-09-01T12:00:00Z"
+    },
+    {
+      "id": "rfid-0006",
+      "tag_id": "RFID-W1X2Y3Z4",
+      "bottle_serial": "BTL20240006",
+      "status": "ASSIGNEDTOBOTTLE",
+      "current_client_site_id": "csite-0002-shc-bastos",
+      "created_at": "2024-10-03T11:00:00Z"
+    }
+  ],
+  "custom_roles": [
+    {
+      "id": "cr-0001-sctm-transport",
+      "org_id": "org-0002-sctm-0000-000000000001",
+      "name": "Gestionnaire transports",
+      "description": "Gère les tournées externalisées SCTM",
+      "permissions_json": {
+        "tours.read": true,
+        "tours.write": true,
+        "transporters.read": true,
+        "reports.read": true
+      },
+      "is_active": true,
+      "created_by": "user-0006-sctm-admin"
+    },
+    {
+      "id": "cr-0002-total-supervisor",
+      "org_id": "org-0003-total-0000-000000000001",
+      "name": "Superviseur terrain",
+      "description": "Vérification terrain TotalEnergies",
+      "permissions_json": {
+        "sites.read": true,
+        "sites.verify": true,
+        "anomalies.read": true,
+        "scans.read": true
+      },
+      "is_active": true,
+      "created_by": "user-0014-total-admin"
+    },
+    {
+      "id": "cr-0003-csph-audit",
+      "org_id": "org-0001-csph-0000-000000000001",
+      "name": "Auditeur externe",
+      "description": "Accès lecture complète aux données d'audit",
+      "permissions_json": {
+        "audit-logs.read": true,
+        "audit-logs.export": true,
+        "reports.read": true,
+        "reports.export": true,
+        "reconciliations.read": true
+      },
+      "is_active": false,
+      "created_by": "user-0002-csph-admin"
+    }
+  ],
+  "user_custom_roles": [
+    {
+      "id": "ucr-0001",
+      "user_id": "user-0007-sctm-marketeur",
+      "custom_role_id": "cr-0001-sctm-transport",
+      "site_id": "site-0002-sctm-yaounde"
+    },
+    {
+      "id": "ucr-0002",
+      "user_id": "user-0016-total-supervisor",
+      "custom_role_id": "cr-0002-total-supervisor",
+      "site_id": null
+    }
+  ]
+}

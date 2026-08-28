@@ -1,0 +1,70 @@
+@layer base {
+  :root {
+    --surface-page: oklch(0.97 0.005 286.03 / 0.35);
+    --surface-raised: oklch(1 0 0 / 0.9);
+    --surface-sunken: oklch(0.96 0.005 286.03);
+    --surface-overlay: oklch(1 0 0 / 0.85);
+    --accent-soft: oklch(0.689 0.225 42.66 / 0.08);
+  }
+
+  .dark {
+    --surface-page: oklch(0.145 0.02 286.03 / 0.35);
+    --surface-raised: oklch(0.18 0.02 286.03 / 0.9);
+    --surface-sunken: oklch(0.2 0.02 286.03);
+    --surface-overlay: oklch(0.16 0.02 286.03 / 0.85);
+    --accent-soft: oklch(0.735 0.225 42.66 / 0.12);
+  }
+}
+
+@layer components {
+  .page {
+    @apply flex-1 space-y-6 bg-[var(--surface-page)] p-4 sm:p-6;
+  }
+
+  /* Primary elevated surface (cards, sections). Solid + bordered, no blur. */
+  .surface-card {
+    @apply rounded-xl border border-border/60 bg-card shadow-sm;
+  }
+
+  /* Inset/sunken surface for tables, charts, nested panels. */
+  .surface-sunken {
+    @apply rounded-xl border border-border/50 bg-[var(--surface-sunken)] shadow-inner;
+  }
+
+  .surface-raised {
+    @apply bg-[var(--surface-raised)] backdrop-blur-sm;
+  }
+
+  /* Floating overlay on top of maps/imagery (legit blur). */
+  .surface-overlay {
+    @apply rounded-lg border border-border/60 bg-[var(--surface-overlay)] shadow-sm backdrop-blur;
+  }
+
+  .data-label {
+    @apply text-xs font-medium uppercase tracking-wide text-muted-foreground;
+  }
+
+  .data-value {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+}
+
+/* Sonner toasts — LPG accent */
+[data-sonner-toast][data-type='success'] {
+  border-color: color-mix(in oklch, var(--primary) 55%, var(--border));
+}
+[data-sonner-toast][data-type='success'] [data-icon] {
+  color: var(--primary);
+}
+[data-sonner-toast][data-type='error'] {
+  border-color: color-mix(in oklch, var(--destructive) 55%, var(--border));
+}
+[data-sonner-toast][data-type='error'] [data-icon] {
+  color: var(--destructive);
+}
+[data-sonner-toast][data-type='warning'] {
+  border-color: color-mix(in oklch, var(--accent) 60%, var(--border));
+}
+[data-sonner-toast][data-type='warning'] [data-icon] {
+  color: var(--accent);
+}
