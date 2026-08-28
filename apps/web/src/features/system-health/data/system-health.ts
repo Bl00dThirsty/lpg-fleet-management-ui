@@ -1,4 +1,5 @@
 import { audit_logs, buildAnalytics, curated } from '@lpg/mock-data'
+import { currentLang, formatNumber } from '@/lib/i18n/formatters'
 
 export type ServiceStatus = 'OPERATIONAL' | 'DEGRADED' | 'CRITICAL'
 
@@ -40,7 +41,7 @@ function jitter(base: number, seed: number, spread = 0.08): number {
   return Math.round(base * (1 + noise - spread / 2))
 }
 
-const fmt = (n: number) => n.toLocaleString('fr-FR')
+const fmt = (n: number, lang: Parameters<typeof formatNumber>[1] = currentLang()) => formatNumber(n, lang)
 
 export function getSystemHealth(now = Date.now()): SystemHealth {
   const a = buildAnalytics()

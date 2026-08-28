@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns'
-import { fr } from 'date-fns/locale'
 import { CalendarIcon } from 'lucide-react'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { getDateFnsLocale } from '@/lib/i18n/formatters'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -16,25 +18,25 @@ export type DateRangeValue = DateRange | undefined
 
 type PresetKey = '7d' | '30d' | 'thisMonth' | 'lastMonth' | 'quarter' | 'custom'
 
-const PRESETS: Array<{ key: PresetKey; label: string; getRange: () => DateRange }> = [
+const PRESETS: Array<{ key: PresetKey; labelKey: string; getRange: () => DateRange }> = [
   {
     key: '7d',
-    label: '7 derniers jours',
+    labelKey: 'dateRangePicker.presets.7d',
     getRange: () => ({ from: subDays(new Date(), 6), to: new Date() }),
   },
   {
     key: '30d',
-    label: '30 derniers jours',
+    labelKey: 'dateRangePicker.presets.30d',
     getRange: () => ({ from: subDays(new Date(), 29), to: new Date() }),
   },
   {
     key: 'thisMonth',
-    label: 'Ce mois',
+    labelKey: 'dateRangePicker.presets.thisMonth',
     getRange: () => ({ from: startOfMonth(new Date()), to: new Date() }),
   },
   {
     key: 'lastMonth',
-    label: 'Mois dernier',
+    labelKey: 'dateRangePicker.presets.lastMonth',
     getRange: () => {
       const d = subMonths(new Date(), 1)
       return { from: startOfMonth(d), to: endOfMonth(d) }
@@ -42,7 +44,7 @@ const PRESETS: Array<{ key: PresetKey; label: string; getRange: () => DateRange 
   },
   {
     key: 'quarter',
-    label: 'Trimestre',
+    labelKey: 'dateRangePicker.presets.quarter',
     getRange: () => ({ from: subDays(new Date(), 90), to: new Date() }),
   },
 ]
@@ -56,10 +58,11 @@ type DateRangePickerProps = {
   presets?: boolean
 }
 
-function formatRange(value: DateRangeValue): string | null {
+function formatRange(value: DateRangeValue, lang: ReturnType<typeof usePreferencesStore.getState>['language']): string | null {
   if (!value?.from) return null
-  if (!value.to) return format(value.from, 'dd MMM yyyy', { locale: fr })
-  return `${format(value.from, 'dd MMM yyyy', { locale: fr })} – ${format(value.to, 'dd MMM yyyy', { locale: fr })}`
+  const locale = getDateFnsLocale(lang)
+  if (!value.to) return format(value.from, 'dd MMM yyyy', { locale })
+  return `${format(value.from, 'dd MMM yyyy', { locale })} – ${format(value.to, 'dd MMM yyyy', { locale })}`
 }
 
 export function DateRangePicker({
@@ -70,6 +73,9 @@ export function DateRangePicker({
   align = 'end',
   presets = true,
 }: DateRangePickerProps) {
+  const lang = usePreferencesStore((s) => s.language)
+  const { t } = useTranslation()
+  const resolvedPlaceholder = placeholder
   const [open, setOpen] = React.useState(false)
   const [draft, setDraft] = React.useState<DateRangeValue>(value)
   const [activePreset, setActivePreset] = React.useState<PresetKey | 'custom' | null>(null)
@@ -80,7 +86,7 @@ export function DateRangePicker({
     setDraft(value)
   }, [value])
 
-  const label = formatRange(value) ?? placeholder
+  const label = formatRange(value, lang) ?? resolvedPlaceholder
 
   const handlePreset = (key: PresetKey) => {
     const entry = PRESETS.find((p) => p.key === key)
@@ -122,7 +128,7 @@ export function DateRangePicker({
         <div className='flex flex-col sm:flex-row'>
           {presets ? (
             <div className='flex flex-col gap-1 border-b p-3 sm:border-b-0 sm:border-r sm:w-[160px]'>
-              <p className='mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase'>Raccourcis</p>
+              <p className='mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase'>{t('dateRangePicker.shortcuts')}</p>
               {PRESETS.map((preset) => (
                 <Button
                   key={preset.key}
@@ -132,7 +138,7 @@ export function DateRangePicker({
                   className='justify-start text-xs'
                   onClick={() => handlePreset(preset.key)}
                 >
-                  {preset.label}
+                  {t(preset.labelKey)}
                 </Button>
               ))}
               <Button
@@ -142,7 +148,7 @@ export function DateRangePicker({
                 className='justify-start text-xs'
                 onClick={() => setActivePreset('custom')}
               >
-                Personnalisé
+                {t('dateRangePicker.custom')}
               </Button>
             </div>
           ) : null}
@@ -160,14 +166,14 @@ export function DateRangePicker({
             />
             <div className='mt-3 flex items-center justify-between gap-2'>
               <Button type='button' variant='ghost' size='sm' onClick={handleClear}>
-                Réinitialiser
+                {t('dateRangePicker.reset')}
               </Button>
               <div className='flex gap-2'>
                 <Button type='button' variant='outline' size='sm' onClick={() => setOpen(false)}>
-                  Annuler
+                  {t('dateRangePicker.cancel')}
                 </Button>
                 <Button type='button' size='sm' onClick={handleApply}>
-                  Appliquer
+                  {t('dateRangePicker.apply')}
                 </Button>
               </div>
             </div>

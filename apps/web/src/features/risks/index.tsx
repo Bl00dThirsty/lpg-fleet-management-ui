@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 import { AlertOctagon, FileWarning, Gauge } from 'lucide-react'
 import { MetricCardWithChart, ChartCard, StatusDistribution, CompositionBar, chartConfigFrom } from '@/components/charts'
 import { PageHeader } from '@/components/layout/page-header'
@@ -13,6 +15,7 @@ import {
 } from './data/risk-scores'
 
 export function RiskScoresPage() {
+  const lang = usePreferencesStore((s) => s.language)
   const rows = useMemo(() => getRiskScores(), [])
   const summary = useMemo(() => getRiskSummary(rows), [rows])
   const byType = useMemo(() => getRiskByEntityType(rows), [rows])
@@ -44,27 +47,27 @@ export function RiskScoresPage() {
       <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
         <MetricCardWithChart
           label='Entités notées'
-          value={summary.total.toLocaleString('fr-FR')}
+          value={formatNumber(summary.total, lang)}
           icon={FileWarning}
           sparkline={byType.map((t) => t.count)}
           className='rounded-2xl border-border/60 shadow-none'
         />
         <MetricCardWithChart
           label='Score moyen'
-          value={summary.average.toLocaleString('fr-FR')}
+          value={formatNumber(summary.average, lang)}
           icon={Gauge}
           sparkline={byType.map((t) => t.average)}
           className='rounded-2xl border-border/60 shadow-none'
         />
         <MetricCardWithChart
           label='Risque élevé'
-          value={summary.eleve.toLocaleString('fr-FR')}
+          value={formatNumber(summary.eleve, lang)}
           sparkline={[summary.faible, summary.modere, summary.eleve, summary.critique]}
           className='rounded-2xl border-border/60 shadow-none'
         />
         <MetricCardWithChart
           label='Risque critique'
-          value={summary.critique.toLocaleString('fr-FR')}
+          value={formatNumber(summary.critique, lang)}
           icon={AlertOctagon}
           sparkline={[summary.faible, summary.modere, summary.eleve, summary.critique]}
           className='rounded-2xl border-border/60 shadow-none'

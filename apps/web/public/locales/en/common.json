@@ -1,0 +1,156 @@
+{
+  "create": "Create",
+  "cancel": "Cancel",
+  "save": "Save",
+  "edit": "Edit",
+  "delete": "Delete",
+  "language": {
+    "label": "Language"
+  },
+  "toast": {
+    "profileUpdated": "Profile updated"
+  },
+  "entityCrud": {
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "deleteConfirmTitle": "Confirm deletion",
+    "deleteConfirmDescription": "Are you sure you want to delete {{item}}? This action cannot be undone.",
+    "deleted": "Deleted.",
+    "deleteUserTitle": "Delete user?",
+    "deleteUserDescription": "This action is permanent. User {{email}} will no longer have access to the system."
+  },
+  "dateRangePicker": {
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "reset": "Reset",
+    "placeholder": "Pick a period",
+    "shortcuts": "Shortcuts",
+    "custom": "Custom",
+    "presets": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "quarter": "Quarter"
+    }
+  },
+  "certificates": {
+    "newTitle": "New certificate",
+    "editTitle": "Edit certificate",
+    "create": "Create",
+    "save": "Save"
+  },
+  "anomalies": {
+    "titleAll": "Anomalies",
+    "titleInvestigation": "Anomalies — Investigation Track",
+    "titleTechnical": "Anomalies — Technical Track",
+    "descriptionAll": "Fraud, volume gaps and technical incidents detected by the platform.",
+    "descriptionInvestigation": "Suspected fraud, siphoning, diversion — to investigate.",
+    "descriptionTechnical": "IoT, GPS, PDA and infrastructure incidents — to resolve.",
+    "all": "All",
+    "investigation": "Investigation",
+    "technical": "Technical"
+  },
+  "declarations": {
+    "title": "Declarations",
+    "description": "Monthly marketer declarations, from draft to reconciliation."
+  },
+  "drivers": {
+    "editTitle": "Edit driver",
+    "createTitle": "New driver"
+  },
+  "clients": {
+    "editTitle": "Edit client",
+    "createTitle": "New client"
+  },
+  "customRoles": {
+    "editTitle": "Edit role",
+    "createTitle": "New role"
+  },
+  "devices": {
+    "editTitle": "Edit device",
+    "createTitle": "New device"
+  },
+  "zones": {
+    "editTitle": "Edit zone",
+    "createTitle": "New zone"
+  },
+  "transporters": {
+    "editTitle": "Edit transporter",
+    "createTitle": "New transporter"
+  },
+  "vehicles": {
+    "editTitle": "Edit vehicle",
+    "createTitle": "New vehicle"
+  },
+  "depots": {
+    "editTitle": "Edit depot",
+    "createTitle": "New depot"
+  },
+  "organizations": {
+    "editTitle": "Edit organization",
+    "createTitle": "New organization"
+  },
+  "notificationGroups": {
+    "createGroup": "Create group",
+    "createGroupTitle": "Create notification group",
+    "editGroupTitle": "Edit group"
+  },
+  "livreurs": {
+    "editTitle": "Edit livreur",
+    "createTitle": "New livreur"
+  },
+  "users": {
+    "editTitle": "Edit user",
+    "createTitle": "New user",
+    "create": "Create",
+    "save": "Save"
+  },
+  "notificationRules": {
+    "editTitle": "Edit rule",
+    "createTitle": "New rule"
+  },
+  "marketers": {
+    "editTitle": "Edit marketer",
+    "createTitle": "New marketer",
+    "pageTitle": "Marketers",
+    "createButton": "New marketer",
+    "editDescription": "Update the marketer's information.",
+    "createDescription": "Create a new marketer.",
+    "created": "Marketer created.",
+    "updated": "Marketer updated."
+  },
+  "trucks": {
+    "editTitle": "Edit truck",
+    "createTitle": "New truck",
+    "editDescription": "Update the truck's information.",
+    "createDescription": "Add a truck to the fleet.",
+    "created": "Truck created.",
+    "updated": "Truck updated.",
+    "dashboardTitle": "Operational dashboard",
+    "listTitle": "Truck list",
+    "listDescription": "Select a truck to view its detailed sheet, contract and driver/livreur assignments.",
+    "countSuffix": "trucks",
+    "createButton": "New vehicle",
+    "kpi": {
+      "active": "Active",
+      "drivers": "Drivers",
+      "avgLpg": "Avg LPG",
+      "punctuality": "Punctuality",
+      "slaGoal": "SLA target"
+    },
+    "filters": {
+      "all": "All",
+      "planned": "Planned",
+      "inProgress": "In progress",
+      "checkpointActive": "Checkpoint reached",
+      "acknowledged": "Acknowledged",
+      "pending": "Pending transporter",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    }
+  }
+}

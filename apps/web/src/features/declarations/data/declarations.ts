@@ -1,4 +1,5 @@
 import { declarations, organizations } from '@lpg/mock-data'
+import { currentLang } from '@/lib/i18n/formatters'
 import type { Declaration, DeclarationStatus } from '@lpg/types'
 import type { UserScope } from '@/features/scope/scope'
 import { scopeBySiteOrCreator, scopeWithOrgId } from '@/features/scope/site-creator'
@@ -52,7 +53,7 @@ export function declarationsToViews(
       marketeur_name: orgName(d.marketeur_org_id),
       period: `${d.period_start.slice(0, 10)} au ${d.period_end.slice(0, 10)}`,
       declared_volume: d.declared_volume,
-      volume_label: `${d.declared_volume.toLocaleString('fr-FR')} TM`,
+      volume_label: `${d.declared_volume.toLocaleString(currentLang())} TM`,
       status: d.status,
       status_label: declarationStatusLabels[d.status],
       submitted_at: d.created_at ?? '',

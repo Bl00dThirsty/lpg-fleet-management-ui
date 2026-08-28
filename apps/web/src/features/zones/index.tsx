@@ -1,5 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { MapPinned, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCallback, useState } from 'react'
@@ -16,6 +17,7 @@ import { extractErrorMessage } from '@/hooks/use-toast-feedback'
 const route = getRouteApi('/_authenticated/zones/')
 
 export function ZonesPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const [detailsZone, setDetailsZone] = useState<ZoneView | null>(null)
@@ -71,7 +73,7 @@ export function ZonesPage() {
           </Badge>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouvelle zone
+              <Plus className='mr-1 h-4 w-4' /> {t('zones.createTitle')}
             </Button>
           )}
         </div>
@@ -103,7 +105,7 @@ export function ZonesPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier la zone' : 'Nouvelle zone'}
+        title={crud.editing ? t('zones.editTitle') : t('zones.createTitle')}
         description={crud.editing ? 'Mettez à jour les informations de la zone.' : 'Créez une nouvelle zone.'}
         fields={zoneFields}
         initial={crud.editing ? zoneToForm(crud.editing) : null}

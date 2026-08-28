@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import { MoreHorizontal, MapPin } from 'lucide-react'
 import { useEntityPermission } from '@/lib/permissions/use-entity-permission'
 import { canTransition, type SiteRole, type SiteRow, type TransitionRequest } from '../lib/site-status-machine'
@@ -33,6 +34,7 @@ export function SiteActionsMenu({
   onDelete?: () => void
   onOpenMap?: () => void
 }) {
+  const { t } = useTranslation('common')
   const perm = useEntityPermission('sites')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const verify = canTransition(row, role, { kind: 'verify' })
@@ -92,7 +94,7 @@ export function SiteActionsMenu({
                 setConfirmOpen(true)
               }}
             >
-              Supprimer
+              {t('entityCrud.delete')}
             </DropdownMenuItem>
           ) : null}
           {noActions && !(perm.canDelete && onDelete) ? (
@@ -104,20 +106,20 @@ export function SiteActionsMenu({
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogTitle>{t('entityCrud.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Voulez-vous vraiment supprimer le site {row.id} ? Cette action est irréversible.
+              {t('entityCrud.deleteConfirmDescription', { item: `site ${row.id}` })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('entityCrud.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
               onClick={() => {
                 onDelete?.()
               }}
             >
-              Supprimer
+              {t('entityCrud.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

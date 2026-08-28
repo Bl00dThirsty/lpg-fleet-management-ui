@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import {
   flexRender,
   getCoreRowModel,
@@ -21,7 +22,7 @@ import { SectionCard } from '@/components/layout/page'
 import { formatTm } from '@/features/map/utils/format'
 import type { FinanceMarketeurRow } from '../data/finance'
 
-const currency = (v: number) => `${Math.round(v).toLocaleString('fr-FR')} XAF`
+const currency = (v: number) => `${Math.round(v).toLocaleString(currentLang())} XAF`
 
 /**
  * Sortable per-marketeur breakdown of declared volume, gap and subsidy impact.
@@ -63,7 +64,7 @@ export function MarketeurBreakdownTable({ rows }: { rows: FinanceMarketeurRow[] 
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title='Réconciliations' />
         ),
-        cell: ({ row }) => row.original.reconciliationCount.toLocaleString('fr-FR'),
+        cell: ({ row }) => row.original.reconciliationCount.toLocaleString(currentLang()),
         meta: { className: 'text-right tabular-nums' },
       },
     ],

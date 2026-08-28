@@ -1,0 +1,123 @@
+{
+  "site": {
+    "UNASSIGNED": "Unassigned",
+    "ASSIGNED": "Assigned",
+    "ACTIVE": "Active",
+    "VERIFIED": "Verified",
+    "SUSPENDED": "Suspended",
+    "REJECTED": "Rejected"
+  },
+  "tour": {
+    "DRAFT": "Draft",
+    "PLANNED": "Planned",
+    "PENDINGTRANSPORTERACK": "Awaiting acknowledgement",
+    "ACKNOWLEDGED": "Acknowledged",
+    "INPROGRESS": "In progress",
+    "CHECKPOINTACTIVE": "Checkpoint active",
+    "CLOSED": "Closed",
+    "CANCELLED": "Cancelled"
+  },
+  "pickup": {
+    "DRAFT": "Draft",
+    "VALIDATED": "Validated",
+    "INPROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled"
+  },
+  "declaration": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "RECONCILED": "Reconciled",
+    "DISPUTED": "Disputed"
+  },
+  "reconciliation": {
+    "PENDING": "Pending",
+    "VERIFIED": "Verified",
+    "REDRESSEMENTAPPLIED": "Adjustment applied"
+  },
+  "redressement": {
+    "ISSUED": "Issued",
+    "PAID": "Paid",
+    "WAIVED": "Waived"
+  },
+  "risk": {
+    "FAIBLE": "Low",
+    "MODERE": "Moderate",
+    "ELEVE": "High",
+    "CRITIQUE": "Critical",
+    "CRITIQUEEXTREME": "Extreme critical"
+  },
+  "vehicle": {
+    "VRAC": "Bulk",
+    "BOUTEILLES50KG": "50 kg Bottles"
+  },
+  "org": {
+    "REGULATEUR": "Regulator",
+    "DEPOT": "Depot",
+    "MARKETEUR": "Marketer",
+    "TRANSPORTEUR": "Transporter",
+    "CLIENT": "Client"
+  },
+  "device": {
+    "GPS": "GPS",
+    "PDA": "PDA",
+    "RFIDREADER": "RFID Reader"
+  },
+  "deviceStatus": {
+    "UNASSIGNED": "Unassigned",
+    "ASSIGNED": "Assigned",
+    "INMISSION": "On mission",
+    "OFFLINE": "Offline",
+    "PENDINGSYNC": "Pending sync",
+    "SYNCING": "Syncing",
+    "SYNCED": "Synced",
+    "SYNCFAILED": "Sync failed",
+    "MAINTENANCE": "Maintenance",
+    "DEPLOYED": "Deployed",
+    "REMOVED": "Removed",
+    "LOST": "Lost"
+  },
+  "checkpoint": {
+    "PENDING": "Pending",
+    "REACHED": "Reached",
+    "COMPLETED": "Completed",
+    "SKIPPED": "Skipped"
+  },
+  "scan": {
+    "IN": "Inbound",
+    "OUT": "Outbound"
+  },
+  "anomaly": {
+    "NOUVEAU": "New",
+    "ENCOURS": "In progress",
+    "RESOLU": "Resolved",
+    "FERME": "Closed"
+  },
+  "anomalyCategory": {
+    "INVESTIGATION": "Investigation",
+    "TECHNICAL": "Technical"
+  },
+  "generic": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "on_tour": "On tour",
+    "maintenance": "Maintenance"
+  },
+  "boolean": {
+    "true": "Yes",
+    "false": "No"
+  },
+  "syncStatus": {
+    "synced": "Synced",
+    "pending": "Pending",
+    "offline": "Offline",
+    "maintenance": "Maintenance"
+  },
+  "truck": {
+    "AVAILABLE": "Available",
+    "IN_TRANSIT": "In transit",
+    "MAINTENANCE": "Maintenance",
+    "INACTIVE": "Inactive"
+  }
+}

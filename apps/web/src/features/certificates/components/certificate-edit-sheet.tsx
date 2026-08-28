@@ -25,6 +25,7 @@ import {
   SheetTitle,
 } from '@lpg/ui'
 import { api } from '@lpg/api-client'
+import { useTranslation } from 'react-i18next'
 import { SubmitButton } from '@/components/entity-crud/form-ui'
 import { VEHICLE_OPTIONS, certificateFromForm } from '../data/certificates-crud'
 import type { CertificateView } from '../data/certificates'
@@ -68,6 +69,7 @@ export function CertificateEditSheet({
   onOpenChange,
   onSaved,
 }: CertificateEditSheetProps) {
+  const { t } = useTranslation('common')
   const [submitting, setSubmitting] = useState(false)
   const isCreate = certificate === null
 
@@ -104,7 +106,7 @@ export function CertificateEditSheet({
       <SheetContent className='flex w-full flex-col sm:max-w-xl'>
         <SheetHeader className='pb-2'>
           <SheetTitle>
-            {isCreate ? 'Nouveau certificat' : 'Modifier le certificat'}
+            {isCreate ? t('certificates.newTitle') : t('certificates.editTitle')}
           </SheetTitle>
           <SheetDescription>
             {isCreate
@@ -220,10 +222,10 @@ export function CertificateEditSheet({
                 variant='outline'
                 onClick={() => onOpenChange(false)}
               >
-                Annuler
+                {t('entityCrud.cancel')}
               </Button>
               <SubmitButton pending={submitting}>
-                {isCreate ? 'Créer' : 'Enregistrer'}
+                {isCreate ? t('certificates.create') : t('certificates.save')}
               </SubmitButton>
             </SheetFooter>
           </form>

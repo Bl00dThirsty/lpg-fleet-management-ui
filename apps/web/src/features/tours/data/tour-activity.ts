@@ -25,6 +25,8 @@ import { resolveSlaThresholds, tourSlaFlags } from './tour-machine'
 import type { UserScope } from '@/features/scope/scope'
 import { scopeBySiteOrCreator, scopeWithOrgId } from '@/features/scope/site-creator'
 import { useToursStore } from '@/store/tours-store'
+import { formatTM, formatBtl } from '@/lib/i18n/formatters'
+import type { LanguagePreference } from '@/store/preferences-store'
 
 export type { ExecutionMode, TourneeStatus }
 
@@ -286,6 +288,41 @@ export const executionModeLabels: Record<ExecutionMode, string> = {
   EXTERNAL: 'Externalisée',
 }
 
+export type TranslateFn = (key: string, opts?: Record<string, unknown>) => string
+
+export function getTourStatusLabel(status: TourneeStatus, t?: TranslateFn): string {
+  const fallback = tourStatusLabels[status]
+  if (!t) return fallback
+  return t(`tours:status.${status}`, { defaultValue: fallback } as never)
+}
+
+export function getExecutionModeLabel(mode: ExecutionMode, t?: TranslateFn): string {
+  const fallback = executionModeLabels[mode]
+  if (!t) return fallback
+  return t(`tours:executionMode.${mode}`, { defaultValue: fallback } as never)
+}
+
+export function getTourneeTypeLabel(type: TourneeType, t?: TranslateFn): string {
+  const fallback = tourneeTypeLabels[type]
+  if (!t) return fallback
+  return t(`tours:tourneeType.${type}`, { defaultValue: fallback } as never)
+}
+
+export function getRouteStatusLabel(status: RouteTripStatus, t?: TranslateFn): string {
+  const fallback = routeStatusLabels[status]
+  if (!t) return fallback
+  return t(`tours:routeStatus.${status}`, { defaultValue: fallback } as never)
+}
+
+export function getTourStatusOptions(t?: TranslateFn): readonly { label: string; value: TourneeStatus }[] {
+  return (Object.keys(tourStatusLabels) as TourneeStatus[]).map((value) => ({ label: getTourStatusLabel(value, t), value }))
+}
+
+export function getExecutionModeOptions(t?: TranslateFn): readonly { label: string; value: ExecutionMode }[] {
+  return (Object.keys(executionModeLabels) as ExecutionMode[]).map((value) => ({ label: getExecutionModeLabel(value, t), value }))
+}
+
+// Deprecated aliases kept for backward compatibility during migration
 export const tourStatusOptions: readonly { label: string; value: TourneeStatus }[] = (
   Object.keys(tourStatusLabels) as TourneeStatus[]
 ).map((value) => ({ label: tourStatusLabels[value], value }))
@@ -322,12 +359,35 @@ function tourReference(index: number): string {
   return `TRP-${2401 + index}`
 }
 
-function windowLabel(dateIso: string | null | undefined): string {
+function currentLangFromStore(): LanguagePreference {
+  try {
+    // Using dynamic import would be async; read from localStorage mirror
+    // Fallback to document lang or fr-FR
+    if (typeof document !== 'undefined' && document.documentElement.lang) {
+      const dl = document.documentElement.lang
+      if (dl === 'en' || dl === 'en-US') return 'en-US'
+      if (dl === 'fr' || dl === 'fr-FR') return 'fr-FR'
+    }
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem('lpg-user-preferences')
+      if (raw) {
+        const parsed = JSON.parse(raw) as { state?: { language?: LanguagePreference } }
+        if (parsed.state?.language) return parsed.state.language
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return 'fr-FR'
+}
+
+function windowLabel(dateIso: string | null | undefined, lang?: LanguagePreference): string {
   if (!dateIso) return 'Fenêtre non définie'
+  const effectiveLang = lang ?? currentLangFromStore()
   const date = new Date(dateIso)
-  const from = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  const from = date.toLocaleTimeString(effectiveLang, { hour: '2-digit', minute: '2-digit' })
   const to = new Date(date.getTime() + 20 * 60 * 1000)
-  const toLabel = to.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  const toLabel = to.toLocaleTimeString(effectiveLang, { hour: '2-digit', minute: '2-digit' })
   return `${from} - ${toLabel}`
 }
 
@@ -800,18 +860,31 @@ export function getTourProgress(activity: TourActivity): number {
   )
 }
 
-export function getTourEta(activity: TourActivity): string {
+export function getTourEta(activity: TourActivity, lang?: LanguagePreference): string {
   if (!activity.startedAt) return '—'
+  const effectiveLang = lang ?? currentLangFromStore()
   const eta = new Date(new Date(activity.startedAt).getTime() + 4 * 3600_000)
-  return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(eta)
+  return new Intl.DateTimeFormat(effectiveLang, { hour: '2-digit', minute: '2-digit' }).format(eta)
 }
 
-export function getTourCargo(activity: TourActivity): string {
-  return activity.tourneeType === 'VRAC' ? 'GPL vrac' : 'Bouteilles 50 kg'
+export function getTourCargo(activity: TourActivity, t?: TranslateFn): string {
+  const fallback = activity.tourneeType === 'VRAC' ? 'GPL vrac' : 'Bouteilles 50 kg'
+  if (!t) return fallback
+  return t(`tours:cargo.${activity.tourneeType}`, { defaultValue: fallback } as never)
 }
 
-export function getTourVolume(activity: TourActivity): string {
-  return `${activity.requested_quantity} ${activity.tourneeType === 'VRAC' ? 'TM' : 'btl'}`
+export function getTourVolume(activity: TourActivity, lang?: LanguagePreference, _t?: TranslateFn): string {
+  const effectiveLang = lang ?? currentLangFromStore()
+  const qty = activity.requested_quantity
+  if (activity.tourneeType === 'VRAC') {
+    return formatTM(qty, effectiveLang)
+  }
+  return formatBtl(qty, effectiveLang)
+}
+
+// Keep legacy signature compatible: allow calling with single activity arg
+export function getTourVolumeLegacy(activity: TourActivity): string {
+  return getTourVolume(activity)
 }
 
 export function isActiveTourStatus(status: TourneeStatus): boolean {

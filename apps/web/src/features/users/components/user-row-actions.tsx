@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import { hasPermission } from '@lpg/permissions'
 import { useRoleStore } from '@/store/role-store'
 import { useUsersStore } from '@/store/users-store'
@@ -25,6 +26,7 @@ type UserRowActionsProps = {
 }
 
 export function UserRowActions({ user, onEdit, onViewDetails }: UserRowActionsProps) {
+  const { t } = useTranslation('common')
   const activeRole = useRoleStore((s) => s.activeRole)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -104,7 +106,7 @@ export function UserRowActions({ user, onEdit, onViewDetails }: UserRowActionsPr
           {canWrite && (
             <DropdownMenuItem onSelect={() => onEdit(user)}>
               <Pencil className='mr-2 size-4' />
-              Modifier
+              {t('entityCrud.edit')}
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
@@ -158,7 +160,7 @@ export function UserRowActions({ user, onEdit, onViewDetails }: UserRowActionsPr
                 className='text-destructive focus:text-destructive'
               >
                 <Trash2 className='mr-2 size-4' />
-                Supprimer
+                {t('entityCrud.delete')}
               </DropdownMenuItem>
             </>
           )}
@@ -168,17 +170,15 @@ export function UserRowActions({ user, onEdit, onViewDetails }: UserRowActionsPr
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer l&apos;utilisateur&nbsp;?</AlertDialogTitle>
+            <AlertDialogTitle>{t('entityCrud.deleteUserTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est définitive. L&apos;utilisateur{' '}
-              <span className='font-semibold'>{user.email}</span> n&apos;aura plus
-              accès au système.
+              {t('entityCrud.deleteUserDescription', { email: user.email })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('entityCrud.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete}>
-              Supprimer
+              {t('entityCrud.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

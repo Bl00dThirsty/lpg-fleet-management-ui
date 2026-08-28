@@ -1,9 +1,11 @@
+export type TranslateFn = (key: string) => string
+
 const LABEL_MAP: Record<string, string> = {
   login: 'Connexion',
   dashboard: 'Tableau de bord',
   trucks: 'Camions',
   marketers: 'Marketeurs',
-  tours: "Tournées",
+  tours: 'Tournées',
   declarations: 'Déclarations',
   anomalies: 'Anomalies',
   reports: 'Rapports',
@@ -25,7 +27,12 @@ const LABEL_MAP: Record<string, string> = {
   users: 'Utilisateurs',
 }
 
-function labelFor(segment: string): string {
+export function labelFor(segment: string, t?: TranslateFn): string {
+  if (t) {
+    const key = `breadcrumbs:${segment}`
+    const translated = t(key)
+    if (translated !== key) return translated
+  }
   if (LABEL_MAP[segment]) return LABEL_MAP[segment]
   return segment
     .replace(/-/g, ' ')
@@ -33,7 +40,8 @@ function labelFor(segment: string): string {
 }
 
 export function generateBreadcrumbs(
-  pathname: string
+  pathname: string,
+  t?: TranslateFn
 ): { to: string; label: string }[] {
   const segments = pathname.split('/').filter(Boolean)
   if (segments.length === 0) return []
@@ -43,7 +51,7 @@ export function generateBreadcrumbs(
 
   for (const segment of segments) {
     cumulative += `/${segment}`
-    crumbs.push({ to: cumulative, label: labelFor(segment) })
+    crumbs.push({ to: cumulative, label: labelFor(segment, t) })
   }
 
   return crumbs

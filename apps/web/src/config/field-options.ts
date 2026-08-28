@@ -3,7 +3,11 @@
  *
  * Each `*Options` constant is generated from a schema enum so a new enum
  * value added to the schema automatically appears as an option for badges
- * and faceted filters. No translation/label is hardcoded twice.
+ * and faceted filters.
+ *
+ * i18n: use `get*Options(t)` with `t` from `useTranslation('fields')` for
+ * translated labels. Deprecated `*Options` constants remain as fallback via
+ * the i18n singleton (French by default) for non-hook contexts.
  */
 
 import {
@@ -23,172 +27,253 @@ import {
   AnomalyStatus,
   AnomalyCategory,
 } from '@lpg/types'
+import i18n from '@/lib/i18n'
 
 export interface OptionDef<T extends string = string> {
   label: string
   value: T
 }
 
-const SITE: Record<SiteStatus, string> = {
-  UNASSIGNED: 'Non assigné',
-  ASSIGNED: 'Assigné',
-  ACTIVE: 'Actif',
-  VERIFIED: 'Vérifié',
-  SUSPENDED: 'Suspendu',
-  REJECTED: 'Rejeté',
-}
-
-const TOUR: Record<TourneeStatus, string> = {
-  DRAFT: 'Brouillon',
-  PLANNED: 'Planifiée',
-  PENDINGTRANSPORTERACK: 'En attente d\'accusé',
-  ACKNOWLEDGED: 'Accusée',
-  INPROGRESS: 'En cours',
-  CHECKPOINTACTIVE: 'Checkpoint actif',
-  CLOSED: 'Clôturée',
-  CANCELLED: 'Annulée',
-}
-
-const PICKUP: Record<PickupStatus, string> = {
-  DRAFT: 'Brouillon',
-  VALIDATED: 'Validée',
-  INPROGRESS: 'En cours',
-  COMPLETED: 'Terminée',
-  CANCELLED: 'Annulée',
-}
-
-const DECLARATION: Record<DeclarationStatus, string> = {
-  DRAFT: 'Brouillon',
-  SUBMITTED: 'Soumise',
-  RECONCILED: 'Réconciliée',
-  DISPUTED: 'Contestée',
-}
-
-const RECON: Record<ReconciliationStatus, string> = {
-  PENDING: 'En attente',
-  VERIFIED: 'Vérifiée',
-  REDRESSEMENTAPPLIED: 'Redressement appliqué',
-}
-
-const REDRESS: Record<RedressementStatus, string> = {
-  ISSUED: 'Émise',
-  PAID: 'Payée',
-  WAIVED: 'Annulée',
-}
-
-const RISK: Record<RiskLevel, string> = {
-  FAIBLE: 'Faible',
-  MODERE: 'Modéré',
-  ELEVE: 'Élevé',
-  CRITIQUE: 'Critique',
-  CRITIQUEEXTREME: 'Critique extrême',
-}
-
-const VEHICLE: Record<VehicleType, string> = {
-  VRAC: 'VRAC',
-  BOUTEILLES50KG: 'Bouteilles 50 kg',
-}
-
-const ORG: Record<OrgType, string> = {
-  REGULATEUR: 'Régulateur',
-  DEPOT: 'Dépôt',
-  MARKETEUR: 'Marketeur',
-  TRANSPORTEUR: 'Transporteur',
-  CLIENT: 'Client',
-}
-
-const DEVICE: Record<DeviceType, string> = {
-  GPS: 'GPS',
-  PDA: 'PDA',
-  RFIDREADER: 'RFID Reader',
-}
-
-const DEVICE_STATUS: Record<DeviceStatus, string> = {
-  UNASSIGNED: 'Non assigné',
-  ASSIGNED: 'Assigné',
-  INMISSION: 'En mission',
-  OFFLINE: 'Hors-ligne',
-  PENDINGSYNC: 'Sync en attente',
-  SYNCING: 'Synchronisation',
-  SYNCED: 'Synchronisé',
-  SYNCFAILED: 'Échec sync',
-  MAINTENANCE: 'Maintenance',
-  DEPLOYED: 'Déployé',
-  REMOVED: 'Retiré',
-  LOST: 'Perdu',
-}
-
-const CHECK: Record<CheckpointStatus, string> = {
-  PENDING: 'En attente',
-  REACHED: 'Atteint',
-  COMPLETED: 'Complété',
-  SKIPPED: 'Sauté',
-}
-
-const SCAN: Record<ScanDirection, string> = {
-  IN: 'Entrée',
-  OUT: 'Sortie',
-}
-
-const ANOMALY: Record<AnomalyStatus, string> = {
-  NOUVEAU: 'Nouveau',
-  ENCOURS: 'En cours',
-  RESOLU: 'Résolu',
-  FERME: 'Fermé',
-}
-
-const ANOMALY_CAT: Record<AnomalyCategory, string> = {
-  INVESTIGATION: 'Investigation',
-  TECHNICAL: 'Technique',
-}
-
-const GENRES: Record<'active' | 'inactive' | 'pending' | 'on_tour' | 'maintenance', string> = {
-  active: 'Actif',
-  inactive: 'Inactif',
-  pending: 'En attente',
-  on_tour: 'En tournée',
-  maintenance: 'Maintenance',
-}
-
-const BOOL: Record<'true' | 'false', string> = {
-  true: 'Oui',
-  false: 'Non',
-}
-
-const SYNC_STATUS: Record<'synced' | 'pending' | 'offline' | 'maintenance', string> = {
-  synced: 'Synchronisé',
-  pending: 'En attente',
-  offline: 'Hors-ligne',
-  maintenance: 'Maintenance',
-}
+export type TranslateFn = (key: string) => string
 
 function build<T extends string>(map: Record<T, string>): readonly OptionDef<T>[] {
   return (Object.entries(map) as [T, string][]).map(([value, label]) => ({ label, value }))
 }
 
-export const siteStatusOptions = build(SITE)
-export const tourneeStatusOptions = build(TOUR)
-export const pickupStatusOptions = build(PICKUP)
-export const declarationStatusOptions = build(DECLARATION)
-export const shipmentStatusOptions = build(PICKUP) // pickups ARE the shipment ops in this domain
-export const reconciliationStatusOptions = build(RECON)
-export const redressementStatusOptions = build(REDRESS)
-export const riskLevelOptions = build(RISK)
-export const violationStatusOptions = build(RISK) // anomaly severity is risk level
-export const vehicleTypeOptions = build(VEHICLE)
-export const orgTypeOptions = build(ORG)
-export const deviceTypeOptions = build(DEVICE)
-export const deviceStatusOptions = build(DEVICE_STATUS)
-export const checkStatusOptions = build(CHECK)
-export const scanDirectionOptions = build(SCAN)
-export const anomalyStatusOptions = build(ANOMALY)
-export const anomalyCategoryOptions = build(ANOMALY_CAT)
-export const truckStatusOptions = [
-  { label: 'Disponible', value: 'AVAILABLE' },
-  { label: 'En livraison', value: 'IN_TRANSIT' },
-  { label: 'Maintenance', value: 'MAINTENANCE' },
-  { label: 'Inactif', value: 'INACTIVE' },
-]
-export const genericStatusOptions = build(GENRES)
-export const booleanOptions: readonly OptionDef<'true' | 'false'>[] = build(BOOL)
-export const syncStatusOptions = build(SYNC_STATUS)
+function fallbackT(key: string): string {
+  try {
+    const v = (i18n as unknown as { t: TranslateFn }).t(key)
+    return v !== key ? v : key
+  } catch {
+    return key
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Translated getters — preferred API
+// ---------------------------------------------------------------------------
+
+export function getSiteStatusOptions(t: TranslateFn): readonly OptionDef<SiteStatus>[] {
+  return build<SiteStatus>({
+    UNASSIGNED: t('fields:site.UNASSIGNED'),
+    ASSIGNED: t('fields:site.ASSIGNED'),
+    ACTIVE: t('fields:site.ACTIVE'),
+    VERIFIED: t('fields:site.VERIFIED'),
+    SUSPENDED: t('fields:site.SUSPENDED'),
+    REJECTED: t('fields:site.REJECTED'),
+  })
+}
+
+export function getTourneeStatusOptions(t: TranslateFn): readonly OptionDef<TourneeStatus>[] {
+  return build<TourneeStatus>({
+    DRAFT: t('fields:tour.DRAFT'),
+    PLANNED: t('fields:tour.PLANNED'),
+    PENDINGTRANSPORTERACK: t('fields:tour.PENDINGTRANSPORTERACK'),
+    ACKNOWLEDGED: t('fields:tour.ACKNOWLEDGED'),
+    INPROGRESS: t('fields:tour.INPROGRESS'),
+    CHECKPOINTACTIVE: t('fields:tour.CHECKPOINTACTIVE'),
+    CLOSED: t('fields:tour.CLOSED'),
+    CANCELLED: t('fields:tour.CANCELLED'),
+  })
+}
+
+export function getPickupStatusOptions(t: TranslateFn): readonly OptionDef<PickupStatus>[] {
+  return build<PickupStatus>({
+    DRAFT: t('fields:pickup.DRAFT'),
+    VALIDATED: t('fields:pickup.VALIDATED'),
+    INPROGRESS: t('fields:pickup.INPROGRESS'),
+    COMPLETED: t('fields:pickup.COMPLETED'),
+    CANCELLED: t('fields:pickup.CANCELLED'),
+  })
+}
+
+export function getDeclarationStatusOptions(t: TranslateFn): readonly OptionDef<DeclarationStatus>[] {
+  return build<DeclarationStatus>({
+    DRAFT: t('fields:declaration.DRAFT'),
+    SUBMITTED: t('fields:declaration.SUBMITTED'),
+    RECONCILED: t('fields:declaration.RECONCILED'),
+    DISPUTED: t('fields:declaration.DISPUTED'),
+  })
+}
+
+export function getReconciliationStatusOptions(t: TranslateFn): readonly OptionDef<ReconciliationStatus>[] {
+  return build<ReconciliationStatus>({
+    PENDING: t('fields:reconciliation.PENDING'),
+    VERIFIED: t('fields:reconciliation.VERIFIED'),
+    REDRESSEMENTAPPLIED: t('fields:reconciliation.REDRESSEMENTAPPLIED'),
+  })
+}
+
+export function getRedressementStatusOptions(t: TranslateFn): readonly OptionDef<RedressementStatus>[] {
+  return build<RedressementStatus>({
+    ISSUED: t('fields:redressement.ISSUED'),
+    PAID: t('fields:redressement.PAID'),
+    WAIVED: t('fields:redressement.WAIVED'),
+  })
+}
+
+export function getRiskLevelOptions(t: TranslateFn): readonly OptionDef<RiskLevel>[] {
+  return build<RiskLevel>({
+    FAIBLE: t('fields:risk.FAIBLE'),
+    MODERE: t('fields:risk.MODERE'),
+    ELEVE: t('fields:risk.ELEVE'),
+    CRITIQUE: t('fields:risk.CRITIQUE'),
+    CRITIQUEEXTREME: t('fields:risk.CRITIQUEEXTREME'),
+  })
+}
+
+export function getVehicleTypeOptions(t: TranslateFn): readonly OptionDef<VehicleType>[] {
+  return build<VehicleType>({
+    VRAC: t('fields:vehicle.VRAC'),
+    BOUTEILLES50KG: t('fields:vehicle.BOUTEILLES50KG'),
+  })
+}
+
+export function getOrgTypeOptions(t: TranslateFn): readonly OptionDef<OrgType>[] {
+  return build<OrgType>({
+    REGULATEUR: t('fields:org.REGULATEUR'),
+    DEPOT: t('fields:org.DEPOT'),
+    MARKETEUR: t('fields:org.MARKETEUR'),
+    TRANSPORTEUR: t('fields:org.TRANSPORTEUR'),
+    CLIENT: t('fields:org.CLIENT'),
+  })
+}
+
+export function getDeviceTypeOptions(t: TranslateFn): readonly OptionDef<DeviceType>[] {
+  return build<DeviceType>({
+    GPS: t('fields:device.GPS'),
+    PDA: t('fields:device.PDA'),
+    RFIDREADER: t('fields:device.RFIDREADER'),
+  })
+}
+
+export function getDeviceStatusOptions(t: TranslateFn): readonly OptionDef<DeviceStatus>[] {
+  return build<DeviceStatus>({
+    UNASSIGNED: t('fields:deviceStatus.UNASSIGNED'),
+    ASSIGNED: t('fields:deviceStatus.ASSIGNED'),
+    INMISSION: t('fields:deviceStatus.INMISSION'),
+    OFFLINE: t('fields:deviceStatus.OFFLINE'),
+    PENDINGSYNC: t('fields:deviceStatus.PENDINGSYNC'),
+    SYNCING: t('fields:deviceStatus.SYNCING'),
+    SYNCED: t('fields:deviceStatus.SYNCED'),
+    SYNCFAILED: t('fields:deviceStatus.SYNCFAILED'),
+    MAINTENANCE: t('fields:deviceStatus.MAINTENANCE'),
+    DEPLOYED: t('fields:deviceStatus.DEPLOYED'),
+    REMOVED: t('fields:deviceStatus.REMOVED'),
+    LOST: t('fields:deviceStatus.LOST'),
+  })
+}
+
+export function getCheckpointStatusOptions(t: TranslateFn): readonly OptionDef<CheckpointStatus>[] {
+  return build<CheckpointStatus>({
+    PENDING: t('fields:checkpoint.PENDING'),
+    REACHED: t('fields:checkpoint.REACHED'),
+    COMPLETED: t('fields:checkpoint.COMPLETED'),
+    SKIPPED: t('fields:checkpoint.SKIPPED'),
+  })
+}
+
+export function getScanDirectionOptions(t: TranslateFn): readonly OptionDef<ScanDirection>[] {
+  return build<ScanDirection>({
+    IN: t('fields:scan.IN'),
+    OUT: t('fields:scan.OUT'),
+  })
+}
+
+export function getAnomalyStatusOptions(t: TranslateFn): readonly OptionDef<AnomalyStatus>[] {
+  return build<AnomalyStatus>({
+    NOUVEAU: t('fields:anomaly.NOUVEAU'),
+    ENCOURS: t('fields:anomaly.ENCOURS'),
+    RESOLU: t('fields:anomaly.RESOLU'),
+    FERME: t('fields:anomaly.FERME'),
+  })
+}
+
+export function getAnomalyCategoryOptions(t: TranslateFn): readonly OptionDef<AnomalyCategory>[] {
+  return build<AnomalyCategory>({
+    INVESTIGATION: t('fields:anomalyCategory.INVESTIGATION'),
+    TECHNICAL: t('fields:anomalyCategory.TECHNICAL'),
+  })
+}
+
+export function getGenericStatusOptions(t: TranslateFn): readonly OptionDef<'active' | 'inactive' | 'pending' | 'on_tour' | 'maintenance'>[] {
+  return build<'active' | 'inactive' | 'pending' | 'on_tour' | 'maintenance'>({
+    active: t('fields:generic.active'),
+    inactive: t('fields:generic.inactive'),
+    pending: t('fields:generic.pending'),
+    on_tour: t('fields:generic.on_tour'),
+    maintenance: t('fields:generic.maintenance'),
+  })
+}
+
+export function getBooleanOptions(t: TranslateFn): readonly OptionDef<'true' | 'false'>[] {
+  return build<'true' | 'false'>({
+    true: t('fields:boolean.true'),
+    false: t('fields:boolean.false'),
+  })
+}
+
+export function getSyncStatusOptions(t: TranslateFn): readonly OptionDef<'synced' | 'pending' | 'offline' | 'maintenance'>[] {
+  return build<'synced' | 'pending' | 'offline' | 'maintenance'>({
+    synced: t('fields:syncStatus.synced'),
+    pending: t('fields:syncStatus.pending'),
+    offline: t('fields:syncStatus.offline'),
+    maintenance: t('fields:syncStatus.maintenance'),
+  })
+}
+
+export function getTruckStatusOptions(t: TranslateFn): readonly OptionDef<'AVAILABLE' | 'IN_TRANSIT' | 'MAINTENANCE' | 'INACTIVE'>[] {
+  return [
+    { label: t('fields:truck.AVAILABLE'), value: 'AVAILABLE' },
+    { label: t('fields:truck.IN_TRANSIT'), value: 'IN_TRANSIT' },
+    { label: t('fields:truck.MAINTENANCE'), value: 'MAINTENANCE' },
+    { label: t('fields:truck.INACTIVE'), value: 'INACTIVE' },
+  ]
+}
+
+// ---------------------------------------------------------------------------
+// Deprecated constant wrappers — keep for backward compat during rollout
+// ---------------------------------------------------------------------------
+
+/** @deprecated use getSiteStatusOptions(t) */
+export const siteStatusOptions: readonly OptionDef<SiteStatus>[] = getSiteStatusOptions(fallbackT)
+/** @deprecated use getTourneeStatusOptions(t) */
+export const tourneeStatusOptions: readonly OptionDef<TourneeStatus>[] = getTourneeStatusOptions(fallbackT)
+/** @deprecated use getPickupStatusOptions(t) */
+export const pickupStatusOptions: readonly OptionDef<PickupStatus>[] = getPickupStatusOptions(fallbackT)
+/** @deprecated use getPickupStatusOptions(t) — pickups ARE shipment ops */
+export const shipmentStatusOptions: readonly OptionDef<PickupStatus>[] = getPickupStatusOptions(fallbackT)
+/** @deprecated use getDeclarationStatusOptions(t) */
+export const declarationStatusOptions: readonly OptionDef<DeclarationStatus>[] = getDeclarationStatusOptions(fallbackT)
+/** @deprecated use getReconciliationStatusOptions(t) */
+export const reconciliationStatusOptions: readonly OptionDef<ReconciliationStatus>[] = getReconciliationStatusOptions(fallbackT)
+/** @deprecated use getRedressementStatusOptions(t) */
+export const redressementStatusOptions: readonly OptionDef<RedressementStatus>[] = getRedressementStatusOptions(fallbackT)
+/** @deprecated use getRiskLevelOptions(t) */
+export const riskLevelOptions: readonly OptionDef<RiskLevel>[] = getRiskLevelOptions(fallbackT)
+/** @deprecated use getRiskLevelOptions(t) */
+export const violationStatusOptions: readonly OptionDef<RiskLevel>[] = getRiskLevelOptions(fallbackT)
+/** @deprecated use getVehicleTypeOptions(t) */
+export const vehicleTypeOptions: readonly OptionDef<VehicleType>[] = getVehicleTypeOptions(fallbackT)
+/** @deprecated use getOrgTypeOptions(t) */
+export const orgTypeOptions: readonly OptionDef<OrgType>[] = getOrgTypeOptions(fallbackT)
+/** @deprecated use getDeviceTypeOptions(t) */
+export const deviceTypeOptions: readonly OptionDef<DeviceType>[] = getDeviceTypeOptions(fallbackT)
+/** @deprecated use getDeviceStatusOptions(t) */
+export const deviceStatusOptions: readonly OptionDef<DeviceStatus>[] = getDeviceStatusOptions(fallbackT)
+/** @deprecated use getCheckpointStatusOptions(t) */
+export const checkStatusOptions: readonly OptionDef<CheckpointStatus>[] = getCheckpointStatusOptions(fallbackT)
+/** @deprecated use getScanDirectionOptions(t) */
+export const scanDirectionOptions: readonly OptionDef<ScanDirection>[] = getScanDirectionOptions(fallbackT)
+/** @deprecated use getAnomalyStatusOptions(t) */
+export const anomalyStatusOptions: readonly OptionDef<AnomalyStatus>[] = getAnomalyStatusOptions(fallbackT)
+/** @deprecated use getAnomalyCategoryOptions(t) */
+export const anomalyCategoryOptions: readonly OptionDef<AnomalyCategory>[] = getAnomalyCategoryOptions(fallbackT)
+/** @deprecated use getTruckStatusOptions(t) */
+export const truckStatusOptions: readonly OptionDef<'AVAILABLE' | 'IN_TRANSIT' | 'MAINTENANCE' | 'INACTIVE'>[] = getTruckStatusOptions(fallbackT)
+/** @deprecated use getGenericStatusOptions(t) */
+export const genericStatusOptions: readonly OptionDef<'active' | 'inactive' | 'pending' | 'on_tour' | 'maintenance'>[] = getGenericStatusOptions(fallbackT)
+/** @deprecated use getBooleanOptions(t) */
+export const booleanOptions: readonly OptionDef<'true' | 'false'>[] = getBooleanOptions(fallbackT)
+/** @deprecated use getSyncStatusOptions(t) */
+export const syncStatusOptions: readonly OptionDef<'synced' | 'pending' | 'offline' | 'maintenance'>[] = getSyncStatusOptions(fallbackT)

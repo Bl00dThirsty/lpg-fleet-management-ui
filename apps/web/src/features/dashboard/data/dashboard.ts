@@ -1,4 +1,5 @@
 import { getSettingNumber } from '@lpg/mock-data'
+import { currentLang } from '@/lib/i18n/formatters'
 import {
   buildRouteSummary,
   getRouteTripsView,
@@ -384,7 +385,7 @@ function shiftMinutes(value: string, minutes: number) {
 function formatDateRangeLabel(range?: DateRange): string | null {
   if (!range?.from) return null
   const fmt = (date: Date) =>
-    new Intl.DateTimeFormat('fr-FR', {
+    new Intl.DateTimeFormat(currentLang(), {
       day: '2-digit',
       month: 'short',
       year: 'numeric',

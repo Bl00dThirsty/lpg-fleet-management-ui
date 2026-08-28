@@ -25,6 +25,7 @@ import {
   SheetTitle,
   Switch,
 } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import { curated } from '@lpg/mock-data'
 import { ROLE_LABELS, getCreatableRoles, type Role } from '@lpg/permissions'
 import { useRoleStore } from '@/store/role-store'
@@ -96,6 +97,7 @@ function UserEditForm({
   user: UserView | null
   onClose: () => void
 }) {
+  const { t } = useTranslation('common')
   const activeRole = useRoleStore((s) => s.activeRole)
   const roleOptions = useMemo(() => {
     const roles = getCreatableRoles(activeRole)
@@ -133,7 +135,7 @@ function UserEditForm({
     <SheetContent className='flex w-full flex-col sm:max-w-xl'>
       <SheetHeader className='pb-2'>
         <SheetTitle>
-          {isCreate ? 'Nouvel utilisateur' : 'Modifier l’utilisateur'}
+          {isCreate ? t('users.createTitle') : t('users.editTitle')}
         </SheetTitle>
         <SheetDescription>
           {isCreate
@@ -274,9 +276,9 @@ function UserEditForm({
 
           <SheetFooter className='gap-2 border-t pt-4'>
             <Button type='button' variant='outline' onClick={onClose}>
-              Annuler
+              {t('entityCrud.cancel')}
             </Button>
-            <SubmitButton>{isCreate ? 'Créer' : 'Enregistrer'}</SubmitButton>
+            <SubmitButton>{isCreate ? t('users.create') : t('users.save')}</SubmitButton>
           </SheetFooter>
         </form>
       </Form>

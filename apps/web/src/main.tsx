@@ -16,10 +16,20 @@ import { PermissionsProvider } from './context/PermissionsProvider'
 import { ThemeProvider } from './context/theme-provider'
 import { useAuthStore } from '@/store/auth-store'
 import { useWsClient } from '@/lib/ws/use-ws-client'
+import '@/lib/i18n'
+import { usePreferencesStore } from '@/store/preferences-store'
 // Generated Routes
 import { routeTree } from './routeTree.gen'
 // Styles
 import './styles/index.css'
+
+// Ensure html lang reflects persisted preference on boot
+try {
+  const bootLang = usePreferencesStore.getState().language
+  document.documentElement.lang = bootLang.slice(0, 2)
+} catch {
+  document.documentElement.lang = 'fr'
+}
 
 function WsBridge() {
   const user = useAuthStore((s) => s.user)

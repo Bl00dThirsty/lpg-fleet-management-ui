@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CalendarRange, LayoutDashboard } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,11 +20,12 @@ export function OverviewPage({
   role?: Role
   dashboard?: DashboardView
 }) {
+  const { t } = useTranslation('overview')
   const storeRole = useRoleStore((s) => s.activeRole)
   const activeRole = role ?? storeRole
   const cards = useMemo(
-    () => getOverviewCards(activeRole, dashboard),
-    [activeRole, dashboard]
+    () => getOverviewCards(activeRole, dashboard, t),
+    [activeRole, dashboard, t]
   )
   const roleLabel = ROLE_LABELS[activeRole] ?? activeRole
 
@@ -36,11 +38,11 @@ export function OverviewPage({
               <LayoutDashboard className='size-5 text-primary' />
             </div>
             <h1 className='font-manrope text-3xl font-semibold tracking-tight'>
-              Vue d&apos;ensemble
+              {t('title')}
             </h1>
           </div>
           <p className='max-w-3xl text-sm text-muted-foreground sm:text-base'>
-            Indicateurs clés consolidés pour votre rôle.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -69,10 +71,10 @@ export function OverviewPage({
       <section className='space-y-4'>
         <div className='space-y-1'>
           <h2 className='text-lg font-semibold tracking-tight'>
-            Indicateurs clés
+            {t('kpi.title')}
           </h2>
           <p className='text-sm text-muted-foreground'>
-            Lecture consolidée de vos données, accès direct au détail.
+            {t('kpi.subtitle')}
           </p>
         </div>
         <OverviewIndicators cards={cards} />

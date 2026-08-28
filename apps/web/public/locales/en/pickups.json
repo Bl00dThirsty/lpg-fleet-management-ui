@@ -1,0 +1,21 @@
+{
+  "title": "Supply pickups (Flow 1)",
+  "description": "{{total}} requests — {{draft}} draft(s), {{validated}} validated, {{inProgress}} in progress, {{completed}} completed.",
+  "actions": {
+    "create": "New request",
+    "cancel": "Cancel request"
+  },
+  "toast": {
+    "validated": "{{reference}} validated for {{quantity}} TM",
+    "cancelled": "{{reference}} cancelled"
+  },
+  "detail": {
+    "marketeur": "Marketer",
+    "source": "Source",
+    "destination": "Destination",
+    "requestedQuantity": "Requested quantity",
+    "approvedQuantity": "Approved quantity",
+    "status": "Status",
+    "vehicles": "Vehicles"
+  }
+}

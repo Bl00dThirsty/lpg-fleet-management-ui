@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { useCallback, useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { getRouteApi } from '@tanstack/react-router'
 import { CalendarDays, Clock3, Gauge, Plus, Search, Truck as TruckIcon, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -32,6 +34,7 @@ type TruckFilterDef = { label: string; value: TruckFilter; count: number }
 const trucksRoute = getRouteApi('/_authenticated/trucks/')
 
 export function TrucksPage() {
+  const { t } = useTranslation('common')
   const navigate = trucksRoute.useNavigate()
   const search = trucksRoute.useSearch()
   const { resolvedTheme } = useTheme()
@@ -52,14 +55,14 @@ export function TrucksPage() {
     try {
       if (crud.editing) {
         await crud.updateMut.mutateAsync({ id: crud.editing.id, patch: vehicleFromForm(values) })
-        toast.success('Camion mis à jour.')
+        toast.success(t('trucks.updated'))
       } else {
         await crud.createMut.mutateAsync(vehicleFromForm(values) as Omit<Vehicle, 'id'>)
-        toast.success('Camion créé.')
+        toast.success(t('trucks.created'))
       }
       crud.close()
     } catch {
-      toast.error('Échec de l’enregistrement.')
+      toast.error(t('errors:generic'))
     }
   }
 
@@ -90,20 +93,20 @@ export function TrucksPage() {
       counts[truck.tournee_status] = (counts[truck.tournee_status] ?? 0) + 1
     }
     return [
-      { label: 'Tous', value: 'all', count: trucks.length },
-      { label: 'Planifiee', value: 'PLANNED', count: counts.PLANNED ?? 0 },
-      { label: 'En cours', value: 'INPROGRESS', count: counts.INPROGRESS ?? 0 },
-      { label: 'Etape atteinte', value: 'CHECKPOINTACTIVE', count: counts.CHECKPOINTACTIVE ?? 0 },
-      { label: 'Confirmee', value: 'ACKNOWLEDGED', count: counts.ACKNOWLEDGED ?? 0 },
-      { label: 'Attente transporteur', value: 'PENDINGTRANSPORTERACK', count: counts.PENDINGTRANSPORTERACK ?? 0 },
-      { label: 'Cloturee', value: 'CLOSED', count: counts.CLOSED ?? 0 },
-      { label: 'Annulee', value: 'CANCELLED', count: counts.CANCELLED ?? 0 },
+      { label: t('trucks.filters.all'), value: 'all', count: trucks.length },
+      { label: t('trucks.filters.planned'), value: 'PLANNED', count: counts.PLANNED ?? 0 },
+      { label: t('trucks.filters.inProgress'), value: 'INPROGRESS', count: counts.INPROGRESS ?? 0 },
+      { label: t('trucks.filters.checkpointActive'), value: 'CHECKPOINTACTIVE', count: counts.CHECKPOINTACTIVE ?? 0 },
+      { label: t('trucks.filters.acknowledged'), value: 'ACKNOWLEDGED', count: counts.ACKNOWLEDGED ?? 0 },
+      { label: t('trucks.filters.pending'), value: 'PENDINGTRANSPORTERACK', count: counts.PENDINGTRANSPORTERACK ?? 0 },
+      { label: t('trucks.filters.closed'), value: 'CLOSED', count: counts.CLOSED ?? 0 },
+      { label: t('trucks.filters.cancelled'), value: 'CANCELLED', count: counts.CANCELLED ?? 0 },
     ]
-  }, [trucks])
+  }, [trucks, t])
 
   const dateText = useMemo(
     () =>
-      new Intl.DateTimeFormat('fr-FR', {
+      new Intl.DateTimeFormat(currentLang(), {
         weekday: 'long',
         day: '2-digit',
         month: 'long',
@@ -152,22 +155,22 @@ export function TrucksPage() {
           <div className='flex flex-wrap items-center gap-2'>
             <TopStat
               icon={TruckIcon}
-              label='Actifs'
+              label={t('trucks.kpi.active')}
               value={`${trucks.filter((t) => t.tournee_status === 'INPROGRESS').length}/${trucks.length}`}
             />
             <TopStat
               icon={Users}
-              label='Chauffeurs'
+              label={t('trucks.kpi.drivers')}
               value={`${driverCount}`}
             />
-            <TopStat icon={Gauge} label='LPG moyen' value={`${avgLpg}%`} />
-            <TopStat icon={Clock3} label='Ponctualite' value="94%" hint="Objectif SLA" />
+            <TopStat icon={Gauge} label={t('trucks.kpi.avgLpg')} value={`${avgLpg}%`} />
+            <TopStat icon={Clock3} label={t('trucks.kpi.punctuality')} value="94%" hint={t('trucks.kpi.slaGoal')} />
           </div>
 
           <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center'>
             {crud.perm.canCreate && (
               <Button onClick={crud.openCreate}>
-                <Plus className='mr-1 h-4 w-4' /> Nouveau véhicule
+                <Plus className='mr-1 h-4 w-4' /> {t('trucks.createButton')}
               </Button>
             )}
             <div className='relative w-full sm:w-[310px]'>
@@ -184,7 +187,7 @@ export function TrucksPage() {
 
         <div className='mt-4 flex flex-col gap-1'>
           <h1 className='text-[30px] leading-none font-semibold tracking-tight sm:text-3xl'>
-            Dashboard Operationnel
+            {t('trucks.dashboardTitle')}
           </h1>
           <p className='inline-flex items-center gap-2 text-xs text-muted-foreground sm:text-sm'>
             <CalendarDays className='size-4' />
@@ -223,17 +226,16 @@ export function TrucksPage() {
       <section className='space-y-4 rounded-xl border-transparent bg-background/92 p-4 shadow-sm'>
         <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between'>
           <div>
-            <h2 className='text-xl font-semibold tracking-tight'>Liste des camions</h2>
+            <h2 className='text-xl font-semibold tracking-tight'>{t('trucks.listTitle')}</h2>
             <p className='text-sm text-muted-foreground'>
-              Selectionnez un camion pour voir sa fiche detaillee, son contrat et
-              ses affectations chauffeur/livreur.
+              {t('trucks.listDescription')}
             </p>
           </div>
           <Badge
             variant='outline'
             className='border-transparent bg-muted/35 text-foreground'
           >
-            {visible.length} / {trucks.length} camions
+            {visible.length} / {trucks.length} {t('trucks.countSuffix')}
           </Badge>
         </div>
         <TrucksTable
@@ -261,8 +263,8 @@ export function TrucksPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le camion' : 'Nouveau camion'}
-        description={crud.editing ? 'Mettez à jour les informations du camion.' : 'Ajoutez un camion à la flotte.'}
+        title={crud.editing ? t('trucks.editTitle') : t('trucks.createTitle')}
+        description={crud.editing ? t('trucks.editDescription') : t('trucks.createDescription')}
         fields={vehicleFields}
         initial={crud.editing ? vehicleToForm(crud.editing) : null}
         onSubmit={handleSubmit}

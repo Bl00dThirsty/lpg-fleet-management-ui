@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { currentLang } from '@/lib/i18n/formatters'
 import { ArrowRight } from 'lucide-react'
 import { MetricCardWithChart } from '@/components/charts'
 import type { DashboardMetric, DashboardView } from '@/features/dashboard/data/dashboard'
@@ -59,7 +60,7 @@ export function formatMetricValue(
   if (unit === 'btl') return formatBtl(value)
   if (unit === 'percent') return `${value}%`
   if (unit === 'days') return `${value.toFixed(1)} jours`
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat(currentLang(), {
     maximumFractionDigits: 0,
   }).format(value)
 }

@@ -1,4 +1,5 @@
 import { redressements, reconciliations, declarations, organizations } from '@lpg/mock-data'
+import { currentLang } from '@/lib/i18n/formatters'
 import type { Redressement, RedressementStatus } from '@lpg/types'
 
 export type { RedressementStatus }
@@ -50,7 +51,7 @@ export function redressementsToViews(
         reconciliation_reference: reconIndex.get(r.reconciliation_id) ?? '—',
         marketeur_name: decl ? orgName(decl.marketeur_org_id) : '—',
         amount: r.amount,
-        amount_label: `${r.amount.toLocaleString('fr-FR')} XAF`,
+        amount_label: `${r.amount.toLocaleString(currentLang())} XAF`,
         currency: 'XAF',
         status: r.status,
         status_label: redressementStatusLabels[r.status],

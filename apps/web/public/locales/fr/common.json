@@ -1,0 +1,157 @@
+{
+  "onlyInFr": "Seulement FR",
+  "create": "Créer",
+  "cancel": "Annuler",
+  "save": "Enregistrer",
+  "edit": "Modifier",
+  "delete": "Supprimer",
+  "language": {
+    "label": "Langue"
+  },
+  "toast": {
+    "profileUpdated": "Profil mis à jour"
+  },
+  "entityCrud": {
+    "create": "Créer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "deleteConfirmTitle": "Confirmer la suppression",
+    "deleteConfirmDescription": "Voulez-vous vraiment supprimer {{item}} ? Cette action est irréversible.",
+    "deleted": "Supprimé.",
+    "deleteUserTitle": "Supprimer l'utilisateur ?",
+    "deleteUserDescription": "Cette action est définitive. L'utilisateur {{email}} n'aura plus accès au système."
+  },
+  "dateRangePicker": {
+    "cancel": "Annuler",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser",
+    "placeholder": "Choisir une période",
+    "shortcuts": "Raccourcis",
+    "custom": "Personnalisé",
+    "presets": {
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "thisMonth": "Ce mois",
+      "lastMonth": "Mois dernier",
+      "quarter": "Trimestre"
+    }
+  },
+  "certificates": {
+    "newTitle": "Nouveau certificat",
+    "editTitle": "Modifier le certificat",
+    "create": "Créer",
+    "save": "Enregistrer"
+  },
+  "anomalies": {
+    "titleAll": "Anomalies",
+    "titleInvestigation": "Anomalies — Piste Investigation",
+    "titleTechnical": "Anomalies — Piste Technique",
+    "descriptionAll": "Fraude, écarts de volume et incidents techniques détectés par la plateforme.",
+    "descriptionInvestigation": "Soupçons de fraude, siphonnage, détournement — à investiguer.",
+    "descriptionTechnical": "Incidents IoT, GPS, PDA et infrastructure — à résoudre.",
+    "all": "Toutes",
+    "investigation": "Investigation",
+    "technical": "Technique"
+  },
+  "declarations": {
+    "title": "Déclarations",
+    "description": "Déclarations mensuelles des marketeurs, du brouillon à la réconciliation."
+  },
+  "drivers": {
+    "editTitle": "Modifier le chauffeur",
+    "createTitle": "Nouveau chauffeur"
+  },
+  "clients": {
+    "editTitle": "Modifier le client",
+    "createTitle": "Nouveau client"
+  },
+  "customRoles": {
+    "editTitle": "Modifier le rôle",
+    "createTitle": "Nouveau rôle"
+  },
+  "devices": {
+    "editTitle": "Modifier l’appareil",
+    "createTitle": "Nouvel appareil"
+  },
+  "zones": {
+    "editTitle": "Modifier la zone",
+    "createTitle": "Nouvelle zone"
+  },
+  "transporters": {
+    "editTitle": "Modifier le transporteur",
+    "createTitle": "Nouveau transporteur"
+  },
+  "vehicles": {
+    "editTitle": "Modifier le véhicule",
+    "createTitle": "Nouveau véhicule"
+  },
+  "depots": {
+    "editTitle": "Modifier le dépôt",
+    "createTitle": "Nouveau dépôt"
+  },
+  "organizations": {
+    "editTitle": "Modifier l’organisation",
+    "createTitle": "Nouvelle organisation"
+  },
+  "notificationGroups": {
+    "createGroup": "Créer le groupe",
+    "createGroupTitle": "Créer un groupe de notification",
+    "editGroupTitle": "Modifier le groupe"
+  },
+  "livreurs": {
+    "editTitle": "Modifier le livreur",
+    "createTitle": "Nouveau livreur"
+  },
+  "users": {
+    "editTitle": "Modifier l’utilisateur",
+    "createTitle": "Nouvel utilisateur",
+    "create": "Créer",
+    "save": "Enregistrer"
+  },
+  "notificationRules": {
+    "editTitle": "Modifier la règle",
+    "createTitle": "Nouvelle règle"
+  },
+  "marketers": {
+    "editTitle": "Modifier le marketeur",
+    "createTitle": "Nouveau marketeur",
+    "pageTitle": "Marketeurs",
+    "createButton": "Nouveau marketeur",
+    "editDescription": "Mettez à jour les informations du marketeur.",
+    "createDescription": "Créez un nouveau marketeur.",
+    "created": "Marketeur créé.",
+    "updated": "Marketeur mis à jour."
+  },
+  "trucks": {
+    "editTitle": "Modifier le camion",
+    "createTitle": "Nouveau camion",
+    "editDescription": "Mettez à jour les informations du camion.",
+    "createDescription": "Ajoutez un camion à la flotte.",
+    "created": "Camion créé.",
+    "updated": "Camion mis à jour.",
+    "dashboardTitle": "Tableau de bord opérationnel",
+    "listTitle": "Liste des camions",
+    "listDescription": "Sélectionnez un camion pour voir sa fiche détaillée, son contrat et ses affectations chauffeur/livreur.",
+    "countSuffix": "camions",
+    "createButton": "Nouveau véhicule",
+    "kpi": {
+      "active": "Actifs",
+      "drivers": "Chauffeurs",
+      "avgLpg": "GPL moyen",
+      "punctuality": "Ponctualité",
+      "slaGoal": "Objectif SLA"
+    },
+    "filters": {
+      "all": "Tous",
+      "planned": "Planifiée",
+      "inProgress": "En cours",
+      "checkpointActive": "Étape atteinte",
+      "acknowledged": "Confirmée",
+      "pending": "Attente transporteur",
+      "closed": "Clôturée",
+      "cancelled": "Annulée"
+    }
+  }
+}

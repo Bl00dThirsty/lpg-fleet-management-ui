@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { toast } from 'sonner'
 import { CheckCircle2, Scale, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -92,15 +93,15 @@ export function DeclarationDetail({
               <Scale className='size-3.5' /> Réconciliation
             </p>
             <div className='grid grid-cols-2 gap-2 text-sm'>
-              <InfoItem label='Volume suivi' value={`${comp.tracked_volume.toLocaleString('fr-FR')} TM`} />
-              <InfoItem label='Écart' value={`${comp.volume_gap.toLocaleString('fr-FR')} TM`} />
+              <InfoItem label='Volume suivi' value={`${comp.tracked_volume.toLocaleString(currentLang())} TM`} />
+              <InfoItem label='Écart' value={`${comp.volume_gap.toLocaleString(currentLang())} TM`} />
               <InfoItem
                 label='Écart (%)'
-                value={`${comp.gap_pct.toLocaleString('fr-FR')}%`}
+                value={`${comp.gap_pct.toLocaleString(currentLang())}%`}
               />
               <InfoItem
                 label='Impact subvention'
-                value={`${comp.subsidy_impact.toLocaleString('fr-FR')} FCFA`}
+                value={`${comp.subsidy_impact.toLocaleString(currentLang())} FCFA`}
               />
             </div>
             <p className='flex items-center gap-1.5 text-xs text-muted-foreground'>
@@ -133,5 +134,5 @@ function InfoItem({ label, value }: { label: string; value: string }) {
 function formatDate(value: string): string {
   if (!value) return '—'
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('fr-FR')
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(currentLang())
 }

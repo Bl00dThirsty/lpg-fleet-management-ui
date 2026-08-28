@@ -25,6 +25,7 @@ import {
   SheetTitle,
   Switch,
 } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { SubmitButton } from '@/components/entity-crud/form-ui'
 import { extractErrorMessage } from '@/hooks/use-toast-feedback'
@@ -50,6 +51,7 @@ type LivreurEditSheetProps = {
 }
 
 export function LivreurEditSheet({ livreur, open, onOpenChange }: LivreurEditSheetProps) {
+  const { t } = useTranslation('common')
   const scope = useScope()
   const isRegulateur = scope.view === 'org'
   const isCreate = livreur === null
@@ -103,7 +105,7 @@ export function LivreurEditSheet({ livreur, open, onOpenChange }: LivreurEditShe
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex w-full flex-col sm:max-w-xl'>
         <SheetHeader>
-          <SheetTitle>{isCreate ? 'Nouveau livreur' : 'Modifier le livreur'}</SheetTitle>
+          <SheetTitle>{isCreate ? t('livreurs.createTitle') : t('livreurs.editTitle')}</SheetTitle>
           <SheetDescription>
             {isCreate
               ? isRegulateur
@@ -147,8 +149,8 @@ export function LivreurEditSheet({ livreur, open, onOpenChange }: LivreurEditShe
               )} />
             </div>
             <SheetFooter className='gap-2 border-t pt-4'>
-              <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>Annuler</Button>
-              <SubmitButton>{isCreate ? 'Créer' : 'Enregistrer'}</SubmitButton>
+              <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>{t('entityCrud.cancel')}</Button>
+              <SubmitButton>{isCreate ? t('entityCrud.create') : t('entityCrud.save')}</SubmitButton>
             </SheetFooter>
           </form>
         </Form>

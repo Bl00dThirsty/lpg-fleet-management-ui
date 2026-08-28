@@ -1,4 +1,5 @@
 import { type ElementType, useEffect, useMemo, useRef, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import Graphic from '@arcgis/core/Graphic.js'
 import ArcGISMap from '@arcgis/core/Map.js'
 import '@arcgis/core/assets/esri/themes/light/main.css'
@@ -491,7 +492,7 @@ function createCurrentTruckPopupContent(trip: RouteTripView, formatQuantity: (va
       ${popupLine('GPL', `${trip.latestTelemetry.lpgLevelPercent}%`)}
       ${popupLine('Volume estime', formatQuantity(trip.latestTelemetry.estimatedVolume))}
       ${popupLine('Écart', trip.unaccounted > 0 ? formatQuantity(trip.unaccounted) : formatQuantity(0))}
-      ${popupLine('Dernier releve', new Intl.DateTimeFormat('fr-FR', {
+      ${popupLine('Dernier releve', new Intl.DateTimeFormat(currentLang(), {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',
@@ -511,7 +512,7 @@ function createTelemetryPopupContent(
   return `
     <div class="fleet-truck-popup">
       ${popupLine('Tournée', trip.reference)}
-      ${popupLine('Releve', new Intl.DateTimeFormat('fr-FR', {
+      ${popupLine('Releve', new Intl.DateTimeFormat(currentLang(), {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',

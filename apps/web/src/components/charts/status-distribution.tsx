@@ -7,6 +7,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@lpg/ui'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 
 export type StatusDatum = {
   key: string
@@ -32,6 +34,7 @@ export function StatusDistribution({
   height = 260,
   donut = true,
 }: StatusDistributionProps) {
+  const lang = usePreferencesStore((s) => s.language)
   if (data.every((d) => d.value === 0)) {
     return (
       <div className='flex h-[160px] items-center justify-center text-sm text-muted-foreground'>
@@ -49,7 +52,7 @@ export function StatusDistribution({
               formatter={(v) => {
                 if (typeof v !== 'number') return String(v)
                 const pct = total > 0 ? Math.round((v / total) * 100) : 0
-                return `${v.toLocaleString('fr-FR')} (${pct}%)`
+                return `${formatNumber(v, lang)} (${pct}%)`
               }}
               nameKey='key'
               labelKey='label'

@@ -5,6 +5,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@lpg/ui'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 
 type CompositionDatum = {
   label: string
@@ -30,6 +32,7 @@ export function CompositionBar({
   unit,
   height = 260,
 }: CompositionBarProps) {
+  const lang = usePreferencesStore((s) => s.language)
   return (
     <ChartContainer config={config} className={`h-[${height}px] w-full`}>
       <BarChart
@@ -45,7 +48,7 @@ export function CompositionBar({
               type='number'
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v: number) => v.toLocaleString('fr-FR')}
+              tickFormatter={(v: number) => formatNumber(v, lang)}
               stroke='var(--color-muted-foreground)'
             />
             <YAxis
@@ -70,7 +73,7 @@ export function CompositionBar({
               tickLine={false}
               axisLine={false}
               width={48}
-              tickFormatter={(v: number) => v.toLocaleString('fr-FR')}
+              tickFormatter={(v: number) => formatNumber(v, lang)}
               stroke='var(--color-muted-foreground)'
             />
           </>
@@ -80,7 +83,7 @@ export function CompositionBar({
             <ChartTooltipContent
               formatter={(v) =>
                 typeof v === 'number'
-                  ? `${v.toLocaleString('fr-FR')}${unit ? ` ${unit}` : ''}`
+                  ? `${formatNumber(v, lang)}${unit ? ` ${unit}` : ''}`
                   : String(v)
               }
             />

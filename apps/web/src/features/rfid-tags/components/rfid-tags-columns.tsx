@@ -1,4 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
+import { currentLang } from '@/lib/i18n/formatters'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -168,7 +169,7 @@ export function getRfidTagsColumns({
 }
 
 function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('fr-FR', {
+  return new Intl.DateTimeFormat(currentLang(), {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

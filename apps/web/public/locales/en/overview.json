@@ -1,0 +1,12 @@
+{
+  "title": "Overview",
+  "subtitle": "Key indicators consolidated for your role.",
+  "kpi": {
+    "title": "Key indicators",
+    "subtitle": "Consolidated view of your data, with direct access to details."
+  },
+  "quickLinks": {
+    "title": "Quick links",
+    "subtitle": "Your most useful modules, grouped by domain."
+  }
+}

@@ -23,7 +23,7 @@
 
 import type { Role } from '@lpg/permissions'
 import type { SidebarData } from '@/components/layout/types'
-import { buildSidebarFor } from './nav-items'
+import { buildSidebarFor, type TranslateFn } from './nav-items'
 
 /**
  * Post-login / post-switch landing path per role. Every role lands on the
@@ -41,8 +41,8 @@ export const LANDING_BY_ROLE: Record<Role, string> = {
 }
 
 /** Delegates entirely to the permission-driven projection. */
-export function getSidebarData(role: Role): SidebarData {
-  return buildSidebarFor(role)
+export function getSidebarData(role: Role, t?: TranslateFn): SidebarData {
+  return buildSidebarFor(role, t)
 }
 
 /**

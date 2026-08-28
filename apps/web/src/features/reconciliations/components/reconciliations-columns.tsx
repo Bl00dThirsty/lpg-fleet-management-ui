@@ -1,6 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { Badge, DataTableColumnHeader } from '@lpg/ui'
 import { formatTm } from '@/features/map/utils/format'
+import { currentLang, formatNumber } from '@/lib/i18n/formatters'
 import {
   type ReconciliationView,
   type ReconciliationStatus,
@@ -60,7 +61,7 @@ export function getReconciliationColumns(): ColumnDef<ReconciliationView>[] {
         const flagged = gap > gapToleranceThreshold()
         return (
           <Badge className={flagged ? 'bg-rose-100 text-rose-900' : 'bg-slate-100 text-slate-700'}>
-            {gap.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}%
+            {new Intl.NumberFormat(currentLang(), { maximumFractionDigits: 2 }).format(gap)}%
           </Badge>
         )
       },
@@ -70,7 +71,7 @@ export function getReconciliationColumns(): ColumnDef<ReconciliationView>[] {
     {
       accessorKey: 'subsidy_impact',
       header: 'Impact subvention (XAF)',
-      cell: ({ row }) => row.original.subsidy_impact.toLocaleString('fr-FR'),
+      cell: ({ row }) => formatNumber(row.original.subsidy_impact, currentLang()),
       meta: { label: 'Impact subvention (XAF)' },
       enableGrouping: true,
     },

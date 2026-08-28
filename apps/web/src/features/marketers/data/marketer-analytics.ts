@@ -1,4 +1,6 @@
 import { curated } from '@lpg/mock-data'
+import { currentLang } from '@/lib/i18n/formatters'
+import type { LanguagePreference } from '@/store/preferences-store'
 import type { ClientSite, DeliveryTour, Reconciliation } from '@lpg/types'
 
 export interface VolumeTrendPoint {
@@ -58,12 +60,12 @@ const TOUR_STATUS_LABELS: Record<string, string> = {
   CANCELLED: 'Annulées',
 }
 
-function getLastNMonths(n: number): string[] {
+function getLastNMonths(n: number, lang: LanguagePreference = currentLang()): string[] {
   const months: string[] = []
   const now = new Date()
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    months.push(d.toLocaleString('fr-FR', { month: 'short', year: '2-digit' }))
+    months.push(new Intl.DateTimeFormat(lang, { month: 'short', year: '2-digit' }).format(d))
   }
   return months
 }

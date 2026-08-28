@@ -8,12 +8,14 @@ import {
 import { AppTitle } from './app-title'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
+import { useTranslation } from 'react-i18next'
 import { useRoleStore } from '@/store/role-store'
 import { getSidebarData } from '@/config/rbac/sidebar-by-role'
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const activeRole = useRoleStore((s) => s.activeRole)
-  const sidebarData = getSidebarData(activeRole)
+  const { t } = useTranslation('nav')
+  const sidebarData = getSidebarData(activeRole, t as unknown as (k: string) => string)
 
   return (
     <Sidebar collapsible='icon' variant='inset' {...props}>

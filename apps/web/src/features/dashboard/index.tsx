@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -30,6 +31,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useTranslation } from 'react-i18next'
 import { type Role } from '@/config/rbac/roles'
 import { Main } from '@/components/layout/main'
 import { formatTm, formatBtl } from '@/features/map/utils/format'
@@ -52,6 +54,7 @@ import { DashboardFilters } from './components/dashboard-filters'
 import { trucks } from '@/features/trucks/data/trucks'
 
 export function DashboardPage({ role }: { role?: Role } = {}) {
+  const { t } = useTranslation('dashboard')
   const user = useAuthStore((s) => s.user)
   // Subscribe to the tours store so the command center refreshes after a tour
   // is created/acknowledged/closed in-session (buildDashboardView reads the
@@ -78,38 +81,46 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
   }, [dashboard.trendByPeriod, query.period])
   const panels = rolePanelVisibility(role)
 
-  const heading =
-    role === 'SUPERADMIN'
-      ? 'Pilotage national'
-      : role === 'ADMIN'
-        ? 'Tableau de bord administration'
-        : role === 'SUPERVISOR'
-          ? 'Métriques système'
-          : role === 'INTEGRATEUR'
-            ? 'Activation matériel'
-            : role === 'AGENT'
-              ? 'Vue consolidée agent'
-              : role === 'MARKETEUR'
-                ? 'Pilotage marketeur'
-                : role === 'TRANSPORTEUR'
-                  ? 'État de la flotte'
-                  : 'Tableau de bord global'
-  const subtitle =
-    role === 'SUPERADMIN'
-      ? 'Vue nationale des volumes, traçabilité et anomalies agrégées.'
-      : role === 'ADMIN'
-        ? 'Administration des utilisateurs, marketeurs et validations.'
-        : role === 'SUPERVISOR'
-          ? 'Santé services, alertes infrastructure et risques.'
-          : role === 'INTEGRATEUR'
-            ? 'Parc PDA/GPS/RFID et authentification des appareils.'
-            : role === 'AGENT'
-              ? 'Suivi marketeurs assignés et visites terrain.'
-              : role === 'MARKETEUR'
-                ? 'Flotte, quotas, tournées et clients.'
-                : role === 'TRANSPORTEUR'
-                  ? 'Flotte, tournées, scans et points de contrôle.'
-                  : 'Pilotage consolidé des volumes transportés, de la réserve utile et des signaux récents du réseau GPL.'
+  const heading = (() => {
+    const key = role && role !== undefined ? `heading.${role}` : 'heading.default'
+    const fallback =
+      role === 'SUPERADMIN'
+        ? 'Pilotage national'
+        : role === 'ADMIN'
+          ? 'Tableau de bord administration'
+          : role === 'SUPERVISOR'
+            ? 'Métriques système'
+            : role === 'INTEGRATEUR'
+              ? 'Activation matériel'
+              : role === 'AGENT'
+                ? 'Vue consolidée agent'
+                : role === 'MARKETEUR'
+                  ? 'Pilotage marketeur'
+                  : role === 'TRANSPORTEUR'
+                    ? 'État de la flotte'
+                    : 'Tableau de bord global'
+    return t(key, { defaultValue: fallback })
+  })()
+  const subtitle = (() => {
+    const key = role && role !== undefined ? `subtitle.${role}` : 'subtitle.default'
+    const fallback =
+      role === 'SUPERADMIN'
+        ? 'Vue nationale des volumes, traçabilité et anomalies agrégées.'
+        : role === 'ADMIN'
+          ? 'Administration des utilisateurs, marketeurs et validations.'
+          : role === 'SUPERVISOR'
+            ? 'Santé services, alertes infrastructure et risques.'
+            : role === 'INTEGRATEUR'
+              ? 'Parc PDA/GPS/RFID et authentification des appareils.'
+              : role === 'AGENT'
+                ? 'Suivi marketeurs assignés et visites terrain.'
+                : role === 'MARKETEUR'
+                  ? 'Flotte, quotas, tournées et clients.'
+                  : role === 'TRANSPORTEUR'
+                    ? 'Flotte, tournées, scans et points de contrôle.'
+                    : 'Pilotage consolidé des volumes transportés, de la réserve utile et des signaux récents du réseau GPL.'
+    return t(key, { defaultValue: fallback })
+  })()
 
   return (
     <Main fluid className='space-y-6 bg-muted/20'>
@@ -1208,13 +1219,13 @@ function formatMetricValue(
   if (unit === 'btl') return formatBtl(value)
   if (unit === 'percent') return `${value}%`
   if (unit === 'days') return `${value.toFixed(1)} jours`
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat(currentLang(), {
     maximumFractionDigits: 0,
   }).format(value)
 }
 
 function formatActivityDate(value: string) {
-  return new Intl.DateTimeFormat('fr-FR', {
+  return new Intl.DateTimeFormat(currentLang(), {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',

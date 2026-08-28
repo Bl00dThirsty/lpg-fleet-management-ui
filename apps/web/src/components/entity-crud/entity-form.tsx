@@ -31,6 +31,7 @@ import {
   Switch,
   Textarea,
 } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import { getScope } from '@/features/scope/scope'
 import { useAuthStore } from '@/store/auth-store'
 import { zodSchemaFromFields } from './field-schema'
@@ -89,8 +90,10 @@ export function EntityForm({
   title,
   description,
   submitting,
-  submitLabel = 'Enregistrer',
+  submitLabel,
 }: EntityFormProps) {
+  const { t } = useTranslation('common')
+  const resolvedSubmitLabel = submitLabel ?? t('entityCrud.save')
   const isEdit = Boolean(initial && initial.id)
   const user = useAuthStore((s) => s.user)
   const scope = useMemo(() => getScope(user), [user])
@@ -169,10 +172,10 @@ export function EntityForm({
 
       <SheetFooter className='gap-2 border-t pt-4'>
         <Button variant='outline' onClick={onCancel} disabled={submitting}>
-          Annuler
+          {t('entityCrud.cancel')}
         </Button>
         <SubmitButton pending={submitting} onClick={submit}>
-          {submitLabel}
+          {resolvedSubmitLabel}
         </SubmitButton>
       </SheetFooter>
     </SheetContent>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { FileBarChart, FileDown, Loader2, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@lpg/ui'
@@ -245,11 +246,11 @@ function ReportDetailsDialog({
                 </Badge>
               </dd>
               <dt className='text-muted-foreground'>Généré le</dt>
-              <dd>{report.generatedAt ? new Date(report.generatedAt).toLocaleString('fr-FR') : '—'}</dd>
+              <dd>{report.generatedAt ? new Date(report.generatedAt).toLocaleString(currentLang()) : '—'}</dd>
               <dt className='text-muted-foreground'>Par</dt>
               <dd>{report.generatedBy ?? '—'}</dd>
               <dt className='text-muted-foreground'>Expire le</dt>
-              <dd>{report.expiresAt ? new Date(report.expiresAt).toLocaleDateString('fr-FR') : '—'}</dd>
+              <dd>{report.expiresAt ? new Date(report.expiresAt).toLocaleString(currentLang()) : '—'}</dd>
               <dt className='text-muted-foreground'>Taille</dt>
               <dd>{formatFileSize(report.fileSize) || '—'}</dd>
             </dl>

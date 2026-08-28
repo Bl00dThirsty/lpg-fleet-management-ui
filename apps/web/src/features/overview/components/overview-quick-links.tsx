@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
 import type { Role } from '@/config/rbac/roles'
@@ -17,6 +18,7 @@ type QuickLink = {
  * their modules the same way they navigate.
  */
 export function OverviewQuickLinks({ role }: { role: Role }) {
+  const { t } = useTranslation('overview')
   const groups = useMemo(() => {
     const sidebar = getSidebarData(role)
     return sidebar.navGroups
@@ -40,10 +42,10 @@ export function OverviewQuickLinks({ role }: { role: Role }) {
       <div className='flex items-center justify-between gap-3'>
         <div className='space-y-1'>
           <h2 className='text-lg font-semibold tracking-tight'>
-            Accès rapides
+            {t('quickLinks.title')}
           </h2>
           <p className='text-sm text-muted-foreground'>
-            Vos modules les plus utiles, groupés par domaine.
+            {t('quickLinks.subtitle')}
           </p>
         </div>
       </div>

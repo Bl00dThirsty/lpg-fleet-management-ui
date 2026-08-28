@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 import { AlertTriangle, Coins, FileBarChart, Receipt } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { KpiTile, PageShell, SectionCard } from '@/components/layout/page'
@@ -7,6 +9,7 @@ import { reconciliationsToViews, getReconciliationSummary, gapToleranceThreshold
 import { useComplianceStore } from '@/store/compliance-store'
 
 export function ReconciliationsPage() {
+  const lang = usePreferencesStore((s) => s.language)
   const entities = useComplianceStore((s) => s.reconciliations)
   const rows = useMemo(() => reconciliationsToViews(entities), [entities])
   const summary = useMemo(() => getReconciliationSummary(rows), [rows])
@@ -21,7 +24,7 @@ export function ReconciliationsPage() {
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
         <KpiTile label='Total' value={String(summary.total)} icon={<FileBarChart className='size-4 text-primary' />} />
         <KpiTile
-          label={`Écarts > ${tolerance.toLocaleString('fr-FR')} %`}
+          label={`Écarts > ${formatNumber(tolerance, lang)} %`}
           value={String(summary.flagged)}
           icon={<AlertTriangle className='size-4 text-rose-500' />}
         />

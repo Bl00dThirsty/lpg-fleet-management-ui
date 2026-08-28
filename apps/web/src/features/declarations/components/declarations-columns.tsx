@@ -1,4 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Badge } from '@lpg/ui'
 import { DataTableColumnHeader } from '@/components/data-table'
 import {
@@ -82,5 +83,5 @@ export function getDeclarationColumns(): ColumnDef<DeclarationView>[] {
 function formatDate(value: string): string {
   if (!value) return '—'
   const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('fr-FR')
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(currentLang())
 }

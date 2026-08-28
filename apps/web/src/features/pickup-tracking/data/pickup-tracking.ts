@@ -1,4 +1,5 @@
 import { getPickups, pickupStatusLabels, type Pickup, type PickupStatus } from '@/features/pickups/data/pickups'
+import { currentLang } from '@/lib/i18n/formatters'
 import { getScope } from '@/features/scope/scope'
 import { useAuthStore } from '@/store/auth-store'
 
@@ -42,7 +43,7 @@ function toView(p: Pickup): PickupTrackView {
     source_name: p.source_name,
     destination_name: p.destination_name,
     marketeur_name: p.marketeur_name,
-    quantity_label: `${p.requested_quantity.toLocaleString('fr-FR')} TM`,
+    quantity_label: `${p.requested_quantity.toLocaleString(currentLang())} TM`,
     status: p.pickup_status,
     status_label: pickupStatusLabels[p.pickup_status],
     requested_at: p.requested_at,

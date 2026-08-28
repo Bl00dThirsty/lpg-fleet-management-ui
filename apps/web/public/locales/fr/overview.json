@@ -1,0 +1,12 @@
+{
+  "title": "Vue d'ensemble",
+  "subtitle": "Indicateurs clés consolidés pour votre rôle.",
+  "kpi": {
+    "title": "Indicateurs clés",
+    "subtitle": "Lecture consolidée de vos données, accès direct au détail."
+  },
+  "quickLinks": {
+    "title": "Accès rapides",
+    "subtitle": "Vos modules les plus utiles, groupés par domaine."
+  }
+}

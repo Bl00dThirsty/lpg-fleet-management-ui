@@ -1,4 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Badge } from '@/components/ui/badge'
 import { DataTableColumnHeader } from '@/components/data-table'
 import {
@@ -69,7 +70,7 @@ export function getRiskScoreColumns(): ColumnDef<RiskScoreView>[] {
       accessorKey: 'updated_at',
       accessorFn: (row) => new Date(row.updated_at).getTime(),
       header: ({ column }) => <DataTableColumnHeader column={column} title='Mis à jour' />,
-      cell: ({ row }) => new Date(row.original.updated_at).toLocaleDateString('fr-FR'),
+      cell: ({ row }) => new Date(row.original.updated_at).toLocaleString(currentLang()),
       meta: { label: 'Mis à jour' },
       enableGrouping: true,
     },

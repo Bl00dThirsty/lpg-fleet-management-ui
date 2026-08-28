@@ -45,19 +45,23 @@ export type OverviewCard = {
 
 const cached = buildAnalytics()
 
-export function buildOverview(role: Role, dashboard?: DashboardView): OverviewCard[] {
-  const cardsByRole: Record<string, (d?: DashboardView) => OverviewCard[]> = {
-    SUPERADMIN: (d) => adminCards(cached, d),
-    ADMIN: (d) => adminCards(cached, d),
-    TRANSPORTEUR: (d) => transportCards(cached, d),
-    MARKETEUR: (d) => transportCards(cached, d),
-    SUPERVISOR: (d) => supervisorCards(cached, d),
-    INTEGRATEUR: (d) => supervisorCards(cached, d),
-    AGENT: (d) => agentCards(cached, d),
+type TranslateFn = (key: string, opts?: Record<string, unknown>) => string
+const tx = (t: TranslateFn | undefined, key: string, fallback: string): string =>
+  t ? t(key, { defaultValue: fallback } as never) : fallback
+
+export function buildOverview(role: Role, dashboard?: DashboardView, t?: TranslateFn): OverviewCard[] {
+  const cardsByRole: Record<string, (d?: DashboardView, t?: TranslateFn) => OverviewCard[]> = {
+    SUPERADMIN: (d, tr) => adminCards(cached, d, tr),
+    ADMIN: (d, tr) => adminCards(cached, d, tr),
+    TRANSPORTEUR: (d, tr) => transportCards(cached, d, tr),
+    MARKETEUR: (d, tr) => transportCards(cached, d, tr),
+    SUPERVISOR: (d, tr) => supervisorCards(cached, d, tr),
+    INTEGRATEUR: (d, tr) => supervisorCards(cached, d, tr),
+    AGENT: (d, tr) => agentCards(cached, d, tr),
   }
 
   const build = cardsByRole[role]
-  return build ? build(dashboard) : defaultCards(cached, dashboard)
+  return build ? build(dashboard, t) : defaultCards(cached, dashboard, t)
 }
 
 function activeTrips(d?: DashboardView) {
@@ -70,32 +74,32 @@ function openAlerts(d?: DashboardView) {
   return d ? d.overview.openAlerts : cached.anomalies.open
 }
 
-function adminCards(a: Analytics, d?: DashboardView): OverviewCard[] {
+function adminCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewCard[] {
   const traceRate = Math.round(a.traceability.traceabilityRate * 100)
   return [
     {
       id: 'organizations',
-      label: 'Organisations',
+      label: tx(t, 'overview:cards.organizations.label', 'Organisations'),
       value: `${a.organizations.active}/${a.organizations.total}`,
-      detail: 'actives sur le réseau GPL',
+      detail: tx(t, 'overview:cards.organizations.detail', 'actives sur le réseau GPL'),
       href: '/organizations',
       tone: 'sky',
       icon: 'organizations',
     },
     {
       id: 'users',
-      label: 'Utilisateurs',
+      label: tx(t, 'overview:cards.users.label', 'Utilisateurs'),
       value: a.users.active,
-      detail: `actifs sur ${a.users.total} comptes totaux`,
+      detail: tx(t, 'overview:cards.users.detail', `actifs sur ${a.users.total} comptes totaux`),
       href: '/users',
       tone: 'emerald',
       icon: 'users',
     },
     {
       id: 'sites',
-      label: 'Sites',
+      label: tx(t, 'overview:cards.sites.label', 'Sites'),
       value: `${a.sites.verified}/${a.sites.active}`,
-      detail: 'sites vérifiés et actifs',
+      detail: tx(t, 'overview:cards.sites.detail', 'sites vérifiés et actifs'),
       href: '/sites',
       tone: 'amber',
       icon: 'sites',
@@ -103,38 +107,36 @@ function adminCards(a: Analytics, d?: DashboardView): OverviewCard[] {
     },
     {
       id: 'tours',
-      label: 'Tournées',
+      label: tx(t, 'overview:cards.tours.label', 'Tournées'),
       value: activeTrips(d),
-      detail: `${d?.overview.activeTrips ?? a.tours.inFlight} en vol · ${
-        d?.overview.plannedTrips ?? a.tours.planned
-      } planifiées`,
+      detail: tx(t, 'overview:cards.tours.detail', `${d?.overview.activeTrips ?? a.tours.inFlight} en vol · ${d?.overview.plannedTrips ?? a.tours.planned} planifiées`),
       href: '/tours',
       tone: 'slate',
       icon: 'tours',
     },
     {
       id: 'anomalies',
-      label: 'Anomalies ouvertes',
+      label: tx(t, 'overview:cards.anomalies.label', 'Anomalies ouvertes'),
       value: openAlerts(d),
-      detail: `${d?.overview.criticalAlerts ?? 0} critiques à traiter en priorité`,
+      detail: tx(t, 'overview:cards.anomalies.detail', `${d?.overview.criticalAlerts ?? 0} critiques à traiter en priorité`),
       href: '/anomalies',
       tone: 'rose',
       icon: 'anomalies',
     },
     {
       id: 'reconciliations',
-      label: 'Réconciliations',
+      label: tx(t, 'overview:cards.reconciliations.label', 'Réconciliations'),
       value: a.reconciliations.total,
-      detail: `écart cumulé ${formatTm(a.reconciliations.totalGap)}`,
+      detail: tx(t, 'overview:cards.reconciliations.detail', `écart cumulé ${formatTm(a.reconciliations.totalGap)}`),
       href: '/reconciliations',
       tone: 'emerald',
       icon: 'reconciliations',
     },
     {
       id: 'traceability',
-      label: 'Taux de traçabilité',
+      label: tx(t, 'overview:cards.traceability.label', 'Taux de traçabilité'),
       value: `${traceRate}%`,
-      detail: `volume tracé vs ${formatTm(a.traceability.declaredVolume)} déclaré`,
+      detail: tx(t, 'overview:cards.traceability.detail', `volume tracé vs ${formatTm(a.traceability.declaredVolume)} déclaré`),
       href: '/tours',
       tone: 'sky',
       icon: 'traceability',
@@ -143,42 +145,42 @@ function adminCards(a: Analytics, d?: DashboardView): OverviewCard[] {
   ]
 }
 
-function transportCards(a: Analytics, d?: DashboardView): OverviewCard[] {
+function transportCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewCard[] {
   const traceRate = Math.round(a.traceability.traceabilityRate * 100)
   const fill = d?.overview.reserveFillPercent ?? 0
   return [
     {
       id: 'tours-in-flight',
-      label: 'Tournées en vol',
+      label: tx(t, 'overview:cards.toursInFlight.label', 'Tournées en vol'),
       value: d?.overview.activeTrips ?? a.tours.inFlight,
-      detail: `sur ${a.tours.total} tournées totales`,
+      detail: tx(t, 'overview:cards.toursInFlight.detail', `sur ${a.tours.total} tournées totales`),
       href: '/tours',
       tone: 'sky',
       icon: 'tours',
     },
     {
       id: 'tours-awaiting',
-      label: 'À confirmer transporteur',
+      label: tx(t, 'overview:cards.toursAwaiting.label', 'À confirmer transporteur'),
       value: d?.overview.plannedTrips ?? a.tours.awaitingTransporter,
-      detail: 'tournées en attente de validation',
+      detail: tx(t, 'overview:cards.toursAwaiting.detail', 'tournées en attente de validation'),
       href: '/tour-tracking',
       tone: 'amber',
       icon: 'tours',
     },
     {
       id: 'transported',
-      label: 'Volume transporté',
+      label: tx(t, 'overview:cards.transported.label', 'Volume transporté'),
       value: formatTm(d?.overview.totalTransportedTM ?? 0),
-      detail: 'GPL chargé sur les tournées visibles',
+      detail: tx(t, 'overview:cards.transported.detail', 'GPL chargé sur les tournées visibles'),
       href: '/tours',
       tone: 'emerald',
       icon: 'volumes',
     },
     {
       id: 'reserve',
-      label: 'Réserve utile',
+      label: tx(t, 'overview:cards.reserve.label', 'Réserve utile'),
       value: formatTm(d?.overview.totalReserveTM ?? 0),
-      detail: `${fill}% de remplissage sur le réseau`,
+      detail: tx(t, 'overview:cards.reserve.detail', `${fill}% de remplissage sur le réseau`),
       href: '/sites',
       tone: 'sky',
       icon: 'reserve',
@@ -186,18 +188,18 @@ function transportCards(a: Analytics, d?: DashboardView): OverviewCard[] {
     },
     {
       id: 'devices',
-      label: 'Véhicules & appareils',
+      label: tx(t, 'overview:cards.devices.label', 'Véhicules & appareils'),
       value: a.devices.total,
-      detail: 'capteurs et PDA actifs sur la flotte',
+      detail: tx(t, 'overview:cards.devices.detail', 'capteurs et PDA actifs sur la flotte'),
       href: '/devices',
       tone: 'slate',
       icon: 'devices',
     },
     {
       id: 'traceability',
-      label: 'Taux de traçabilité',
+      label: tx(t, 'overview:cards.traceability2.label', 'Taux de traçabilité'),
       value: `${traceRate}%`,
-      detail: `volume tracé vs ${formatTm(a.traceability.declaredVolume)} déclaré`,
+      detail: tx(t, 'overview:cards.traceability2.detail', `volume tracé vs ${formatTm(a.traceability.declaredVolume)} déclaré`),
       href: '/reconciliations',
       tone: 'emerald',
       icon: 'traceability',
@@ -206,24 +208,24 @@ function transportCards(a: Analytics, d?: DashboardView): OverviewCard[] {
   ]
 }
 
-function supervisorCards(a: Analytics, d?: DashboardView): OverviewCard[] {
+function supervisorCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewCard[] {
   const online = a.devices.byStatus['ONLINE'] ?? 0
   const total = a.devices.total
   return [
     {
       id: 'devices-total',
-      label: 'Appareils',
+      label: tx(t, 'overview:cards.devicesTotal.label', 'Appareils'),
       value: total,
-      detail: 'appareils enregistrés sur le parc',
+      detail: tx(t, 'overview:cards.devicesTotal.detail', 'appareils enregistrés sur le parc'),
       href: '/devices',
       tone: 'sky',
       icon: 'devices',
     },
     {
       id: 'devices-online',
-      label: 'Appareils en ligne',
+      label: tx(t, 'overview:cards.devicesOnline.label', 'Appareils en ligne'),
       value: online,
-      detail: 'connectés et synchronisés',
+      detail: tx(t, 'overview:cards.devicesOnline.detail', 'connectés et synchronisés'),
       href: '/devices',
       tone: 'emerald',
       icon: 'devices',
@@ -231,36 +233,36 @@ function supervisorCards(a: Analytics, d?: DashboardView): OverviewCard[] {
     },
     {
       id: 'devices-offline',
-      label: 'Appareils à attention',
+      label: tx(t, 'overview:cards.devicesOffline.label', 'Appareils à attention'),
       value: a.devices.attention.length,
-      detail: 'batterie critique ou hors ligne',
+      detail: tx(t, 'overview:cards.devicesOffline.detail', 'batterie critique ou hors ligne'),
       href: '/device-health',
       tone: 'rose',
       icon: 'devices',
     },
     {
       id: 'tours',
-      label: 'Tournées actives',
+      label: tx(t, 'overview:cards.toursActive.label', 'Tournées actives'),
       value: d?.overview.activeTrips ?? a.tours.inFlight,
-      detail: `sur ${a.tours.total} tournées totales`,
+      detail: tx(t, 'overview:cards.toursActive.detail', `sur ${a.tours.total} tournées totales`),
       href: '/tours',
       tone: 'amber',
       icon: 'tours',
     },
     {
       id: 'anomalies',
-      label: 'Alertes ouvertes',
+      label: tx(t, 'overview:cards.alertsOpen.label', 'Alertes ouvertes'),
       value: openAlerts(d),
-      detail: `${d?.overview.criticalAlerts ?? 0} critiques`,
+      detail: tx(t, 'overview:cards.alertsOpen.detail', `${d?.overview.criticalAlerts ?? 0} critiques`),
       href: '/anomalies',
       tone: 'rose',
       icon: 'anomalies',
     },
     {
       id: 'checkpoints',
-      label: 'Points de contrôle',
+      label: tx(t, 'overview:cards.checkpoints.label', 'Points de contrôle'),
       value: a.checkpoints.total,
-      detail: `${a.checkpoints.missed} manqués`,
+      detail: tx(t, 'overview:cards.checkpoints.detail', `${a.checkpoints.missed} manqués`),
       href: '/tours',
       tone: 'slate',
       icon: 'checkpoints',
@@ -268,7 +270,7 @@ function supervisorCards(a: Analytics, d?: DashboardView): OverviewCard[] {
   ]
 }
 
-function agentCards(a: Analytics, d?: DashboardView): OverviewCard[] {
+function agentCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewCard[] {
   const traceRate = Math.round(a.traceability.traceabilityRate * 100)
   const verifiedRate = a.sites.active
     ? Math.round((a.sites.verified / a.sites.active) * 100)
@@ -276,18 +278,18 @@ function agentCards(a: Analytics, d?: DashboardView): OverviewCard[] {
   return [
     {
       id: 'sites-active',
-      label: 'Sites actifs',
+      label: tx(t, 'overview:cards.sitesActive.label', 'Sites actifs'),
       value: a.sites.active,
-      detail: `sur ${a.sites.total} sites du réseau`,
+      detail: tx(t, 'overview:cards.sitesActive.detail', `sur ${a.sites.total} sites du réseau`),
       href: '/sites',
       tone: 'sky',
       icon: 'sites',
     },
     {
       id: 'sites-verified',
-      label: 'Sites vérifiés',
+      label: tx(t, 'overview:cards.sitesVerified.label', 'Sites vérifiés'),
       value: a.sites.verified,
-      detail: 'sites conformes et vérifiés',
+      detail: tx(t, 'overview:cards.sitesVerified.detail', 'sites conformes et vérifiés'),
       href: '/sites',
       tone: 'emerald',
       icon: 'sites',
@@ -295,20 +297,18 @@ function agentCards(a: Analytics, d?: DashboardView): OverviewCard[] {
     },
     {
       id: 'reconciliations-gap',
-      label: 'Écart de réconciliation',
+      label: tx(t, 'overview:cards.reconciliationGap.label', 'Écart de réconciliation'),
       value: formatTm(a.reconciliations.totalGap),
-      detail: `${a.reconciliations.total} réconciliations à traiter`,
+      detail: tx(t, 'overview:cards.reconciliationGap.detail', `${a.reconciliations.total} réconciliations à traiter`),
       href: '/reconciliations',
       tone: 'rose',
       icon: 'reconciliations',
     },
     {
       id: 'declared-vs-tracked',
-      label: 'Déclaré vs tracé',
+      label: tx(t, 'overview:cards.declaredVsTracked.label', 'Déclaré vs tracé'),
       value: `${traceRate}%`,
-      detail: `tracé · écart ${formatTm(
-        a.traceability.declaredVolume - a.traceability.trackedVolume
-      )}`,
+      detail: tx(t, 'overview:cards.declaredVsTracked.detail', `tracé · écart ${formatTm(a.traceability.declaredVolume - a.traceability.trackedVolume)}`),
       href: '/reconciliations',
       tone: 'amber',
       icon: 'traceability',
@@ -316,18 +316,18 @@ function agentCards(a: Analytics, d?: DashboardView): OverviewCard[] {
     },
     {
       id: 'tours',
-      label: 'Tournées en cours',
+      label: tx(t, 'overview:cards.toursOngoing.label', 'Tournées en cours'),
       value: d?.overview.activeTrips ?? a.tours.inFlight,
-      detail: `${d?.overview.plannedTrips ?? a.tours.planned} planifiées`,
+      detail: tx(t, 'overview:cards.toursOngoing.detail', `${d?.overview.plannedTrips ?? a.tours.planned} planifiées`),
       href: '/tours',
       tone: 'slate',
       icon: 'tours',
     },
     {
       id: 'anomalies',
-      label: 'Anomalies ouvertes',
+      label: tx(t, 'overview:cards.anomalies2.label', 'Anomalies ouvertes'),
       value: openAlerts(d),
-      detail: 'à traiter sur vos sites assignés',
+      detail: tx(t, 'overview:cards.anomalies2.detail', 'à traiter sur vos sites assignés'),
       href: '/anomalies',
       tone: 'rose',
       icon: 'anomalies',
@@ -335,31 +335,31 @@ function agentCards(a: Analytics, d?: DashboardView): OverviewCard[] {
   ]
 }
 
-function defaultCards(a: Analytics, d?: DashboardView): OverviewCard[] {
+function defaultCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewCard[] {
   return [
     {
       id: 'organizations',
-      label: 'Organisations',
+      label: tx(t, 'overview:cards.organizations.label', 'Organisations'),
       value: a.organizations.total,
-      detail: `${a.organizations.active} actives`,
+      detail: tx(t, 'overview:cards.organizations.detail2', `${a.organizations.active} actives`),
       href: '/organizations',
       tone: 'sky',
       icon: 'organizations',
     },
     {
       id: 'tours-in-flight',
-      label: 'Tournées en vol',
+      label: tx(t, 'overview:cards.toursInFlight.label', 'Tournées en vol'),
       value: d?.overview.activeTrips ?? a.tours.inFlight,
-      detail: `${a.tours.planned} planifiées`,
+      detail: tx(t, 'overview:cards.toursInFlight.detail2', `${a.tours.planned} planifiées`),
       href: '/tours',
       tone: 'amber',
       icon: 'tours',
     },
     {
       id: 'traceability',
-      label: 'Taux de traçabilité',
+      label: tx(t, 'overview:cards.traceability.label', 'Taux de traçabilité'),
       value: `${Math.round(a.traceability.traceabilityRate * 100)}%`,
-      detail: 'volume tracé vs déclaré',
+      detail: tx(t, 'overview:cards.traceability.detail2', 'volume tracé vs déclaré'),
       href: '/reconciliations',
       tone: 'emerald',
       icon: 'traceability',
@@ -370,7 +370,8 @@ function defaultCards(a: Analytics, d?: DashboardView): OverviewCard[] {
 
 export function getOverviewCards(
   role: Role,
-  dashboard?: DashboardView
+  dashboard?: DashboardView,
+  t?: TranslateFn
 ): OverviewCard[] {
-  return buildOverview(role, dashboard)
+  return buildOverview(role, dashboard, t)
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@lpg/ui'
 import { PackageCheck } from 'lucide-react'
 import type { Pickup } from '../data/pickups'
@@ -24,7 +25,7 @@ export function PickupsValidateDialog({
         </DialogHeader>
         <div className='space-y-3 py-2'>
           <p className='text-sm text-muted-foreground'>
-            Quantité demandée: <strong>{pickup.requested_quantity.toLocaleString('fr-FR')} TM</strong>
+            Quantité demandée: <strong>{pickup.requested_quantity.toLocaleString(currentLang())} TM</strong>
           </p>
           <label className='block text-sm'>
             <span>Quantité approuvée (TM)</span>

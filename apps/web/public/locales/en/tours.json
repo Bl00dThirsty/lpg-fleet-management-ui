@@ -1,0 +1,60 @@
+{
+  "title": "Delivery tours",
+  "description": "Flow 2 — deliveries created by marketers and executed internally or by a transporter.",
+  "create": "New tour",
+  "columns": {
+    "reference": "Reference",
+    "marketeur": "Marketer",
+    "mode": "Mode",
+    "type": "Type",
+    "transporter": "Carrier",
+    "vehicle": "Vehicle",
+    "quantity": "Quantity",
+    "delivered": "Delivered",
+    "status": "Status"
+  },
+  "status": {
+    "DRAFT": "Draft",
+    "PLANNED": "Planned",
+    "PENDINGTRANSPORTERACK": "Awaiting carrier",
+    "ACKNOWLEDGED": "Acknowledged",
+    "INPROGRESS": "In transit",
+    "CHECKPOINTACTIVE": "Delivering",
+    "CLOSED": "Delivered",
+    "CANCELLED": "Cancelled"
+  },
+  "executionMode": {
+    "INTERNAL": "Internal",
+    "EXTERNAL": "Outsourced"
+  },
+  "tourneeType": {
+    "VRAC": "Bulk (TM)",
+    "BOUTEILLES50KG": "50 kg bottles"
+  },
+  "routeStatus": {
+    "planned": "Planned",
+    "in-progress": "In progress",
+    "completed": "Completed",
+    "incident": "Incident"
+  },
+  "slices": {
+    "ALL": "All",
+    "INTERNAL": "Internal",
+    "EXTERNAL": "Outsourced",
+    "PENDING": "Pending",
+    "ACTIVE": "Active",
+    "HISTORY": "History"
+  },
+  "filters": {
+    "status": "Status",
+    "mode": "Mode",
+    "groupBy": "Group by",
+    "searchPlaceholder": "Search reference, marketer...",
+    "none": "--"
+  },
+  "empty": "No tour matches the filters.",
+  "cargo": {
+    "VRAC": "Bulk LPG",
+    "BOUTEILLES50KG": "50 kg bottles"
+  }
+}

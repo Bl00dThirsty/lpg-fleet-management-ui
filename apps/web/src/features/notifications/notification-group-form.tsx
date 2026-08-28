@@ -11,6 +11,7 @@ import {
   FormMessage,
   Input,
 } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import {
   notificationGroupFormSchema,
   type NotificationGroupFormValues,
@@ -29,8 +30,10 @@ export function NotificationGroupForm({
   defaultValues,
   onSubmit,
   onCancel,
-  submitLabel = 'Créer le groupe',
+  submitLabel,
 }: NotificationGroupFormProps) {
+  const { t } = useTranslation('common')
+  const resolvedSubmitLabel = submitLabel ?? t('notificationGroups.createGroup')
   const form = useForm<NotificationGroupFormValues>({
     resolver: zodResolver(notificationGroupFormSchema),
     defaultValues: defaultValues ?? {
@@ -105,9 +108,9 @@ export function NotificationGroupForm({
 
         <div className='flex items-center justify-end gap-3 pt-2'>
           <Button type='button' variant='outline' onClick={onCancel}>
-            Annuler
+            {t('entityCrud.cancel')}
           </Button>
-          <Button type='submit'>{submitLabel}</Button>
+          <Button type='submit'>{resolvedSubmitLabel}</Button>
         </div>
       </form>
     </Form>

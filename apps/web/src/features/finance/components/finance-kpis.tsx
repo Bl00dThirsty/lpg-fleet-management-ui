@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { currentLang } from '@/lib/i18n/formatters'
 import { ArrowRight, Banknote, Hourglass, Receipt, Scale, ScrollText, TrendingUp } from 'lucide-react'
 import { MetricCardWithChart } from '@/components/charts'
 import type { FinanceMonthlyPoint, FinanceSummary } from '../data/finance'
@@ -32,7 +33,7 @@ export function FinanceKpis({ summary, monthly }: FinanceKpisProps) {
       id: 'redressements',
       icon: ScrollText,
       label: 'Redressements',
-      value: summary.redressementCount.toLocaleString('fr-FR'),
+      value: summary.redressementCount.toLocaleString(currentLang()),
       sparkline: [summary.issuedCount, summary.paidCount, summary.waivedCount],
     },
     {
@@ -88,14 +89,14 @@ const secondaryTiles = [
     id: 'flagged',
     icon: Scale,
     label: 'Écarts flaggés',
-    value: (summary: FinanceSummary) => summary.flaggedCount.toLocaleString('fr-FR'),
+    value: (summary: FinanceSummary) => summary.flaggedCount.toLocaleString(currentLang()),
     hint: () => 'au-dessus de la tolérance',
   },
   {
     id: 'pending',
     icon: Hourglass,
     label: 'Réconciliations en attente',
-    value: (summary: FinanceSummary) => summary.pendingCount.toLocaleString('fr-FR'),
+    value: (summary: FinanceSummary) => summary.pendingCount.toLocaleString(currentLang()),
     hint: () => 'à vérifier',
   },
 ]

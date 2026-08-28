@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { getRouteApi } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { CalendarDays, Gauge, Plus, Search, ShieldAlert, Truck as TruckIcon, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -48,6 +50,7 @@ const statusFilterDefs: readonly {
 const vehiclesRoute = getRouteApi('/_authenticated/vehicles/')
 
 export function VehiclesPage() {
+  const { t } = useTranslation('common')
   const navigate = vehiclesRoute.useNavigate()
   const search = vehiclesRoute.useSearch()
   const { q } = vehiclesRoute.useSearch()
@@ -141,7 +144,7 @@ export function VehiclesPage() {
 
   const dateText = useMemo(
     () =>
-      new Intl.DateTimeFormat('fr-FR', {
+      new Intl.DateTimeFormat(currentLang(), {
         weekday: 'long',
         day: '2-digit',
         month: 'long',
@@ -216,7 +219,7 @@ export function VehiclesPage() {
           <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center'>
             {crud.perm.canCreate && (
               <Button onClick={crud.openCreate}>
-                <Plus className='mr-1 h-4 w-4' /> Nouveau véhicule
+                <Plus className='mr-1 h-4 w-4' /> {t('vehicles.createTitle')}
               </Button>
             )}
             <div className='relative w-full sm:w-[310px]'>
@@ -300,7 +303,7 @@ export function VehiclesPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le véhicule' : 'Nouveau véhicule'}
+        title={crud.editing ? t('vehicles.editTitle') : t('vehicles.createTitle')}
         description={crud.editing ? 'Mettez à jour les informations du véhicule.' : 'Ajoutez un véhicule à la flotte.'}
         fields={vehicleFields}
         initial={crud.editing ? vehicleToForm(crud.editing) : scopeOrgId ? { org_id: scopeOrgId } : null}

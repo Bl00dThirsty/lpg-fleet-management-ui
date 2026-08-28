@@ -5,6 +5,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@lpg/ui'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 
 type TrendPoint = {
   /** Display label rendered on the X axis (a date, a label, etc.). */
@@ -34,6 +36,7 @@ export function TrendLine({
   height = 220,
   hideXTicks,
 }: TrendLineProps) {
+  const lang = usePreferencesStore((s) => s.language)
   return (
     <ChartContainer config={config} className={`h-[${height}px] w-full`}>
       <AreaChart data={points as TrendPoint[]} accessibilityLayer>
@@ -50,7 +53,7 @@ export function TrendLine({
           tickLine={false}
           axisLine={false}
           width={48}
-          tickFormatter={(v: number) => v.toLocaleString('fr-FR')}
+          tickFormatter={(v: number) => formatNumber(v, lang)}
           stroke='var(--color-muted-foreground)'
         />
         <ChartTooltip
@@ -59,7 +62,7 @@ export function TrendLine({
               indicator='line'
               formatter={(v) =>
                 typeof v === 'number'
-                  ? `${v.toLocaleString('fr-FR')}${unit ? ` ${unit}` : ''}`
+                  ? `${formatNumber(v, lang)}${unit ? ` ${unit}` : ''}`
                   : String(v)
               }
             />

@@ -1,4 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Badge, DataTableColumnHeader } from '@lpg/ui'
 import { type Pickup, type PickupStatus, pickupStatusLabels } from '../data/pickups'
 
@@ -55,7 +56,7 @@ export function getPickupsColumns({
     {
       accessorKey: 'requested_quantity',
       header: 'Quantité (kg)',
-      cell: ({ row }) => new Intl.NumberFormat('fr-FR').format(row.original.requested_quantity),
+      cell: ({ row }) => new Intl.NumberFormat(currentLang()).format(row.original.requested_quantity),
       meta: { label: 'Quantité (kg)' },
       enableGrouping: true,
     },

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Plus, RouteOff, Workflow } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Badge } from '@lpg/ui'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import {
 } from './data/notification-rules-crud'
 
 export function NotificationRulesPage() {
+  const { t } = useTranslation('common')
   const crud = useEntityCrud<NotificationRule>(
     'notificationRules',
     'notification-rules',
@@ -62,7 +64,7 @@ export function NotificationRulesPage() {
         actions={
           crud.perm.canCreate ? (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouvelle règle
+              <Plus className='mr-1 h-4 w-4' /> {t('notificationRules.createTitle')}
             </Button>
           ) : undefined
         }
@@ -99,7 +101,7 @@ export function NotificationRulesPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier la règle' : 'Nouvelle règle'}
+        title={crud.editing ? t('notificationRules.editTitle') : t('notificationRules.createTitle')}
         description={crud.editing ? 'Mettez à jour le routage de cette règle.' : 'Définissez le routage d’une anomalie vers un groupe de notification.'}
         fields={notificationRuleFields}
         initial={crud.editing ? notificationRuleToForm(crud.editing) : null}
@@ -124,6 +126,7 @@ function RoutingGroupCard({
   onEdit?: (rule: NotifRoutingGroup['rules'][number]) => void
   onDelete?: (rule: NotifRoutingGroup['rules'][number]) => void
 }) {
+  const { t } = useTranslation('common')
   return (
     <div className='rounded-lg border p-3'>
       <button
@@ -169,7 +172,7 @@ function RoutingGroupCard({
                     className='h-7 px-2 text-xs'
                     onClick={() => onEdit(rule)}
                   >
-                    Modifier
+                    {t('entityCrud.edit')}
                   </Button>
                 )}
                 {onDelete && (
@@ -179,7 +182,7 @@ function RoutingGroupCard({
                     className='h-7 px-2 text-xs text-destructive hover:text-destructive'
                     onClick={() => onDelete(rule)}
                   >
-                    Supprimer
+                    {t('entityCrud.delete')}
                   </Button>
                 )}
               </div>

@@ -1,0 +1,8 @@
+{
+  "generic": "Error",
+  "server": {
+    "generic": "A server error occurred",
+    "noContent": "No content."
+  },
+  "network": "Network unavailable."
+}

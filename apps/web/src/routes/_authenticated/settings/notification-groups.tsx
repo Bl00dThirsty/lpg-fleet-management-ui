@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { currentLang } from '@/lib/i18n/formatters'
 import { useState } from 'react'
 import {
   Button,
@@ -48,7 +49,7 @@ export const Route = createFileRoute('/_authenticated/settings/notification-grou
 })
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString('fr-FR', {
+  return new Date(ts).toLocaleString(currentLang(), {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

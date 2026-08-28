@@ -23,6 +23,7 @@ import { useLocation } from '@tanstack/react-router'
 import { NotificationCenter } from '@/features/notifications/notification-center'
 import { GlobalSearch } from '@/features/command-palette/global-search'
 import { ROLE_LABELS } from '@/config/rbac/roles'
+import { LanguageSwitcher } from './language-switcher'
 
 export function AppHeader() {
   const { resolvedTheme, setTheme } = useTheme()
@@ -72,6 +73,8 @@ export function AppHeader() {
               K
             </kbd>
           </Button>
+
+          <LanguageSwitcher variant="header" />
 
           <NotificationCenter />
 

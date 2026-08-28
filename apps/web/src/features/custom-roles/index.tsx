@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Check, Plus, ShieldCheck, UserRound } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@lpg/ui'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -21,6 +22,7 @@ import {
 } from './data/custom-roles-crud'
 
 export function CustomRolesPage() {
+  const { t } = useTranslation('common')
   const crud = useEntityCrud<CustomRole>('customRoles', 'custom-roles', ['custom-roles'])
   const roles = useMemo(() => getCustomRoles(crud.list.data), [crud.list.data])
   const active = useMemo(() => roles.filter((r) => r.isActive).length, [roles])
@@ -50,7 +52,7 @@ export function CustomRolesPage() {
         actions={
           crud.perm.canCreate ? (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau rôle
+              <Plus className='mr-1 h-4 w-4' /> {t('customRoles.createTitle')}
             </Button>
           ) : undefined
         }
@@ -86,7 +88,7 @@ export function CustomRolesPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le rôle' : 'Nouveau rôle'}
+        title={crud.editing ? t('customRoles.editTitle') : t('customRoles.createTitle')}
         description={crud.editing ? 'Mettez à jour le rôle et ses permissions.' : 'Créez un rôle personnalisé avec son jeu de permissions.'}
         fields={customRoleFields}
         initial={crud.editing ? customRoleToForm(crud.editing) : null}

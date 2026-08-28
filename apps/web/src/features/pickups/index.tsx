@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Plus } from 'lucide-react'
 import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@lpg/ui'
@@ -12,12 +13,16 @@ import { getPickups, getPickupSummary, type Pickup } from './data/pickups'
 import { getScope } from '@/features/scope/scope'
 import { useAuthStore } from '@/store/auth-store'
 import { usePickupsStore } from '@/store/pickups-store'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 import { extractErrorMessage } from '@/hooks/use-toast-feedback'
 import { hasPermission } from '@lpg/permissions'
 import type { PickupRequest } from '@lpg/types'
 import type { Role } from '@/config/rbac/roles'
 
 export function PickupsPage({ role }: { role: Role }) {
+  const { t } = useTranslation('pickups')
+  const lang = usePreferencesStore((s) => s.language)
   // The store is the single source of truth (seeded fixtures + created /
   // validated / cancelled requests); the page reads it reactively.
   const storeRows = usePickupsStore((s) => s.pickups)
@@ -42,7 +47,7 @@ export function PickupsPage({ role }: { role: Role }) {
   const handleValidate = (row: Pickup, qty: number) => {
     try {
       usePickupsStore.getState().validatePickup(row.id, qty)
-      toast.success(`${row.reference} validée pour ${qty.toLocaleString('fr-FR')} TM`)
+      toast.success(t('toast.validated', { reference: row.reference, quantity: formatNumber(qty, lang) }))
     } catch (err) {
       toast.error(extractErrorMessage(err))
     }
@@ -51,7 +56,7 @@ export function PickupsPage({ role }: { role: Role }) {
   const handleCancel = (row: Pickup) => {
     try {
       usePickupsStore.getState().cancelPickup(row.id)
-      toast.warning(`${row.reference} annulée`)
+      toast.warning(t('toast.cancelled', { reference: row.reference }))
     } catch (err) {
       toast.error(extractErrorMessage(err))
     }
@@ -65,12 +70,12 @@ export function PickupsPage({ role }: { role: Role }) {
   return (
     <PageShell>
       <PageHeader
-        title='Approvisionnements (Flux 1)'
-        description={`${summary.total} requêtes — ${summary.draft} brouillon(s), ${summary.validated} validée(s), ${summary.inProgress} en cours, ${summary.completed} terminée(s).`}
+        title={t('title')}
+        description={t('description', { total: summary.total, draft: summary.draft, validated: summary.validated, inProgress: summary.inProgress, completed: summary.completed })}
         actions={
           canCreate ? (
             <Button className='gap-2' onClick={() => setCreateOpen(true)}>
-              <Plus className='size-4' /> Nouvelle requête
+              <Plus className='size-4' /> {t('actions.create')}
             </Button>
           ) : null
         }
@@ -108,21 +113,21 @@ export function PickupsPage({ role }: { role: Role }) {
           </DialogHeader>
           {detailOpen && (
             <div className='space-y-2 py-2 text-sm'>
-              <p>Marketeur: {detailOpen.marketeur_name}</p>
-              <p>Source: {detailOpen.source_name}</p>
-              <p>Destination: {detailOpen.destination_name}</p>
-              <p>Quantité demandée: {detailOpen.requested_quantity.toLocaleString('fr-FR')} TM</p>
-              <p>Quantité approuvée: {detailOpen.approved_quantity?.toLocaleString('fr-FR') ?? '—'}</p>
-              <p>Statut: {detailOpen.pickup_status}</p>
+              <p>{t('detail.marketeur')}: {detailOpen.marketeur_name}</p>
+              <p>{t('detail.source')}: {detailOpen.source_name}</p>
+              <p>{t('detail.destination')}: {detailOpen.destination_name}</p>
+              <p>{t('detail.requestedQuantity')}: {formatNumber(detailOpen.requested_quantity, lang)} TM</p>
+              <p>{t('detail.approvedQuantity')}: {detailOpen.approved_quantity != null ? `${formatNumber(detailOpen.approved_quantity, lang)} TM` : '—'}</p>
+              <p>{t('detail.status')}: {detailOpen.pickup_status}</p>
               {detailVehicleIds.length > 0 && (
-                <p>Véhicules: {detailVehicles}</p>
+                <p>{t('detail.vehicles')}: {detailVehicles}</p>
               )}
             </div>
           )}
           {canWrite && detailOpen?.pickup_status !== 'CANCELLED' && detailOpen?.pickup_status !== 'COMPLETED' ? (
             <DialogFooter>
               <Button variant='destructive' onClick={() => { if (detailOpen) handleCancel(detailOpen); setDetailOpen(null) }}>
-                Annuler la requête
+                {t('actions.cancel')}
               </Button>
             </DialogFooter>
           ) : null}

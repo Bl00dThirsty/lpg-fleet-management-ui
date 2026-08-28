@@ -1,32 +1,32 @@
 import { useMemo } from 'react'
 import { AlertTriangle, Search, ServerCog } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@lpg/ui'
 import { PageHeader } from '@/components/layout/page-header'
 import { KpiTile, PageShell, SectionCard } from '@/components/layout/page'
 import { AnomaliesTable } from './components/anomalies-table'
 import { getAnomalies, getAnomalySummary, type AnomalyTrack } from './data/anomalies'
 
-const TRACK_TITLES: Record<AnomalyTrack, string> = {
-  ALL: 'Anomalies',
-  INVESTIGATION: 'Anomalies — Piste Investigation',
-  TECHNICAL: 'Anomalies — Piste Technique',
-}
-
-const TRACK_DESCRIPTIONS: Record<AnomalyTrack, string> = {
-  ALL: 'Fraude, écarts de volume et incidents techniques détectés par la plateforme.',
-  INVESTIGATION: 'Soupçons de fraude, siphonnage, détournement — à investiguer.',
-  TECHNICAL: 'Incidents IoT, GPS, PDA et infrastructure — à résoudre.',
-}
-
 export function AnomaliesPage({ track = 'ALL' }: { track?: AnomalyTrack }) {
+  const { t } = useTranslation('common')
   const rows = useMemo(() => getAnomalies(track), [track])
   const summary = useMemo(() => getAnomalySummary(rows), [rows])
+  const trackTitles: Record<AnomalyTrack, string> = {
+    ALL: t('anomalies.titleAll'),
+    INVESTIGATION: t('anomalies.titleInvestigation'),
+    TECHNICAL: t('anomalies.titleTechnical'),
+  }
+  const trackDescriptions: Record<AnomalyTrack, string> = {
+    ALL: t('anomalies.descriptionAll', { defaultValue: 'Fraude, écarts de volume et incidents techniques détectés par la plateforme.' }),
+    INVESTIGATION: t('anomalies.descriptionInvestigation', { defaultValue: 'Soupçons de fraude, siphonnage, détournement — à investiguer.' }),
+    TECHNICAL: t('anomalies.descriptionTechnical', { defaultValue: 'Incidents IoT, GPS, PDA et infrastructure — à résoudre.' }),
+  }
 
   return (
     <PageShell>
       <PageHeader
-        title={TRACK_TITLES[track]}
-        description={TRACK_DESCRIPTIONS[track]}
+        title={trackTitles[track]}
+        description={trackDescriptions[track]}
         actions={<TrackTabs track={track} />}
       />
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
@@ -43,10 +43,11 @@ export function AnomaliesPage({ track = 'ALL' }: { track?: AnomalyTrack }) {
 }
 
 function TrackTabs({ track }: { track: AnomalyTrack }) {
+  const { t } = useTranslation('common')
   const tabs: { id: AnomalyTrack; label: string; href: string; icon: typeof AlertTriangle }[] = [
-    { id: 'ALL', label: 'Toutes', href: '/anomalies', icon: AlertTriangle },
-    { id: 'INVESTIGATION', label: 'Investigation', href: '/anomalies/investigation', icon: Search },
-    { id: 'TECHNICAL', label: 'Technique', href: '/anomalies/technical', icon: ServerCog },
+    { id: 'ALL', label: t('anomalies.all'), href: '/anomalies', icon: AlertTriangle },
+    { id: 'INVESTIGATION', label: t('anomalies.investigation'), href: '/anomalies/investigation', icon: Search },
+    { id: 'TECHNICAL', label: t('anomalies.technical'), href: '/anomalies/technical', icon: ServerCog },
   ]
   return (
     <div className='flex items-center gap-1 rounded-lg bg-muted p-1'>

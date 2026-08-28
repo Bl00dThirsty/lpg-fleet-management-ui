@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { CheckCircle2, Clock, Receipt } from 'lucide-react'
 import { PageHeader } from '@/components/layout/page-header'
 import { KpiTile, PageShell, SectionCard } from '@/components/layout/page'
@@ -23,7 +24,7 @@ export function RedressementsPage() {
         <KpiTile label='Payés' value={String(summary.paid)} icon={<CheckCircle2 className='size-4 text-emerald-500' />} />
         <KpiTile
           label='En cours'
-          value={`${summary.totalOutstanding.toLocaleString('fr-FR')} XFA`}
+          value={`${summary.totalOutstanding.toLocaleString(currentLang())} XFA`}
         />
       </div>
       <SectionCard>

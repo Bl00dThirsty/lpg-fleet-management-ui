@@ -1,4 +1,5 @@
 import { UserRound, Wrench } from 'lucide-react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -134,7 +135,7 @@ export function TruckDetailsBody({
                 label='Validite'
                 value={
                   truck.certificate_expiry_at
-                    ? new Date(truck.certificate_expiry_at).toLocaleDateString('fr-FR')
+                    ? new Date(truck.certificate_expiry_at).toLocaleString(currentLang())
                     : '—'
                 }
               />

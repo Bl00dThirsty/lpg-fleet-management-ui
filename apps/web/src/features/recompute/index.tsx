@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { getRouteApi } from '@tanstack/react-router'
 import { CalendarDays, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -64,7 +65,7 @@ const navigate = recomputeRoute.useNavigate()
 
   const dateText = useMemo(
     () =>
-      new Intl.DateTimeFormat('fr-FR', {
+      new Intl.DateTimeFormat(currentLang(), {
         weekday: 'long',
         day: '2-digit',
         month: 'long',

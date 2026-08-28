@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Plug } from 'lucide-react'
 import { Badge } from '@lpg/ui'
 import { PageHeader } from '@/components/layout/page-header'
@@ -19,7 +20,7 @@ export function IntegrationsPage() {
       <div className='grid gap-4 sm:grid-cols-4'>
         <KpiTile label='Intégrations' value={String(summary.total)} />
         <KpiTile label='Actives' value={String(summary.active)} />
-        <KpiTile label='Auth réussies' value={summary.totalSuccess.toLocaleString('fr-FR')} />
+        <KpiTile label='Auth réussies' value={summary.totalSuccess.toLocaleString(currentLang())} />
         <KpiTile label='Échecs' value={String(summary.totalFailures)} />
       </div>
 

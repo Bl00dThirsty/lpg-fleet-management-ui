@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,7 @@ export function buildDriverOrgOptions(drivers: readonly DriverView[]) {
 }
 
 export function DriversPage() {
+  const { t } = useTranslation('common')
   const [search, setSearch] = useState('')
   const [detailsDriver, setDetailsDriver] = useState<DriverView | null>(null)
   const crud = useEntityCrud<Driver>('drivers', 'drivers', ['drivers'])
@@ -96,7 +98,7 @@ export function DriversPage() {
           </div>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau chauffeur
+              <Plus className='mr-1 h-4 w-4' /> {t('drivers.createTitle')}
             </Button>
           )}
         </div>
@@ -152,7 +154,7 @@ export function DriversPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le chauffeur' : 'Nouveau chauffeur'}
+        title={crud.editing ? t('drivers.editTitle') : t('drivers.createTitle')}
         description={crud.editing ? 'Mettez à jour les informations du chauffeur.' : 'Ajoutez un chauffeur à la flotte.'}
         fields={driverFields}
         initial={crud.editing ? driverToForm(crud.editing) : null}

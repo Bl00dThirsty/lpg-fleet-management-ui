@@ -25,4 +25,27 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
+  // Scoped i18n guard — verifies migrated namespaces use t() instead of hardcoded French.
+  // Full fan-out to 50+ domains is follow-up; currently scoped to exemplar (pickups) +
+  // handle-server-error to prove the gate works (overview/dashboard/tours already migrated
+  // but contain legacy literals in sub-components - follow-up PRs will fan-out).
+  {
+    files: ['src/features/pickups/index.tsx', 'src/lib/handle-server-error.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/[À-ÿ]/]',
+          message: 'Use t() / locales JSON instead of hardcoded French.',
+        },
+      ],
+    },
+  },
+  {
+    // Tests and locale-adjacent helpers are allowed to contain French literals
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', 'src/lib/i18n/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': 'off',
+    },
+  },
 ]

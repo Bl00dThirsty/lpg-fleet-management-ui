@@ -1,5 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Building2, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCallback, useState } from 'react'
@@ -21,6 +22,7 @@ import { toast } from 'sonner'
 const route = getRouteApi('/_authenticated/organizations/')
 
 export function OrganizationsPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const [detailsOrg, setDetailsOrg] = useState<Organization | null>(null)
@@ -73,7 +75,7 @@ export function OrganizationsPage() {
           </Badge>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouvelle organisation
+              <Plus className='mr-1 h-4 w-4' /> {t('organizations.createTitle')}
             </Button>
           )}
         </div>
@@ -103,7 +105,7 @@ export function OrganizationsPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier l’organisation' : 'Nouvelle organisation'}
+        title={crud.editing ? t('organizations.editTitle') : t('organizations.createTitle')}
         description={
           crud.editing
             ? 'Mettez à jour les informations de l’organisation.'

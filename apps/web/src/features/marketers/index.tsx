@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { getRouteApi } from '@tanstack/react-router'
 import { Building2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -12,6 +13,7 @@ import { marketerFields, marketerFromForm, marketerToForm } from './data/markete
 const route = getRouteApi('/_authenticated/marketers/')
 
 export function MarketersPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const crud = useEntityCrud<Organization>('organizations', 'markets', ['organizations'])
@@ -25,14 +27,14 @@ export function MarketersPage() {
     try {
       if (crud.editing) {
         await crud.updateMut.mutateAsync({ id: crud.editing.id, patch: marketerFromForm(values) })
-        toast.success('Marketeur mis à jour.')
+        toast.success(t('marketers.updated'))
       } else {
         await crud.createMut.mutateAsync(marketerFromForm(values) as Omit<Organization, 'id'>)
-        toast.success('Marketeur créé.')
+        toast.success(t('marketers.created'))
       }
       crud.close()
     } catch {
-      toast.error('Échec de l’enregistrement.')
+      toast.error(t('errors:generic'))
     }
   }
 
@@ -44,13 +46,13 @@ export function MarketersPage() {
       <section className='rounded-2xl border-transparent bg-background/88 p-3 shadow-sm backdrop-blur-sm sm:p-4'>
         <div className='flex flex-wrap items-center gap-2'>
           <Building2 className='h-6 w-6 text-primary' />
-          <h1 className='text-2xl font-bold tracking-tight'>Marketeurs</h1>
+          <h1 className='text-2xl font-bold tracking-tight'>{t('marketers.pageTitle')}</h1>
           <Badge variant='outline' className='ml-auto'>
             {marketers.length}
           </Badge>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau marketeur
+              <Plus className='mr-1 h-4 w-4' /> {t('marketers.createButton')}
             </Button>
           )}
         </div>
@@ -72,8 +74,8 @@ export function MarketersPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le marketeur' : 'Nouveau marketeur'}
-        description={crud.editing ? 'Mettez à jour les informations du marketeur.' : 'Créez un nouveau marketeur.'}
+        title={crud.editing ? t('marketers.editTitle') : t('marketers.createTitle')}
+        description={crud.editing ? t('marketers.editDescription') : t('marketers.createDescription')}
         fields={marketerFields}
         initial={crud.editing ? marketerToForm(crud.editing) : null}
         onSubmit={handleSubmit}

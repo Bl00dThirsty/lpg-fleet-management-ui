@@ -1,5 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Plus, Truck as TruckIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { transporterFields, transporterFromForm, transporterToForm } from './dat
 const route = getRouteApi('/_authenticated/transporters/')
 
 export function TransportersPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const crud = useEntityCrud<Organization>('organizations', 'transporters', ['organizations'])
@@ -57,7 +59,7 @@ export function TransportersPage() {
           </Badge>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau transporteur
+              <Plus className='mr-1 h-4 w-4' /> {t('transporters.createTitle')}
             </Button>
           )}
         </div>
@@ -79,7 +81,7 @@ export function TransportersPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le transporteur' : 'Nouveau transporteur'}
+        title={crud.editing ? t('transporters.editTitle') : t('transporters.createTitle')}
         description={crud.editing ? 'Mettez à jour les informations du transporteur.' : 'Créez un nouveau transporteur.'}
         fields={transporterFields}
         initial={crud.editing ? transporterToForm(crud.editing) : null}

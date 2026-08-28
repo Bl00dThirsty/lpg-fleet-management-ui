@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { FileBarChart } from 'lucide-react'
 import { getRouteApi } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '@/components/layout/page-header'
 import { KpiTile, PageShell, SectionCard } from '@/components/layout/page'
 import { DeclarationsTable } from './components/declarations-table'
@@ -12,6 +13,7 @@ import { useComplianceStore } from '@/store/compliance-store'
 const route = getRouteApi('/_authenticated/declarations/')
 
 export function DeclarationsPage() {
+  const { t } = useTranslation('common')
   const user = useAuthStore((s) => s.user)
   const entities = useComplianceStore((s) => s.declarations)
   const scope = useMemo(() => getScope(user), [user])
@@ -26,8 +28,8 @@ export function DeclarationsPage() {
   return (
     <PageShell>
       <PageHeader
-        title='Déclarations'
-        description='Déclarations mensuelles des marketeurs, du brouillon à la réconciliation.'
+        title={t('declarations.title')}
+        description={t('declarations.description')}
       />
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
         <KpiTile label='Total' value={String(summary.total)} icon={<FileBarChart className='size-4 text-primary' />} />

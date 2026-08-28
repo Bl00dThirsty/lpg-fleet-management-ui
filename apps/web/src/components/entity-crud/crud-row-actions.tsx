@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@lpg/ui'
+import { useTranslation } from 'react-i18next'
 import { useEntityPermission } from '@/lib/permissions/use-entity-permission'
 import type { Resource } from '@lpg/permissions'
 import { extractErrorMessage } from '@/hooks/use-toast-feedback'
@@ -43,6 +44,7 @@ export function CrudRowActions({
   onDelete,
   extra,
 }: CrudRowActionsProps) {
+  const { t } = useTranslation('common')
   const perm = useEntityPermission(resource)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -60,7 +62,7 @@ export function CrudRowActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           {showEdit ? (
-            <DropdownMenuItem onSelect={onEdit}>Modifier</DropdownMenuItem>
+            <DropdownMenuItem onSelect={onEdit}>{t('entityCrud.edit')}</DropdownMenuItem>
           ) : null}
           {extra?.map((e) => (
             <DropdownMenuItem key={e.label} onSelect={e.onSelect}>
@@ -75,7 +77,7 @@ export function CrudRowActions({
                 setConfirmOpen(true)
               }}
             >
-              Supprimer
+              {t('entityCrud.delete')}
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>
@@ -84,25 +86,25 @@ export function CrudRowActions({
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogTitle>{t('entityCrud.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Voulez-vous vraiment supprimer {itemLabel} ? Cette action est irréversible.
+              {t('entityCrud.deleteConfirmDescription', { item: itemLabel })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('entityCrud.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
               onClick={async () => {
                 try {
                   await onDelete?.()
-                  toast.success('Supprimé.')
+                  toast.success(t('entityCrud.deleted'))
                 } catch (error) {
                   toast.error(extractErrorMessage(error))
                 }
               }}
             >
-              Supprimer
+              {t('entityCrud.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

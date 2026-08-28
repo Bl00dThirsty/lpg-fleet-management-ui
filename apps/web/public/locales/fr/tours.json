@@ -1,0 +1,60 @@
+{
+  "title": "Tournées de livraison",
+  "description": "Flux 2 — livraisons créées par les marketeurs et exécutées en interne ou par un transporteur.",
+  "create": "Nouvelle tournée",
+  "columns": {
+    "reference": "Référence",
+    "marketeur": "Marketeur",
+    "mode": "Mode",
+    "type": "Type",
+    "transporter": "Transporteur",
+    "vehicle": "Véhicule",
+    "quantity": "Quantité",
+    "delivered": "Livré",
+    "status": "Statut"
+  },
+  "status": {
+    "DRAFT": "Brouillon",
+    "PLANNED": "Planifiée",
+    "PENDINGTRANSPORTERACK": "En attente transporteur",
+    "ACKNOWLEDGED": "Accusée",
+    "INPROGRESS": "En transit",
+    "CHECKPOINTACTIVE": "En livraison",
+    "CLOSED": "Livrée",
+    "CANCELLED": "Annulée"
+  },
+  "executionMode": {
+    "INTERNAL": "Interne",
+    "EXTERNAL": "Externalisée"
+  },
+  "tourneeType": {
+    "VRAC": "Vrac (TM)",
+    "BOUTEILLES50KG": "Bouteilles 50 kg"
+  },
+  "routeStatus": {
+    "planned": "Planifiée",
+    "in-progress": "En cours",
+    "completed": "Terminée",
+    "incident": "Incident"
+  },
+  "slices": {
+    "ALL": "Toutes",
+    "INTERNAL": "Internes",
+    "EXTERNAL": "Externalisées",
+    "PENDING": "En attente",
+    "ACTIVE": "Actives",
+    "HISTORY": "Historique"
+  },
+  "filters": {
+    "status": "Statut",
+    "mode": "Mode",
+    "groupBy": "Grouper par",
+    "searchPlaceholder": "Rechercher une référence, marketeur...",
+    "none": "--"
+  },
+  "empty": "Aucune tournée ne correspond aux filtres.",
+  "cargo": {
+    "VRAC": "GPL vrac",
+    "BOUTEILLES50KG": "Bouteilles 50 kg"
+  }
+}

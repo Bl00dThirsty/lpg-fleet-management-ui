@@ -4,11 +4,13 @@ import {
   type TourActivity,
   type TourneeStatus,
   type ExecutionMode,
-  tourStatusLabels,
-  executionModeLabels,
   getTourCargo,
   getTourVolume,
+  getTourStatusLabel,
+  getExecutionModeLabel,
 } from '../data/tour-activity'
+import { formatTM, formatBtl } from '@/lib/i18n/formatters'
+import type { LanguagePreference } from '@/store/preferences-store'
 
 const STATUS_CLASS: Record<TourneeStatus, string> = {
   DRAFT: 'bg-slate-200 text-slate-800',
@@ -28,17 +30,25 @@ const MODE_CLASS: Record<ExecutionMode, string> = {
 
 const DASH = '\u2014'
 
+type TranslateFn = (key: string, opts?: Record<string, unknown>) => string
+
 export function getToursColumns({
   onOpenDetails,
   selectedTripId,
+  t,
+  lang,
 }: {
   onOpenDetails: (row: TourActivity) => void
   selectedTripId?: string | null
+  t?: TranslateFn
+  lang?: LanguagePreference
 }): ColumnDef<TourActivity>[] {
+  const tr = (key: string, fallback: string) => (t ? t(key, { defaultValue: fallback } as never) : fallback)
+  const effectiveLang: LanguagePreference = lang ?? 'fr-FR'
   return [
     {
       accessorKey: 'reference',
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={tr('tours:columns.reference', 'Référence')} />,
       cell: ({ row }) => (
         <button
           type='button'
@@ -55,74 +65,76 @@ export function getToursColumns({
       ),
       enableHiding: false,
       enableGrouping: true,
-      meta: { label: 'Reference' },
+      meta: { label: tr('tours:columns.reference', 'Référence') },
     },
     {
       accessorKey: 'marketeur_name',
-      header: 'Marketeur',
+      header: tr('tours:columns.marketeur', 'Marketeur'),
       cell: ({ row }) => row.original.marketeur_name,
-      meta: { label: 'Marketeur' },
+      meta: { label: tr('tours:columns.marketeur', 'Marketeur') },
       enableGrouping: true,
     },
     {
       accessorKey: 'execution_mode',
-      header: 'Mode',
+      header: tr('tours:columns.mode', 'Mode'),
       cell: ({ row }) => (
         <Badge className={MODE_CLASS[row.original.execution_mode]}>
-          {executionModeLabels[row.original.execution_mode]}
+          {getExecutionModeLabel(row.original.execution_mode, t)}
         </Badge>
       ),
-      meta: { label: 'Mode' },
+      meta: { label: tr('tours:columns.mode', 'Mode') },
       enableGrouping: true,
     },
     {
       accessorKey: 'tourneeType',
-      header: 'Type',
-      cell: ({ row }) => getTourCargo(row.original),
-      meta: { label: 'Type' },
+      header: tr('tours:columns.type', 'Type'),
+      cell: ({ row }) => getTourCargo(row.original, t),
+      meta: { label: tr('tours:columns.type', 'Type') },
       enableGrouping: true,
     },
     {
       accessorKey: 'transporter_name',
-      header: 'Transporteur',
+      header: tr('tours:columns.transporter', 'Transporteur'),
       cell: ({ row }) => row.original.transporter_name ?? DASH,
-      meta: { label: 'Transporteur' },
+      meta: { label: tr('tours:columns.transporter', 'Transporteur') },
       enableGrouping: true,
     },
     {
       accessorKey: 'vehicle_plate',
-      header: 'Vehicule',
+      header: tr('tours:columns.vehicle', 'Véhicule'),
       cell: ({ row }) => row.original.vehicle_plate ?? DASH,
-      meta: { label: 'Vehicule' },
+      meta: { label: tr('tours:columns.vehicle', 'Véhicule') },
       enableGrouping: true,
     },
     {
       accessorKey: 'requested_quantity',
-      header: 'Quantite',
-      cell: ({ row }) => getTourVolume(row.original),
-      meta: { label: 'Quantite' },
+      header: tr('tours:columns.quantity', 'Quantité'),
+      cell: ({ row }) => getTourVolume(row.original, effectiveLang, t),
+      meta: { label: tr('tours:columns.quantity', 'Quantité') },
       enableGrouping: true,
     },
     {
       accessorKey: 'delivered_quantity',
-      header: 'Livre',
-      cell: ({ row }) =>
-        row.original.delivered_quantity != null
-          ? `${row.original.delivered_quantity} ${row.original.tourneeType === 'VRAC' ? 'TM' : 'btl'}`
-          : DASH,
-      meta: { label: 'Livre' },
+      header: tr('tours:columns.delivered', 'Livré'),
+      cell: ({ row }) => {
+        if (row.original.delivered_quantity == null) return DASH
+        const qty = row.original.delivered_quantity
+        if (row.original.tourneeType === 'VRAC') return formatTM(qty, effectiveLang)
+        return formatBtl(qty, effectiveLang)
+      },
+      meta: { label: tr('tours:columns.delivered', 'Livré') },
       enableGrouping: true,
     },
     {
       accessorKey: 'tourneeStatus',
-      header: 'Statut',
+      header: tr('tours:columns.status', 'Statut'),
       cell: ({ row }) => (
         <Badge className={STATUS_CLASS[row.original.tourneeStatus]}>
-          {tourStatusLabels[row.original.tourneeStatus]}
+          {getTourStatusLabel(row.original.tourneeStatus, t)}
         </Badge>
       ),
       enableHiding: false,
-      meta: { label: 'Statut' },
+      meta: { label: tr('tours:columns.status', 'Statut') },
       enableGrouping: true,
     },
   ]

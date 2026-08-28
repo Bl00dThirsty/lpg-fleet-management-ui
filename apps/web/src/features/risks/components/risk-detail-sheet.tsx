@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Gauge } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -82,7 +83,7 @@ function RiskDetailBody({ risk }: { risk: RiskScoreView }) {
           <CardContent>
             <p className='font-mono text-sm'>{risk.model_version}</p>
             <p className='mt-1 text-xs text-muted-foreground'>
-              MAJ {new Date(risk.updated_at).toLocaleDateString('fr-FR')}
+              MAJ {new Date(risk.updated_at).toLocaleString(currentLang())}
             </p>
           </CardContent>
         </Card>

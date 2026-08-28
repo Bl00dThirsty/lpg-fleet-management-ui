@@ -17,7 +17,8 @@
     "test:ui": "vitest --ui --browser.headless",
     "test:browser": "vitest",
     "test:coverage": "vitest run --coverage --browser.headless",
-    "test:browser:install": "playwright install chromium --with-deps"
+    "test:browser:install": "playwright install chromium --with-deps",
+    "i18n:check": "tsx scripts/check-i18n-coverage.ts"
   },
   "dependencies": {
     "@arcgis/core": "^5.0.18",
@@ -56,6 +57,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",
     "date-fns": "^4.1.0",
+    "i18next": "^23.15.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^1.8.0",
     "otplib": "^13.4.1",
@@ -64,6 +66,7 @@
     "react-day-picker": "9.14.0",
     "react-dom": "^19.2.5",
     "react-hook-form": "^7.72.1",
+    "react-i18next": "^14.1.0",
     "react-top-loading-bar": "^2.3.1",
     "recharts": "^3.8.1",
     "sonner": "^2.0.7",
@@ -81,6 +84,9 @@
     "@tanstack/react-query-devtools": "^5.99.0",
     "@tanstack/react-router-devtools": "^1.166.13",
     "@tanstack/router-plugin": "^1.167.22",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^25.6.0",
     "@types/qrcode.react": "^3.0.0",
     "@types/react": "^19.2.14",
@@ -91,6 +97,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "jsdom": "^26",
     "knip": "^6.4.1",
     "playwright": "1.59.1",
     "prettier": "^3.8.3",

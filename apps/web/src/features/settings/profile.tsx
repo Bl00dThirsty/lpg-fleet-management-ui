@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Avatar, AvatarFallback, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Separator, Switch, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, cn } from '@lpg/ui'
 import { Bell, BookOpen, Building2, Camera, Languages, LifeBuoy, Lock, Mail, MailOpen, Moon, Pencil, Plus, Save, Send, Settings as SettingsIcon, Shield, Sun, Trash2, User as UserIcon, Volume2, Key, QrCode, CheckCircle2, ChevronDown, Copy } from 'lucide-react'
 import { useAuthStore } from '@/store/auth-store'
@@ -391,7 +392,7 @@ function NotificationsPanel() {
                           </h4>
                           {getLevelBadge(n.level)}
                           <span className='text-xs text-muted-foreground'>
-                            {new Date(n.ts).toLocaleString('fr-FR')}
+                            {new Date(n.ts).toLocaleString(currentLang())}
                           </span>
                         </div>
                         <p className='mt-1 text-sm text-muted-foreground line-clamp-2'>
@@ -662,7 +663,7 @@ function PreferencesPanel() {
 
   const languageOptions: { value: LanguagePreference; label: string }[] = [
     { value: 'fr-FR', label: 'Français (Cameroun)' },
-    { value: 'en-US', label: 'English (United States) — bientôt' },
+    { value: 'en-US', label: 'English (United States)' },
   ]
 
   const digestOptions: { value: DigestFrequency; label: string }[] = [
@@ -730,19 +731,13 @@ function PreferencesPanel() {
               </SelectTrigger>
               <SelectContent>
                 {languageOptions.map((opt) => (
-                  <SelectItem
-                    key={opt.value}
-                    value={opt.value}
-                    disabled={opt.value === 'en-US'}
-                  >
+                  <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className='text-xs text-muted-foreground'>
-              D'autres langues seront ajoutées dans une prochaine version.
-            </p>
+
           </div>
         </CardContent>
       </Card>

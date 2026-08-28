@@ -1,0 +1,131 @@
+{
+  "heading": {
+    "SUPERADMIN": "National overview",
+    "ADMIN": "Administration dashboard",
+    "SUPERVISOR": "System metrics",
+    "INTEGRATEUR": "Device activation",
+    "AGENT": "Agent consolidated view",
+    "MARKETEUR": "Marketer overview",
+    "TRANSPORTEUR": "Fleet status",
+    "default": "Global dashboard"
+  },
+  "subtitle": {
+    "SUPERADMIN": "National view of volumes, traceability and aggregated anomalies.",
+    "ADMIN": "User, marketer administration and validations.",
+    "SUPERVISOR": "Service health, infrastructure alerts and risks.",
+    "INTEGRATEUR": "PDA/GPS/RFID fleet and device authentication.",
+    "AGENT": "Assigned marketers follow-up and field visits.",
+    "MARKETEUR": "Fleet, quotas, tours and clients.",
+    "TRANSPORTEUR": "Fleet, tours, scans and checkpoints.",
+    "default": "Consolidated overview of transported volumes, useful reserve and recent GPL network signals."
+  },
+  "filters": {
+    "title": "Filters"
+  },
+  "kpi": {
+    "transported": "Transported volumes",
+    "reserve": "Reserve GPL",
+    "delivered": "Delivered flows",
+    "alerts": "Open alerts"
+  },
+  "details": {
+    "transported": {
+      "title": "Transported volumes details",
+      "description": "View by mission, carrier, truck and operational lead.",
+      "badge": "Mission traceability"
+    },
+    "delivered": {
+      "title": "Delivered flows details",
+      "description": "Volumes confirmed by carrier with mission and truck.",
+      "badge": "Confirmed deliveries"
+    },
+    "reserve": {
+      "title": "Useful reserve details",
+      "description": "Available stock, coverage and scheduled inbound on sensitive sites.",
+      "badge": "Network stocks"
+    },
+    "alerts": {
+      "title": "Open alerts details",
+      "description": "Field priorities, owners and metrics to handle quickly.",
+      "badge": "Operations"
+    }
+  },
+  "flow": {
+    "title": "Flow breakdown",
+    "description": "View by fleet on currently committed GPL volume.",
+    "transportedLabel": "Transported volume",
+    "comparedToLastCycle": "compared to last cycle"
+  },
+  "monthly": {
+    "title": "Monthly volumes",
+    "subtitle": "Last 6 months",
+    "viewReport": "View report",
+    "trendPositive": "Positive trend on delivered flows.",
+    "trendDriver": "Throughput is mainly driven by Douala and Bipaga."
+  },
+  "reserveSummary": {
+    "title": "Reserve summary",
+    "description": "Global view of useful stock",
+    "reserveUseful": "Useful reserve"
+  },
+  "recentActivities": {
+    "title": "Recent activities",
+    "description": "Latest movements impacting network overview.",
+    "viewAll": "View all"
+  },
+  "reserveSites": {
+    "title": "Reserve by site",
+    "description": "Coverage level and expected flows on sensitive points."
+  },
+  "fleetPerformance": {
+    "title": "Fleet performance",
+    "description": "Contribution, mobilization level and service quality per company."
+  },
+  "secondary": {
+    "coverage": "Reserve coverage",
+    "mobilization": "Fleet mobilization",
+    "serviceRate": "Service rate",
+    "risks": "Gaps & risks",
+    "period": "Period"
+  },
+  "table": {
+    "mission": "Mission",
+    "transporter": "Carrier",
+    "truck": "Truck",
+    "loaded": "Loaded",
+    "delivered": "Delivered",
+    "remaining": "Remaining",
+    "responsible": "Owner",
+    "site": "Site",
+    "operator": "Operator",
+    "reserve": "Reserve",
+    "coverage": "Coverage",
+    "inbound": "Scheduled inbound",
+    "shareOfTotal": "% of total",
+    "toVerify": "to verify",
+    "etaOnTime": "ETA on time",
+    "etaToFollow": "ETA to follow",
+    "healthy": "Healthy",
+    "watch": "Watch",
+    "critical": "Critical",
+    "days": "days",
+    "missions": "missions",
+    "mission": "mission"
+  },
+  "status": {
+    "planned": "Planned",
+    "in-progress": "In progress",
+    "completed": "Completed",
+    "incident": "Incident"
+  },
+  "actions": {
+    "viewDetails": "View details",
+    "confirmed": "Confirmed",
+    "attention": "Attention",
+    "planned": "Planned",
+    "high": "Critical",
+    "medium": "To follow",
+    "vsPrevious": "vs previous period",
+    "open": "Open"
+  }
+}

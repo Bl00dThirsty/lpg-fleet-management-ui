@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { Activity, CheckCircle2, Circle, PackagePlus, Truck } from 'lucide-react'
 import { Badge, Button } from '@lpg/ui'
 import { PageHeader } from '@/components/layout/page-header'
@@ -100,9 +101,9 @@ function LivePickupCard({ pickup }: { pickup: PickupTrackView }) {
 
       {expanded && pickup.started_at && (
         <div className='mt-3 space-y-1 border-t pt-2 text-xs text-muted-foreground'>
-          <p>Demandée : {new Date(pickup.requested_at).toLocaleString('fr-FR')}</p>
-          <p>Validée : {pickup.validated_at ? new Date(pickup.validated_at).toLocaleString('fr-FR') : '—'}</p>
-          <p>Départ : {new Date(pickup.started_at).toLocaleString('fr-FR')}</p>
+          <p>Demandée : {new Date(pickup.requested_at).toLocaleString(currentLang())}</p>
+          <p>Validée : {pickup.validated_at ? new Date(pickup.validated_at).toLocaleString(currentLang()) : '—'}</p>
+          <p>Départ : {new Date(pickup.started_at).toLocaleString(currentLang())}</p>
         </div>
       )}
     </div>
@@ -173,11 +174,11 @@ export function PickupTrackingPage() {
                   <div className='flex items-center justify-between'>
                     <span className='font-medium'>{site.site_name}</span>
                     <span className='text-xs text-muted-foreground'>
-                      {site.outbound.toLocaleString('fr-FR')} TM sortie
+                      {site.outbound.toLocaleString(currentLang())} TM sortie
                     </span>
                   </div>
                   <div className='mt-1 flex items-center justify-between text-xs text-muted-foreground'>
-                    <span>{site.inbound.toLocaleString('fr-FR')} TM entrée</span>
+                    <span>{site.inbound.toLocaleString(currentLang())} TM entrée</span>
                   </div>
                 </div>
               ))

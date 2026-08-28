@@ -1,5 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Plus, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCallback, useState } from 'react'
@@ -15,6 +16,7 @@ import { toast } from 'sonner'
 const route = getRouteApi('/_authenticated/clients/')
 
 export function ClientsPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const [detailsClient, setDetailsClient] = useState<ClientView | null>(null)
@@ -55,7 +57,7 @@ export function ClientsPage() {
           </Badge>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau client
+              <Plus className='mr-1 h-4 w-4' /> {t('clients.createTitle')}
             </Button>
           )}
         </div>
@@ -85,7 +87,7 @@ export function ClientsPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le client' : 'Nouveau client'}
+        title={crud.editing ? t('clients.editTitle') : t('clients.createTitle')}
         description={crud.editing ? 'Mettez à jour les informations du client.' : 'Créez un nouveau client.'}
         fields={clientFields}
         initial={crud.editing ? clientToForm(crud.editing) : null}

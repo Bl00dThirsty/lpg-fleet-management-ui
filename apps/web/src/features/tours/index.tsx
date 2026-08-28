@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { Button } from '@lpg/ui'
@@ -14,22 +15,26 @@ import { useRoleStore } from '@/store/role-store'
 import { useAuthStore } from '@/store/auth-store'
 import { useToursStore } from '@/store/tours-store'
 
-const SLICES: { value: TourSlice; label: string }[] = [
-  { value: 'ALL', label: 'Toutes' },
-  { value: 'INTERNAL', label: 'Internes' },
-  { value: 'EXTERNAL', label: 'Externalisees' },
-  { value: 'PENDING', label: 'En attente' },
-  { value: 'ACTIVE', label: 'Actives' },
-  { value: 'HISTORY', label: 'Historique' },
-]
-
 export function ToursPage() {
+  const { t } = useTranslation('tours')
   const navigate = useNavigate()
   const activeRole = useRoleStore((s) => s.activeRole)
   const canCreate = hasPermission(activeRole, 'tours.create')
   const [slice, setSlice] = useState<TourSlice>('ALL')
   const [wizardOpen, setWizardOpen] = useState(false)
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined)
+
+  const slices: { value: TourSlice; label: string }[] = useMemo(
+    () => [
+      { value: 'ALL', label: t('slices.ALL', { defaultValue: 'Toutes' }) },
+      { value: 'INTERNAL', label: t('slices.INTERNAL', { defaultValue: 'Internes' }) },
+      { value: 'EXTERNAL', label: t('slices.EXTERNAL', { defaultValue: 'Externalisées' }) },
+      { value: 'PENDING', label: t('slices.PENDING', { defaultValue: 'En attente' }) },
+      { value: 'ACTIVE', label: t('slices.ACTIVE', { defaultValue: 'Actives' }) },
+      { value: 'HISTORY', label: t('slices.HISTORY', { defaultValue: 'Historique' }) },
+    ],
+    [t]
+  )
 
   // Subscribe to the tours store so created / updated tours surface in the
   // table and header (the store is the single source of truth, seeded from
@@ -51,12 +56,12 @@ export function ToursPage() {
   return (
     <PageShell>
       <PageHeader
-        title='Tournées de livraison'
-        description='Flux 2 — livraisons creees par les marketeurs et executees en interne ou par un transporteur.'
+        title={t('title', { defaultValue: 'Tournées de livraison' })}
+        description={t('description', { defaultValue: 'Flux 2 — livraisons créées par les marketeurs et exécutées en interne ou par un transporteur.' })}
         actions={
           canCreate ? (
             <Button onClick={() => setWizardOpen(true)} className='gap-1'>
-              <Plus className='size-4' /> Nouvelle tournée
+              <Plus className='size-4' /> {t('create', { defaultValue: 'Nouvelle tournée' })}
             </Button>
           ) : undefined
         }
@@ -78,7 +83,7 @@ export function ToursPage() {
       )}
       <SectionCard>
         <div className='mb-4 flex flex-wrap gap-2'>
-          {SLICES.map((s) => (
+          {slices.map((s) => (
             <button
               key={s.value}
               type='button'

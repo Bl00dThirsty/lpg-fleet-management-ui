@@ -4,14 +4,17 @@ import {
   type RedressementStatus,
 } from '@/features/redressements/data/redressements'
 import { getReconciliations, gapToleranceThreshold } from '@/features/reconciliations/data/reconciliations'
+import { currentLang, formatNumber, formatXAF } from '@/lib/i18n/formatters'
+import type { LanguagePreference } from '@/store/preferences-store'
 import { getRedressements } from '@/features/redressements/data/redressements'
 
 export type { RedressementStatus }
 
-const CURRENCY = 'XAF'
+const _CURRENCY = 'XAF' as const
+void _CURRENCY
 
-function currencyLabel(value: number): string {
-  return `${Math.round(value).toLocaleString('fr-FR')} ${CURRENCY}`
+function currencyLabel(value: number, lang: LanguagePreference = currentLang()): string {
+  return formatXAF(value, lang)
 }
 
 export interface FinanceSummary {
@@ -56,11 +59,11 @@ export function getFinanceSummary(): FinanceSummary {
 
   return {
     declaredVolume,
-    declaredVolumeLabel: `${declaredVolume.toLocaleString('fr-FR')} TM`,
+    declaredVolumeLabel: `${formatNumber(declaredVolume, currentLang())} TM`,
     trackedVolume,
-    trackedVolumeLabel: `${trackedVolume.toLocaleString('fr-FR')} TM`,
+    trackedVolumeLabel: `${formatNumber(trackedVolume, currentLang())} TM`,
     totalGap,
-    totalGapLabel: `${totalGap.toLocaleString('fr-FR')} TM`,
+    totalGapLabel: `${formatNumber(totalGap, currentLang())} TM`,
     gapPercentage: declaredVolume > 0 ? (totalGap / declaredVolume) * 100 : 0,
     subsidyImpact,
     subsidyImpactLabel: currencyLabel(subsidyImpact),

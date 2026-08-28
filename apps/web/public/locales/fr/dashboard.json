@@ -1,0 +1,131 @@
+{
+  "heading": {
+    "SUPERADMIN": "Pilotage national",
+    "ADMIN": "Tableau de bord administration",
+    "SUPERVISOR": "Métriques système",
+    "INTEGRATEUR": "Activation matériel",
+    "AGENT": "Vue consolidée agent",
+    "MARKETEUR": "Pilotage marketeur",
+    "TRANSPORTEUR": "État de la flotte",
+    "default": "Tableau de bord global"
+  },
+  "subtitle": {
+    "SUPERADMIN": "Vue nationale des volumes, traçabilité et anomalies agrégées.",
+    "ADMIN": "Administration des utilisateurs, marketeurs et validations.",
+    "SUPERVISOR": "Santé services, alertes infrastructure et risques.",
+    "INTEGRATEUR": "Parc PDA/GPS/RFID et authentification des appareils.",
+    "AGENT": "Suivi marketeurs assignés et visites terrain.",
+    "MARKETEUR": "Flotte, quotas, tournées et clients.",
+    "TRANSPORTEUR": "Flotte, tournées, scans et points de contrôle.",
+    "default": "Pilotage consolidé des volumes transportés, de la réserve utile et des signaux récents du réseau GPL."
+  },
+  "filters": {
+    "title": "Filtres"
+  },
+  "kpi": {
+    "transported": "Volumes transportés",
+    "reserve": "GPL en réserve",
+    "delivered": "Flux livrés",
+    "alerts": "Alertes ouvertes"
+  },
+  "details": {
+    "transported": {
+      "title": "Détails des volumes transportés",
+      "description": "Lecture par mission, transporteur, camion et responsable opérationnel.",
+      "badge": "Traçabilité mission"
+    },
+    "delivered": {
+      "title": "Détails des flux livrés",
+      "description": "Volumes confirmés par transporteur avec mission et camion associés.",
+      "badge": "Livraisons confirmées"
+    },
+    "reserve": {
+      "title": "Détails de la réserve utile",
+      "description": "Stock disponible, couverture et inbound prévu sur les sites sensibles.",
+      "badge": "Stocks réseau"
+    },
+    "alerts": {
+      "title": "Détails des alertes ouvertes",
+      "description": "Priorités terrain, responsables et métriques à traiter rapidement.",
+      "badge": "Exploitation"
+    }
+  },
+  "flow": {
+    "title": "Répartition des flux",
+    "description": "Vue par flotte sur le volume de GPL actuellement engagé.",
+    "transportedLabel": "Volume transporté",
+    "comparedToLastCycle": "comparé au dernier cycle"
+  },
+  "monthly": {
+    "title": "Volumes mensuels",
+    "subtitle": "6 derniers mois",
+    "viewReport": "Voir rapport",
+    "trendPositive": "Tendance positive sur les flux livrés.",
+    "trendDriver": "La cadence reste principalement tirée par Douala et Bipaga."
+  },
+  "reserveSummary": {
+    "title": "Synthèse réserve",
+    "description": "Lecture globale du stock utile",
+    "reserveUseful": "Réserve utile"
+  },
+  "recentActivities": {
+    "title": "Activités récentes",
+    "description": "Les derniers mouvements qui impactent la lecture du réseau.",
+    "viewAll": "Voir tout"
+  },
+  "reserveSites": {
+    "title": "Réserve par site",
+    "description": "Niveau de couverture et flux attendus sur les points sensibles."
+  },
+  "fleetPerformance": {
+    "title": "Performance des flottes",
+    "description": "Contribution, niveau de mobilisation et qualité de service par entreprise."
+  },
+  "secondary": {
+    "coverage": "Couverture réserve",
+    "mobilization": "Mobilisation flotte",
+    "serviceRate": "Taux de service",
+    "risks": "Écarts & risques",
+    "period": "Période"
+  },
+  "table": {
+    "mission": "Mission",
+    "transporter": "Transporteur",
+    "truck": "Camion",
+    "loaded": "Chargé",
+    "delivered": "Livré",
+    "remaining": "Reste",
+    "responsible": "Responsable",
+    "site": "Site",
+    "operator": "Opérateur",
+    "reserve": "Réserve",
+    "coverage": "Couverture",
+    "inbound": "Inbound prévu",
+    "shareOfTotal": "% du total",
+    "toVerify": "à vérifier",
+    "etaOnTime": "ETA tenue",
+    "etaToFollow": "ETA à suivre",
+    "healthy": "Sain",
+    "watch": "A surveiller",
+    "critical": "Critique",
+    "days": "jours",
+    "missions": "missions",
+    "mission": "mission"
+  },
+  "status": {
+    "planned": "Planifiée",
+    "in-progress": "En cours",
+    "completed": "Terminée",
+    "incident": "Incident"
+  },
+  "actions": {
+    "viewDetails": "Voir détails",
+    "confirmed": "Confirmé",
+    "attention": "Attention",
+    "planned": "Planifié",
+    "high": "Critique",
+    "medium": "A suivre",
+    "vsPrevious": "vs la période précédente",
+    "open": "Ouvert"
+  }
+}

@@ -1,4 +1,5 @@
 import { type ElementType, useState } from 'react'
+import { currentLang } from '@/lib/i18n/formatters'
 import {
   AlertTriangle,
   ArrowRight,
@@ -455,7 +456,7 @@ function formatShortTime(value: string) {
   if (!value) return '—'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return '—'
-  return new Intl.DateTimeFormat('fr-FR', {
+  return new Intl.DateTimeFormat(currentLang(), {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
@@ -465,7 +466,7 @@ function formatDateTime(value: string) {
   if (!value) return '—'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return '—'
-  return new Intl.DateTimeFormat('fr-FR', {
+  return new Intl.DateTimeFormat(currentLang(), {
     hour: '2-digit',
     minute: '2-digit',
     day: '2-digit',

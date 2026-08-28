@@ -1,0 +1,21 @@
+{
+  "title": "Approvisionnements (Flux 1)",
+  "description": "{{total}} requêtes — {{draft}} brouillon(s), {{validated}} validée(s), {{inProgress}} en cours, {{completed}} terminée(s).",
+  "actions": {
+    "create": "Nouvelle requête",
+    "cancel": "Annuler la requête"
+  },
+  "toast": {
+    "validated": "{{reference}} validée pour {{quantity}} TM",
+    "cancelled": "{{reference}} annulée"
+  },
+  "detail": {
+    "marketeur": "Marketeur",
+    "source": "Source",
+    "destination": "Destination",
+    "requestedQuantity": "Quantité demandée",
+    "approvedQuantity": "Quantité approuvée",
+    "status": "Statut",
+    "vehicles": "Véhicules"
+  }
+}

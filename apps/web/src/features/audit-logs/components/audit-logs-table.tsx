@@ -25,6 +25,7 @@ import {
 import { DataTableColumnHeader, DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { Badge } from '@/components/ui/badge'
 import { ScrollText, ShieldAlert } from 'lucide-react'
+import { usePreferencesStore } from '@/store/preferences-store'
 import { auditActionLabels, type AuditAction, type AuditLogView } from '../data/audit-logs'
 
 type AuditLogsTableProps = {
@@ -45,6 +46,7 @@ function riskTone(score: number): string {
 }
 
 export function AuditLogsTable({ data, search, navigate }: AuditLogsTableProps) {
+  const lang = usePreferencesStore((s) => s.language)
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -126,7 +128,7 @@ export function AuditLogsTable({ data, search, navigate }: AuditLogsTableProps) 
         cell: ({ row }) => (
           <span className='whitespace-nowrap text-xs tabular-nums text-muted-foreground'>
             {row.original.createdAt
-              ? new Date(row.original.createdAt).toLocaleString('fr-FR')
+              ? new Date(row.original.createdAt).toLocaleString(lang)
               : '—'}
           </span>
         ),

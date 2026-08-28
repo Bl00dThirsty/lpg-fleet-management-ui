@@ -1,4 +1,6 @@
 import { Gauge, ShieldAlert, Truck } from 'lucide-react'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,6 +34,7 @@ export function VehicleDetailsSheet({
   open,
   onOpenChange,
 }: VehicleDetailsSheetProps) {
+  const lang = usePreferencesStore((s) => s.language)
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       {vehicle ? (
@@ -66,7 +69,7 @@ export function VehicleDetailsSheet({
               />
               <MetricCard
                 label='Tare'
-                 value={vehicle.tare_weight ? `${(vehicle.tare_weight / 1000).toLocaleString('fr-FR')} t` : '—'}
+                 value={vehicle.tare_weight ? `${formatNumber(vehicle.tare_weight / 1000, lang)} t` : '—'}
                 detail='Poids a vide'
               />
               <MetricCard
@@ -187,7 +190,7 @@ export function VehicleDetailsSheet({
                       vehicle.certificate_expiry_at
                         ? new Date(
                             vehicle.certificate_expiry_at,
-                          ).toLocaleDateString('fr-FR')
+                          ).toLocaleDateString(lang)
                         : '—'
                     }
                   />

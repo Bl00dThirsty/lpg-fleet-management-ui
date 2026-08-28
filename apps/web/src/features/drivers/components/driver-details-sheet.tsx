@@ -1,4 +1,5 @@
 import { CalendarDays, CarFront, Route, UserRound, Wrench } from 'lucide-react'
+import { currentLang } from '@/lib/i18n/formatters'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -150,7 +151,7 @@ function DetailLine({ label, value }: { label: string; value: string }) {
 }
 
 function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('fr-FR', {
+  return new Intl.DateTimeFormat(currentLang(), {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

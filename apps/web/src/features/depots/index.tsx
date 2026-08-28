@@ -1,5 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Plus, Warehouse } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCallback, useState } from 'react'
@@ -15,6 +16,7 @@ import { toast } from 'sonner'
 const route = getRouteApi('/_authenticated/depots/')
 
 export function DepotsPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const [detailsDepot, setDetailsDepot] = useState<DepotView | null>(null)
@@ -54,7 +56,7 @@ export function DepotsPage() {
           </Badge>
           {crud.perm.canCreate && (
             <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau dépôt
+              <Plus className='mr-1 h-4 w-4' /> {t('depots.createTitle')}
             </Button>
           )}
         </div>
@@ -84,7 +86,7 @@ export function DepotsPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le dépôt' : 'Nouveau dépôt'}
+        title={crud.editing ? t('depots.editTitle') : t('depots.createTitle')}
         description={crud.editing ? 'Mettez à jour les informations du dépôt.' : 'Créez un nouveau dépôt.'}
         fields={depotFields}
         initial={crud.editing ? depotToForm(crud.editing) : null}

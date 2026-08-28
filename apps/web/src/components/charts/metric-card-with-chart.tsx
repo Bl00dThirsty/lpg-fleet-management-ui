@@ -2,6 +2,8 @@ import type { ComponentType, ReactNode } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { Sparkline } from './sparkline'
+import { usePreferencesStore } from '@/store/preferences-store'
+import { formatNumber } from '@/lib/i18n/formatters'
 
 type MetricCardWithChartProps = {
   label: string
@@ -31,6 +33,7 @@ export function MetricCardWithChart({
   className,
   actions,
 }: MetricCardWithChartProps) {
+  const lang = usePreferencesStore((s) => s.language)
   const hasChart = !!sparkline && sparkline.length > 1
   return (
     <Card className={cn('@container/metric', className)}>
@@ -45,7 +48,7 @@ export function MetricCardWithChart({
         <div className='flex items-end justify-between gap-3'>
           <div>
             <p className='text-2xl font-semibold tabular-nums leading-none'>
-              {typeof value === 'number' ? value.toLocaleString('fr-FR') : value}
+              {typeof value === 'number' ? formatNumber(value, lang) : value}
             </p>
             {typeof delta === 'number' ? (
               <p
