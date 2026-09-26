@@ -3,6 +3,7 @@ import type {
   Vehicle as CuratedVehicle,
   VehicleType,
 } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type CertificateStatus =
   | 'VALID'
@@ -26,15 +27,28 @@ export interface CertificateView {
 
 const EXPIRING_WINDOW_DAYS = 30
 
-export const CERT_STATUS_LABELS: Record<CertificateStatus, string> = {
+const CERT_STATUS_LABELS: Record<CertificateStatus, string> = {
   VALID: 'Valide',
   EXPIRED: 'Expiré',
   EXPIRING: 'Expirant',
   MISSING: 'Manquant',
 }
 
+const CERT_STATUS_CLASSES: Record<CertificateStatus, string> = {
+  VALID: 'bg-emerald-100 text-emerald-800',
+  EXPIRED: 'bg-rose-100 text-rose-800',
+  EXPIRING: 'bg-amber-100 text-amber-800',
+  MISSING: 'bg-slate-200 text-slate-800',
+}
+
+/** Single source of truth for the certificate status UI (AGENTS.md §3). */
+export const certStatusDisplay = makeStatusDisplay<CertificateStatus>({
+  labels: CERT_STATUS_LABELS,
+  classes: CERT_STATUS_CLASSES,
+})
+
 export function certStatusLabel(status: CertificateStatus): string {
-  return CERT_STATUS_LABELS[status]
+  return certStatusDisplay.label(status)
 }
 
 function statusForExpiry(expiry: string): CertificateStatus {

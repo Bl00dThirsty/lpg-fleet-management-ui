@@ -11,6 +11,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { DataTablePagination, DataTableToolbar } from '@lpg/ui'
 import { cn } from '@/lib/utils'
 import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
@@ -27,6 +28,7 @@ type DeclarationsTableProps = {
 }
 
 export function DeclarationsTable({ rows, search, navigate }: DeclarationsTableProps) {
+  const { t } = useTranslation('common')
   const [sorting, setSorting] = useState<SortingState>([])
   const [grouping, setGrouping] = useState<GroupingState>([])
   const [expanded, setExpanded] = useState({})
@@ -76,7 +78,7 @@ export function DeclarationsTable({ rows, search, navigate }: DeclarationsTableP
       <div className='flex flex-wrap items-center gap-3'>
         <DataTableToolbar
           table={table}
-          searchPlaceholder='Rechercher une référence, marketeur...'
+          searchPlaceholder={t('search.declaration')}
           searchKey='reference'
           filters={[{ columnId: 'status', title: 'Statut', options: declarationStatusOptions }]}
         />

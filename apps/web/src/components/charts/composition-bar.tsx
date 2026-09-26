@@ -5,6 +5,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@lpg/ui'
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 import { usePreferencesStore } from '@/store/preferences-store'
 import { formatNumber } from '@/lib/i18n/formatters'
 
@@ -32,6 +33,7 @@ export function CompositionBar({
   unit,
   height = 260,
 }: CompositionBarProps) {
+  const reducedMotion = usePrefersReducedMotion()
   const lang = usePreferencesStore((s) => s.language)
   return (
     <ChartContainer config={config} className={`h-[${height}px] w-full`}>
@@ -92,6 +94,7 @@ export function CompositionBar({
         <Bar
           dataKey='value'
           fill='var(--color-value)'
+          isAnimationActive={!reducedMotion}
           radius={[4, 4, 0, 0]}
           {...(horizontal ? { radius: [0, 4, 4, 0] } : {})}
         />

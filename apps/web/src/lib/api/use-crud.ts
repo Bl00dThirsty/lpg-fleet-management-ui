@@ -14,6 +14,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@lpg/api-client'
 import type { Resource } from '@lpg/permissions'
+import { HANDLED_MUTATION_META } from '@/hooks/use-toast-feedback'
 
 type ApiResources = typeof api
 
@@ -33,6 +34,7 @@ export interface UseCrudOptions {
   permissionResource?: Resource
   /** React Query key prefix for cache invalidation. */
   queryKey?: string[]
+  handled?: boolean
 }
 
 export function useCrud<T extends { id: string }>(
@@ -52,16 +54,19 @@ export function useCrud<T extends { id: string }>(
 
   const createMut = useMutation<T, Error, Partial<T>>({
     mutationFn: (body) => api[resource].create(body as Omit<T, 'id'>),
+    meta: options.handled ? HANDLED_MUTATION_META : undefined,
     onSuccess: () => qc.invalidateQueries({ queryKey: baseKey }),
   })
 
   const updateMut = useMutation<T, Error, { id: string; patch: Partial<T> }>({
     mutationFn: ({ id, patch }) => api[resource].patch(id, patch),
+    meta: options.handled ? HANDLED_MUTATION_META : undefined,
     onSuccess: () => qc.invalidateQueries({ queryKey: baseKey }),
   })
 
   const removeMut = useMutation<void, Error, string>({
     mutationFn: (id) => api[resource].remove(id),
+    meta: options.handled ? HANDLED_MUTATION_META : undefined,
     onSuccess: () => qc.invalidateQueries({ queryKey: baseKey }),
   })
 

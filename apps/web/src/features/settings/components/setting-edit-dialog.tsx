@@ -1,30 +1,39 @@
-import { useState } from 'react'
-import { X, Loader2, RotateCcw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { Alert, AlertDescription, AlertTitle, Button, Input, Switch, Textarea } from '@lpg/ui'
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-
-import type { SettingView } from '../data/settings'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { ConfirmDialog } from '@/components/confirm-dialog'
+import { validateSettingValue, type SettingView } from '../data/settings'
 
 interface SettingEditDialogProps {
   setting: SettingView | null
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSave: (id: string, value: string) => Promise<void>
-  onReset: (id: string) => Promise<void>
+  onSave: (id: string, value: string) => Promise<boolean>
   isLoading: boolean
+}
+
+type SettingFormValues = {
+  value: string
 }
 
 export function SettingEditDialog({
@@ -32,200 +41,191 @@ export function SettingEditDialog({
   open,
   onOpenChange,
   onSave,
-  onReset,
   isLoading,
 }: SettingEditDialogProps) {
-  const [editValue, setEditValue] = useState(() => setting?.value ?? '')
-  const [showEncrypted, setShowEncrypted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!setting) return
-    setError(null)
-    try {
-      await onSave(setting.id, editValue)
-      onOpenChange(false)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde')
-    }
-  }
-
-  const handleReset = async () => {
-    if (!setting) return
-    try {
-      await onReset(setting.id)
-      setEditValue(setting.defaultValue)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la réinitialisation')
-    }
-  }
+  const { t } = useTranslation('common')
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false)
+  const [mutationError, setMutationError] = useState(false)
+  const schema = useMemo(
+    () =>
+      z.object({
+        value: z.string().superRefine((value, context) => {
+          if (!setting) return
+          const validationError = validateSettingValue(setting, value)
+          if (!validationError) return
+          const message = t(`settings.validation.${validationError.code}`, {
+            min: setting.minValue,
+            max: setting.maxValue,
+          })
+          context.addIssue({ code: 'custom', message, path: ['value'] })
+        }),
+      }),
+    [setting, t],
+  )
+  const form = useForm<SettingFormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { value: setting && !setting.isEncrypted ? setting.value : '' },
+    mode: 'onChange',
+  })
+  const { control, formState, handleSubmit, reset } = form
+  const dirty = formState.isDirty
 
   if (!setting) return null
 
-  const isEncrypted = setting.isEncrypted && !showEncrypted
-  const displayValue = isEncrypted ? '••••••••' : editValue
-  const isNumber = setting.valueType === 'NUMBER'
-  const isBoolean = setting.valueType === 'BOOLEAN'
-  const isJson = setting.valueType === 'JSON'
-  const isString = setting.valueType === 'STRING'
+  const requestClose = () => {
+    if (isLoading) return
+    if (dirty) {
+      setDiscardConfirmOpen(true)
+      return
+    }
+    onOpenChange(false)
+  }
 
-  const canEdit = !setting.isEncrypted || showEncrypted
+  const discard = () => {
+    setDiscardConfirmOpen(false)
+    reset({ value: setting.isEncrypted ? '' : setting.value })
+    onOpenChange(false)
+  }
+
+  const submit = handleSubmit(async ({ value: nextValue }) => {
+    setMutationError(false)
+    try {
+      const saved = await onSave(setting.id, nextValue)
+      if (saved) onOpenChange(false)
+      else setMutationError(true)
+    } catch {
+      setMutationError(true)
+    }
+  })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center justify-between'>
-            <span>Modifier le paramètre</span>
-            {setting.isEncrypted && (
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={() => setShowEncrypted((v) => !v)}
-                aria-label={showEncrypted ? 'Masquer la valeur' : 'Afficher la valeur'}
-              >
-                {showEncrypted ? <X className='h-4 w-4' /> : <Loader2 className='h-4 w-4' />}
-              </Button>
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            <code className='font-mono text-xs'>{setting.key}</code>
-            {setting.categoryLabel && (
-              <span className='ml-2 px-2 py-0.5 rounded bg-muted text-xs text-muted-foreground'>
-                {setting.categoryLabel}
-              </span>
-            )}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) requestClose()
+        }}
+      >
+        <DialogContent showCloseButton={!isLoading}>
+          <DialogHeader>
+            <DialogTitle>{t('settings.dialog.title')}</DialogTitle>
+            <DialogDescription>
+              {t(setting.titleKey, { defaultValue: setting.key })} ·{' '}
+              <code>{setting.key}</code>
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className='space-y-4'>
-          {setting.description && (
-            <p className='text-sm text-muted-foreground'>{setting.description}</p>
-          )}
+          <Form {...form}>
+            <form onSubmit={submit} noValidate>
+              <div className='flex flex-col gap-4'>
+                <p className='text-sm text-muted-foreground'>
+                  {t(setting.descriptionKey, { defaultValue: setting.description })}
+                </p>
 
-          <div className='space-y-2'>
-            <Label htmlFor='setting-value'>Valeur</Label>
+                {setting.isEncrypted && (
+                  <Alert>
+                    <AlertTitle>{t('settings.dialog.encryptedTitle')}</AlertTitle>
+                    <AlertDescription>{t('settings.dialog.encryptedDescription')}</AlertDescription>
+                  </Alert>
+                )}
 
-            {isNumber && (
-              <Input
-                id='setting-value'
-                type='number'
-                value={displayValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                min={setting.minValue ?? undefined}
-                max={setting.maxValue ?? undefined}
-                step={setting.minValue !== null && setting.maxValue !== null && setting.maxValue - setting.minValue < 10 ? 0.1 : 1}
-                disabled={!canEdit || isLoading}
-                aria-invalid={!!error}
-              />
-            )}
-
-            {isBoolean && (
-              <div className='flex items-center gap-2'>
-                <Switch
-                  id='setting-value'
-                  checked={displayValue === 'true'}
-                  onCheckedChange={(checked) => setEditValue(checked.toString())}
-                  disabled={!canEdit || isLoading}
+                <FormField
+                  control={control}
+                  name='value'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settings.dialog.value')}</FormLabel>
+                      <FormControl>
+                        {setting.valueType === 'NUMBER' ? (
+                          <Input
+                            type='number'
+                            min={setting.minValue ?? undefined}
+                            max={setting.maxValue ?? undefined}
+                            step='any'
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        ) : setting.valueType === 'BOOLEAN' ? (
+                          <div className='flex items-center gap-3 rounded-md border p-3'>
+                            <Switch
+                              checked={field.value === 'true'}
+                              onCheckedChange={(checked) => field.onChange(String(checked))}
+                              disabled={isLoading}
+                            />
+                            <span className='text-sm text-muted-foreground'>
+                              {field.value === 'true' ? t('settings.boolean.enabled') : t('settings.boolean.disabled')}
+                            </span>
+                          </div>
+                        ) : setting.valueType === 'JSON' ? (
+                          <Textarea
+                            rows={7}
+                            className='resize-y font-mono text-sm'
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        ) : (
+                          <Input
+                            type={setting.isEncrypted ? 'password' : 'text'}
+                            autoComplete={setting.isEncrypted ? 'new-password' : 'off'}
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        )}
+                      </FormControl>
+                      {(setting.minValue !== null || setting.maxValue !== null) && (
+                        <FormDescription>
+                          {t('settings.dialog.range', {
+                            min: setting.minValue ?? t('settings.info.none'),
+                            max: setting.maxValue ?? t('settings.info.none'),
+                          })}
+                        </FormDescription>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <span className='text-sm text-muted-foreground'>
-                  {displayValue === 'true' ? 'Activé' : 'Désactivé'}
-                </span>
+
+                {setting.requiresRestart && (
+                  <Alert>
+                    <AlertTitle>{t('settings.restart.title')}</AlertTitle>
+                    <AlertDescription>{t('settings.restart.dialogDescription')}</AlertDescription>
+                  </Alert>
+                )}
+
+                {mutationError && (
+                  <Alert variant='destructive'>
+                    <AlertTitle>{t('settings.errors.title')}</AlertTitle>
+                    <AlertDescription>{t('settings.errors.save')}</AlertDescription>
+                  </Alert>
+                )}
               </div>
-            )}
 
-            {isJson && (
-              <Textarea
-                id='setting-value'
-                value={displayValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                disabled={!canEdit || isLoading}
-                rows={6}
-                className='font-mono text-sm'
-                placeholder='["valeur1", "valeur2"]'
-                aria-invalid={!!error}
-              />
-            )}
-
-            {isString && !setting.isEncrypted && (
-              <Input
-                id='setting-value'
-                type='text'
-                value={displayValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                disabled={!canEdit || isLoading}
-                aria-invalid={!!error}
-              />
-            )}
-
-            {setting.isEncrypted && !showEncrypted && (
-              <div className='flex items-center gap-2'>
-                <Input
-                  id='setting-value'
-                  type='password'
-                  value={displayValue}
-                  readOnly
-                  className='bg-muted'
-                />
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => setShowEncrypted(true)}
-                >
-                  <Loader2 className='h-4 w-4' />
+              <DialogFooter className='mt-6'>
+                <Button type='button' variant='outline' onClick={requestClose} disabled={isLoading}>
+                  {t('action.cancel')}
                 </Button>
-              </div>
-            )}
+                <Button type='submit' disabled={!dirty || isLoading} aria-busy={isLoading || undefined}>
+                  {isLoading ? t('settings.dialog.saving') : t('settings.dialog.save')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
-            {setting.minValue !== null || setting.maxValue !== null ? (
-              <p className='text-xs text-muted-foreground'>
-                {setting.minValue !== null && setting.maxValue !== null
-                  ? `Entre ${setting.minValue} et ${setting.maxValue}`
-                  : setting.minValue !== null
-                  ? `Minimum : ${setting.minValue}`
-                  : `Maximum : ${setting.maxValue}`}
-              </p>
-            ) : null}
-
-            {error && (
-              <Alert variant='destructive' className='text-sm'>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-          </div>
-
-          {setting.requiresRestart && (
-            <div className='rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200'>
-              <span className='flex items-center gap-1.5'>
-                <RotateCcw className='h-4 w-4' />
-                Ce paramètre nécessite un redémarrage de l'application pour prendre effet.
-              </span>
-            </div>
-          )}
-
-          <Separator />
-
-          <DialogFooter className='flex flex-col sm:flex-row gap-2'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={handleReset}
-              disabled={isLoading}
-            >
-              <RotateCcw className='mr-2 h-4 w-4' /> Réinitialiser par défaut
-            </Button>
-            <div className='flex-1' />
-            <Button type='button' variant='ghost' onClick={() => onOpenChange(false)} disabled={isLoading}>
-              Annuler
-            </Button>
-            <Button type='submit' disabled={isLoading || !canEdit}>
-              {isLoading ? 'Sauvegarde...' : 'Enregistrer'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <ConfirmDialog
+        open={discardConfirmOpen}
+        onOpenChange={(nextOpen) => {
+          if (!isLoading) setDiscardConfirmOpen(nextOpen)
+        }}
+        title={t('settings.dialog.discardTitle')}
+        desc={t('settings.dialog.discardDescription')}
+        confirmText={t('settings.dialog.discard')}
+        cancelBtnText={t('action.cancel')}
+        destructive
+        isLoading={isLoading}
+        handleConfirm={discard}
+      />
+    </>
   )
 }

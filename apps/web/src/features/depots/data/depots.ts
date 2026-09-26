@@ -4,6 +4,7 @@ import type {
   Region,
   Site as CuratedSite,
 } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type DepotStatus = 'ACTIVE' | 'SUSPENDED'
 
@@ -60,11 +61,22 @@ export function getDepots(
     })
 }
 
-export const DEPOT_STATUS_LABELS: Record<DepotStatus, string> = {
+const DEPOT_STATUS_LABELS: Record<DepotStatus, string> = {
   ACTIVE: 'Actif',
   SUSPENDED: 'Suspendu',
 }
 
+const DEPOT_STATUS_CLASSES: Record<DepotStatus, string> = {
+  ACTIVE: 'bg-emerald-100 text-emerald-800',
+  SUSPENDED: 'bg-slate-200 text-slate-800',
+}
+
+/** Single source of truth for the depot status UI (AGENTS.md §3). */
+export const depotStatusDisplay = makeStatusDisplay<DepotStatus>({
+  labels: DEPOT_STATUS_LABELS,
+  classes: DEPOT_STATUS_CLASSES,
+})
+
 export function depotStatusLabel(status: DepotStatus): string {
-  return DEPOT_STATUS_LABELS[status]
+  return depotStatusDisplay.label(status)
 }

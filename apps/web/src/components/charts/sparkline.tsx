@@ -1,6 +1,7 @@
 import { Area, AreaChart } from 'recharts'
 import type { ChartConfig } from '@lpg/ui'
 import { ChartContainer } from '@lpg/ui'
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 
 type SparklineProps = {
   values: ReadonlyArray<number>
@@ -18,6 +19,7 @@ export function Sparkline({
   width = 80,
   height = 24,
 }: SparklineProps) {
+  const reducedMotion = usePrefersReducedMotion()
   const points = values.map((value, i) => ({ i, value }))
   const cfg: ChartConfig = config ?? {
     value: { label: 'Valeur', color: 'var(--color-chart-1)' },
@@ -34,6 +36,7 @@ export function Sparkline({
             stroke='var(--color-value)'
             strokeWidth={1.5}
             dot={false}
+            isAnimationActive={!reducedMotion}
           />
         </AreaChart>
       </ChartContainer>

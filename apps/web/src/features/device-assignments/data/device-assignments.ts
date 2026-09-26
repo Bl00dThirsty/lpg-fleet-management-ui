@@ -7,6 +7,7 @@ import type {
   Organization,
   Vehicle,
 } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type { DeviceType, DeviceStatus } from '@lpg/types'
 
@@ -81,17 +82,29 @@ export function getDeviceAssignments(): DeviceAssignmentView[] {
   return assignments
 }
 
-export const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
+const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
   GPS: 'GPS',
   PDA: 'PDA',
   RFIDREADER: 'Lecteur RFID',
 }
 
-export function deviceTypeLabel(type: DeviceType): string {
-  return DEVICE_TYPE_LABELS[type]
+const DEVICE_TYPE_CLASSES: Record<DeviceType, string> = {
+  GPS: 'bg-sky-100 text-sky-800',
+  PDA: 'bg-indigo-100 text-indigo-800',
+  RFIDREADER: 'bg-violet-100 text-violet-800',
 }
 
-export const DEVICE_STATUS_LABELS: Record<DeviceStatus, string> = {
+/** Single source of truth for the device type UI (AGENTS.md §3). */
+export const deviceTypeDisplay = makeStatusDisplay<DeviceType>({
+  labels: DEVICE_TYPE_LABELS,
+  classes: DEVICE_TYPE_CLASSES,
+})
+
+export function deviceTypeLabel(type: DeviceType): string {
+  return deviceTypeDisplay.label(type)
+}
+
+const DEVICE_STATUS_LABELS: Record<DeviceStatus, string> = {
   UNASSIGNED: 'Non assigné',
   ASSIGNED: 'Assigné',
   INMISSION: 'En mission',
@@ -106,6 +119,27 @@ export const DEVICE_STATUS_LABELS: Record<DeviceStatus, string> = {
   LOST: 'Perdu',
 }
 
+const DEVICE_STATUS_CLASSES: Record<DeviceStatus, string> = {
+  UNASSIGNED: 'bg-slate-100 text-slate-700',
+  ASSIGNED: 'bg-sky-100 text-sky-800',
+  INMISSION: 'bg-indigo-100 text-indigo-800',
+  OFFLINE: 'bg-rose-100 text-rose-800',
+  PENDINGSYNC: 'bg-amber-100 text-amber-800',
+  SYNCING: 'bg-amber-100 text-amber-800',
+  SYNCED: 'bg-emerald-100 text-emerald-800',
+  SYNCFAILED: 'bg-rose-100 text-rose-800',
+  MAINTENANCE: 'bg-orange-100 text-orange-800',
+  DEPLOYED: 'bg-emerald-100 text-emerald-800',
+  REMOVED: 'bg-slate-200 text-slate-700',
+  LOST: 'bg-rose-200 text-rose-900',
+}
+
+/** Single source of truth for the device status UI (AGENTS.md §3). */
+export const deviceStatusDisplay = makeStatusDisplay<DeviceStatus>({
+  labels: DEVICE_STATUS_LABELS,
+  classes: DEVICE_STATUS_CLASSES,
+})
+
 export function deviceStatusLabel(status: DeviceStatus): string {
-  return DEVICE_STATUS_LABELS[status]
+  return deviceStatusDisplay.label(status)
 }

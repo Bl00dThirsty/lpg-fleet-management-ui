@@ -42,7 +42,7 @@ export const Route = createFileRoute('/_authenticated/settings/notification-grou
   beforeLoad: () => {
     const role = useAuthStore.getState().user?.system_role as Role | undefined
     if (!role || !hasPermission(role, 'notification-groups.write')) {
-      throw redirect({ to: '/settings' })
+      throw redirect({ to: '/settings/profile' })
     }
   },
   component: NotificationGroupsPage,

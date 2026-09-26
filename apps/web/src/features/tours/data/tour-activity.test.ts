@@ -10,6 +10,7 @@ import {
   getTourActivityById,
   getTourCustomerOptions,
   getTourStops,
+  isActiveTourStatus,
   toTourActivities,
 } from './tour-activity'
 
@@ -50,10 +51,51 @@ describe('buildTourActivity', () => {
     expect(Array.isArray(activity.events)).toBe(true)
   })
 
-  it('getRouteTripsView alias returns the same rows', () => {
-    expect(getRouteTripsView().map((t) => t.id)).toEqual(
-      getTourActivity().map((t) => t.id),
+  it('uses only scan meter readings as telemetry volume evidence', () => {
+    const scanById = new Map(curated.scan_events.map((scan) => [scan.id, scan]))
+    const trips = getRouteTripsView('ALL')
+
+    for (const trip of trips) {
+      for (const point of trip.telemetry) {
+        const scan = scanById.get(point.id.replace(/^tel-/, ''))
+        expect(point.meterReading).toBe(scan?.meter_reading ?? undefined)
+      }
+    }
+  })
+
+  it('exposes no LPG level or pressure fact on a telemetry point', () => {
+    for (const trip of getRouteTripsView('ALL')) {
+      for (const point of trip.telemetry) {
+        expect(point).not.toHaveProperty('lpgLevelPercent')
+        expect(point).not.toHaveProperty('pressureBar')
+      }
+    }
+  })
+
+  it('exposes no unaccounted or abnormal loss fact on the trip view', () => {
+    for (const trip of getRouteTripsView('ALL')) {
+      expect(trip).not.toHaveProperty('unaccounted')
+    }
+  })
+
+  it('does not fabricate bottle telemetry from scan positions', () => {
+    const bottleTrip = getRouteTripsView('ALL').find(
+      (trip) => trip.tourneeType === 'BOUTEILLES50KG',
     )
+
+    expect(
+      bottleTrip?.telemetry.every(
+        (point) => point.meterReading == null || point.meterReading >= 0,
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps tours without telemetry empty instead of fabricating points', () => {
+    const withoutTelemetry = getRouteTripsView('ALL').find(
+      (trip) => trip.telemetry.length === 0,
+    )
+
+    expect(withoutTelemetry).toBeDefined()
   })
 })
 
@@ -80,6 +122,37 @@ describe('getTourActivity', () => {
     const summary = buildTourSummary(getTourActivity())
     expect(summary.totalTrips).toBe(getTourActivity().length)
     expect(summary.activeTrips + summary.completedTrips + summary.plannedTrips + summary.incidentTrips).toBe(summary.totalTrips)
+  })
+
+  it('buildTourSummary never counts a cancelled tour as active', () => {
+    const cancelled = curated.delivery_tours.filter(
+      (tour) => tour.status === 'CANCELLED',
+    )
+    const summary = buildTourSummary(toTourActivities(cancelled))
+
+    expect(summary.activeTrips).toBe(0)
+  })
+
+  it('buildTourSummary counts active tours from the canonical active statuses', () => {
+    const active = curated.delivery_tours.filter((tour) =>
+      isActiveTourStatus(tour.status),
+    )
+    const summary = buildTourSummary(toTourActivities(active))
+
+    expect(summary.activeTrips).toBe(active.length)
+    expect(active.length).toBeGreaterThan(0)
+  })
+
+  it('a cancelled tour reports a zero delivered quantity', () => {
+    const cancelled = curated.delivery_tours.find(
+      (tour) => tour.status === 'CANCELLED',
+    )
+
+    if (!cancelled) return
+
+    const activity = buildTourActivity(cancelled, 0)
+    expect(activity.status).toBe('incident')
+    expect(isActiveTourStatus(activity.tourneeStatus)).toBe(false)
   })
 
   it('getTourStops returns ordered stop names', () => {
@@ -120,10 +193,99 @@ describe('getTourActivity', () => {
 })
 
 describe('buildRouteLpgVariation', () => {
-  it('derives loading/live/projected stages from telemetry', () => {
+  it('derives loaded, latest reading, delivered and remaining stages without projections', () => {
     const trip = buildTourActivity(curated.delivery_tours[0]!, 0)
     const variation = buildRouteLpgVariation(trip)
-    expect(variation.stages).toHaveLength(3)
+    expect(variation.stages.map((stage) => stage.id)).toEqual([
+      'loading',
+      'live',
+      'delivered',
+      'remaining',
+    ])
     expect(variation.delivered).toBe(trip.deliveredQuantity)
+  })
+
+  it('labels every stage with a translatable key instead of runtime French', () => {
+    const trip = buildTourActivity(curated.delivery_tours[0]!, 0)
+    const variation = buildRouteLpgVariation(trip)
+
+    expect(variation.stages.map((stage) => stage.labelKey)).toEqual([
+      'variation.stageLoading',
+      'variation.stageLive',
+      'variation.stageDelivered',
+      'variation.stageRemaining',
+    ])
+    for (const stage of variation.stages) {
+      expect(stage).not.toHaveProperty('label')
+    }
+  })
+
+  it('leaves the live stage quantity absent when no meter reading exists', () => {
+    const withoutReading = curated.delivery_tours
+      .map((tour) => buildTourActivity(tour, 0))
+      .find((trip) => trip.latestTelemetry?.meterReading == null)
+
+    if (!withoutReading) return
+
+    const live = buildRouteLpgVariation(withoutReading).stages.find(
+      (stage) => stage.id === 'live',
+    )
+
+    expect(live?.quantity ?? null).toBeNull()
+    expect(live?.delta ?? null).toBeNull()
+  })
+
+  it('exposes no speculative next drop quantity nor telemetry gap', () => {
+    const trip = buildTourActivity(curated.delivery_tours[0]!, 0)
+    const variation = buildRouteLpgVariation(trip)
+
+    expect(variation).not.toHaveProperty('nextStopQuantity')
+    expect(variation).not.toHaveProperty('telemetryGap')
+    expect(variation).not.toHaveProperty('nextDrop')
+  })
+})
+
+describe('next stop selection', () => {
+  it('selects only a genuinely PENDING checkpoint as the next stop', () => {
+    const checkpointById = new Map(
+      curated.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint]),
+    )
+
+    for (const trip of getRouteTripsView('ALL')) {
+      if (trip.nextStop === null) continue
+
+      const checkpoint = checkpointById.get(trip.nextStop.id)
+      expect(checkpoint?.status).toBe('PENDING')
+    }
+  })
+
+  it('is null once no PENDING checkpoint remains', () => {
+    const closed = curated.delivery_tours.find(
+      (tour) =>
+        tour.status === 'CLOSED' &&
+        curated.checkpoints
+          .filter((checkpoint) => checkpoint.tournee_id === tour.id)
+          .every((checkpoint) => checkpoint.status !== 'PENDING'),
+    )
+
+    if (!closed) return
+
+    expect(buildTourActivity(closed, 0).nextStop).toBeNull()
+  })
+
+  it('never falls back to an already visited stop', () => {
+    for (const trip of getRouteTripsView('ALL')) {
+      if (trip.nextStop === null) continue
+      expect(trip.nextStop.completed).toBe(false)
+    }
+  })
+})
+
+describe('tour trip view telemetry surfaces', () => {
+  it('exposes no projected level or pressure deltas on the trip view', () => {
+    for (const trip of getRouteTripsView('ALL')) {
+      expect(trip).not.toHaveProperty('lpgDropPercent')
+      expect(trip).not.toHaveProperty('pressureDeltaBar')
+    }
   })
 })

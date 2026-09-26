@@ -19,6 +19,7 @@
     "deleteConfirmTitle": "Confirm deletion",
     "deleteConfirmDescription": "Are you sure you want to delete {{item}}? This action cannot be undone.",
     "deleted": "Deleted.",
+    "actions": "Actions",
     "deleteUserTitle": "Delete user?",
     "deleteUserDescription": "This action is permanent. User {{email}} will no longer have access to the system."
   },
@@ -80,7 +81,34 @@
   },
   "transporters": {
     "editTitle": "Edit transporter",
-    "createTitle": "New transporter"
+    "createTitle": "New transporter",
+    "pageTitle": "Transporters",
+    "search": "Search for a transporter...",
+    "status": "Status",
+    "empty": "No transporters",
+    "filteredEmpty": "No transporters match the filters",
+    "emptyDescription": "Transporters will appear here when available.",
+    "errorTitle": "Unable to load transporters",
+    "errorDescription": "An error occurred while loading transporters.",
+    "retry": "Try again",
+    "created": "Transporter created.",
+    "updated": "Transporter updated.",
+    "editDescription": "Update the transporter's information.",
+    "createDescription": "Create a new transporter.",
+    "searchLabel": "Search for a transporter",
+    "resetFilters": "Reset filters",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noResults": "No results.",
+    "selectAll": "Select all",
+    "selectRow": "Select row",
+    "itemLabel": "this transporter",
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers"
+    }
   },
   "vehicles": {
     "editTitle": "Edit vehicle",
@@ -121,7 +149,33 @@
     "editDescription": "Update the marketer's information.",
     "createDescription": "Create a new marketer.",
     "created": "Marketer created.",
-    "updated": "Marketer updated."
+    "updated": "Marketer updated.",
+    "search": "Search for a marketer...",
+    "status": "Status",
+    "groupBy": "Group by",
+    "groupNone": "No grouping",
+    "groupSites": "Sites",
+    "empty": "No marketers",
+    "filteredEmpty": "No marketers match the filters",
+    "emptyDescription": "Marketers will appear here when available.",
+    "errorTitle": "Unable to load marketers",
+    "errorDescription": "An error occurred while loading marketers.",
+    "retry": "Try again",
+    "searchLabel": "Search for a marketer",
+    "resetFilters": "Reset filters",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noResults": "No results.",
+    "selectAll": "Select all",
+    "selectRow": "Select row",
+    "itemLabel": "this marketer",
+    "columns": {
+      "name": "Marketer name",
+      "status": "Status",
+      "people": "Staff",
+      "vehicles": "Vehicles",
+      "sites": "Sites"
+    }
   },
   "trucks": {
     "editTitle": "Edit truck",
@@ -135,6 +189,65 @@
     "listDescription": "Select a truck to view its detailed sheet, contract and driver/livreur assignments.",
     "countSuffix": "trucks",
     "createButton": "New vehicle",
+    "search": "Search for a truck, plate, or driver...",
+    "company": "Company",
+    "empty": "No trucks",
+    "filteredEmpty": "No trucks match the filters",
+    "emptyDescription": "Trucks will appear here when available.",
+    "errorTitle": "Unable to load trucks",
+    "errorDescription": "An error occurred while loading trucks.",
+    "retry": "Try again",
+    "searchLabel": "Search for a truck",
+    "resetFilters": "Reset filters",
+    "noResults": "No results.",
+    "selectAll": "Select all",
+    "selectRow": "Select row",
+    "itemLabel": "this truck",
+    "entityName": "truck",
+    "openMenu": "Open menu",
+    "viewDetails": "View details",
+    "copyId": "Copy ID",
+    "planMaintenance": "Plan maintenance",
+    "copied": "{{id}} copied",
+    "maintenancePlanned": "Maintenance planned for {{id}}",
+    "bulkPending": "Bulk action in progress",
+    "bulkError": "Action failed",
+    "bulkExport": "Export selected trucks",
+    "bulkExportLoading": "Preparing export",
+    "bulkExportDone": "Export ready",
+    "bulkMission": "Assign a mission",
+    "bulkMissionLoading": "Assigning mission",
+    "bulkMissionDone": "Mission assigned",
+    "bulkMaintenance": "Plan maintenance",
+    "bulkMaintenanceLoading": "Planning maintenance",
+    "bulkMaintenanceDone": "Maintenance planned",
+    "columns": {
+      "id": "Truck ID",
+      "plate": "License plate",
+      "company": "Company",
+      "region": "Region",
+      "driver": "Driver",
+      "status": "Status",
+      "lpg": "LPG",
+      "risk": "Risk"
+    },
+    "statuses": {
+      "DRAFT": "Draft",
+      "PLANNED": "Planned",
+      "INPROGRESS": "In progress",
+      "CHECKPOINTACTIVE": "Checkpoint reached",
+      "ACKNOWLEDGED": "Acknowledged",
+      "PENDINGTRANSPORTERACK": "Pending transporter",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
+    },
+    "riskLevels": {
+      "FAIBLE": "Low",
+      "MODERE": "Moderate",
+      "ELEVE": "High",
+      "CRITIQUE": "Critical",
+      "CRITIQUEEXTREME": "Extremely critical"
+    },
     "kpi": {
       "active": "Active",
       "drivers": "Drivers",
@@ -152,5 +265,262 @@
       "closed": "Closed",
       "cancelled": "Cancelled"
     }
+  },
+  "search": {
+    "certificate": "Search by license plate...",
+    "client": "Search for a client...",
+    "device": "Search by serial number, org, truck...",
+    "driver": "Search driver, license, company...",
+    "depot": "Search for a depot...",
+    "zone": "Search for a zone...",
+    "livreur": "Search for a livreur...",
+    "auditLog": "Search by actor, action…",
+    "anomaly": "Search by reference, entity...",
+    "declaration": "Search by reference, marketer...",
+    "marketer": "Search marketer...",
+    "transporter": "Search transporter...",
+    "vehicle": "Search plate, company, driver...",
+    "organization": "Search for an organization...",
+    "site": "Search for a site...",
+    "siteClient": "Search for a client site...",
+    "truck": "Search truck, plate, driver...",
+    "plate": "Search by license plate...",
+    "risk": "Search for an entity...",
+    "firmware": "Search for a version...",
+    "equipment": "Search for an equipment...",
+    "rfid": "Search RFID tag, bottle, location...",
+    "entity": "Search score, entity, level...",
+    "pickup": "Search by reference, marketer...",
+    "action": "Action",
+    "version": "Search for a version...",
+    "label": "Search..."
+  },
+  "charts": {
+    "ready": "Chart loaded.",
+    "loading": "Loading chart",
+    "empty": "No chart data available.",
+    "emptyStatus": "Chart is empty.",
+    "errorStatus": "Chart failed to load.",
+    "error": "Unable to load chart",
+    "errorDescription": "The chart data could not be loaded. Try again.",
+    "retry": "Try again"
+  },
+  "action": {
+    "export": "Export",
+    "exportCsv": "Export as CSV",
+    "exportSelected": "Export selected items",
+    "exportDevicesSelected": "Export selected devices",
+    "exportDriversSelected": "Export selected drivers",
+    "exportVehiclesSelected": "Export selected vehicles",
+    "cancel": "Cancel",
+    "new": "New",
+    "newCertificate": "New certificate",
+    "pending": "Processing",
+    "loading": "Loading content"
+  },
+  "settings": {
+    "tabs": {
+      "label": "Settings sections",
+      "profile": "Profile",
+      "system": "System",
+      "notifications": "Notification groups"
+    },
+    "system": {
+      "title": "System configuration",
+      "description": "Manage the operational settings that drive platform rules."
+    },
+    "access": {
+      "editable": "Editing available",
+      "readOnly": "Read only"
+    },
+    "context": {
+      "label": "Settings context",
+      "total": "settings loaded",
+      "results": "results",
+      "restart": "restarts required"
+    },
+    "source": {
+      "title": "Configuration source",
+      "editable": "Editable values are saved from this operational page.",
+      "readOnly": "Your role can view these settings but cannot modify them."
+    },
+    "restart": {
+      "title": "Restart required",
+      "description": "{{count}} setting(s) will take effect after the application restarts.",
+      "dialogDescription": "This change will take effect only after the application restarts."
+    },
+    "errors": {
+      "title": "The operation could not be completed",
+      "operation": "Try again. If the issue persists, contact an administrator.",
+      "save": "The value was not saved. The form remains open so you can correct it.",
+      "notFound": "This setting could not be found."
+    },
+    "search": {
+      "label": "Search settings",
+      "placeholder": "Search by name, key, category, or description…",
+      "clear": "Clear search",
+      "results": "{{count}} result(s) out of {{total}} settings"
+    },
+    "filters": {
+      "category": "Filter by category",
+      "valueType": "Filter by value type",
+      "allCategories": "All categories",
+      "allTypes": "All types",
+      "clear": "Clear filters"
+    },
+    "categories": {
+      "GEO": "Geolocation",
+      "DEVICE": "Devices",
+      "COMPLIANCE": "Compliance",
+      "TOURNEE": "Tours",
+      "AUDIT": "Audit",
+      "SECURITY": "Security",
+      "GPS": "GPS",
+      "REPORT": "Reports",
+      "RESERVE": "Reserve",
+      "FLUX1": "Flow 1 (pickups)"
+    },
+    "types": {
+      "number": "Number",
+      "boolean": "Boolean",
+      "json": "JSON",
+      "string": "Text"
+    },
+    "badges": {
+      "encrypted": "Encrypted",
+      "restart": "Restart required"
+    },
+    "group": {
+      "count": "{{count}} setting(s)"
+    },
+    "empty": {
+      "title": "No settings available",
+      "description": "The configuration source contains no settings."
+    },
+    "filteredEmpty": {
+      "title": "No settings match",
+      "description": "Change your search or clear the filters to show available settings."
+    },
+    "row": {
+      "currentValue": "Current value",
+      "emptyValue": "No value",
+      "edit": "Edit"
+    },
+    "info": {
+      "button": "Information about {{key}}",
+      "snapshot": "Global reset uses the values loaded when this page opened.",
+      "encrypted": "The current value is encrypted and cannot be displayed.",
+      "restart": "A change requires an application restart.",
+      "range": "Allowed range: {{min}} to {{max}}.",
+      "none": "not set"
+    },
+    "danger": {
+      "title": "Danger zone",
+      "description": "{{count}} setting(s) have changed since this page opened."
+    },
+    "dialog": {
+      "title": "Edit setting",
+      "value": "New value",
+      "range": "Allowed range: {{min}} to {{max}}.",
+      "saving": "Saving…",
+      "save": "Save",
+      "encryptedTitle": "Encrypted value",
+      "encryptedDescription": "Enter a new value. The current value remains protected and will not be displayed.",
+      "discardTitle": "Discard changes?",
+      "discardDescription": "The entered value has not been saved.",
+      "discard": "Discard"
+    },
+    "boolean": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "validation": {
+      "required": "Enter a value.",
+      "number": "Enter a valid number.",
+      "min": "The value must be greater than or equal to {{min}}.",
+      "max": "The value must be less than or equal to {{max}}.",
+      "boolean": "The value must be exactly true or false.",
+      "json": "Enter valid JSON."
+    },
+    "save": {
+      "success": "Setting {{key}} has been updated."
+    },
+    "resetAll": {
+      "button": "Reset all",
+      "title": "Reset all settings?",
+      "description": "{{count}} setting(s) will be restored to the values loaded when this page opened.",
+      "confirm": "Confirm reset",
+      "pending": "Resetting…",
+      "successCount": "{{count}} setting(s) have been restored."
+    },
+    "keys": {
+      "geoConfidenceAutoVerifyThreshold": {
+        "title": "Automatic geolocation verification threshold",
+        "description": "Confidence score at which a client site automatically becomes ACTIVE after five deliveries."
+      },
+      "geoConfidenceFlagThreshold": {
+        "title": "Geolocation flag threshold",
+        "description": "Confidence score below which a site is flagged for manual review."
+      },
+      "deviceBatteryCriticalThreshold": {
+        "title": "Critical battery threshold",
+        "description": "Battery percentage that triggers a device critical battery flag."
+      },
+      "deviceOfflineAlertMinutes": {
+        "title": "Offline alert delay",
+        "description": "Minutes of silence before a device is considered offline."
+      },
+      "reconciliationVolumeGapTolerancePercent": {
+        "title": "Volume gap tolerance",
+        "description": "Maximum accepted volume gap percentage before a redressement is issued."
+      },
+      "tourneeTransporterAckTimeoutHours": {
+        "title": "Transporter acknowledgement timeout",
+        "description": "Hours available for a transporter to acknowledge an assigned tournee."
+      },
+      "tourneeUnassignedAlertHours": {
+        "title": "Unassigned tournee alert delay",
+        "description": "Hours after planning before supervisors are alerted about an unassigned tournee."
+      },
+      "auditRetentionYears": {
+        "title": "Audit retention period",
+        "description": "Years audit logs are retained before archiving."
+      },
+      "mfaEnforcedForRoles": {
+        "title": "Roles requiring multi-factor authentication",
+        "description": "Roles required to complete multi-factor authentication before sensitive actions."
+      },
+      "gpsCaptureIntervalMinutes": {
+        "title": "GPS capture interval",
+        "description": "Default interval, in minutes, between GPS positions when a tour starts."
+      },
+      "reportDefaultExpiryDays": {
+        "title": "Default report expiry",
+        "description": "Days a generated report remains downloadable before expiry."
+      },
+      "reconciliationSubsidyRatePerTm": {
+        "title": "Subsidy recovery rate",
+        "description": "Subsidy recovery amount in XOF applied per TM of unrecovered volume gap."
+      },
+      "reserveCriticalFillPercent": {
+        "title": "Critical reserve fill threshold",
+        "description": "Site fill percentage below which the useful reserve is flagged as critical."
+      },
+      "flux1PickupSourceFunctions": {
+        "title": "Permitted pickup source functions",
+        "description": "site_function values allowed as the source of a pickup request. ENTREPOT sites are storage-only and cannot be a pickup origin."
+      }
+    }
+  },
+  "devicesBulk": {
+    "entityName": "device",
+    "exportSelected": "Export selected devices",
+    "exportCsv": "Export as CSV",
+    "sync": "Force synchronization",
+    "syncTooltip": "Force synchronization (→ SYNCED)",
+    "activate": "Activate selected devices",
+    "activateTooltip": "Activate (→ DEPLOYED)",
+    "maintenance": "Set to maintenance",
+    "maintenanceTooltip": "Set to maintenance (→ MAINTENANCE)"
   }
 }

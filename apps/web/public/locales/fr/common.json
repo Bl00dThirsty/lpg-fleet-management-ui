@@ -20,6 +20,7 @@
     "deleteConfirmTitle": "Confirmer la suppression",
     "deleteConfirmDescription": "Voulez-vous vraiment supprimer {{item}} ? Cette action est irréversible.",
     "deleted": "Supprimé.",
+    "actions": "Actions",
     "deleteUserTitle": "Supprimer l'utilisateur ?",
     "deleteUserDescription": "Cette action est définitive. L'utilisateur {{email}} n'aura plus accès au système."
   },
@@ -81,7 +82,34 @@
   },
   "transporters": {
     "editTitle": "Modifier le transporteur",
-    "createTitle": "Nouveau transporteur"
+    "createTitle": "Nouveau transporteur",
+    "pageTitle": "Transporteurs",
+    "search": "Rechercher un transporteur...",
+    "status": "Statut",
+    "empty": "Aucun transporteur",
+    "filteredEmpty": "Aucun transporteur ne correspond aux filtres",
+    "emptyDescription": "Les transporteurs apparaîtront ici dès qu’ils seront disponibles.",
+    "errorTitle": "Impossible de charger les transporteurs",
+    "errorDescription": "Une erreur est survenue lors du chargement des transporteurs.",
+    "retry": "Réessayer",
+    "created": "Transporteur créé.",
+    "updated": "Transporteur mis à jour.",
+    "editDescription": "Mettez à jour les informations du transporteur.",
+    "createDescription": "Créez un nouveau transporteur.",
+    "searchLabel": "Rechercher un transporteur",
+    "resetFilters": "Réinitialiser les filtres",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "noResults": "Aucun résultat.",
+    "selectAll": "Tout sélectionner",
+    "selectRow": "Sélectionner la ligne",
+    "itemLabel": "ce transporteur",
+    "columns": {
+      "name": "Nom",
+      "status": "Statut",
+      "vehicles": "Véhicules",
+      "drivers": "Chauffeurs"
+    }
   },
   "vehicles": {
     "editTitle": "Modifier le véhicule",
@@ -122,7 +150,33 @@
     "editDescription": "Mettez à jour les informations du marketeur.",
     "createDescription": "Créez un nouveau marketeur.",
     "created": "Marketeur créé.",
-    "updated": "Marketeur mis à jour."
+    "updated": "Marketeur mis à jour.",
+    "search": "Rechercher un marketeur...",
+    "status": "Statut",
+    "groupBy": "Grouper par",
+    "groupNone": "Aucun regroupement",
+    "groupSites": "Sites",
+    "empty": "Aucun marketeur",
+    "filteredEmpty": "Aucun marketeur ne correspond aux filtres",
+    "emptyDescription": "Les marketeurs apparaîtront ici dès qu’ils seront disponibles.",
+    "errorTitle": "Impossible de charger les marketeurs",
+    "errorDescription": "Une erreur est survenue lors du chargement des marketeurs.",
+    "retry": "Réessayer",
+    "searchLabel": "Rechercher un marketeur",
+    "resetFilters": "Réinitialiser les filtres",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "noResults": "Aucun résultat.",
+    "selectAll": "Tout sélectionner",
+    "selectRow": "Sélectionner la ligne",
+    "itemLabel": "ce marketeur",
+    "columns": {
+      "name": "Nom du marketeur",
+      "status": "Statut",
+      "people": "Personnels",
+      "vehicles": "Véhicules",
+      "sites": "Sites"
+    }
   },
   "trucks": {
     "editTitle": "Modifier le camion",
@@ -136,6 +190,65 @@
     "listDescription": "Sélectionnez un camion pour voir sa fiche détaillée, son contrat et ses affectations chauffeur/livreur.",
     "countSuffix": "camions",
     "createButton": "Nouveau véhicule",
+    "search": "Rechercher un camion, une plaque ou un chauffeur...",
+    "company": "Entreprise",
+    "empty": "Aucun camion",
+    "filteredEmpty": "Aucun camion ne correspond aux filtres",
+    "emptyDescription": "Les camions apparaîtront ici dès qu’ils seront disponibles.",
+    "errorTitle": "Impossible de charger les camions",
+    "errorDescription": "Une erreur est survenue lors du chargement des camions.",
+    "retry": "Réessayer",
+    "searchLabel": "Rechercher un camion",
+    "resetFilters": "Réinitialiser les filtres",
+    "noResults": "Aucun résultat.",
+    "selectAll": "Tout sélectionner",
+    "selectRow": "Sélectionner la ligne",
+    "itemLabel": "ce camion",
+    "entityName": "camion",
+    "openMenu": "Ouvrir le menu",
+    "viewDetails": "Voir les détails",
+    "copyId": "Copier l’identifiant",
+    "planMaintenance": "Planifier la maintenance",
+    "copied": "{{id}} copié",
+    "maintenancePlanned": "Maintenance planifiée pour {{id}}",
+    "bulkPending": "Action groupée en cours",
+    "bulkError": "Action impossible",
+    "bulkExport": "Exporter les camions sélectionnés",
+    "bulkExportLoading": "Préparation de l’export",
+    "bulkExportDone": "Export prêt",
+    "bulkMission": "Affecter une mission",
+    "bulkMissionLoading": "Affectation de mission",
+    "bulkMissionDone": "Mission affectée",
+    "bulkMaintenance": "Planifier la maintenance",
+    "bulkMaintenanceLoading": "Planification de maintenance",
+    "bulkMaintenanceDone": "Maintenance planifiée",
+    "columns": {
+      "id": "Identifiant camion",
+      "plate": "Plaque",
+      "company": "Entreprise",
+      "region": "Région",
+      "driver": "Chauffeur",
+      "status": "Statut",
+      "lpg": "GPL",
+      "risk": "Risque"
+    },
+    "statuses": {
+      "DRAFT": "Brouillon",
+      "PLANNED": "Planifiée",
+      "INPROGRESS": "En cours",
+      "CHECKPOINTACTIVE": "Étape atteinte",
+      "ACKNOWLEDGED": "Confirmée",
+      "PENDINGTRANSPORTERACK": "Attente transporteur",
+      "CLOSED": "Clôturée",
+      "CANCELLED": "Annulée"
+    },
+    "riskLevels": {
+      "FAIBLE": "Faible",
+      "MODERE": "Modéré",
+      "ELEVE": "Élevé",
+      "CRITIQUE": "Critique",
+      "CRITIQUEEXTREME": "Critique extrême"
+    },
     "kpi": {
       "active": "Actifs",
       "drivers": "Chauffeurs",
@@ -153,5 +266,262 @@
       "closed": "Clôturée",
       "cancelled": "Annulée"
     }
+  },
+  "search": {
+    "certificate": "Rechercher une plaque...",
+    "client": "Rechercher un client...",
+    "device": "Rechercher numéro de série, org, camion...",
+    "driver": "Rechercher chauffeur, permis, entreprise...",
+    "depot": "Rechercher un dépôt...",
+    "zone": "Rechercher une zone...",
+    "livreur": "Rechercher un livreur...",
+    "auditLog": "Rechercher un acteur, une action…",
+    "anomaly": "Rechercher une référence, entité...",
+    "declaration": "Rechercher une référence, marketeur...",
+    "marketer": "Rechercher marketer...",
+    "transporter": "Rechercher transporter...",
+    "vehicle": "Rechercher plaque, entreprise, chauffeur...",
+    "organization": "Rechercher une organisation...",
+    "site": "Rechercher un site...",
+    "siteClient": "Rechercher un site client...",
+    "truck": "Rechercher camion, plaque, chauffeur...",
+    "plate": "Rechercher une plaque...",
+    "risk": "Rechercher une entité...",
+    "firmware": "Rechercher une version...",
+    "equipment": "Rechercher un équipement...",
+    "rfid": "Rechercher tag RFID, bouteille, localisation...",
+    "entity": "Rechercher score, entité, niveau...",
+    "pickup": "Rechercher une référence, marketeur...",
+    "action": "Action",
+    "version": "Rechercher une version...",
+    "label": "Rechercher..."
+  },
+  "charts": {
+    "ready": "Graphique chargé.",
+    "loading": "Chargement du graphique",
+    "empty": "Aucune donnée à afficher.",
+    "emptyStatus": "Le graphique est vide.",
+    "errorStatus": "Échec du chargement du graphique.",
+    "error": "Impossible de charger le graphique",
+    "errorDescription": "Les données du graphique n’ont pas pu être chargées. Réessayez.",
+    "retry": "Réessayer"
+  },
+  "action": {
+    "export": "Exporter",
+    "exportCsv": "Exporter en CSV",
+    "exportSelected": "Exporter les éléments sélectionnés",
+    "exportDevicesSelected": "Exporter les appareils sélectionnés",
+    "exportDriversSelected": "Exporter les chauffeurs sélectionnés",
+    "exportVehiclesSelected": "Exporter les véhicules sélectionnés",
+    "cancel": "Annuler",
+    "new": "Nouveau",
+    "newCertificate": "Nouveau certificat",
+    "pending": "Traitement en cours",
+    "loading": "Chargement du contenu"
+  },
+  "settings": {
+    "tabs": {
+      "label": "Sections des paramètres",
+      "profile": "Profil",
+      "system": "Système",
+      "notifications": "Groupes de notification"
+    },
+    "system": {
+      "title": "Configuration système",
+      "description": "Gérez les paramètres opérationnels qui pilotent les règles de la plateforme."
+    },
+    "access": {
+      "editable": "Édition disponible",
+      "readOnly": "Lecture seule"
+    },
+    "context": {
+      "label": "Contexte des paramètres",
+      "total": "paramètres chargés",
+      "results": "résultats",
+      "restart": "redémarrages requis"
+    },
+    "source": {
+      "title": "Source de configuration",
+      "editable": "Les valeurs modifiables sont enregistrées depuis cette page opérationnelle.",
+      "readOnly": "Votre rôle permet la consultation, mais pas la modification de ces paramètres."
+    },
+    "restart": {
+      "title": "Redémarrage requis",
+      "description": "{{count}} paramètre(s) prendront effet après le redémarrage de l’application.",
+      "dialogDescription": "Cette modification ne prendra effet qu’après le redémarrage de l’application."
+    },
+    "errors": {
+      "title": "La opération n’a pas abouti",
+      "operation": "Réessayez. Si le problème persiste, contactez l’administrateur.",
+      "save": "La valeur n’a pas été enregistrée. Le formulaire reste ouvert pour permettre une correction.",
+      "notFound": "Ce paramètre est introuvable."
+    },
+    "search": {
+      "label": "Rechercher un paramètre",
+      "placeholder": "Rechercher par nom, clé, catégorie ou description…",
+      "clear": "Effacer la recherche",
+      "results": "{{count}} résultat(s) sur {{total}} paramètres"
+    },
+    "filters": {
+      "category": "Filtrer par catégorie",
+      "valueType": "Filtrer par type de valeur",
+      "allCategories": "Toutes les catégories",
+      "allTypes": "Tous les types",
+      "clear": "Effacer les filtres"
+    },
+    "categories": {
+      "GEO": "Géolocalisation",
+      "DEVICE": "Dispositifs",
+      "COMPLIANCE": "Conformité",
+      "TOURNEE": "Tournées",
+      "AUDIT": "Audit",
+      "SECURITY": "Sécurité",
+      "GPS": "GPS",
+      "REPORT": "Rapports",
+      "RESERVE": "Réserve",
+      "FLUX1": "Flux 1 (enlèvements)"
+    },
+    "types": {
+      "number": "Nombre",
+      "boolean": "Booléen",
+      "json": "JSON",
+      "string": "Texte"
+    },
+    "badges": {
+      "encrypted": "Chiffré",
+      "restart": "Redémarrage requis"
+    },
+    "group": {
+      "count": "{{count}} paramètre(s)"
+    },
+    "empty": {
+      "title": "Aucun paramètre disponible",
+      "description": "La source de configuration ne contient aucun paramètre."
+    },
+    "filteredEmpty": {
+      "title": "Aucun paramètre ne correspond",
+      "description": "Modifiez la recherche ou effacez les filtres pour afficher les paramètres disponibles."
+    },
+    "row": {
+      "currentValue": "Valeur actuelle",
+      "emptyValue": "Aucune valeur",
+      "edit": "Modifier"
+    },
+    "info": {
+      "button": "Informations sur {{key}}",
+      "snapshot": "La réinitialisation globale utilise les valeurs chargées à l’ouverture de cette page.",
+      "encrypted": "La valeur actuelle est chiffrée et ne peut pas être affichée.",
+      "restart": "Une modification nécessite un redémarrage.",
+      "range": "Plage autorisée : {{min}} à {{max}}.",
+      "none": "non défini"
+    },
+    "danger": {
+      "title": "Zone sensible",
+      "description": "{{count}} paramètre(s) ont été modifiés depuis l’ouverture de cette page."
+    },
+    "dialog": {
+      "title": "Modifier le paramètre",
+      "value": "Nouvelle valeur",
+      "range": "Plage autorisée : {{min}} à {{max}}.",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer",
+      "encryptedTitle": "Valeur chiffrée",
+      "encryptedDescription": "Saisissez une nouvelle valeur. La valeur actuelle reste protégée et ne sera pas affichée.",
+      "discardTitle": "Abandonner les modifications ?",
+      "discardDescription": "La valeur saisie n’a pas été enregistrée.",
+      "discard": "Abandonner"
+    },
+    "boolean": {
+      "enabled": "Activé",
+      "disabled": "Désactivé"
+    },
+    "validation": {
+      "required": "Saisissez une valeur.",
+      "number": "Saisissez un nombre valide.",
+      "min": "La valeur doit être supérieure ou égale à {{min}}.",
+      "max": "La valeur doit être inférieure ou égale à {{max}}.",
+      "boolean": "La valeur doit être exactement true ou false.",
+      "json": "Saisissez un JSON valide."
+    },
+    "save": {
+      "success": "Le paramètre {{key}} a été mis à jour."
+    },
+    "resetAll": {
+      "button": "Réinitialiser tout",
+      "title": "Réinitialiser tous les paramètres ?",
+      "description": "{{count}} paramètre(s) seront restaurés aux valeurs chargées à l’ouverture de cette page.",
+      "confirm": "Confirmer la réinitialisation",
+      "pending": "Réinitialisation…",
+      "successCount": "{{count}} paramètre(s) ont été restaurés."
+    },
+    "keys": {
+      "geoConfidenceAutoVerifyThreshold": {
+        "title": "Seuil de validation automatique géolocalisation",
+        "description": "Score de confiance à partir duquel un site client passe automatiquement à ACTIVE après cinq livraisons."
+      },
+      "geoConfidenceFlagThreshold": {
+        "title": "Seuil de signalement géolocalisation",
+        "description": "Score de confiance inférieur auquel un site est signalé pour vérification manuelle."
+      },
+      "deviceBatteryCriticalThreshold": {
+        "title": "Seuil critique de batterie",
+        "description": "Niveau de batterie, en pourcentage, qui déclenche le signalement critique d’un appareil."
+      },
+      "deviceOfflineAlertMinutes": {
+        "title": "Délai avant signalement hors ligne",
+        "description": "Durée de silence, en minutes, après laquelle un appareil est considéré comme hors ligne."
+      },
+      "reconciliationVolumeGapTolerancePercent": {
+        "title": "Tolérance d’écart de volume",
+        "description": "Écart maximal accepté, en pourcentage, avant l’émission d’un redressement."
+      },
+      "tourneeTransporterAckTimeoutHours": {
+        "title": "Délai d’acceptation par le transporteur",
+        "description": "Nombre d’heures disponibles pour accepter une tournée affectée, en heures."
+      },
+      "tourneeUnassignedAlertHours": {
+        "title": "Délai d’alerte pour tournée non affectée",
+        "description": "Délai après la planification avant l’alerte des superviseurs pour une tournée sans affectation, en heures."
+      },
+      "auditRetentionYears": {
+        "title": "Durée de conservation des audits",
+        "description": "Nombre d’années pendant lesquelles les journaux d’audit sont conservés avant archivage."
+      },
+      "mfaEnforcedForRoles": {
+        "title": "Rôles soumis à l’authentification multifacteur",
+        "description": "Rôles devant configurer l’authentification multifacteur avant les actions sensibles."
+      },
+      "gpsCaptureIntervalMinutes": {
+        "title": "Intervalle de capture GPS",
+        "description": "Intervalle par défaut, en minutes, entre deux positions GPS au démarrage d’une tournée."
+      },
+      "reportDefaultExpiryDays": {
+        "title": "Expiration par défaut des rapports",
+        "description": "Nombre de jours pendant lesquels un rapport généré reste téléchargeable avant expiration."
+      },
+      "reconciliationSubsidyRatePerTm": {
+        "title": "Taux de récupération de la subvention",
+        "description": "Montant de récupération de la subvention en XOF appliqué par TM d’écart de volume non récupéré."
+      },
+      "reserveCriticalFillPercent": {
+        "title": "Seuil critique de remplissage",
+        "description": "Taux de remplissage d’un site, en pourcentage, en dessous duquel la réserve utile est critique."
+      },
+      "flux1PickupSourceFunctions": {
+        "title": "Fonctions/sites autorisés pour un enlèvement",
+        "description": "Valeurs site_function autorisées comme origine d’une demande d’enlèvement. Un site ENTREPOT est réservé au stockage et ne peut pas être une origine."
+      }
+    }
+  },
+  "devicesBulk": {
+    "entityName": "appareil",
+    "exportSelected": "Exporter les appareils sélectionnés",
+    "exportCsv": "Exporter en CSV",
+    "sync": "Forcer la synchronisation",
+    "syncTooltip": "Forcer la synchronisation (→ SYNCED)",
+    "activate": "Activer les appareils sélectionnés",
+    "activateTooltip": "Activer (→ DEPLOYED)",
+    "maintenance": "Passer en maintenance",
+    "maintenanceTooltip": "Passer en maintenance (→ MAINTENANCE)"
   }
 }

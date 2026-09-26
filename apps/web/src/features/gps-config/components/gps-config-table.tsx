@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useMemo, useState } from 'react'
 import {
   type ColumnDef,
@@ -41,6 +42,7 @@ export function GpsConfigTable({
   navigate,
   onViewDetails,
 }: GpsConfigTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -169,7 +171,7 @@ export function GpsConfigTable({
     <div className='flex flex-1 flex-col gap-4'>
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher un appareil...'
+        searchPlaceholder={t('search.gpsConfig')}
         searchKey='serialNumber'
       />
 

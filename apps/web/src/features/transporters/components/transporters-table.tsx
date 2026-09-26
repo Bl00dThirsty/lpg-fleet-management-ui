@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   flexRender,
   getCoreRowModel,
@@ -24,6 +25,11 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type Organization } from '@lpg/types'
 import { getTransportersColumns } from './transporters-columns'
+import { RouteSkeleton } from '@/components/layout/route-skeleton'
+import { EmptyState } from '@/components/layout/page'
+import { resolveListState, type ListState } from '@/components/entity-crud'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 
 type TransportersTableProps = {
   data: Organization[]
@@ -32,6 +38,9 @@ type TransportersTableProps = {
   onViewDetails: (transporter: Organization) => void
   onEdit?: (transporter: Organization) => void
   onDelete?: (transporter: Organization) => void
+  listState: ListState
+  onRetry: () => void
+  deletingId?: string
 }
 
 export function TransportersTable({
@@ -41,13 +50,24 @@ export function TransportersTable({
   onViewDetails,
   onEdit,
   onDelete,
+  listState,
+  onRetry,
+  deletingId,
 }: TransportersTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
   const columns = useMemo(
-    () => getTransportersColumns({ onViewDetails, onEdit, onDelete }),
-    [onViewDetails, onEdit, onDelete]
+    () =>
+      getTransportersColumns({
+        onViewDetails,
+        onEdit,
+        onDelete,
+        deletingId,
+        t,
+      }),
+    [onViewDetails, onEdit, onDelete, deletingId, t]
   )
 
   const {
@@ -96,6 +116,46 @@ export function TransportersTable({
     ensurePageInRange(table.getPageCount())
   }, [table, ensurePageInRange])
 
+  if (listState === 'loading') return <RouteSkeleton />
+  if (listState === 'error') {
+    return (
+      <Alert variant='destructive' role='alert'>
+        <AlertTitle>{t('transporters.errorTitle')}</AlertTitle>
+        <AlertDescription>
+          <p>{t('transporters.errorDescription')}</p>
+          <Button variant='outline' size='sm' onClick={onRetry}>
+            {t('transporters.retry')}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  const hasActiveFilters = Object.values(table.getState().columnFilters).some(
+    (value) => {
+      if (Array.isArray(value)) return value.length > 0
+      return Boolean(value)
+    }
+  )
+  const tableState = resolveListState(
+    false,
+    false,
+    table.getRowModel().rows.length,
+    hasActiveFilters
+  )
+  if (tableState === 'empty' || tableState === 'filtered-empty') {
+    return (
+      <EmptyState
+        title={t(
+          tableState === 'empty'
+            ? 'transporters.empty'
+            : 'transporters.filteredEmpty'
+        )}
+        description={t('transporters.emptyDescription')}
+      />
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -105,21 +165,24 @@ export function TransportersTable({
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher transporter...'
+        searchPlaceholder={t('transporters.search')}
+        searchLabel={t('transporters.searchLabel')}
+        resetFilterLabel={t('transporters.resetFilters')}
         searchKey='name'
         filters={[
           {
             columnId: 'is_active',
-            title: 'Statut',
+            title: t('transporters.status'),
+
             options: [
-              { label: 'Actif', value: 'true' },
-              { label: 'Inactif', value: 'false' },
+              { label: t('transporters.active'), value: 'true' },
+              { label: t('transporters.inactive'), value: 'false' },
             ] as { label: string; value: string }[],
           },
         ]}
       />
 
-      <div className='overflow-hidden rounded-md border'>
+      <div className='overflow-x-auto rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -177,7 +240,7 @@ export function TransportersTable({
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  Aucun résultat.
+                  {t('transporters.noResults')}
                 </TableCell>
               </TableRow>
             )}

@@ -1,51 +1,23 @@
+<!-- generated-by: gsd-doc-writer -->
 # Domain Docs
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+This repository uses the standing domain contract in `AGENTS.md` plus the SQL schema and TODO guide. Read them before changing domain behavior:
 
-## Before exploring, read these
+- `../csph_gpl_schema_v6_2.sql` for table names, columns, constraints, and enum values.
+- `../TODO.md` for intended workflows and acceptance criteria.
+- `AGENTS.md` for frontend structure, security, units, i18n, and verification rules.
+- `docs/domain-model.md`, `docs/state-machines.md`, and `docs/workflows.md` for current documentation.
 
-- **`CONTEXT.md`** at the repo root, or
-- **`CONTEXT-MAP.md`** at the repo root if it exists — it points at one `CONTEXT.md` per context. Read each one relevant to the topic.
-- **`docs/adr/`** — read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/adr/` for context-scoped decisions.
+There is no `CONTEXT.md` in the repository root at present, and no requirement to create one before exploring. If domain terminology or an architectural decision changes, record it in the appropriate ADR or domain document rather than silently introducing a synonym.
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached via `/grill-with-docs` and `/improve-codebase-architecture`) creates them lazily when terms or decisions actually get resolved.
+Use the schema vocabulary in code and docs: `sites` for operational locations, `client_sites` for commercial destinations, `VRAC` in TM, `BOUTEILLES50KG` in btl, and uppercase enum values. The current market fixture has 10 organizations and 204 unassigned/unverified operational sites.
 
-## File structure
+## Exploration order
 
-Single-context repo (most repos):
+1. Identify the feature folder and static route.
+2. Read its `data/`, `lib/`, and `components/` files.
+3. Check shared types and permissions instead of declaring local equivalents.
+4. Check scope helpers, settings accessors, API-client actions, query invalidation, i18n resources, and tests.
+5. Run the relevant package scripts before claiming completion.
 
-```
-/
-├── CONTEXT.md
-├── docs/adr/
-│   ├── 0001-event-sourced-orders.md
-│   └── 0002-postgres-for-write-model.md
-└── src/
-```
-
-Multi-context repo (presence of `CONTEXT-MAP.md` at the root):
-
-```
-/
-├── CONTEXT-MAP.md
-├── docs/adr/                          ← system-wide decisions
-└── src/
-    ├── ordering/
-    │   ├── CONTEXT.md
-    │   └── docs/adr/                  ← context-specific decisions
-    └── billing/
-        ├── CONTEXT.md
-        └── docs/adr/
-```
-
-## Use the glossary's vocabulary
-
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
-
-If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
-
-## Flag ADR conflicts
-
-If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
-
-> _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_
+Detailed architectural and workflow guidance is linked from [`docs/README.md`](../README.md).

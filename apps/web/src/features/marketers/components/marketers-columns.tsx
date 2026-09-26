@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { type ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -10,12 +11,16 @@ type MarketersColumnsProps = {
   onViewDetails: (marketer: Organization) => void
   onEdit?: (marketer: Organization) => void
   onDelete?: (marketer: Organization) => void
+  deletingId?: string
+  t: TFunction
 }
 
 export function getMarketersColumns({
   onViewDetails,
   onEdit,
   onDelete,
+  deletingId,
+  t,
 }: MarketersColumnsProps): ColumnDef<Organization>[] {
   return [
     {
@@ -27,7 +32,7 @@ export function getMarketersColumns({
             (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label='Tout selectionner'
+          aria-label={t('marketers.selectAll')}
           className='translate-y-0.5'
         />
       ),
@@ -38,7 +43,7 @@ export function getMarketersColumns({
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label='Selectionner la ligne'
+          aria-label={t('marketers.selectRow')}
           className='translate-y-0.5'
         />
       ),
@@ -48,7 +53,10 @@ export function getMarketersColumns({
     {
       accessorKey: 'name',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Name Marketer' />
+        <DataTableColumnHeader
+          column={column}
+          title={t('marketers.columns.name')}
+        />
       ),
       cell: ({ row }) => (
         <button
@@ -60,7 +68,7 @@ export function getMarketersColumns({
         </button>
       ),
       meta: {
-        label: 'Name Marketer',
+        label: t('marketers.columns.name'),
         className: cn(
           'drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.1)] dark:drop-shadow-[0_1px_2px_rgb(255_255_255_/_0.1)]',
           'inset-s-6 ps-0.5 max-md:sticky @4xl/content:table-cell @4xl/content:drop-shadow-none'
@@ -83,16 +91,21 @@ export function getMarketersColumns({
     {
       accessorKey: 'is_active',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Statut' />
+        <DataTableColumnHeader
+          column={column}
+          title={t('marketers.columns.status')}
+        />
       ),
       cell: ({ row }) => (
         <Badge variant={row.original.is_active ? 'default' : 'secondary'}>
-          {row.original.is_active ? 'Actif' : 'Inactif'}
+          {row.original.is_active
+            ? t('marketers.active')
+            : t('marketers.inactive')}
         </Badge>
       ),
       filterFn: (row, id, value) =>
         (value as string[]).includes(String(row.getValue(id))),
-      meta: { label: 'Statut' },
+      meta: { label: t('marketers.columns.status') },
       enableSorting: false,
       enableHiding: false,
       enableGrouping: true,
@@ -100,50 +113,63 @@ export function getMarketersColumns({
     {
       accessorKey: 'user_count',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Personnels' />
+        <DataTableColumnHeader
+          column={column}
+          title={t('marketers.columns.people')}
+        />
       ),
       cell: ({ row }) => (
         <span className='font-medium'>{row.original.user_count ?? 0}</span>
       ),
-      meta: { label: 'Personnels' },
+      meta: { label: t('marketers.columns.people') },
       enableGrouping: true,
     },
     {
       accessorKey: 'vehicle_count',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Véhicules' />
+        <DataTableColumnHeader
+          column={column}
+          title={t('marketers.columns.vehicles')}
+        />
       ),
       cell: ({ row }) => (
         <span className='font-medium'>{row.original.vehicle_count ?? 0}</span>
       ),
-      meta: { label: 'Véhicules' },
+      meta: { label: t('marketers.columns.vehicles') },
       enableGrouping: true,
     },
     {
       accessorKey: 'operational_site_count',
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Sites' />
+        <DataTableColumnHeader
+          column={column}
+          title={t('marketers.columns.sites')}
+        />
       ),
       cell: ({ row }) => (
-        <span className='font-medium'>{row.original.operational_site_count ?? 0}</span>
+        <span className='font-medium'>
+          {row.original.operational_site_count ?? 0}
+        </span>
       ),
-      meta: { label: 'Sites' },
+      meta: { label: t('marketers.columns.sites') },
       enableGrouping: true,
     },
     {
       id: 'actions',
-      header: () => <span className='sr-only'>Actions</span>,
+      header: () => <span className='sr-only'>{t('entityCrud.actions')}</span>,
       cell: ({ row }) => (
         <div className='text-right'>
           <CrudRowActions
             resource='markets'
-            itemLabel='ce marketeur'
+            itemLabel={t('marketers.itemLabel')}
             onEdit={onEdit ? () => onEdit?.(row.original) : undefined}
             onDelete={onDelete ? () => onDelete?.(row.original) : undefined}
+            pending={deletingId === row.original.id}
+            feedbackHandled
           />
         </div>
       ),
-      meta: { label: 'Actions' },
+      meta: { label: t('entityCrud.actions') },
       enableHiding: false,
       enableSorting: false,
     },

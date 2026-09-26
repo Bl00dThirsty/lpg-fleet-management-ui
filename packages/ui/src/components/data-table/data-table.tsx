@@ -39,6 +39,7 @@ import { DataTableFacetedFilter } from './faceted-filter'
 import { DataTablePagination } from './pagination'
 import { DataTableViewOptions } from './view-options'
 import { DateRangeFilter, type DateRangeValue } from './date-range-filter'
+import { headerSortAttribute } from './sort-attribute'
 import {
   exportToCsv,
   exportToExcel,
@@ -322,6 +323,10 @@ export function DataTable<TData>({
                   <TableHead
                     key={header.id}
                     colSpan={header.colSpan}
+                    aria-sort={headerSortAttribute({
+                      canSort: header.column.getCanSort(),
+                      sortState: header.column.getIsSorted(),
+                    })}
                     className={cn(
                       'bg-background group-hover/row:bg-muted',
                       header.column.columnDef.meta?.className,

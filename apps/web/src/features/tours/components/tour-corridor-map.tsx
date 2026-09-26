@@ -98,8 +98,8 @@ export function TourCorridorMap({
       container: mapContainerRef.current,
       map,
       center: [
-        initialTrip.latestTelemetry.longitude,
-        initialTrip.latestTelemetry.latitude,
+        initialTrip.latestTelemetry?.longitude ?? initialTrip.truck.lng,
+        initialTrip.latestTelemetry?.latitude ?? initialTrip.truck.lat,
       ],
       constraints: {
         minZoom: 4,
@@ -348,7 +348,7 @@ function MapSignals({
       />
       <SignalTile
         label='Dernière maj'
-        value={formatDateTime(trip.latestTelemetry.recordedAt)}
+        value={formatDateTime(trip.latestTelemetry?.recordedAt ?? trip.lastUpdatedAt)}
         icon={Clock3}
       />
     </div>
@@ -399,7 +399,7 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
         },
         popupTemplate: {
           title: `Trace GPS ${trip.reference}`,
-          content: createTelemetryPopupContent(trip, point.recordedAt, point.lpgLevelPercent, point.estimatedVolume, formatQuantity ?? formatTmDefault),
+          content: createTelemetryPopupContent(trip, point.recordedAt, point.meterReading, formatQuantity ?? formatTmDefault),
         },
       })
   )
@@ -430,10 +430,15 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
     })
   })
 
+  const currentTruckPosition = trip.latestTelemetry ?? {
+    longitude: trip.truck.lng,
+    latitude: trip.truck.lat,
+  }
+
   const currentTruckGraphic = new Graphic({
     geometry: new Point({
-      longitude: trip.latestTelemetry.longitude,
-      latitude: trip.latestTelemetry.latitude,
+      longitude: currentTruckPosition.longitude,
+      latitude: currentTruckPosition.latitude,
       spatialReference: { wkid: 4326 },
     }),
     symbol: {
@@ -463,7 +468,7 @@ function createRoutePopupContent(trip: RouteTripView, formatQuantity: (value: nu
       ${popupLine('Charge initiale', formatQuantity(trip.loadedQuantity))}
       ${popupLine('Volume livré', formatQuantity(trip.deliveredQuantity))}
       ${popupLine('Volume restant', formatQuantity(trip.remainingQuantity))}
-      ${popupLine('Prochaine étape', trip.nextStop.site.name)}
+      ${popupLine('Prochaine étape', trip.nextStop?.site.name ?? '—')}
     </div>
   `
 }
@@ -485,19 +490,18 @@ function createStopPopupContent(
 }
 
 function createCurrentTruckPopupContent(trip: RouteTripView, formatQuantity: (value: number) => string) {
+  const telemetry = trip.latestTelemetry
   return `
     <div class="fleet-truck-popup">
       ${popupLine('Camion', trip.truck.license_plate)}
       ${popupLine('Position', trip.truck.current_location ?? '')}
-      ${popupLine('GPL', `${trip.latestTelemetry.lpgLevelPercent}%`)}
-      ${popupLine('Volume estime', formatQuantity(trip.latestTelemetry.estimatedVolume))}
-      ${popupLine('Écart', trip.unaccounted > 0 ? formatQuantity(trip.unaccounted) : formatQuantity(0))}
-      ${popupLine('Dernier releve', new Intl.DateTimeFormat(currentLang(), {
+      ${popupLine('Dernier releve', telemetry?.meterReading == null ? '—' : formatQuantity(telemetry.meterReading))}
+      ${popupLine('Dernier point', telemetry ? new Intl.DateTimeFormat(currentLang(), {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',
         month: 'short',
-      }).format(new Date(trip.latestTelemetry.recordedAt)))}
+      }).format(new Date(telemetry.recordedAt)) : '—')}
     </div>
   `
 }
@@ -505,8 +509,7 @@ function createCurrentTruckPopupContent(trip: RouteTripView, formatQuantity: (va
 function createTelemetryPopupContent(
   trip: RouteTripView,
   recordedAt: string,
-  lpgLevelPercent: number,
-  estimatedVolume: number,
+  meterReading: number | undefined,
   formatQuantity: (value: number) => string,
 ) {
   return `
@@ -518,8 +521,7 @@ function createTelemetryPopupContent(
         day: '2-digit',
         month: 'short',
       }).format(new Date(recordedAt)))}
-      ${popupLine('GPL', `${lpgLevelPercent}%`)}
-      ${popupLine('Volume estime', formatQuantity(estimatedVolume))}
+      ${popupLine('Volume estime', meterReading == null ? '—' : formatQuantity(meterReading))}
     </div>
   `
 }

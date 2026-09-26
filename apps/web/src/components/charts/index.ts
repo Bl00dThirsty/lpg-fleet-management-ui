@@ -1,4 +1,4 @@
-export { ChartCard } from './chart-card'
+export { ChartCard, type ChartCardStatus } from './chart-card'
 export { TrendLine } from './trend-line'
 export { CompositionBar } from './composition-bar'
 export { StatusDistribution, type StatusDatum } from './status-distribution'

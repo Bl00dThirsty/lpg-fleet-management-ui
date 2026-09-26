@@ -4,6 +4,8 @@ import type { MfaStatus } from '@lpg/types'
 import { getScope } from '@/features/scope/scope'
 import { useAuthStore } from '@/store/auth-store'
 import { useUsersStore } from '@/store/users-store'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
+import { mfaStatusDisplay } from '@/lib/ui/status-display-mfa'
 
 export type LivreurStatus = 'ACTIVE' | 'INACTIVE'
 
@@ -48,22 +50,28 @@ export function getLivreurs(
     }))
 }
 
-export const LIVREUR_STATUS_LABELS: Record<LivreurStatus, string> = {
+const LIVREUR_STATUS_LABELS: Record<LivreurStatus, string> = {
   ACTIVE: 'Actif',
   INACTIVE: 'Inactif',
 }
 
-export function livreurStatusLabel(status: LivreurStatus): string {
-  return LIVREUR_STATUS_LABELS[status]
+const LIVREUR_STATUS_CLASSES: Record<LivreurStatus, string> = {
+  ACTIVE: 'bg-emerald-100 text-emerald-800',
+  INACTIVE: 'bg-slate-100 text-slate-700',
 }
 
-export const MFA_STATUS_LABELS: Record<MfaStatus, string> = {
-  DISABLED: 'Désactivé',
-  PENDINGSETUP: 'En attente de configuration',
-  ENABLED: 'Activé',
-  LOCKED: 'Verrouillé',
+/** Single source of truth for the livreur status UI (AGENTS.md §3). */
+export const livreurStatusDisplay = makeStatusDisplay<LivreurStatus>({
+  labels: LIVREUR_STATUS_LABELS,
+  classes: LIVREUR_STATUS_CLASSES,
+})
+
+export function livreurStatusLabel(status: LivreurStatus): string {
+  return livreurStatusDisplay.label(status)
 }
 
 export function mfaStatusLabel(status: MfaStatus): string {
-  return MFA_STATUS_LABELS[status]
+  // Re-export the shared MFA display so consumers that already import
+  // `mfaStatusLabel` from this module keep working.
+  return mfaStatusDisplay.label(status)
 }

@@ -8,6 +8,8 @@ import { DataTableViewOptions } from './view-options'
 type DataTableToolbarProps<TData> = {
   table: Table<TData>
   searchPlaceholder?: string
+  searchLabel?: string
+  resetFilterLabel?: string
   searchKey?: string
   filters?: {
     columnId: string
@@ -23,6 +25,8 @@ type DataTableToolbarProps<TData> = {
 export function DataTableToolbar<TData>({
   table,
   searchPlaceholder = 'Filter...',
+  searchLabel = searchPlaceholder,
+  resetFilterLabel = 'Reset filters',
   searchKey,
   filters = [],
 }: DataTableToolbarProps<TData>) {
@@ -34,8 +38,9 @@ export function DataTableToolbar<TData>({
       <div className='flex flex-1 flex-col-reverse items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center'>
         {searchKey ? (
           <Input
-            placeholder={searchPlaceholder}
-            value={
+            aria-label={searchLabel}
+             placeholder={searchPlaceholder}
+             value={
               (table.getColumn(searchKey)?.getFilterValue() as string) ?? ''
             }
             onChange={(event) =>
@@ -45,8 +50,9 @@ export function DataTableToolbar<TData>({
           />
         ) : (
           <Input
-            placeholder={searchPlaceholder}
-            value={table.getState().globalFilter ?? ''}
+            aria-label={searchLabel}
+             placeholder={searchPlaceholder}
+             value={table.getState().globalFilter ?? ''}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             className='h-8 w-37.5 lg:w-62.5'
           />
@@ -74,7 +80,8 @@ export function DataTableToolbar<TData>({
             }}
             className='h-8 px-2 lg:px-3'
           >
-            Reinitialiser
+            {resetFilterLabel}
+
             <Cross2Icon className='ms-2 h-4 w-4' />
           </Button>
         )}

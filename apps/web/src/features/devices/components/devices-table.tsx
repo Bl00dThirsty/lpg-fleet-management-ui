@@ -14,6 +14,7 @@ import {
   type VisibilityState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
@@ -54,6 +55,7 @@ export function DevicesTable({
   canWrite = false,
   onBulk,
 }: DevicesTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -129,7 +131,7 @@ export function DevicesTable({
       <div className='flex flex-wrap items-center gap-3'>
         <DataTableToolbar
           table={table}
-          searchPlaceholder='Rechercher numéro de série, org, camion...'
+          searchPlaceholder={t('common:search.device')}
           searchKey='serial'
           filters={[
             {

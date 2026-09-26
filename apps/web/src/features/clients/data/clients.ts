@@ -5,6 +5,7 @@ import type {
   Organization as CuratedOrganization,
 } from '@lpg/mock-data'
 import type { Region } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type ClientStatus = 'ACTIVE' | 'INACTIVE'
 
@@ -71,11 +72,22 @@ export function getClientSites(clientOrgId: string): ClientSiteView[] {
     }))
 }
 
-export const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {
+const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {
   ACTIVE: 'Actif',
   INACTIVE: 'Inactif',
 }
 
+const CLIENT_STATUS_CLASSES: Record<ClientStatus, string> = {
+  ACTIVE: 'bg-emerald-100 text-emerald-800',
+  INACTIVE: 'bg-slate-100 text-slate-700',
+}
+
+/** Single source of truth for the client status UI (AGENTS.md §3). */
+export const clientStatusDisplay = makeStatusDisplay<ClientStatus>({
+  labels: CLIENT_STATUS_LABELS,
+  classes: CLIENT_STATUS_CLASSES,
+})
+
 export function clientStatusLabel(status: ClientStatus): string {
-  return CLIENT_STATUS_LABELS[status]
+  return clientStatusDisplay.label(status)
 }

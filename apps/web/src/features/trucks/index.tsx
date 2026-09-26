@@ -17,10 +17,10 @@ import {
   type Truck,
   type TruckStatus,
 } from './data/trucks'
-import { EntityFormSheet, useEntityCrud } from '@/components/entity-crud'
+import { EntityFormSheet, resolveListState, useEntityCrud } from '@/components/entity-crud'
 import { vehicleFields, vehicleFromForm, vehicleToForm } from '@/features/vehicles/data/vehicles-crud'
 import type { Vehicle } from '@lpg/types'
-import { toast } from 'sonner'
+import { runMutation } from '@/hooks/use-toast-feedback'
 import { useAuthStore } from '@/store/auth-store'
 import { getScope } from '@/features/scope/scope'
 
@@ -43,7 +43,7 @@ export function TrucksPage() {
   const [detailsTruck, setDetailsTruck] = useState<Truck | null>(null)
   const user = useAuthStore((s) => s.user)
   const scope = useMemo(() => getScope(user), [user])
-  const crud = useEntityCrud<Vehicle>('vehicles', 'trucks', ['vehicles'])
+  const crud = useEntityCrud<Vehicle>('vehicles', 'trucks', ['vehicles'], true)
   const trucks = useMemo(() => getTrucks(scope, crud.list.data), [scope, crud.list.data])
   const [activeTruckId, setActiveTruckId] = useState<string>(() => trucks[0]?.id ?? '')
 
@@ -52,17 +52,19 @@ export function TrucksPage() {
   }, [])
 
   async function handleSubmit(values: Record<string, unknown>) {
-    try {
-      if (crud.editing) {
-        await crud.updateMut.mutateAsync({ id: crud.editing.id, patch: vehicleFromForm(values) })
-        toast.success(t('trucks.updated'))
-      } else {
-        await crud.createMut.mutateAsync(vehicleFromForm(values) as Omit<Vehicle, 'id'>)
-        toast.success(t('trucks.created'))
-      }
-      crud.close()
-    } catch {
-      toast.error(t('errors:generic'))
+    const editing = crud.editing
+    if (editing) {
+      const result = await runMutation(
+        () => crud.updateMut.mutateAsync({ id: editing.id, patch: vehicleFromForm(values) }),
+        t('trucks.updated'),
+      )
+      if (result.ok) crud.close()
+    } else {
+      const result = await runMutation(
+        () => crud.createMut.mutateAsync(vehicleFromForm(values) as Omit<Vehicle, 'id'>),
+        t('trucks.created'),
+      )
+      if (result.ok) crud.close()
     }
   }
 
@@ -86,6 +88,12 @@ export function TrucksPage() {
   }, [searchText, trucks])
 
   const visible = statusFilter === 'all' ? filteredTrucks : filteredTrucks.filter((t) => t.tournee_status === statusFilter)
+  const listState = resolveListState(
+    crud.list.isLoading,
+    crud.list.isError,
+    visible.length,
+    Boolean(searchText.trim() || statusFilter !== 'all'),
+  )
 
   const filterDefs: TruckFilterDef[] = useMemo(() => {
     const counts: Partial<Record<TruckStatus, number>> = {}
@@ -176,9 +184,10 @@ export function TrucksPage() {
             <div className='relative w-full sm:w-[310px]'>
               <Search className='pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
               <Input
+                aria-label={t('trucks.searchLabel')}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder='Rechercher un camion, plaque, chauffeur…'
+                placeholder={t('trucks.search')}
                 className='h-9 ps-9'
               />
             </div>
@@ -244,9 +253,16 @@ export function TrucksPage() {
           navigate={navigate}
           onViewDetails={handleViewDetails}
           onEdit={(t) => crud.openEdit(t as unknown as Vehicle)}
-          onDelete={async (t) => {
-            await crud.removeMut.mutateAsync(t.id)
+          onDelete={async (truck) => {
+            await runMutation(
+              () => crud.removeMut.mutateAsync(truck.id),
+              t('entityCrud.deleted'),
+            )
           }}
+          listState={listState}
+          onRetry={() => void crud.list.refetch()}
+           deletingId={crud.removeMut.isPending ? crud.removeMut.variables : undefined}
+
         />
       </section>
 

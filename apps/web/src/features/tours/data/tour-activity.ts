@@ -67,7 +67,6 @@ export type RouteTripStop = {
   title: string
   completed: boolean
   windowLabel: string
-  deliveredQuantity?: number
   note: string
 }
 
@@ -77,9 +76,8 @@ export type RouteTelemetryPoint = {
   recordedAt: string
   latitude: number
   longitude: number
-  lpgLevelPercent: number
-  pressureBar: number
-  estimatedVolume: number
+  meterReading?: number
+  rfidTagId?: string
 }
 
 export type RouteEvent = {
@@ -89,6 +87,11 @@ export type RouteEvent = {
   severity: RouteEventSeverity
   title: string
   description: string
+  /**
+   * Volume measured by the event itself, in the tour vehicle unit. Absent when
+   * the event carries no measurement (checkpoint arrival, route deviation, ...).
+   */
+  measuredQuantity?: number
 }
 
 export type RouteTripViewStop = RouteTripStop & {
@@ -97,18 +100,20 @@ export type RouteTripViewStop = RouteTripStop & {
 
 export type RouteTripView = RouteTrip & {
   truck: Truck
+  tourneeStatus: TourneeStatus
   originSite: Site
   destinationSite: Site
   stops: RouteTripViewStop[]
   telemetry: RouteTelemetryPoint[]
   events: RouteEvent[]
-  latestTelemetry: RouteTelemetryPoint
-  nextStop: RouteTripViewStop
+  latestTelemetry: RouteTelemetryPoint | null
+  /**
+   * The first genuinely PENDING checkpoint, or null once every planned stop has
+   * been reached, skipped or the tour is over. Never a visited stop.
+   */
+  nextStop: RouteTripViewStop | null
   deliveredPercent: number
   remainingPercent: number
-  lpgDropPercent: number
-  pressureDeltaBar: number
-  unaccounted: number
   attentionLevel: RouteEventSeverity
 }
 
@@ -118,8 +123,6 @@ export type RouteSummary = {
   plannedTrips: number
   completedTrips: number
   incidentTrips: number
-  activeVolume: number
-  deliveredVolume: number
   onTimeRate: number
   attentionCount: number
 }
@@ -240,7 +243,6 @@ export type TourSlice =
   | 'HISTORY'
 
 export type TourActivity = RouteTripView & {
-  tourneeStatus: TourneeStatus
   tourneeType: TourneeType
   execution_mode: ExecutionMode
   marketeur_name: string
@@ -412,7 +414,6 @@ function stopTitle(role: RouteStopRole, checkpoint: Checkpoint): string {
 
 function buildStops(
   tourCheckpoints: Checkpoint[],
-  tour: DeliveryTour,
 ): RouteTripStop[] {
   return tourCheckpoints.map((checkpoint, index) => {
     const isFirst = index === 0
@@ -431,7 +432,6 @@ function buildStops(
       title: stopTitle(role, checkpoint),
       completed,
       windowLabel: windowLabel(checkpoint.expected_arrival),
-      deliveredQuantity: isLast ? (tour.delivered_quantity ?? 0) : undefined,
       note: stopNote(checkpoint),
     }
   })
@@ -443,10 +443,7 @@ function stopFromId(checkpoint: Checkpoint): string {
 
 function buildTelemetry(
   tourId: string,
-  tour: DeliveryTour,
   tourCheckpoints: Checkpoint[],
-  origin: Site,
-  destination: Site,
 ): RouteTelemetryPoint[] {
   const scans = scan_events.filter((scan) =>
     tourCheckpoints.some(
@@ -455,60 +452,21 @@ function buildTelemetry(
   )
 
   if (scans.length > 0) {
-    return scans.map((scan, index) => {
+    return scans.map((scan) => {
       const [lng, lat] = scan.geo_point ?? [0, 0]
-      const total = scans.length
-      const loaded = tour.loaded_quantity ?? tour.requested_quantity ?? 0
-      const delivered = tour.delivered_quantity ?? 0
-      const level = Math.max(
-        Math.round(100 - (delivered / (loaded || 1)) * (index / (total - 1)) * 100),
-        0,
-      )
-
       return {
         id: `tel-${scan.id}`,
         routeTripId: tourId,
         recordedAt: scan.timestamp,
         latitude: Number(lat ?? 0),
         longitude: Number(lng ?? 0),
-        lpgLevelPercent: level,
-        pressureBar: round1(12.4 - (100 - level) * 0.03),
-        estimatedVolume: Math.round((loaded * level) / 100),
+        meterReading: scan.meter_reading ?? undefined,
+        rfidTagId: scan.rfid_tag_id ?? undefined,
       }
     })
   }
 
-  const loaded = tour.loaded_quantity ?? tour.requested_quantity ?? 0
-  const points = 3
-  const legLat = (destination.latitude - origin.latitude) / (points - 1)
-  const legLng = (destination.longitude - origin.longitude) / (points - 1)
-
-  return Array.from({ length: points }, (_, index) => {
-    const level =
-      tour.status === 'CLOSED'
-        ? index === points - 1
-          ? 1
-          : 100 - index * 33
-        : 100
-    return {
-      id: `tel-${tourId}-${index}`,
-      routeTripId: tourId,
-      recordedAt:
-        tour.started_at ??
-        new Date(
-          new Date(tour.created_at ?? Date.now()).getTime() + index * 3600_000,
-        ).toISOString(),
-      latitude: origin.latitude + legLat * index,
-      longitude: origin.longitude + legLng * index,
-      lpgLevelPercent: level,
-      pressureBar: round1(12.4 - (100 - level) * 0.03),
-      estimatedVolume: Math.round((loaded * level) / 100),
-    }
-  })
-}
-
-function round1(value: number): number {
-  return Math.round(value * 10) / 10
+  return []
 }
 
 function fallbackTruckId(marketeurOrgId: string | null | undefined, tourType: string): string {
@@ -547,6 +505,7 @@ function buildEvents(
         title: 'Livraison signée',
         description:
           'Le bon de livraison est signé et le retour dépôt peut être engagé.',
+        measuredQuantity: tour.delivered_quantity ?? undefined,
       },
     ]
   }
@@ -642,7 +601,7 @@ function buildView(tour: DeliveryTour, index: number, checkpointsSource?: typeof
   const tourCheckpoints = (checkpointsSource ?? checkpoints).filter(
     (checkpoint) => checkpoint.tournee_id === tour.id,
   )
-  const stops = buildStops(tourCheckpoints, tour)
+  const stops = buildStops(tourCheckpoints)
   const originSiteId = stops[0]?.siteId ?? ''
   const destinationSiteId = stops[stops.length - 1]?.siteId ?? ''
   const originSite = originSiteId ? requireSite(originSiteId) : placeholderSite()
@@ -661,25 +620,19 @@ function buildView(tour: DeliveryTour, index: number, checkpointsSource?: typeof
     tour.updated_at ??
     ''
 
-  const telemetry = buildTelemetry(tour.id, tour, tourCheckpoints, originSite, destinationSite)
-  const latestTelemetry = telemetry[telemetry.length - 1] ?? {
-    id: `${tour.id}-fallback`,
-    routeTripId: tour.id,
-    recordedAt: tour.updated_at ?? '',
-    latitude: truck.lat,
-    longitude: truck.lng,
-    lpgLevelPercent: Math.round((remaining / (loaded || 1)) * 100),
-    pressureBar: 0,
-    estimatedVolume: remaining,
-  }
-  const firstTelemetry = telemetry[0] ?? latestTelemetry
+  const telemetry = buildTelemetry(tour.id, tourCheckpoints)
+  const latestTelemetry = [...telemetry].reverse().find((point) => point.meterReading != null) ?? null
   const events = buildEvents(tour.id, tour, tourCheckpoints, status)
   const deliveredPercent = Math.round((delivered / (loaded || 1)) * 100)
   const remainingPercent = Math.round((remaining / (loaded || 1)) * 100)
-  const unaccounted = Math.max(loaded - delivered - remaining, 0)
 
   const stopViews = stops.map((stop) => ({ ...stop, site: requireSite(stop.siteId) }))
-  const nextStop = stopViews.find((stop) => !stop.completed) ?? stopViews[stopViews.length - 1]!
+  const pendingStopIds = new Set(
+    tourCheckpoints
+      .filter((checkpoint) => checkpoint.status === 'PENDING')
+      .map((checkpoint) => checkpoint.id),
+  )
+  const nextStop = stopViews.find((stop) => pendingStopIds.has(stop.id)) ?? null
 
   return {
     id: tour.id,
@@ -714,14 +667,6 @@ function buildView(tour: DeliveryTour, index: number, checkpointsSource?: typeof
     nextStop,
     deliveredPercent,
     remainingPercent,
-    lpgDropPercent: Math.max(
-      firstTelemetry.lpgLevelPercent - latestTelemetry.lpgLevelPercent,
-      0,
-    ),
-    pressureDeltaBar: Number(
-      Math.max(firstTelemetry.pressureBar - latestTelemetry.pressureBar, 0).toFixed(1),
-    ),
-    unaccounted,
     attentionLevel: getHighestSeverity(events),
     tourneeStatus: tour.status,
     tourneeType: tour.type,
@@ -887,6 +832,11 @@ export function getTourVolumeLegacy(activity: TourActivity): string {
   return getTourVolume(activity)
 }
 
+/**
+ * A tour counts as active only while it is physically running, per the canonical
+ * `tournee_status` lifecycle. A planned tour is not active yet, and a cancelled
+ * tour is never active.
+ */
 export function isActiveTourStatus(status: TourneeStatus): boolean {
   return status === 'INPROGRESS' || status === 'CHECKPOINTACTIVE'
 }
@@ -901,19 +851,11 @@ export function buildRouteSummary(
 
   return {
     totalTrips: trips.length,
-    activeTrips: trips.filter((trip) =>
-      ['in-progress', 'incident'].includes(trip.status),
-    ).length,
+    activeTrips: trips.filter((trip) => isActiveTourStatus(trip.tourneeStatus))
+      .length,
     plannedTrips: trips.filter((trip) => trip.status === 'planned').length,
     completedTrips: trips.filter((trip) => trip.status === 'completed').length,
     incidentTrips: trips.filter((trip) => trip.status === 'incident').length,
-    activeVolume: trips
-      .filter((trip) => ['in-progress', 'incident'].includes(trip.status))
-      .reduce((total, trip) => total + trip.loadedQuantity, 0),
-    deliveredVolume: trips.reduce(
-      (total, trip) => total + trip.deliveredQuantity,
-      0,
-    ),
     onTimeRate:
       completedAndActiveTrips.length === 0
         ? 0
@@ -934,17 +876,22 @@ export function getRouteCustomerOptions(trips: readonly RouteTripView[]) {
   )
 }
 
-export type RouteLpgVariationStageId = 'loading' | 'live' | 'projected'
+export type RouteLpgVariationStageId = 'loading' | 'live' | 'delivered' | 'remaining'
 
 export type RouteLpgVariationStageTone = 'emerald' | 'sky' | 'amber'
 
 export type RouteLpgVariationStage = {
   id: RouteLpgVariationStageId
-  label: string
-  quantity: number
-  percent: number
-  delta: number
-  deltaPercent: number
+  labelKey:
+    | 'variation.stageLoading'
+    | 'variation.stageLive'
+    | 'variation.stageDelivered'
+    | 'variation.stageRemaining'
+  /** null when the tour carries no measured evidence for this stage. */
+  quantity: number | null
+  percent: number | null
+  delta: number | null
+  deltaPercent: number | null
   tone: RouteLpgVariationStageTone
 }
 
@@ -952,58 +899,29 @@ export type RouteLpgVariation = {
   stages: RouteLpgVariationStage[]
   delivered: number
   deliveredPercent: number
-  nextDrop: number
-  telemetryGap: number
+  /** Last meter reading observed, or null when the tour reports none. */
+  liveReading: number | null
+  nextStopSiteName: string | null
 }
 
 export function buildRouteLpgVariation(
   trip: RouteTripView
 ): RouteLpgVariation {
   const loading = trip.loadedQuantity
-  const live = trip.latestTelemetry.estimatedVolume
-  const nextDrop =
-    trip.status === 'completed' ? 0 : (trip.nextStop.deliveredQuantity ?? 0)
-  const projected =
-    trip.status === 'completed' ? live : Math.max(live - nextDrop, 0)
+  const live = trip.latestTelemetry?.meterReading ?? null
+  const delivered = trip.deliveredQuantity
 
   return {
     stages: [
-      {
-        id: 'loading',
-        label: 'Au chargement',
-        quantity: loading,
-        percent: 100,
-        delta: 0,
-        deltaPercent: 0,
-        tone: 'emerald',
-      },
-      {
-        id: 'live',
-        label: 'Dernier releve',
-        quantity: live,
-        percent: toPercent(live, loading),
-        delta: live - loading,
-        deltaPercent: toPercent(live, loading) - 100,
-        tone: 'sky',
-      },
-      {
-        id: 'projected',
-        label:
-          trip.status === 'completed'
-            ? 'Niveau final'
-            : 'Apres prochaine livraison',
-        quantity: projected,
-        percent: toPercent(projected, loading),
-        delta: projected - live,
-        deltaPercent:
-          toPercent(projected, loading) - toPercent(live, loading),
-        tone: 'amber',
-      },
+      { id: 'loading', labelKey: 'variation.stageLoading', quantity: loading, percent: 100, delta: 0, deltaPercent: 0, tone: 'emerald' },
+      { id: 'live', labelKey: 'variation.stageLive', quantity: live, percent: live == null ? null : toPercent(live, loading), delta: live == null ? null : live - loading, deltaPercent: live == null ? null : toPercent(live, loading) - 100, tone: 'sky' },
+      { id: 'delivered', labelKey: 'variation.stageDelivered', quantity: delivered, percent: trip.deliveredPercent, delta: delivered - loading, deltaPercent: trip.deliveredPercent - 100, tone: 'amber' },
+      { id: 'remaining', labelKey: 'variation.stageRemaining', quantity: trip.remainingQuantity, percent: trip.remainingPercent, delta: trip.remainingQuantity - loading, deltaPercent: trip.remainingPercent - 100, tone: 'emerald' },
     ],
-    delivered: trip.deliveredQuantity,
+    delivered,
     deliveredPercent: trip.deliveredPercent,
-    nextDrop,
-    telemetryGap: Math.abs(live - trip.remainingQuantity),
+    liveReading: live,
+    nextStopSiteName: trip.nextStop?.site.name ?? null,
   }
 }
 

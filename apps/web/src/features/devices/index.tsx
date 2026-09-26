@@ -196,7 +196,7 @@ export function DevicesPage() {
               <Input
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder='Rechercher un appareil, org, camion…'
+                placeholder={t('search.device')}
                 className='h-9 ps-9'
               />
             </div>

@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { getRouteApi } from '@tanstack/react-router'
 import { Building2, Plus } from 'lucide-react'
-import { toast } from 'sonner'
+import { runMutation } from '@/hooks/use-toast-feedback'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EntityFormSheet, useEntityCrud } from '@/components/entity-crud'
+import { EntityFormSheet, resolveListState, useEntityCrud } from '@/components/entity-crud'
 import type { Organization } from '@lpg/types'
 import { MarketersTable } from './components/marketers-table'
 import { getMarketers } from './data/marketers'
@@ -16,25 +16,32 @@ export function MarketersPage() {
   const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
-  const crud = useEntityCrud<Organization>('organizations', 'markets', ['organizations'])
+  const crud = useEntityCrud<Organization>('organizations', 'markets', ['organizations'], true)
   const marketers = getMarketers(crud.list.data)
+  const hasActiveFilters = Boolean(
+    (typeof search.q === 'string' && search.q.trim()) ||
+      (Array.isArray(search.status) && search.status.length > 0),
+  )
+  const listState = resolveListState(crud.list.isLoading, crud.list.isError, marketers.length, hasActiveFilters)
 
   const handleViewDetails = (marketer: Organization) => {
     navigate({ to: `/marketers/${marketer.id}` })
   }
 
   async function handleSubmit(values: Record<string, unknown>) {
-    try {
-      if (crud.editing) {
-        await crud.updateMut.mutateAsync({ id: crud.editing.id, patch: marketerFromForm(values) })
-        toast.success(t('marketers.updated'))
-      } else {
-        await crud.createMut.mutateAsync(marketerFromForm(values) as Omit<Organization, 'id'>)
-        toast.success(t('marketers.created'))
-      }
-      crud.close()
-    } catch {
-      toast.error(t('errors:generic'))
+    const editing = crud.editing
+    if (editing) {
+      const result = await runMutation(
+        () => crud.updateMut.mutateAsync({ id: editing.id, patch: marketerFromForm(values) }),
+        t('marketers.updated'),
+      )
+      if (result.ok) crud.close()
+    } else {
+      const result = await runMutation(
+        () => crud.createMut.mutateAsync(marketerFromForm(values) as Omit<Organization, 'id'>),
+        t('marketers.created'),
+      )
+      if (result.ok) crud.close()
     }
   }
 
@@ -65,7 +72,16 @@ export function MarketersPage() {
           navigate={navigate}
           onViewDetails={handleViewDetails}
           onEdit={(m) => crud.openEdit(m)}
-          onDelete={(m) => crud.removeMut.mutateAsync(m.id)}
+          onDelete={async (marketer) => {
+            await runMutation(
+              () => crud.removeMut.mutateAsync(marketer.id),
+              t('entityCrud.deleted'),
+            )
+          }}
+          listState={listState}
+          onRetry={() => void crud.list.refetch()}
+           deletingId={crud.removeMut.isPending ? crud.removeMut.variables : undefined}
+
         />
       </section>
 

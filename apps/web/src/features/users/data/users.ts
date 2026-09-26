@@ -7,6 +7,8 @@ import type {
 import type { Role } from '@lpg/permissions'
 import { ROLE_LABELS } from '@/config/rbac/roles'
 import { useUsersStore } from '@/store/users-store'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
+import { mfaStatusDisplay } from '@/lib/ui/status-display-mfa'
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE'
 
@@ -51,22 +53,26 @@ export function getUsers(): UserView[] {
   return useUsersStore.getState().users.map(userToView)
 }
 
-export const USER_STATUS_LABELS: Record<UserStatus, string> = {
+const USER_STATUS_LABELS: Record<UserStatus, string> = {
   ACTIVE: 'Actif',
   INACTIVE: 'Inactif',
 }
 
-export function userStatusLabel(status: UserStatus): string {
-  return USER_STATUS_LABELS[status]
+const USER_STATUS_CLASSES: Record<UserStatus, string> = {
+  ACTIVE: 'bg-emerald-100 text-emerald-800',
+  INACTIVE: 'bg-slate-100 text-slate-700',
 }
 
-export const MFA_STATUS_LABELS: Record<MfaStatus, string> = {
-  DISABLED: 'Désactivé',
-  PENDINGSETUP: 'En attente de configuration',
-  ENABLED: 'Activé',
-  LOCKED: 'Verrouillé',
+/** Single source of truth for the user status UI (AGENTS.md §3). */
+export const userStatusDisplay = makeStatusDisplay<UserStatus>({
+  labels: USER_STATUS_LABELS,
+  classes: USER_STATUS_CLASSES,
+})
+
+export function userStatusLabel(status: UserStatus): string {
+  return userStatusDisplay.label(status)
 }
 
 export function mfaStatusLabel(status: MfaStatus): string {
-  return MFA_STATUS_LABELS[status]
+  return mfaStatusDisplay.label(status)
 }

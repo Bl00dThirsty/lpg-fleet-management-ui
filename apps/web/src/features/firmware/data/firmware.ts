@@ -1,5 +1,6 @@
 import { curated } from '@lpg/mock-data'
 import type { Device } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type FirmwareStatus = 'CURRENT' | 'MIXED'
 
@@ -58,11 +59,22 @@ export function getFirmwareDevices(version: string): string[] {
     .sort()
 }
 
-export const FIRMWARE_STATUS_LABELS: Record<FirmwareStatus, string> = {
+const FIRMWARE_STATUS_LABELS: Record<FirmwareStatus, string> = {
   CURRENT: 'À jour',
   MIXED: 'Mixte',
 }
 
+const FIRMWARE_STATUS_CLASSES: Record<FirmwareStatus, string> = {
+  CURRENT: 'bg-emerald-100 text-emerald-800',
+  MIXED: 'bg-amber-100 text-amber-800',
+}
+
+/** Single source of truth for the firmware status UI (AGENTS.md §3). */
+export const firmwareStatusDisplay = makeStatusDisplay<FirmwareStatus>({
+  labels: FIRMWARE_STATUS_LABELS,
+  classes: FIRMWARE_STATUS_CLASSES,
+})
+
 export function firmwareStatusLabel(status: FirmwareStatus): string {
-  return FIRMWARE_STATUS_LABELS[status]
+  return firmwareStatusDisplay.label(status)
 }

@@ -94,3 +94,9 @@ export function canAccessPath(role: Role, pathname: string): boolean {
 export function deniedPathRedirect(role: Role, pathname: string): string | null {
   return canAccessPath(role, pathname) ? null : landingPathFor(role)
 }
+
+export function settingsLandingPath(
+  hasSettingsAccess: boolean,
+): '/settings/system' | '/settings/profile' {
+  return hasSettingsAccess ? '/settings/system' : '/settings/profile'
+}

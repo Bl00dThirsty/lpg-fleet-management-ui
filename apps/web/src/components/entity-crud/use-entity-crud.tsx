@@ -13,8 +13,9 @@ export function useEntityCrud<T extends { id: string }>(
   resource: CrudResource,
   permissionResource: Resource,
   queryKey?: string[],
+  handled = false,
 ) {
-  const crud = useCrud<T>(resource, { permissionResource, queryKey })
+  const crud = useCrud<T>(resource, { permissionResource, queryKey, handled })
   const perm = useEntityPermission(permissionResource)
   const [editing, setEditing] = useState<T | null>(null)
   const [creating, setCreating] = useState(false)

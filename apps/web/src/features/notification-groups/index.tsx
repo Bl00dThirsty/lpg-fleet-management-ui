@@ -20,7 +20,7 @@ export function NotificationGroupsPage() {
 
   return (
     <PageShell>
-      <SettingsTabs active='notification-groups' />
+      <SettingsTabs />
       <PageHeader
         title='Groupes de notification'
         description='Groupes cibles pour l’envoi des alertes et notifications.'

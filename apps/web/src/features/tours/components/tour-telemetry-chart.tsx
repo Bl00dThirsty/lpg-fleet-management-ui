@@ -1,26 +1,21 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { type ElementType } from 'react'
-import { Activity, Droplets, Package, PackageCheck } from 'lucide-react'
+import { Package, PackageCheck } from 'lucide-react'
 import {
   Area,
-  Bar,
   CartesianGrid,
   ComposedChart,
-  Line,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { ChartCard } from '@/components/charts'
 import { Badge } from '@/components/ui/badge'
-import type { RouteTelemetryPoint, TourActivity } from '../data/tour-activity'
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
+import type { TourActivity } from '../data/tour-activity'
 
 type TourTelemetryChartProps = {
   trip: TourActivity
@@ -33,57 +28,58 @@ export function TourTelemetryChart({
   formatQuantity,
   formatShortTime,
 }: TourTelemetryChartProps) {
+  const { t } = useTranslation('dashboard')
   const isBottles = trip.tourneeType === 'BOUTEILLES50KG'
+  const reducedMotion = usePrefersReducedMotion()
 
-  const deliveredBottles = trip.stops
-    .filter((stop) => stop.completed)
-    .reduce(
-      (sum, stop) =>
-        sum + Math.round(Number(stop.deliveredQuantity ?? 0)),
-      0,
-    )
+  const deliveredBottles = trip.deliveredQuantity
   const totalBottles = trip.requested_quantity
 
+  const hasVolumeEvidence = trip.telemetry.some(
+    (point) => (isBottles ? point.rfidTagId != null : point.meterReading != null),
+  )
   const chartData = useMemo(() => {
-    return trip.telemetry.map((point, index) => {
-      const cumulativeDelivered = computeCumulativeDelivered(
-        trip.telemetry,
-        index,
-        isBottles,
-        totalBottles,
-      )
-      return {
-        timeLabel: formatShortTime(point.recordedAt),
-        estimatedVolume: point.estimatedVolume,
-        lpgLevelPercent: point.lpgLevelPercent,
-        delivered: cumulativeDelivered,
-        remainingBottles: isBottles
-          ? Math.max(totalBottles - cumulativeDelivered, 0)
-          : null,
-      }
-    })
-  }, [trip.telemetry, isBottles, totalBottles, formatShortTime])
+    const observedTags = new Set<string>()
+    return trip.telemetry
+      .filter((point) => isBottles ? point.rfidTagId != null : point.meterReading != null)
+      .map((point) => {
+        if (point.rfidTagId) observedTags.add(point.rfidTagId)
+        return {
+          timeLabel: formatShortTime(point.recordedAt),
+          meterReading: point.meterReading,
+          bottleObservations: isBottles ? observedTags.size : null,
+        }
+      })
+  }, [trip.telemetry, isBottles, formatShortTime])
 
   return (
-    <Card className='overflow-hidden border-transparent shadow-sm'>
-      <CardHeader className='flex flex-row flex-wrap items-start justify-between gap-2 border-b bg-muted/20'>
-        <div>
-          <CardTitle>Télémétrie GPL</CardTitle>
-          <CardDescription>
-            {isBottles
-              ? 'Évolution du niveau de gaz, des bouteilles restantes et des bouteilles livrées au fil de la tournée.'
-              : 'Évolution du niveau GPL, du volume estimé restant et du volume livré cumulé pendant la tournée.'}
-          </CardDescription>
-        </div>
+    <ChartCard
+      title={t('telemetry.title')}
+      description={
+        isBottles
+          ? t('telemetry.bottlesDescription')
+          : t('telemetry.vracDescription')
+      }
+      actions={
         <div className='flex items-center gap-2'>
           <Badge variant='outline'>{trip.execution_mode}</Badge>
           <Badge variant='outline'>{trip.tourneeType}</Badge>
         </div>
-      </CardHeader>
-      <CardContent className='space-y-4 p-4'>
-        <div className='h-[320px] w-full rounded-2xl bg-muted/25 px-2 py-4 shadow-inner'>
+      }
+      status={hasVolumeEvidence ? 'ready' : 'empty'}
+      emptyLabel={t('telemetry.empty')}
+      className='overflow-hidden'
+    >
+      <div className='space-y-4 p-4'>
+        <figure
+          role='img'
+          aria-labelledby='tour-telemetry-chart-title'
+          aria-describedby='tour-telemetry-summary tour-telemetry-caption'
+          className='h-[320px] w-full rounded-2xl bg-muted/25 px-2 py-4 shadow-inner'
+        >
+          <span id='tour-telemetry-chart-title' className='sr-only'>{t('telemetry.chartTitle')}</span>
           <ResponsiveContainer width='100%' height={280}>
-            <ComposedChart data={chartData}>
+            <ComposedChart data={chartData} accessibilityLayer>
               <defs>
                 <linearGradient
                   id='tour-telemetry-volume'
@@ -122,8 +118,8 @@ export function TourTelemetryChart({
                 domain={[0, 'dataMax']}
                 stroke='rgba(34, 197, 94, 0.85)'
                 tickFormatter={isBottles
-                  ? (value) => `${value}`
-                  : (value) => `${Math.round(value / 100)}`}
+                 ? (value) => `${value} btl`
+                   : (value) => `${Math.round(value)} TM`}
                 tickLine={false}
                 axisLine={false}
                 fontSize={12}
@@ -139,54 +135,51 @@ export function TourTelemetryChart({
                       value?: number
                       color?: string
                     }>}
-                    formatQuantity={formatQuantity}
-                    isBottles={isBottles}
-                    totalBottles={totalBottles}
+                     isBottles={isBottles}
                   />
                 )}
               />
-              <Area
-                yAxisId='volume'
-                dataKey='estimatedVolume'
-                name='Volume restant'
-                fill={isBottles ? 'url(#tour-telemetry-bottles)' : 'url(#tour-telemetry-volume)'}
-                stroke={isBottles ? '#6366f1' : '#22c55e'}
-                strokeWidth={3}
-                type='monotone'
-              />
-              {isBottles ? (
-                <Bar
-                  yAxisId='volume'
-                  dataKey='remainingBottles'
-                  name='Bouteilles restantes'
-                  fill='#a78bfa'
-                  radius={[4, 4, 0, 0]}
-                  barSize={18}
-                />
-              ) : null}
-              <Line
-                yAxisId='volume'
-                dataKey='delivered'
-                name='Volume livré'
-                stroke='#f59e0b'
-                strokeWidth={2.5}
-                strokeDasharray='5 4'
-                dot={{ fill: '#f59e0b', r: 3, strokeWidth: 0 }}
-                type='monotone'
-              />
+              <Legend />
+               <Area
+                 yAxisId='volume'
+                 dataKey={isBottles ? 'bottleObservations' : 'meterReading'}
+                 name={isBottles ? t('telemetry.observationsLegend') : t('telemetry.meterReadingLegend')}
+                 fill={isBottles ? 'url(#tour-telemetry-bottles)' : 'url(#tour-telemetry-volume)'}
+                 stroke={isBottles ? '#6366f1' : '#22c55e'}
+                 strokeWidth={3}
+                 type='monotone'
+                 isAnimationActive={!reducedMotion}
+               />
             </ComposedChart>
           </ResponsiveContainer>
-        </div>
+        </figure>
 
-        <div className='grid gap-3 sm:grid-cols-4'>
+        <p id='tour-telemetry-summary' className='text-sm text-muted-foreground'>
+          {isBottles
+            ? t('telemetry.summaryBottles', { delivered: deliveredBottles, total: totalBottles, remaining: `${Math.max(totalBottles - deliveredBottles, 0)} btl` })
+            : t('telemetry.summaryVrac', { delivered: formatQuantity(trip.deliveredQuantity ?? 0), remaining: formatQuantity(trip.remainingQuantity) })}
+        </p>
+        <details className='text-sm'>
+          <summary className='cursor-pointer font-medium'>{t('telemetry.tableSummary')}</summary>
+          <div className='overflow-x-auto'>
+            <table className='mt-2 w-full min-w-[520px] text-left'>
+              <caption id='tour-telemetry-caption' className='sr-only'>{t('telemetry.tableCaption')}</caption>
+              <thead><tr><th>{t('telemetry.time')}</th><th>{isBottles ? t('telemetry.observationsTable') : t('telemetry.meterReadingTable')}</th></tr></thead>
+              <tbody>
+                {chartData.map((point) => (
+                  <tr key={point.timeLabel}>
+                    <td>{point.timeLabel}</td>
+                    <td>{isBottles ? `${point.bottleObservations ?? 0} btl` : formatQuantity(point.meterReading ?? 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+
+        <div className='grid gap-3 sm:grid-cols-3'>
           <TelemetrySignal
-            label={isBottles ? 'Niveau citerne' : 'Niveau GPL'}
-            value={`${trip.latestTelemetry.lpgLevelPercent}%`}
-            hint={`${trip.lpgDropPercent}% depuis le départ`}
-            icon={Droplets}
-          />
-          <TelemetrySignal
-            label={isBottles ? 'Bouteilles restantes' : 'Volume restant'}
+            label={isBottles ? t('telemetry.remainingBottlesSignal') : t('telemetry.remainingVracSignal')}
             value={
               isBottles
                 ? `${Math.max(totalBottles - deliveredBottles, 0)} / ${totalBottles}`
@@ -194,38 +187,14 @@ export function TourTelemetryChart({
             }
             hint={
               isBottles
-                ? `${deliveredBottles} livrées sur ${totalBottles}`
-                : `${trip.remainingPercent}% de la charge initiale`
+                ? t('telemetry.deliveredBottlesHint', { delivered: deliveredBottles, total: totalBottles })
+                : t('telemetry.remainingVracHint', { value: trip.remainingPercent })
             }
             icon={isBottles ? PackageCheck : Package}
           />
-          <TelemetrySignal
-            label={isBottles ? 'Livré' : 'Volume livré'}
-            value={
-              isBottles
-                ? `${deliveredBottles} btl`
-                : formatQuantity(trip.deliveredQuantity ?? 0)
-            }
-            hint={
-              isBottles
-                ? 'Cumul depuis le départ'
-                : `${trip.deliveredPercent}% déjà affectés`
-            }
-            icon={Activity}
-          />
-          <TelemetrySignal
-            label='Écart non justifié'
-            value={trip.unaccounted > 0 ? formatQuantity(trip.unaccounted) : isBottles ? '0 btl' : '0 TM'}
-            hint={
-              trip.unaccounted > 0
-                ? 'À expliquer avant clôture'
-                : 'Bilan de charge cohérent'
-            }
-            icon={Activity}
-          />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </ChartCard>
   )
 }
 
@@ -233,68 +202,31 @@ function TelemetryTooltip({
   active,
   label,
   payload,
-  formatQuantity,
   isBottles,
-  totalBottles,
 }: {
   active?: boolean
   label?: string | string[]
   payload?: Array<{ name?: string; value?: number; color?: string }>
-  formatQuantity: (value: number) => string
   isBottles: boolean
-  totalBottles: number
 }) {
+  const { t } = useTranslation('dashboard')
   if (!active || !payload || payload.length === 0) return null
   const lookup = (name: string) =>
     payload.find((item) => item.name === name)?.value
-  const volume = lookup('Volume restant')
-  const delivered = lookup('Volume livré')
-  const remainingBottles = lookup('Bouteilles restantes')
+  const value = lookup(
+    isBottles ? t('telemetry.observationsLegend') : t('telemetry.meterReadingLegend'),
+  )
 
   return (
     <div className='rounded-xl bg-background/95 px-3 py-2 shadow-lg'>
       <p className='text-xs font-medium text-muted-foreground'>{label}</p>
       <div className='mt-2 space-y-1 text-sm'>
-        {isBottles ? (
-          <>
-            <p className='text-indigo-600 dark:text-indigo-300'>
-              Volume citerne: {formatQuantity(Number(volume ?? 0))}
-            </p>
-            <p className='text-violet-600 dark:text-violet-300'>
-              Bouteilles restantes: {Number(remainingBottles ?? 0)} / {totalBottles}
-            </p>
-          </>
-        ) : (
-          <p className='text-emerald-600 dark:text-emerald-300'>
-            Volume restant: {formatQuantity(Number(volume ?? 0))}
-          </p>
-        )}
-        <p className='text-amber-600 dark:text-amber-300'>
-          {isBottles ? 'Bouteilles livrées' : 'Volume livré'}: {formatQuantity(Number(delivered ?? 0))}
+        <p className={isBottles ? 'text-indigo-600 dark:text-indigo-300' : 'text-emerald-600 dark:text-emerald-300'}>
+          {isBottles ? t('telemetry.observationsLegend') : t('telemetry.meterReadingLegend')}: {Number(value ?? 0)} {isBottles ? 'btl' : 'TM'}
         </p>
       </div>
     </div>
   )
-}
-
-function computeCumulativeDelivered(
-  telemetry: readonly RouteTelemetryPoint[],
-  index: number,
-  isBottles: boolean,
-  totalBottles: number,
-): number {
-  const points = telemetry.slice(0, index + 1)
-  let totalLoad = points[0]?.estimatedVolume ?? 0
-  let cumulative = 0
-  for (const point of points) {
-    const delivered = Math.max(totalLoad - point.estimatedVolume, 0)
-    cumulative = delivered
-    totalLoad = point.estimatedVolume
-  }
-  if (isBottles && totalBottles > 0) {
-    return Math.min(Math.round(cumulative), totalBottles)
-  }
-  return cumulative
 }
 
 function TelemetrySignal({

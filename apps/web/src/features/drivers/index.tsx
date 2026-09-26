@@ -92,7 +92,7 @@ export function DriversPage() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder='Rechercher un chauffeur, permis, entreprise…'
+              placeholder={t('search.driver')}
               className='h-9 ps-9'
             />
           </div>

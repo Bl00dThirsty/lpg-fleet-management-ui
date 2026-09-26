@@ -1,38 +1,43 @@
-# CSPH GPL Traceability System — Documentation Set
+<!-- generated-by: gsd-doc-writer -->
+# CSPH GPL Traceability System — phased scaffold
 
-**Schema version:** v6.2 (PostgreSQL 15 + PostGIS + TimescaleDB)
-**Domain:** National LPG/GPL (bottled 50kg + vrac) distribution traceability under CSPH (Caisse de Stabilisation des Prix des Hydrocarbures) regulation, Cameroon.
-**Source of truth used for these docs:** `csph_gpl_schema_v6_2.sql` (authoritative, executable DDL) cross-referenced against `TODO.md` (target functional/API/UX spec) and the 10 seed JSON files.
+This directory is the implementation-facing scaffold for the CSPH GPL traceability platform. It is intentionally phase-oriented, but the executable SQL schema is authoritative for table, column, constraint, enum, and status names.
 
-> ⚠️ **Important divergence note:** `TODO.md` describes an *aspirational* target (e.g. `GEOGRAPHY` columns, `full_name`, `BIGSERIAL` ids, `mfa_enabled` boolean, extra enum values like `NONE`/`SEQUENCE_MISMATCH` for `conflict_status`, extra columns like `expected_quantity`, `terms_json`, `escalation_hours`). The **actual v6.2 SQL** uses `GEOMETRY(POINT,4326)`, `first_name`/`last_name`, `UUID` PKs, `mfa_status` enum, free-text `conflict_status VARCHAR(20)`, and does **not** have `expected_quantity`, `terms_json`, or `escalation_hours`/`escalation_group_id`. Every doc below is grounded in the real SQL first and flags TODO.md deltas explicitly as **"TODO.md target, not yet in schema."**
+## Source-of-truth order
 
-## Document Map
+1. [`../../..//csph_gpl_schema_v6_2.sql`](../../../csph_gpl_schema_v6_2.sql) for database names and constraints.
+2. [`../../../TODO.md`](../../../TODO.md) for target workflows and acceptance intent.
+3. Current frontend source, `AGENTS.md`, and the canonical docs in [`../`](../) for implemented architecture.
+4. Curated fixtures under `packages/mock-data/src/seed/curated/` for development examples, not schema authority.
 
-| File | Purpose |
-|---|---|
-| `00_README.md` | This index |
-| `01_DATA_MODEL.md` | Full entity catalog: every table, column, type, constraint, enum, relationship (ERD in prose + Mermaid) |
-| `02_RBAC_ROLES_PERMISSIONS.md` | Role hierarchy, permission model, `user_site_assignments` scoping, custom roles, MFA |
-| `03_STATE_MACHINES.md` | Every status enum as a state machine: sites, client_sites, delivery_tours, checkpoints, pickup_requests, devices, rfid_tags, declarations→reconciliations→redressements, anomalies |
-| `04_WORKFLOWS_AND_FLUX.md` | End-to-end business flows (Flux 1 Approvisionnement, Flux 2a/2b Livraison, Péréquation, Anomaly routing, Risk scoring, Reporting) |
-| `05_API_ENDPOINTS.md` | Full REST + WebSocket route map, grounded in schema, cross-checked vs TODO.md |
-| `06_ROLE_FEATURES_AND_VIEWS.md` | Per-role screen/feature breakdown: what each of the 8 system roles can see and do |
-| `07_MASTER_IMPLEMENTATION_PROMPT.md` | Deep, single master prompt to hand to a coding agent (Claude Code / other) to implement or audit the full system |
+The current frontend is a Vite/React/TanStack Router application in `apps/web`; this scaffold does not establish a backend deployment or assert that every TODO endpoint exists.
 
-## System Snapshot (from seed data)
+## Phased delivery map
 
-- **10 regions** of Cameroon (Adamaoua → Sud-Ouest)
-- **15 organizations**: 1 REGULATEUR (CSPH), 7 MARKETEUR, 1 DEPOT (SCDP), 2 TRANSPORTEUR, 4 CLIENT
-- **8 `system_role` values**: SUPERADMIN, ADMIN, SUPERVISOR, INTEGRATEUR, AGENT, MARKETEUR, LIVREUR, TRANSPORTEUR
-- **40 tables**, **~62 FK relationships**, **29 enum types** (per the project's own dbdiagram.io validation pass)
-- **5 TimescaleDB hypertables**: `audit_logs`, `device_status_history`, `vehicle_positions`, `scan_events`, `monitoring_metrics`
-- **11 settings-driven thresholds** (no hardcoded business rules)
-- **2 materialized views**: `mv_site_risk_summary`, `mv_marketeur_declaration_summary` (explicitly labeled as *proposals* in the SQL comments — verify against original design intent before relying on them)
+| Phase | Scaffold | Outcome |
+|---|---|---|
+| 0 | [`01_DATA_MODEL.md`](01_DATA_MODEL.md) | Schema-aligned entities, relationships, and boundaries |
+| 1 | [`02_RBAC_ROLES_PERMISSIONS.md`](02_RBAC_ROLES_PERMISSIONS.md) | Hierarchy, effective permissions, scope |
+| 2 | [`03_STATE_MACHINES.md`](03_STATE_MACHINES.md) | Exact status lifecycles and guards |
+| 3 | [`04_WORKFLOWS_AND_FLUX.md`](04_WORKFLOWS_AND_FLUX.md) | End-to-end business sequences |
+| 4 | [`05_API_ENDPOINTS.md`](05_API_ENDPOINTS.md) | Contract boundary without invented endpoints |
+| 5 | [`06_ROLE_FEATURES_AND_VIEWS.md`](06_ROLE_FEATURES_AND_VIEWS.md) | Permission-gated frontend views |
+| 6 | [`07_MASTER_IMPLEMENTATION_PROMPT.md`](07_MASTER_IMPLEMENTATION_PROMPT.md) | Implementation/audit checklist |
+| 7 | [`08_CREATE_FORMS_AND_WORKFLOWS.md`](08_CREATE_FORMS_AND_WORKFLOWS.md) | Form and mutation conventions |
 
-## Reading Order
+## Cross-cutting frontend contract
 
-1. Start with `01_DATA_MODEL.md` to understand the shape of the data.
-2. Read `02_RBAC_ROLES_PERMISSIONS.md` to understand *who* can act.
-3. Read `03_STATE_MACHINES.md` and `04_WORKFLOWS_AND_FLUX.md` to understand *what happens, in what order*.
-4. Read `05_API_ENDPOINTS.md` and `06_ROLE_FEATURES_AND_VIEWS.md` for the concrete surface area.
-5. Use `07_MASTER_IMPLEMENTATION_PROMPT.md` as the operational prompt for any implementation/audit session.
+- Static routes only under `apps/web/src/routes/_authenticated/<domain>/index.tsx`; no role-prefixed or dynamic role/module router. All roles land on `/overview` after login. `/dashboard` remains a separate national view.
+- Features use `features/<domain>/{index.tsx,components,data,lib,utils}`. Pure state machines and business rules live in `lib/` with colocated tests; data/view builders live in `data/`.
+- Effective authorization is dual-layer: `system_role` grants OR active `custom_roles`, constrained by site scope. UI guards, store guards, and form scoping are defense in depth; the backend remains authoritative.
+- Operational data builders apply `getScope`/`scopeFilter`/`scopeBySiteOrCreator`; MARKETEUR sees its site and own creations, TRANSPORTEUR sees its organization's operational scope, AGENT sees assigned sites, and LIVREUR sees assigned missions.
+- Business thresholds are read from `settings` (`packages/mock-data/src/settings.ts`, curated `10_system_config.json`); no embedded geo, battery, offline, SLA, retention, MFA, GPS, or tolerance values.
+- VRAC is displayed in **TM**; 50 kg bottles are counted as **btl**.
+- Forms use `react-hook-form`, Zod, and shadcn `Form`; validation is inline through `FormMessage`, never toasted. Mutations use the shared toast feedback path with exactly one Sonner outcome per mutation, disable while pending, and invalidate the affected resource query key. WebSocket events invalidate matching query keys too.
+- Data-heavy routes expose loading, error, empty, and stale/pending states. Animation must honor `usePrefersReducedMotion`; labels are localized in FR/EN.
+- Certificates, proofs, reports, and other binaries belong in MinIO. The database stores URL references only. Deletes on soft-delete tables set `deleted_at`; reads omit deleted rows; no restore endpoint is documented.
+- Curated market/organization fixtures are imported into the fake adapter as development seed data. Fixture rows are not a production import contract: fake login selects an `AUTH_FIXTURES` profile by email, and CRUD changes are local in-memory mutations. Features must access data through `@lpg/api-client`, not import curated JSON directly.
+
+## Reading map
+
+Use [`../domain-model.md`](../domain-model.md), [`../data-and-settings.md`](../data-and-settings.md), [`../permissions-and-rbac.md`](../permissions-and-rbac.md), [`../features-and-routes.md`](../features-and-routes.md), [`../architecture.md`](../architecture.md), [`../state-machines.md`](../state-machines.md), and [`../workflows.md`](../workflows.md) for the maintained cross-cutting truth. The scaffold phases point back to those documents when a table is not the right place to repeat frontend conventions.

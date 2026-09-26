@@ -1,5 +1,6 @@
 import { type ElementType } from 'react'
-import { ArrowRight, Gauge, MapPinned, Package, Truck } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { ArrowRight, MapPinned, Package, Truck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -18,7 +19,6 @@ import {
 type TourLpgVariationPanelProps = {
   trip: RouteTripView
   formatQuantity: (value: number) => string
-  zeroUnit?: string
 }
 
 const toneClasses = {
@@ -39,35 +39,46 @@ const toneClasses = {
 export function TourLpgVariationPanel({
   trip,
   formatQuantity,
-  zeroUnit = '0 TM',
 }: TourLpgVariationPanelProps) {
+  const { t } = useTranslation('dashboard')
+  // The dashboard namespace owns the canonical \unavailable\ wording.
+  const unavailableLabel = t('telemetry.unavailable')
   const variation = buildRouteLpgVariation(trip)
-  const [loadingStage, liveStage, projectedStage] = variation.stages as [RouteLpgVariationStage, RouteLpgVariationStage, RouteLpgVariationStage]
+
+  if (!trip.telemetry.some((point) => point.meterReading != null)) {
+    return (
+      <Card className='overflow-hidden border-transparent shadow-sm'>
+        <CardHeader className='border-b bg-muted/20'>
+          <CardTitle>{t('telemetry.variationTitle')}</CardTitle>
+          <CardDescription>{t('telemetry.variationUnavailable')}</CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  const [loadingStage, liveStage, deliveredStage, remainingStage] =
+    variation.stages as [
+      RouteLpgVariationStage,
+      RouteLpgVariationStage,
+      RouteLpgVariationStage,
+      RouteLpgVariationStage,
+    ]
 
   return (
     <Card className='overflow-hidden border-transparent shadow-sm'>
       <CardHeader className='border-b bg-muted/20'>
         <div className='flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between'>
           <div>
-            <CardTitle>Variation GPL sur la tournée</CardTitle>
-            <CardDescription>
-              Comparaison du niveau au chargement, du dernier niveau relevé et
-              de la projection après la prochaine livraison.
-            </CardDescription>
+            <CardTitle>{t('variation.title')}</CardTitle>
+            <CardDescription>{t('variation.description')}</CardDescription>
           </div>
 
           <div className='flex flex-wrap gap-2'>
-            <Badge
-              variant='outline'
-              className='gap-1 border-transparent bg-background/70'
-            >
+            <Badge variant='outline' className='gap-1 border-transparent bg-background/70'>
               <Truck className='size-3.5' />
               {trip.truck.id}
             </Badge>
-            <Badge
-              variant='outline'
-              className='gap-1 border-transparent bg-background/70'
-            >
+            <Badge variant='outline' className='gap-1 border-transparent bg-background/70'>
               <MapPinned className='size-3.5' />
               {trip.originSite.city} - {trip.destinationSite.city}
             </Badge>
@@ -79,75 +90,84 @@ export function TourLpgVariationPanel({
         <div className='flex flex-col gap-3 xl:flex-row xl:items-stretch'>
           <StageCard
             stage={loadingStage}
-            hint={`Depart ${trip.originSite.name}`}
+            hint={t('variation.departHint', { site: trip.originSite.name })}
             formatQuantity={formatQuantity}
-          />
-
-          <FlowConnector
-            value={formatQuantity(Math.abs(liveStage!.delta))}
-            label='variation mesuree'
-          />
-
-          <StageCard
-            stage={liveStage!}
-            hint={`Dernier ping ${trip.truck.current_location}`}
-            formatQuantity={formatQuantity}
+            unavailableLabel={unavailableLabel}
           />
 
           <FlowConnector
             value={
-              variation.nextDrop > 0
-                ? formatQuantity(variation.nextDrop)
-                : 'Aucun drop'
+              liveStage.delta == null
+                ? unavailableLabel
+                : formatQuantity(Math.abs(liveStage.delta))
             }
-            label='prochaine sortie GPL'
+            label={t('variation.measured')}
           />
 
           <StageCard
-            stage={projectedStage!}
-            hint={
-              trip.status === 'completed'
-                ? 'Mission cloturee'
-                : `Projection apres ${trip.nextStop.site.name}`
-            }
+            stage={liveStage}
+            hint={t('variation.lastPing', {
+              location: trip.truck.current_location ?? '—',
+            })}
             formatQuantity={formatQuantity}
+            unavailableLabel={unavailableLabel}
+          />
+
+          <FlowConnector
+            value={formatQuantity(variation.delivered)}
+            label={t('variation.delivered')}
+          />
+
+          <StageCard
+            stage={deliveredStage}
+            hint={t('variation.deliveredHint')}
+            formatQuantity={formatQuantity}
+            unavailableLabel={unavailableLabel}
+          />
+
+          <FlowConnector
+            value={formatQuantity(trip.remainingQuantity)}
+            label={t('variation.remaining')}
+          />
+
+          <StageCard
+            stage={remainingStage}
+            hint={t('variation.remainingHint')}
+            formatQuantity={formatQuantity}
+            unavailableLabel={unavailableLabel}
           />
         </div>
 
         <div className='grid gap-3 md:grid-cols-3'>
           <MetricTile
             icon={Package}
-            label='Livraison comptabilisée'
+            label={t('variation.recordedDelivery')}
             value={formatQuantity(variation.delivered)}
-            hint={`${variation.deliveredPercent}% déjà livrés`}
+            hint={t('variation.deliveredPercentHint', {
+              value: variation.deliveredPercent,
+            })}
           />
           <MetricTile
             icon={ArrowRight}
-            label='Prochaine étape'
-            value={
-              variation.nextDrop > 0
-                ? formatQuantity(variation.nextDrop)
-                : 'Aucune sortie GPL'
-            }
+            label={t('variation.nextStopLabel')}
+            // Only a genuinely pending checkpoint can be named here; the tour
+            // never projects a quantity for a stop that was already visited.
+            value={variation.nextStopSiteName ?? t('variation.noNextStop')}
             hint={
               trip.status === 'completed'
-                ? 'Tournée finalisée'
-                : trip.nextStop.site.name
+                ? t('variation.finalized')
+                : t('variation.nextStopLabel')
             }
           />
           <MetricTile
-            icon={Gauge}
-            label='Ecart telemetry'
+            icon={Package}
+            label={t('variation.liveReading')}
             value={
-              variation.telemetryGap > 0
-                ? formatQuantity(variation.telemetryGap)
-                : zeroUnit
+              variation.liveReading == null
+                ? unavailableLabel
+                : formatQuantity(variation.liveReading)
             }
-            hint={
-              variation.telemetryGap > 0
-                ? 'À rapprocher du stock déclaré'
-                : 'Stock déclaré cohérent'
-            }
+            hint={t('variation.stageLive')}
           />
         </div>
       </CardContent>
@@ -159,37 +179,47 @@ function StageCard({
   stage,
   hint,
   formatQuantity,
+  unavailableLabel,
 }: {
   stage: RouteLpgVariationStage
   hint: string
   formatQuantity: (value: number) => string
+  unavailableLabel: string
 }) {
+  const { t } = useTranslation('dashboard')
   const tone = toneClasses[stage.tone]
+  // An absent measurement renders as unavailable, never as a measured zero.
   const deltaText =
-    stage.delta === 0
-      ? 'Base de reference'
+    stage.delta == null || stage.delta === 0
+      ? stage.delta === 0
+        ? t('variation.baseline')
+        : unavailableLabel
       : `${stage.delta > 0 ? '+' : '-'}${formatQuantity(Math.abs(stage.delta))}`
 
   return (
     <div className='min-w-0 flex-1 rounded-2xl bg-muted/30 p-4 shadow-xs'>
       <div className='flex items-start justify-between gap-3'>
         <div>
-          <p className='text-sm font-medium'>{stage.label}</p>
+          <p className='text-sm font-medium'>{t(stage.labelKey)}</p>
           <p className='mt-1 text-xs text-muted-foreground'>{hint}</p>
         </div>
-        <Badge className={cn('font-medium', tone.badge)}>{stage.percent}%</Badge>
+        <Badge className={cn('font-medium', tone.badge)}>
+          {stage.percent == null ? unavailableLabel : `${stage.percent}%`}
+        </Badge>
       </div>
 
       <div className='mt-4 space-y-3'>
         <p className='text-2xl font-semibold tracking-tight'>
-          {formatQuantity(stage.quantity)}
+          {stage.quantity == null
+            ? unavailableLabel
+            : formatQuantity(stage.quantity)}
         </p>
 
         <div className='space-y-1.5'>
           <div className='h-2 overflow-hidden rounded-full bg-muted'>
             <div
               className={cn('h-full rounded-full transition-all', tone.line)}
-              style={{ width: `${Math.max(stage.percent, 4)}%` }}
+              style={{ width: `${Math.max(stage.percent ?? 0, stage.quantity == null ? 0 : 4)}%` }}
             />
           </div>
           <p className='text-xs text-muted-foreground'>{deltaText}</p>
@@ -199,13 +229,7 @@ function StageCard({
   )
 }
 
-function FlowConnector({
-  value,
-  label,
-}: {
-  value: string
-  label: string
-}) {
+function FlowConnector({ value, label }: { value: string; label: string }) {
   return (
     <div className='flex flex-row items-center justify-center gap-2 rounded-2xl bg-muted/20 px-3 py-2 text-center text-xs text-muted-foreground shadow-xs xl:w-28 xl:flex-col'>
       <ArrowRight className='size-4 text-foreground/70' />

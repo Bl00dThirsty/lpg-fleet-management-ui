@@ -7,6 +7,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@lpg/ui'
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 import { usePreferencesStore } from '@/store/preferences-store'
 import { formatNumber } from '@/lib/i18n/formatters'
 
@@ -34,6 +35,7 @@ export function StatusDistribution({
   height = 260,
   donut = true,
 }: StatusDistributionProps) {
+  const reducedMotion = usePrefersReducedMotion()
   const lang = usePreferencesStore((s) => s.language)
   if (data.every((d) => d.value === 0)) {
     return (
@@ -66,6 +68,7 @@ export function StatusDistribution({
           innerRadius={donut ? 60 : 0}
           outerRadius={Math.min(height / 2 - 16, 110)}
           strokeWidth={2}
+          isAnimationActive={!reducedMotion}
         >
           {data.map((d) => (
             <Cell key={d.key} fill={`var(--color-${d.key})`} />

@@ -1,4 +1,5 @@
 import { type Table } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { Download, Power, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { sleep } from '@/lib/utils'
@@ -18,6 +19,7 @@ type DataTableBulkActionsProps<TData> = {
 export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {
+  const { t } = useTranslation('common')
   const selected = table
     .getFilteredSelectedRowModel()
     .rows.map((row) => row.original as DriverView)
@@ -42,15 +44,15 @@ export function DataTableBulkActions<TData>({
             size='icon'
             onClick={() => runBulkAction('Preparation export', 'Export pret')}
             className='size-8'
-            aria-label='Exporter les chauffeurs selectionnes'
-            title='Exporter les chauffeurs selectionnes'
+            aria-label={t('action.exportDriversSelected')}
+            title={t('action.exportDriversSelected')}
           >
             <Download />
-            <span className='sr-only'>Exporter les chauffeurs selectionnes</span>
+            <span className='sr-only'>{t('action.exportDriversSelected')}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Exporter les chauffeurs selectionnes</p>
+          <p>{t('action.exportDriversSelected')}</p>
         </TooltipContent>
       </Tooltip>
 

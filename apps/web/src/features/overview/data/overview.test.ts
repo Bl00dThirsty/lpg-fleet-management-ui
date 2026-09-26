@@ -60,8 +60,6 @@ describe('overview view-model', () => {
     const transported = cards.find((c) => c.id === 'transported')
     expect(transported).toBeDefined()
 
-    const reserve = cards.find((c) => c.id === 'reserve')
-    expect(reserve?.progress).toBe(dashboard.overview.reserveFillPercent)
   })
 
   it('every card carries a deep link and an icon', () => {

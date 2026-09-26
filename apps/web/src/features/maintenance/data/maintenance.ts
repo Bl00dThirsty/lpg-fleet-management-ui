@@ -1,4 +1,5 @@
 import { curated } from '@lpg/mock-data'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type MaintenanceItemType = 'DEVICE' | 'VEHICLE'
 
@@ -16,23 +17,46 @@ export interface MaintenanceView {
   updatedAt: string
 }
 
-export const MAINTENANCE_STATUS_LABELS: Record<MaintenanceStatus, string> = {
+const MAINTENANCE_STATUS_LABELS: Record<MaintenanceStatus, string> = {
   CRITIQUE: 'Critique',
   AOA: 'À traiter',
   RESOLU: 'Résolu',
 }
 
-export function maintenanceStatusLabel(status: MaintenanceStatus): string {
-  return MAINTENANCE_STATUS_LABELS[status]
+const MAINTENANCE_STATUS_CLASSES: Record<MaintenanceStatus, string> = {
+  CRITIQUE: 'bg-rose-100 text-rose-800',
+  AOA: 'bg-amber-100 text-amber-800',
+  RESOLU: 'bg-emerald-100 text-emerald-800',
 }
 
-export const ITEM_TYPE_LABELS: Record<MaintenanceItemType, string> = {
+/** Single source of truth for the maintenance status UI (AGENTS.md §3). */
+export const maintenanceStatusDisplay = makeStatusDisplay<MaintenanceStatus>({
+  labels: MAINTENANCE_STATUS_LABELS,
+  classes: MAINTENANCE_STATUS_CLASSES,
+})
+
+export function maintenanceStatusLabel(status: MaintenanceStatus): string {
+  return maintenanceStatusDisplay.label(status)
+}
+
+const ITEM_TYPE_LABELS: Record<MaintenanceItemType, string> = {
   DEVICE: 'Appareil',
   VEHICLE: 'Véhicule',
 }
 
+const ITEM_TYPE_CLASSES: Record<MaintenanceItemType, string> = {
+  DEVICE: 'bg-sky-100 text-sky-800',
+  VEHICLE: 'bg-indigo-100 text-indigo-800',
+}
+
+/** Single source of truth for the maintenance item-type UI (AGENTS.md §3). */
+export const itemTypeDisplay = makeStatusDisplay<MaintenanceItemType>({
+  labels: ITEM_TYPE_LABELS,
+  classes: ITEM_TYPE_CLASSES,
+})
+
 export function itemTypeLabel(type: MaintenanceItemType): string {
-  return ITEM_TYPE_LABELS[type]
+  return itemTypeDisplay.label(type)
 }
 
 const orgNameById: Record<string, string> = Object.fromEntries(

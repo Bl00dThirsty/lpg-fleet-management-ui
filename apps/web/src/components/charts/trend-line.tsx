@@ -5,6 +5,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@lpg/ui'
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
 import { usePreferencesStore } from '@/store/preferences-store'
 import { formatNumber } from '@/lib/i18n/formatters'
 
@@ -36,6 +37,7 @@ export function TrendLine({
   height = 220,
   hideXTicks,
 }: TrendLineProps) {
+  const reducedMotion = usePrefersReducedMotion()
   const lang = usePreferencesStore((s) => s.language)
   return (
     <ChartContainer config={config} className={`h-[${height}px] w-full`}>
@@ -75,6 +77,7 @@ export function TrendLine({
           fillOpacity={0.18}
           stroke='var(--color-value)'
           strokeWidth={2}
+          isAnimationActive={!reducedMotion}
         />
       </AreaChart>
     </ChartContainer>

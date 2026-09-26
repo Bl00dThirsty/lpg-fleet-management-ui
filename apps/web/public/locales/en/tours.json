@@ -53,6 +53,8 @@
     "none": "--"
   },
   "empty": "No tour matches the filters.",
+  "nextStop": "Next step: {{site}}",
+  "noNextStop": "No pending stop",
   "cargo": {
     "VRAC": "Bulk LPG",
     "BOUTEILLES50KG": "50 kg bottles"

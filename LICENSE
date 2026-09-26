@@ -1,21 +1,137 @@
-MIT License
+GOVERNMENT PROPRIETARY SOFTWARE LICENSE
+ALL RIGHTS RESERVED
 
-Copyright (c) 2024 Sat Naing
+Project: CSPH GPL Traceability Platform — Frontend
+Developer and copyright holder: DTA Innotech Lab
+Project implementation year: 2026
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. PURPOSE
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This software, including its source code, object code, user interfaces,
+designs, documentation, schemas, fixtures, configurations, data models, and
+related materials (collectively, the "Software"), is a proprietary government
+project developed for the operation and presentation of the CSPH GPL
+Traceability Platform.
+
+The Software is provided for authorized governmental, regulatory, operational,
+security, audit, maintenance, and approved contractor use only.
+
+2. OWNERSHIP
+
+DTA Innotech Lab asserts copyright and proprietary rights in the Software to
+the extent authorized by the applicable government project agreement. The
+Software is not released as a public-domain work or under an open-source
+license.
+
+Ownership of source materials does not imply ownership of government data,
+operational records, credentials, certificates, reports, or other information
+processed by the Software. Such information remains subject to its applicable
+ownership, confidentiality, data-protection, and records-management rules.
+
+3. AUTHORIZED USE
+
+Use of the Software is authorized only for:
+
+a. the intended governmental or regulatory purpose;
+b. authorized internal operations and administration;
+c. security review, audit, compliance, and incident response;
+d. authorized maintenance, support, testing, and implementation work; and
+e. use by contractors or third parties under a written confidentiality,
+   security, intellectual-property, and access-control agreement.
+
+Access must be limited to personnel who have a legitimate operational or
+security need and have been formally authorized.
+
+4. PROHIBITED USE
+
+Unless expressly authorized in writing by the competent project authority and
+DTA Innotech Lab, no person may:
+
+a. copy, publish, mirror, upload, or distribute the Software;
+b. sell, rent, lease, sublicense, or provide the Software as a hosted or
+   managed service;
+c. remove, obscure, or alter copyright, license, security, ownership, or
+   attribution notices;
+d. disclose source code, credentials, security controls, private infrastructure,
+   internal documentation, or sensitive project information;
+e. use the Software for commercial exploitation, resale, data extraction,
+   competitive intelligence, or any unauthorized purpose;
+f. bypass, disable, or interfere with authentication, authorization, audit,
+   logging, encryption, rate limits, input validation, or other security
+   controls;
+g. probe, scan, test, or access systems, accounts, data, or endpoints without
+   explicit written authorization;
+h. attempt to obtain, retain, disclose, or alter another user's credentials or
+   personal data;
+i. reverse engineer, decompile, disassemble, extract source code from, or derive
+   protected implementation details from the Software except to the limited
+   extent such restriction is prohibited by applicable law;
+j. use the Software to develop, train, benchmark, or feed another product
+   without written authorization; or
+k. represent that DTA Innotech Lab or the competent authority endorses an
+   unauthorized product, service, or use.
+
+5. SECURITY AND CONFIDENTIALITY
+
+The Software and related materials may contain security-sensitive architecture,
+weaknesses, configurations, data models, and operational procedures. Users
+must comply with all applicable government security, classification,
+confidentiality, privacy, and data-protection requirements.
+
+Any suspected vulnerability, security incident, credential exposure, or
+unauthorized access must be reported through the official project security
+channel described in SECURITY.md. Good-faith reports must not be treated as
+hostile activity when they follow the authorized reporting process.
+
+6. THIRD-PARTY COMPONENTS
+
+The Software may rely on third-party libraries and components under their own
+licenses. This license does not restrict, replace, or supersede those
+third-party terms. Third-party notices must remain intact where required.
+
+7. DATA AND CONFIDENTIALITY
+
+The Software must not be used to place credentials, secrets, personal data,
+certificates, evidence, or restricted government records in source control,
+client-side persistent storage, logs, URLs, analytics, or unapproved external
+services. Evidence and document object content must be handled according to
+the project's MinIO/S3 and access-control requirements.
+
+8. NO WARRANTY
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, ACCURACY, AVAILABILITY, SECURITY, AND NON-INFRINGEMENT. THE SOFTWARE
+IS INTENDED FOR OPERATIONAL DECISIONS ONLY WHEN ITS DATA, STATUS, FRESHNESS,
+AUTHORIZATION SCOPE, AND AUDIT TRAIL HAVE BEEN VALIDATED.
+
+9. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DTA INNOTECH LAB AND THE
+COMPETENT GOVERNMENT AUTHORITY SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES, OR FOR LOSS OF DATA,
+PROFITS, REVENUE, SERVICE, OR AVAILABILITY ARISING FROM THE SOFTWARE OR ITS
+USE, EXCEPT TO THE EXTENT SUCH EXCLUSION IS PROHIBITED BY LAW.
+
+Nothing in this license excludes liability that cannot lawfully be excluded.
+
+10. TERMINATION
+
+Any unauthorized use, distribution, disclosure, security interference, or
+rights violation automatically terminates the applicable authorization. The
+competent project authority may suspend access, preserve audit evidence, and
+seek remedies available under law and contract.
+
+11. GOVERNING AUTHORITY
+
+Use and distribution must comply with the laws of the jurisdiction in which
+the project is deployed. Any interpretation, exception, relicensing, public
+release, or change of ownership requires prior written authorization from the
+competent authority and DTA Innotech Lab.
+
+12. CONTACT
+
+Requests for licensing, authorization, security reporting, or clarification
+must be submitted through the official CSPH or DTA Innotech Lab project
+channels. Do not place private contact information in public issue trackers or
+source code.

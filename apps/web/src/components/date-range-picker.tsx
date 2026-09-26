@@ -54,6 +54,7 @@ type DateRangePickerProps = {
   onValueChange?: (value: DateRangeValue) => void
   placeholder?: string
   className?: string
+  ariaLabel?: string
   align?: 'start' | 'center' | 'end'
   presets?: boolean
 }
@@ -70,6 +71,7 @@ export function DateRangePicker({
   onValueChange,
   placeholder = 'Choisir une période',
   className,
+  ariaLabel,
   align = 'end',
   presets = true,
 }: DateRangePickerProps) {
@@ -119,6 +121,7 @@ export function DateRangePicker({
             !value?.from && 'text-muted-foreground',
             className
           )}
+          aria-label={ariaLabel}
         >
           <CalendarIcon className='mr-2 size-4 shrink-0 opacity-60' />
           <span className='truncate'>{label}</span>

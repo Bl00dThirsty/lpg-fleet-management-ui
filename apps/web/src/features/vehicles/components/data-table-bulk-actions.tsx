@@ -1,4 +1,5 @@
 import { type Table } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { Download, Route, Wrench } from 'lucide-react'
 import { toast } from 'sonner'
 import { sleep } from '@/lib/utils'
@@ -18,6 +19,7 @@ type DataTableBulkActionsProps<TData> = {
 export function DataTableBulkActions<TData>({
   table,
 }: DataTableBulkActionsProps<TData>) {
+  const { t } = useTranslation('common')
   const selected = table
     .getFilteredSelectedRowModel()
     .rows.map((row) => row.original as VehicleView)
@@ -42,15 +44,15 @@ export function DataTableBulkActions<TData>({
             size='icon'
             onClick={() => runBulkAction('Preparation export', 'Export pret')}
             className='size-8'
-            aria-label='Exporter les vehicules selectionnes'
-            title='Exporter les vehicules selectionnes'
+            aria-label={t('action.exportVehiclesSelected')}
+            title={t('action.exportVehiclesSelected')}
           >
             <Download />
-            <span className='sr-only'>Exporter les vehicules selectionnes</span>
+            <span className='sr-only'>{t('action.exportVehiclesSelected')}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Exporter les vehicules selectionnes</p>
+          <p>{t('action.exportVehiclesSelected')}</p>
         </TooltipContent>
       </Tooltip>
 

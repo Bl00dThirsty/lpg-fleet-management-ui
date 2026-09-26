@@ -1,7 +1,8 @@
 import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { pingDotClasses } from './status-indicator-motion'
 
-const PULSE_DOT_CLASSES: Record<string, string> = {
+const PULSE_DOT_CLASSES = {
   emerald: 'bg-emerald-500',
   rose: 'bg-rose-500',
   amber: 'bg-amber-500',
@@ -10,19 +11,25 @@ const PULSE_DOT_CLASSES: Record<string, string> = {
   slate: 'bg-slate-500',
   red: 'bg-red-600',
   muted: 'bg-muted-foreground',
-}
+} satisfies Record<string, string>
+
+export type StatusTone = keyof typeof PULSE_DOT_CLASSES
 
 type StatusIndicatorProps = {
   children: ReactNode
-  tone?: keyof typeof PULSE_DOT_CLASSES
+  tone?: StatusTone
   ariaLabel?: string
+  pulse?: boolean
 }
 
 export function StatusIndicator({
   children,
   tone = 'emerald',
   ariaLabel,
+  pulse = false,
 }: StatusIndicatorProps) {
+  const toneClass = PULSE_DOT_CLASSES[tone]
+  const ping = pingDotClasses(toneClass, pulse)
   return (
     <span
       className='inline-flex items-center gap-2'
@@ -32,24 +39,16 @@ export function StatusIndicator({
     >
       <span
         aria-hidden='true'
-        className={cn(
-          'relative inline-flex size-2 shrink-0 rounded-full',
-          PULSE_DOT_CLASSES[tone]
-        )}
+        className={cn('relative inline-flex size-2 shrink-0 rounded-full', toneClass)}
       >
-        <span
-          className={cn(
-            'absolute inset-0 -m-0.5 animate-ping rounded-full opacity-50',
-            PULSE_DOT_CLASSES[tone]
-          )}
-        />
+        {ping ? <span className={cn(ping)} /> : null}
       </span>
       <span>{children}</span>
     </span>
   )
 }
 
-export const STATUS_TONE_MAP: Record<string, keyof typeof PULSE_DOT_CLASSES> = {
+export const STATUS_TONE_MAP: Record<string, StatusTone> = {
   ACTIVE: 'emerald',
   INACTIVE: 'slate',
   ASSIGNED: 'emerald',

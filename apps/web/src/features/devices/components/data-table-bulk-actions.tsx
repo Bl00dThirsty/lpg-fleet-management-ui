@@ -1,4 +1,5 @@
 import { type Table } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { Download, Power, RotateCcw, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,6 +23,7 @@ export function DataTableBulkActions<TData>({
   canWrite,
   onRun,
 }: DataTableBulkActionsProps<TData>) {
+  const { t } = useTranslation('common')
   const selected = table
     .getFilteredSelectedRowModel()
     .rows.map((row) => row.original as DeviceView)
@@ -39,15 +41,15 @@ export function DataTableBulkActions<TData>({
             size='icon'
             onClick={() => run('export')}
             className='size-8'
-            aria-label='Exporter les appareils sélectionnés'
-            title='Exporter les appareils sélectionnés'
+            aria-label={t('action.exportDevicesSelected')}
+            title={t('action.exportDevicesSelected')}
           >
             <Download />
-            <span className='sr-only'>Exporter les appareils sélectionnés</span>
+            <span className='sr-only'>{t('action.exportDevicesSelected')}</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Exporter en CSV</p>
+          <p>{t('action.exportCsv')}</p>
         </TooltipContent>
       </Tooltip>
 

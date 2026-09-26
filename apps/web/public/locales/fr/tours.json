@@ -53,6 +53,8 @@
     "none": "--"
   },
   "empty": "Aucune tournée ne correspond aux filtres.",
+  "nextStop": "Prochaine étape : {{site}}",
+  "noNextStop": "Aucune étape en attente",
   "cargo": {
     "VRAC": "GPL vrac",
     "BOUTEILLES50KG": "Bouteilles 50 kg"

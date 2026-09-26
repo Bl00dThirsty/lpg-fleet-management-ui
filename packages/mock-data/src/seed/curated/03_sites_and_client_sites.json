@@ -921,11 +921,11 @@
         11.523741001080118,
         3.8963429674064303
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -933,7 +933,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-nkolzoa-0001",
@@ -948,11 +948,11 @@
         11.51,
         3.88
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -960,7 +960,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tam-tam-0002",
@@ -975,11 +975,11 @@
         11.492204881313842,
         3.8354183866795633
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -987,7 +987,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-olembe-0003",
@@ -1002,11 +1002,11 @@
         11.538451085261825,
         3.964776058134128
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1014,7 +1014,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-etoudi-0004",
@@ -1029,11 +1029,11 @@
         11.527011013117047,
         3.923343676600935
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1041,7 +1041,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-nkolmesseng-0005",
@@ -1056,11 +1056,11 @@
         11.552073574211304,
         3.8949141863404577
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1068,7 +1068,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-titi-garage-0006",
@@ -1083,11 +1083,11 @@
         11.53,
         3.87
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1095,7 +1095,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-golf-0007",
@@ -1110,11 +1110,11 @@
         11.498498159846491,
         3.8975674403613163
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1122,7 +1122,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-don-bosco-0008",
@@ -1137,11 +1137,11 @@
         11.560476385710308,
         3.8724432425326674
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1149,7 +1149,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-nkoabang-0009",
@@ -1164,11 +1164,11 @@
         11.59391270873692,
         3.8648145551947666
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1176,7 +1176,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-nkol-so-o-0010",
@@ -1191,11 +1191,11 @@
         11.480199608016543,
         3.871953707056975
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1203,7 +1203,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-kondengui-0011",
@@ -1218,11 +1218,11 @@
         11.535671318224882,
         3.854202849949273
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1230,7 +1230,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ekounou-0012",
@@ -1245,11 +1245,11 @@
         11.53137978379093,
         3.844954050600283
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1257,7 +1257,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-efoulan-0013",
@@ -1272,11 +1272,11 @@
         11.507507759842737,
         3.8404491753786316
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1284,7 +1284,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ekie-0014",
@@ -1299,11 +1299,11 @@
         11.51,
         3.8
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1311,7 +1311,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-nkolbikogo-0015",
@@ -1326,11 +1326,11 @@
         11.5645607762807,
         3.8188273687289023
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1338,7 +1338,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tropicana-0016",
@@ -1353,11 +1353,11 @@
         11.51478390636326,
         3.81904037417736
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1365,7 +1365,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-simbock-0017",
@@ -1380,11 +1380,11 @@
         11.471844482596161,
         3.8205879985502276
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1392,7 +1392,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ahala-0018",
@@ -1407,11 +1407,11 @@
         11.484911875184189,
         3.796156469361626
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1419,7 +1419,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-messamendongo-0019",
@@ -1434,11 +1434,11 @@
         11.5,
         3.75
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1446,7 +1446,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-mbalgong-0020",
@@ -1461,11 +1461,11 @@
         11.463826313807267,
         3.803251802219397
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1473,7 +1473,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-neptune-oil-ekombitie-0021",
@@ -1488,11 +1488,11 @@
         11.515032480645203,
         3.951018174635086
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1500,7 +1500,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-manguier-0022",
@@ -1515,11 +1515,11 @@
         11.53395132915816,
         3.902773997174498
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1527,7 +1527,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-soa-0023",
@@ -1542,11 +1542,11 @@
         11.594047454378659,
         3.982910676204194
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1554,7 +1554,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-sa-a-0024",
@@ -1569,11 +1569,11 @@
         11.437806103827851,
         4.369072685086392
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1581,7 +1581,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-obala-0025",
@@ -1596,11 +1596,11 @@
         11.533607775208864,
         4.160474385702788
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1608,7 +1608,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-okola-0026",
@@ -1623,11 +1623,11 @@
         11.380637323884462,
         4.02738379486574
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1635,7 +1635,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ayene-0027",
@@ -1650,11 +1650,11 @@
         11.589757492148623,
         3.8166570826949475
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1662,7 +1662,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-logbessou-0028",
@@ -1677,11 +1677,11 @@
         9.782315395006977,
         4.0886220023606805
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1689,7 +1689,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-kotto-0029",
@@ -1704,11 +1704,11 @@
         9.75355836776717,
         4.097307525629204
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1716,7 +1716,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-logpom-0030",
@@ -1731,11 +1731,11 @@
         9.765516654276157,
         4.087236420706852
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1743,7 +1743,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-pk14-0031",
@@ -1758,11 +1758,11 @@
         9.794126437076338,
         4.081096741631953
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1770,7 +1770,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bonamoussadi-0032",
@@ -1785,11 +1785,11 @@
         9.74031775113403,
         4.0982577814692345
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1797,7 +1797,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bonamoussadi-ii-0033",
@@ -1812,11 +1812,11 @@
         9.74134771942392,
         4.0924361977358235
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1824,7 +1824,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-nyalla-0034",
@@ -1839,11 +1839,11 @@
         9.778657496603303,
         4.035239947481025
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1851,7 +1851,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-mbanga-bakoko-0035",
@@ -1866,11 +1866,11 @@
         9.80978384036133,
         4.010931758521768
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1878,7 +1878,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ndogpassi-0036",
@@ -1893,11 +1893,11 @@
         9.77039175242146,
         4.026130147886168
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1905,7 +1905,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ngodi-bakoko-0037",
@@ -1920,11 +1920,11 @@
         9.789527797326953,
         3.99791734451603
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1932,7 +1932,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bonaberi-0038",
@@ -1947,11 +1947,11 @@
         9.65441595182851,
         4.098716418098122
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1959,7 +1959,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ngodi-akwa-0039",
@@ -1974,11 +1974,11 @@
         9.691931255532516,
         4.041074227053018
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -1986,7 +1986,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-foto-dschang-0040",
@@ -2001,11 +2001,11 @@
         10.081781229275865,
         5.463588195110789
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2013,7 +2013,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ngaoundere-1-0041",
@@ -2028,11 +2028,11 @@
         13.55828773977661,
         7.297370007463972
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2040,7 +2040,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-ngaoundere-2-beka-0042",
@@ -2055,11 +2055,11 @@
         13.553155196440525,
         7.303127861515984
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2067,7 +2067,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-garoua-boulai-0043",
@@ -2082,11 +2082,11 @@
         14.54200049661311,
         5.897548807215263
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2094,7 +2094,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-kribi-talla-0044",
@@ -2109,11 +2109,11 @@
         9.910127123581177,
         2.940819105909674
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2121,7 +2121,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-bastos-0045",
@@ -2136,11 +2136,11 @@
         11.513151855203462,
         3.8864306107223294
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2148,7 +2148,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-emana-0046",
@@ -2163,11 +2163,11 @@
         11.520018252005242,
         3.9302717298848204
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2175,7 +2175,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-mimboman-0047",
@@ -2190,11 +2190,11 @@
         11.551361311876914,
         3.8675860753800215
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2202,7 +2202,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-nsam-0048",
@@ -2217,11 +2217,11 @@
         11.508173579700243,
         3.8275088755481277
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2229,7 +2229,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-tsinga-elobi-0049",
@@ -2244,11 +2244,11 @@
         11.519660770353084,
         3.8713516039099822
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2256,7 +2256,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-odza-0050",
@@ -2271,11 +2271,11 @@
         11.52181236401625,
         3.801836166400515
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2283,7 +2283,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-ahala-0051",
@@ -2298,11 +2298,11 @@
         11.510047733242349,
         3.8751195282683395
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2310,7 +2310,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-olembe-0052",
@@ -2325,11 +2325,11 @@
         11.52681904071334,
         3.951295266068312
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2337,7 +2337,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-essomba-0053",
@@ -2352,11 +2352,11 @@
         11.547510665844174,
         3.855305691858108
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2364,7 +2364,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-mbalmayo-0054",
@@ -2379,11 +2379,11 @@
         11.50674576954773,
         3.5209183823200396
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2391,7 +2391,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-nkolmetet-0055",
@@ -2406,11 +2406,11 @@
         11.768657652350731,
         3.4376481967257693
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2418,7 +2418,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-kamkop-0056",
@@ -2433,11 +2433,11 @@
         10.386174557917743,
         5.501929182695356
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2445,7 +2445,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-dschang-0057",
@@ -2460,11 +2460,11 @@
         10.04852621188472,
         5.439268646720298
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2472,7 +2472,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-bandjoun-0058",
@@ -2487,11 +2487,11 @@
         10.39762808886354,
         5.531896234098561
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2499,7 +2499,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-bonamoussadi-0059",
@@ -2514,11 +2514,11 @@
         9.736399925369637,
         4.089964629213393
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2526,7 +2526,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-yassa-0060",
@@ -2541,11 +2541,11 @@
         9.824937725369214,
         3.9884808359324913
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2553,7 +2553,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-kotto-0061",
@@ -2568,11 +2568,11 @@
         9.752074794681233,
         4.092985128322669
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2580,7 +2580,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-ndokotti-0062",
@@ -2595,11 +2595,11 @@
         9.743270725369472,
         4.044422740444587
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2607,7 +2607,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-pk-10-0063",
@@ -2622,11 +2622,11 @@
         9.77728888118925,
         4.050332328588567
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2634,7 +2634,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-makepe-0064",
@@ -2649,11 +2649,11 @@
         9.745380638861427,
         4.08396271981393
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2661,7 +2661,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-ebolowa-0065",
@@ -2676,11 +2676,11 @@
         11.152473538857148,
         2.919996735577053
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2688,7 +2688,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-ngoye-0066",
@@ -2703,11 +2703,11 @@
         9.911057325365414,
         2.9555683029119835
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2715,7 +2715,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-sangmelima-0067",
@@ -2730,11 +2730,11 @@
         11.976966467693329,
         2.9408109323682865
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2742,7 +2742,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-lainde-garoua-0068",
@@ -2757,11 +2757,11 @@
         13.429649654076536,
         9.345533470531704
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2769,7 +2769,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-bamenda-0069",
@@ -2784,11 +2784,11 @@
         10.16273809169245,
         5.946328188900097
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2796,7 +2796,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-travellers-0070",
@@ -2811,11 +2811,11 @@
         10.141194588881783,
         5.9491453542023605
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2823,7 +2823,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-ngaoundere-0071",
@@ -2838,11 +2838,11 @@
         13.550542425389175,
         7.312438049051914
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2850,7 +2850,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-kano-0072",
@@ -2865,11 +2865,11 @@
         13.714881683043993,
         4.581603097386712
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2877,7 +2877,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-maroua-djarengol-0073",
@@ -2892,11 +2892,11 @@
         14.32,
         10.59
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2904,7 +2904,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-tradex-kaele-0074",
@@ -2919,11 +2919,11 @@
         14.455272625414858,
         10.111713382656884
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2931,7 +2931,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-essos-0075",
@@ -2946,11 +2946,11 @@
         11.54327375397019,
         3.8722688616678336
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2958,7 +2958,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-mvan-0076",
@@ -2973,11 +2973,11 @@
         11.521988538860368,
         3.8212045108427617
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -2985,7 +2985,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-nkoabang-0077",
@@ -3000,11 +3000,11 @@
         11.600840392593206,
         3.8654156242332833
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3012,7 +3012,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-simbock-0078",
@@ -3027,11 +3027,11 @@
         11.4642776232817,
         3.8101223624392215
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3039,7 +3039,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-tyo-ville-0079",
@@ -3054,11 +3054,11 @@
         10.402865838868662,
         5.491923247522289
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3066,7 +3066,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-bafang-0080",
@@ -3081,11 +3081,11 @@
         10.19224219490425,
         5.1628281169797665
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3093,7 +3093,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-bandjoun-0081",
@@ -3108,11 +3108,11 @@
         10.41711662352364,
         5.367677621205557
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3120,7 +3120,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-dombe-0082",
@@ -3135,11 +3135,11 @@
         9.829723321544403,
         3.586622450050505
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3147,7 +3147,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-djoum-0083",
@@ -3162,11 +3162,11 @@
         12.667019736661933,
         2.7693084313157126
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3174,7 +3174,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-makepe-missoke-0084",
@@ -3189,11 +3189,11 @@
         9.742344708172965,
         4.065430747481783
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3201,7 +3201,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-bonaberi-ndobo-0085",
@@ -3216,11 +3216,11 @@
         9.623255975726629,
         4.108013606294347
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3228,7 +3228,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-kotto-0086",
@@ -3243,11 +3243,11 @@
         9.762234952353277,
         4.092862125405092
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3255,7 +3255,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-ndogpassi-0087",
@@ -3270,11 +3270,11 @@
         9.767565725369424,
         4.030366751268008
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3282,7 +3282,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-bilongue-0088",
@@ -3297,11 +3297,11 @@
         9.745487625369318,
         4.0156134409367565
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3309,7 +3309,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-beka-0089",
@@ -3324,11 +3324,11 @@
         13.553,
         7.303
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3336,7 +3336,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-dang-0090",
@@ -3351,11 +3351,11 @@
         13.58,
         7.32
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3363,7 +3363,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-limbe-0091",
@@ -3378,11 +3378,11 @@
         9.093020001635846,
         4.550392861161332
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3390,7 +3390,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-buea-2-0092",
@@ -3405,11 +3405,11 @@
         9.202261102809368,
         4.563494593104591
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3417,7 +3417,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-yokadouma-0093",
@@ -3432,11 +3432,11 @@
         15.049928783039636,
         3.532358673992813
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3444,7 +3444,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-bocom-bamenda-0094",
@@ -3459,11 +3459,11 @@
         10.202686596543808,
         5.997471115826001
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3471,7 +3471,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-nkolmesseng-0095",
@@ -3486,11 +3486,11 @@
         11.556365518539307,
         3.88555757230681
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3498,7 +3498,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-essos-0096",
@@ -3513,11 +3513,11 @@
         11.545493756619903,
         3.8763351952931937
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3525,7 +3525,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-nkoldongo-0097",
@@ -3540,11 +3540,11 @@
         11.528430433879349,
         3.858804026023189
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3552,7 +3552,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-tsinga-0098",
@@ -3567,11 +3567,11 @@
         11.507060687854176,
         3.8806941919109894
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3579,7 +3579,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-fouda-0099",
@@ -3594,11 +3594,11 @@
         11.529642010592596,
         3.8747194559950526
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3606,7 +3606,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-aeroport-yaounde-0100",
@@ -3621,11 +3621,11 @@
         11.517690264561569,
         3.8293153293901687
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3633,7 +3633,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-rondpoint-nlongkak-0101",
@@ -3648,11 +3648,11 @@
         11.51889078208601,
         3.887033054084809
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3660,7 +3660,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-boulevard-presidentiel-0102",
@@ -3675,11 +3675,11 @@
         11.52030609525121,
         3.8859996219239643
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3687,7 +3687,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-djoungolo-0103",
@@ -3702,11 +3702,11 @@
         11.52701875661919,
         3.8684273775128237
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3714,7 +3714,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-okolo-0104",
@@ -3729,11 +3729,11 @@
         11.518062925940916,
         3.9417907718324954
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3741,7 +3741,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-mfoundassi-1-0105",
@@ -3756,11 +3756,11 @@
         11.521287502644734,
         3.850420856085868
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3768,7 +3768,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-mfoundassi-2-0106",
@@ -3783,11 +3783,11 @@
         11.518342810590415,
         3.8493123904423907
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3795,7 +3795,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ebom-0107",
@@ -3810,11 +3810,11 @@
         11.49042818645203,
         3.81037503827113
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3822,7 +3822,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-mimboman-1-0108",
@@ -3837,11 +3837,11 @@
         11.549671388871053,
         3.86796943931031
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3849,7 +3849,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-mimboman-2-0109",
@@ -3864,11 +3864,11 @@
         11.546104372949731,
         3.863691133597447
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3876,7 +3876,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-imperial-0110",
@@ -3891,11 +3891,11 @@
         11.520837802010291,
         3.856656646904757
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3903,7 +3903,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ngousso-0111",
@@ -3918,11 +3918,11 @@
         11.547429186460434,
         3.899846895868009
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3930,7 +3930,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-odza-borne-10-0112",
@@ -3945,11 +3945,11 @@
         11.524606601804146,
         3.7863993462986194
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3957,7 +3957,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-nlobisson-0113",
@@ -3972,11 +3972,11 @@
         11.623348542272264,
         3.857611317768285
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -3984,7 +3984,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ekoumdoum-0114",
@@ -3999,11 +3999,11 @@
         11.53710291529387,
         3.8254267381396407
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4011,7 +4011,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-etrier-0115",
@@ -4026,11 +4026,11 @@
         11.522354,
         3.879414
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4038,7 +4038,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-nomayos-0116",
@@ -4053,11 +4053,11 @@
         11.42337621528704,
         3.7890708915417717
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4065,7 +4065,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-jouvence-0117",
@@ -4080,11 +4080,11 @@
         11.386007575898622,
         5.185834398083349
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4092,7 +4092,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-biteng-0118",
@@ -4107,11 +4107,11 @@
         11.562119701804148,
         3.8503607247667486
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4119,7 +4119,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-briqueterie-0119",
@@ -4134,11 +4134,11 @@
         11.507766271104648,
         3.8763465944408657
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4146,7 +4146,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-obala-0120",
@@ -4161,11 +4161,11 @@
         11.53028199994648,
         4.141122623162154
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4173,7 +4173,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-nanga-eboko-0121",
@@ -4188,11 +4188,11 @@
         12.37158409810666,
         4.667556644910813
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4200,7 +4200,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bafia-1-0122",
@@ -4215,11 +4215,11 @@
         11.22573481342413,
         4.744625917677977
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4227,7 +4227,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bafia-2-0123",
@@ -4242,11 +4242,11 @@
         11.22080844042615,
         4.739779303703281
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4254,7 +4254,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-nko-ovos-ebolowa-0124",
@@ -4269,11 +4269,11 @@
         11.152192417916178,
         2.9205414260241023
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4281,7 +4281,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-sicom-ebolowa-0125",
@@ -4296,11 +4296,11 @@
         11.154232830512948,
         2.921231987124575
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4308,7 +4308,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-sangmelima-0126",
@@ -4323,11 +4323,11 @@
         11.97604401052059,
         2.936236514962817
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4335,7 +4335,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-kribi-0127",
@@ -4350,11 +4350,11 @@
         9.914299034281868,
         2.944783115518257
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4362,7 +4362,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ambam-2-0128",
@@ -4377,11 +4377,11 @@
         11.2734716104876,
         2.386818214706211
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4389,7 +4389,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ambam-1-0129",
@@ -4404,11 +4404,11 @@
         11.266874756514518,
         2.3826387701299594
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4416,7 +4416,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-lolodorf-0130",
@@ -4431,11 +4431,11 @@
         10.72797399464994,
         3.2362691209845798
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4443,7 +4443,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-djoum-0131",
@@ -4458,11 +4458,11 @@
         12.677256187215763,
         2.67263471133512
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4470,7 +4470,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bertoua-1-0132",
@@ -4485,11 +4485,11 @@
         13.679981656686499,
         4.57585765520705
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4497,7 +4497,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-mandjou-bertoua-0133",
@@ -4512,11 +4512,11 @@
         13.72202107942638,
         4.584411043816804
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4524,7 +4524,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bonis-0134",
@@ -4539,11 +4539,11 @@
         13.611702433942952,
         4.531274645466599
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4551,7 +4551,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-batouri-0135",
@@ -4566,11 +4566,11 @@
         14.3654667794109,
         4.4318826567100436
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4578,7 +4578,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-belabo-0136",
@@ -4593,11 +4593,11 @@
         13.290002387408446,
         4.922975805378855
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4605,7 +4605,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-garoua-boulai-0137",
@@ -4620,11 +4620,11 @@
         13.39760409605583,
         9.307141562023745
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4632,7 +4632,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-yokadouma-0138",
@@ -4647,11 +4647,11 @@
         15.049302095220202,
         3.514142975535828
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4659,7 +4659,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bonaberi-1-0139",
@@ -4674,11 +4674,11 @@
         9.667596199571861,
         4.083937221484816
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4686,7 +4686,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-akwa-0140",
@@ -4701,11 +4701,11 @@
         9.699671152993256,
         4.0566028727093215
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4713,7 +4713,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-independance-0141",
@@ -4728,11 +4728,11 @@
         9.706443253545443,
         3.8567324543879273
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4740,7 +4740,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-jamot-0142",
@@ -4755,11 +4755,11 @@
         9.706464457626463,
         4.042772447097018
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4767,7 +4767,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-kassalafam-0143",
@@ -4782,11 +4782,11 @@
         9.711374587261663,
         4.037523156553191
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4794,7 +4794,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bonamoussadi-1-0144",
@@ -4809,11 +4809,11 @@
         9.732260601919572,
         4.158087561998212
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4821,7 +4821,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bonateki-2-0145",
@@ -4836,11 +4836,11 @@
         9.689583339707022,
         4.164239642836145
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4848,7 +4848,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bonaberi-2-0146",
@@ -4863,11 +4863,11 @@
         9.660849472599315,
         4.158087561998212
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4875,7 +4875,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-total-centre-ccial-bafoussam-0147",
@@ -4890,11 +4890,11 @@
         10.415629178585997,
         5.479678406415922
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4902,7 +4902,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-centre-commercial-bafoussa-0148",
@@ -4917,11 +4917,11 @@
         10.422682535006235,
         5.4745116385105534
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4929,7 +4929,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-dschang-1-0149",
@@ -4944,11 +4944,11 @@
         10.055660728774145,
         5.444819330319255
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4956,7 +4956,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-dschang-2-0150",
@@ -4971,11 +4971,11 @@
         10.053446457611777,
         5.441877012060151
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -4983,7 +4983,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-babadjou-0151",
@@ -4998,11 +4998,11 @@
         10.2088973451465,
         5.679569443761844
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5010,7 +5010,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-foumban-1-2-0152",
@@ -5025,11 +5025,11 @@
         10.904842084609069,
         5.7315581280116925
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5037,7 +5037,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-foumban-hopital-0153",
@@ -5052,11 +5052,11 @@
         10.878199915299112,
         5.731647153589875
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5064,7 +5064,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-foumbot-0154",
@@ -5079,11 +5079,11 @@
         10.685481457617025,
         5.587796268556797
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5091,7 +5091,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bangangte-1-0155",
@@ -5106,11 +5106,11 @@
         10.522821257623322,
         5.140637842104915
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5118,7 +5118,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bangangte-2-0156",
@@ -5133,11 +5133,11 @@
         10.519545001804147,
         5.148009540075654
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5145,7 +5145,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bandjoun-0157",
@@ -5160,11 +5160,11 @@
         10.413951599937565,
         5.371804097805802
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5172,7 +5172,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bafang-centre-0158",
@@ -5187,11 +5187,11 @@
         10.170289999913953,
         5.1566802812067305
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5199,7 +5199,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-garoua-0159",
@@ -5214,11 +5214,11 @@
         13.3956,
         9.3037
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5226,7 +5226,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ngaoundere-0160",
@@ -5241,11 +5241,11 @@
         13.5845,
         7.3292
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5253,7 +5253,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-meiganga-0161",
@@ -5268,11 +5268,11 @@
         14.3175,
         6.4672
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5280,7 +5280,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-tibati-0162",
@@ -5295,11 +5295,11 @@
         12.67,
         6.47
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5307,7 +5307,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-maroua-1-0163",
@@ -5322,11 +5322,11 @@
         14.307146059442157,
         10.587924869601398
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5334,7 +5334,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-maroua-2-0164",
@@ -5349,11 +5349,11 @@
         14.332974813420988,
         10.605692484574785
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5361,7 +5361,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-kousseri-0165",
@@ -5376,11 +5376,11 @@
         15.02708372878097,
         12.084898348221964
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5388,7 +5388,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-limbe-1-0166",
@@ -5403,11 +5403,11 @@
         9.208087686450469,
         4.01584456737973
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5415,7 +5415,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-limbe-2-0167",
@@ -5430,11 +5430,11 @@
         9.210356542229247,
         4.023257643155669
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5442,7 +5442,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-buea-road-0168",
@@ -5457,11 +5457,11 @@
         9.441666599957502,
         4.63189126975909
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5469,7 +5469,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-bamenda-hopital-0169",
@@ -5484,11 +5484,11 @@
         10.168168542265974,
         5.954715431794512
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5496,7 +5496,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-banso-0170",
@@ -5511,11 +5511,11 @@
         10.686082186037874,
         6.205859270885522
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5523,7 +5523,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-totalenergies-ndop-0171",
@@ -5538,11 +5538,11 @@
         10.435584059103228,
         5.988446404304589
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5550,7 +5550,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-sctm-gaz-siffone-0172",
@@ -5565,11 +5565,11 @@
         11.518705321961704,
         3.832314887247972
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5577,7 +5577,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-sctm-binguela-0173",
@@ -5592,11 +5592,11 @@
         11.41386528968728,
         3.7701647404027945
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5604,7 +5604,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-sctm-gaz-0174",
@@ -5619,11 +5619,11 @@
         9.618935949011721,
         4.100238030285978
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5631,7 +5631,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-sctm-bertoua-0175",
@@ -5646,11 +5646,11 @@
         13.672053284768744,
         4.575909943837631
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5658,7 +5658,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-sctm-bafoussam-0176",
@@ -5673,11 +5673,11 @@
         10.397408452688618,
         5.505854550528463
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5685,7 +5685,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-biyem-assi-lac-0177",
@@ -5700,11 +5700,11 @@
         11.520191649008842,
         3.8618886850287697
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5712,7 +5712,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-odza-b10-0178",
@@ -5727,11 +5727,11 @@
         11.526522652820997,
         3.783379593439873
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5739,7 +5739,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-nkolo-3-0179",
@@ -5754,11 +5754,11 @@
         11.605946806608223,
         3.865672857551127
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5766,7 +5766,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-ngoulmekong-0180",
@@ -5781,11 +5781,11 @@
         11.561393968247687,
         3.9113475366060944
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5793,7 +5793,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-don-bosco-0181",
@@ -5808,11 +5808,11 @@
         11.56064798955572,
         3.8704827917027798
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5820,7 +5820,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-fouda-0182",
@@ -5835,11 +5835,11 @@
         11.53340768784058,
         3.8795912212904495
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5847,7 +5847,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-nyom-ii-0183",
@@ -5862,11 +5862,11 @@
         11.45980427796799,
         4.05896689010213
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5874,7 +5874,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-nyom-0184",
@@ -5889,11 +5889,11 @@
         13.723860916092487,
         7.035052501939056
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5901,7 +5901,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-essessalakok-0185",
@@ -5916,11 +5916,11 @@
         11.549792381086485,
         3.897626704029304
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5928,7 +5928,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-station-axx-mfomakap-0186",
@@ -5943,11 +5943,11 @@
         11.518342810590415,
         3.8493123904423907
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5955,7 +5955,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-ekangte-0187",
@@ -5970,11 +5970,11 @@
         9.935234120171636,
         4.978671667170079
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -5982,7 +5982,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-mandjou-peage-0188",
@@ -5997,11 +5997,11 @@
         13.752578477823542,
         4.594896347615063
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6009,7 +6009,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-bamendzi-1-0189",
@@ -6024,11 +6024,11 @@
         10.42712933551413,
         5.481730476338303
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6036,7 +6036,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-axx-bamendzi-2-0190",
@@ -6051,11 +6051,11 @@
         10.428293468583384,
         5.484311655567433
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6063,7 +6063,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-alpha-axx-bamendzi-0191",
@@ -6078,11 +6078,11 @@
         10.42712933551413,
         5.481730476338303
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6090,7 +6090,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-afrigaz-nkongsamba-0192",
@@ -6105,11 +6105,11 @@
         9.928640563181139,
         4.946938440773
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6117,7 +6117,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-afrigaz-bafang-0193",
@@ -6132,11 +6132,11 @@
         10.186485933389246,
         5.165244225849974
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6144,7 +6144,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-afrigaz-kribi-0194",
@@ -6159,11 +6159,11 @@
         9.936927222027514,
         2.9936857690824046
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6171,7 +6171,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-agence-afrigaz-ebolowa-0195",
@@ -6186,11 +6186,11 @@
         11.153341204794472,
         2.8960218967230196
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6198,7 +6198,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-depot-scdp-bessengue-mboppi-0196",
@@ -6213,11 +6213,11 @@
         9.716499883041667,
         4.0502461306497395
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6225,7 +6225,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-depot-scdp-nsam-olezoa-0197",
@@ -6240,11 +6240,11 @@
         11.51,
         3.83
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6252,7 +6252,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-depot-scdp-bafoussam-0198",
@@ -6267,11 +6267,11 @@
         10.440228865852221,
         5.487928520639387
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6279,7 +6279,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-depot-scdp-ngaoundere-0199",
@@ -6294,11 +6294,11 @@
         13.567921456077949,
         7.362298621578934
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6306,7 +6306,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-depot-scdp-garoua-0200",
@@ -6321,11 +6321,11 @@
         13.39257280635735,
         9.290674759884741
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6333,7 +6333,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-depot-scdp-maroua-0201",
@@ -6348,11 +6348,11 @@
         14.32,
         10.59
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6360,7 +6360,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-snh-gas-factory-0202",
@@ -6375,11 +6375,11 @@
         9.973490492973315,
         3.112072037161992
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6387,7 +6387,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     },
     {
       "id": "site-market-representation-snh-0203",
@@ -6402,11 +6402,11 @@
         9.677644369164732,
         4.059388112431513
       ],
-      "geo_confidence_score": 95,
+      "geo_confidence_score": 0,
       "delivery_count": 0,
-      "is_verified": true,
-      "verified_at": "2026-08-27T13:37:41.394Z",
-      "status": "ACTIVE",
+      "is_verified": false,
+      "verified_at": null,
+      "status": "UNASSIGNED",
       "reason": null,
       "is_active": true,
       "created_at": "2026-08-27T13:37:41.394Z",
@@ -6414,7 +6414,7 @@
       "deleted_at": null,
       "created_by": "user-0001-csph-super",
       "updated_by": "user-0001-csph-super",
-      "verified_by": "user-0001-csph-super"
+      "verified_by": null
     }
   ],
   "clients": [

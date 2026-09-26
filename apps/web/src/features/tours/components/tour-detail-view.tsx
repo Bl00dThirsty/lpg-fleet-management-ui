@@ -1,7 +1,7 @@
 import { type ElementType, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { currentLang } from '@/lib/i18n/formatters'
 import {
-  AlertTriangle,
   ArrowRight,
   CheckCircle2,
   Clock3,
@@ -37,6 +37,7 @@ type TourDetailViewProps = {
 }
 
 export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
+  const { t } = useTranslation('tours')
   const [trip, setTrip] = useState(propTrip)
   const [seenTripId, setSeenTripId] = useState(propTrip?.id ?? null)
   if ((seenTripId ?? null) !== (propTrip?.id ?? null)) {
@@ -122,7 +123,10 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
                   variant='outline'
                   className='border-transparent bg-muted/35 text-foreground'
                 >
-                  Prochaine étape: {trip.nextStop.site.name}
+                  {trip.nextStop
+                    ? t('nextStop', { site: trip.nextStop.site.name })
+                    : t('noNextStop')}
+
                 </Badge>
               </div>
 
@@ -142,16 +146,6 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
             </div>
 
             <div className='grid gap-3 md:grid-cols-3'>
-              <DetailSignal
-                icon={AlertTriangle}
-                label='Écart non justifié'
-                value={trip.unaccounted > 0 ? formatQuantity(trip.unaccounted, trip.tourneeType) : trip.tourneeType === 'VRAC' ? '0 TM' : '0 btl'}
-                hint={
-                  trip.unaccounted > 0
-                    ? 'À expliquer avant clôture'
-                    : 'Bilan de charge cohérent'
-                }
-              />
               <DetailSignal
                 icon={MapPinned}
                 label='Étapes couvertes'
@@ -215,7 +209,7 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
         </div>
       </Card>
 
-       <TourLpgVariationPanel trip={trip} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} zeroUnit={trip.tourneeType === 'VRAC' ? '0 TM' : '0 btl'} />
+       <TourLpgVariationPanel trip={trip} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} />
 
       <section className='grid gap-4 2xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]'>
         <TourCorridorMap trip={trip} formatDateTime={formatDateTime} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} />
@@ -236,7 +230,7 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
           </CardHeader>
           <CardContent className='space-y-4'>
             {trip.stops.map((stop, index) => {
-              const isCurrent = !stop.completed && stop.id === trip.nextStop.id
+              const isCurrent = !stop.completed && stop.id === trip.nextStop?.id
 
               return (
                 <div key={stop.id} className='flex gap-4'>
@@ -292,18 +286,10 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
                       </Badge>
                     </div>
 
-                    <div className='mt-3 grid gap-3 text-sm md:grid-cols-3'>
+                    <div className='mt-3 grid gap-3 text-sm md:grid-cols-2'>
                       <TripListMetric
                         label='Fenêtre'
                         value={stop.windowLabel}
-                      />
-                      <TripListMetric
-                        label='Volume'
-                        value={
-                          stop.deliveredQuantity
-                            ? formatQuantity(stop.deliveredQuantity, trip.tourneeType)
-                            : '--'
-                        }
                       />
                       <TripListMetric label='Rôle' value={stop.role} />
                     </div>

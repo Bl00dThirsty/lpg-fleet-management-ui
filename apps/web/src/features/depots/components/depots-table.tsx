@@ -12,6 +12,7 @@ import {
   type VisibilityState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
@@ -46,6 +47,7 @@ export function DepotsTable({
   onEdit,
   onDelete,
 }: DepotsTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -175,7 +177,7 @@ export function DepotsTable({
     <div className='flex flex-1 flex-col gap-4'>
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher un dépôt...'
+        searchPlaceholder={t('common:search.depot')}
         searchKey='name'
         filters={[
           {

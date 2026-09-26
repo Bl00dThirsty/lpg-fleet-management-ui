@@ -147,7 +147,6 @@ function adminCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewC
 
 function transportCards(a: Analytics, d?: DashboardView, t?: TranslateFn): OverviewCard[] {
   const traceRate = Math.round(a.traceability.traceabilityRate * 100)
-  const fill = d?.overview.reserveFillPercent ?? 0
   return [
     {
       id: 'tours-in-flight',
@@ -170,21 +169,11 @@ function transportCards(a: Analytics, d?: DashboardView, t?: TranslateFn): Overv
     {
       id: 'transported',
       label: tx(t, 'overview:cards.transported.label', 'Volume transporté'),
-      value: formatTm(d?.overview.totalTransportedTM ?? 0),
+      value: formatTm(d?.overview.transported.TM.value ?? 0),
       detail: tx(t, 'overview:cards.transported.detail', 'GPL chargé sur les tournées visibles'),
       href: '/tours',
       tone: 'emerald',
       icon: 'volumes',
-    },
-    {
-      id: 'reserve',
-      label: tx(t, 'overview:cards.reserve.label', 'Réserve utile'),
-      value: formatTm(d?.overview.totalReserveTM ?? 0),
-      detail: tx(t, 'overview:cards.reserve.detail', `${fill}% de remplissage sur le réseau`),
-      href: '/sites',
-      tone: 'sky',
-      icon: 'reserve',
-      progress: fill,
     },
     {
       id: 'devices',

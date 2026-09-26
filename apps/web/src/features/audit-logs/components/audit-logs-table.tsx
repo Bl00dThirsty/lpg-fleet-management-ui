@@ -12,6 +12,7 @@ import {
   type VisibilityState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
@@ -46,6 +47,7 @@ function riskTone(score: number): string {
 }
 
 export function AuditLogsTable({ data, search, navigate }: AuditLogsTableProps) {
+  const { t } = useTranslation('common')
   const lang = usePreferencesStore((s) => s.language)
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -180,7 +182,7 @@ export function AuditLogsTable({ data, search, navigate }: AuditLogsTableProps) 
     <div className='flex flex-1 flex-col gap-4'>
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher un acteur, une action…'
+        searchPlaceholder={t('search.auditLog')}
         searchKey='actor'
         filters={[{ columnId: 'action', title: 'Action', options: ACTION_OPTIONS }]}
       />

@@ -1,14 +1,15 @@
 import { Link } from '@tanstack/react-router'
-import { currentLang } from '@/lib/i18n/formatters'
+import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
 import { MetricCardWithChart } from '@/components/charts'
-import type { DashboardMetric, DashboardView } from '@/features/dashboard/data/dashboard'
-import { formatTm, formatBtl } from '@/features/map/utils/format'
+import { formatDashboardMetricValue } from '@/features/dashboard/lib/format-quantity'
+import type { DashboardView } from '@/features/dashboard/data/dashboard'
 
 const kpiHref: Record<string, string> = {
   transported: '/tours',
-  reserve: '/sites',
   delivered: '/tours',
+  'transported-bottles': '/tours',
+  'delivered-bottles': '/tours',
   alerts: '/anomalies',
 }
 
@@ -17,7 +18,7 @@ const kpiHref: Record<string, string> = {
  * a sparkline over the last days and links to its operational domain.
  */
 export function OverviewKpis({ dashboard }: { dashboard: DashboardView }) {
-  const daily = dashboard.trendByPeriod.daily
+  const { t } = useTranslation('dashboard')
 
   return (
     <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
@@ -25,22 +26,14 @@ export function OverviewKpis({ dashboard }: { dashboard: DashboardView }) {
         <MetricCardWithChart
           key={metric.id}
           label={metric.title}
-          value={formatMetricValue(metric.value, metric.unit)}
-          delta={metric.deltaPercent}
-          sparkline={daily.map((point) =>
-            metric.id === 'alerts'
-              ? point.alertCount
-              : metric.id === 'reserve'
-                ? point.reserveTM
-                : metric.id === 'delivered'
-                  ? point.delivered
-                  : point.transportedTM
-          )}
+          // The dashboard owns the single metric formatter, so a volume is never
+          // rendered here without its canonical unit.
+          value={formatDashboardMetricValue(metric.value, t)}
           actions={
             <Link
               to={(kpiHref[metric.id] ?? '/overview') as never}
               className='text-muted-foreground transition-colors hover:text-foreground'
-              aria-label={`Ouvrir ${metric.title}`}
+              aria-label={t('actions.viewDetails')}
             >
               <ArrowRight className='size-4' />
             </Link>
@@ -50,17 +43,4 @@ export function OverviewKpis({ dashboard }: { dashboard: DashboardView }) {
       ))}
     </section>
   )
-}
-
-export function formatMetricValue(
-  value: number,
-  unit: DashboardMetric['unit']
-): string {
-  if (unit === 'TM') return formatTm(value)
-  if (unit === 'btl') return formatBtl(value)
-  if (unit === 'percent') return `${value}%`
-  if (unit === 'days') return `${value.toFixed(1)} jours`
-  return new Intl.NumberFormat(currentLang(), {
-    maximumFractionDigits: 0,
-  }).format(value)
 }

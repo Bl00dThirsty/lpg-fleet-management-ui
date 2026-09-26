@@ -4,6 +4,7 @@ import type {
   Site as CuratedSite,
   Region,
 } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export type { OrgType } from '@lpg/types'
 
@@ -73,7 +74,7 @@ export function orgTypeLabel(type: CuratedOrganization['type']): string {
   return ORG_TYPE_LABELS[type]
 }
 
-export const ORG_STATUS_LABELS: Record<SiteStatus, string> = {
+const ORG_STATUS_LABELS: Record<SiteStatus, string> = {
   UNASSIGNED: 'Non assigné',
   ASSIGNED: 'Assigné',
   ACTIVE: 'Actif',
@@ -82,8 +83,23 @@ export const ORG_STATUS_LABELS: Record<SiteStatus, string> = {
   REJECTED: 'Rejeté',
 }
 
+const ORG_STATUS_CLASSES: Record<SiteStatus, string> = {
+  UNASSIGNED: 'bg-slate-100 text-slate-700',
+  ASSIGNED: 'bg-sky-100 text-sky-800',
+  ACTIVE: 'bg-emerald-100 text-emerald-800',
+  VERIFIED: 'bg-teal-100 text-teal-800',
+  SUSPENDED: 'bg-slate-200 text-slate-800',
+  REJECTED: 'bg-rose-100 text-rose-800',
+}
+
+/** Single source of truth for the org (site) status UI (AGENTS.md §3). */
+export const orgStatusDisplay = makeStatusDisplay<SiteStatus>({
+  labels: ORG_STATUS_LABELS,
+  classes: ORG_STATUS_CLASSES,
+})
+
 export function orgStatusLabel(status: SiteStatus): string {
-  return ORG_STATUS_LABELS[status]
+  return orgStatusDisplay.label(status)
 }
 
 const REGION_LABELS: Record<Region, string> = {

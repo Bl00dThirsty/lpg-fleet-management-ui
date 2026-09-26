@@ -8,4 +8,5 @@ export {
 export { CrudRowActions, type CrudRowActionsProps } from './crud-row-actions'
 export { useEntityCrud } from './use-entity-crud'
 export { useCrud, type CrudResource, type UseCrudOptions } from '@/lib/api/use-crud'
+export { resolveListState, type ListState } from './list-state'
 export { useEntityPermission, type EntityPermissions } from '@/lib/permissions/use-entity-permission'

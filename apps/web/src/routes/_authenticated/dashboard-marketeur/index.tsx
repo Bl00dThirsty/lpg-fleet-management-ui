@@ -4,7 +4,7 @@ import { RouteSkeleton } from '@/components/layout/route-skeleton'
 import { GeneralError } from '@/features/errors/general-error'
 
 export const Route = createFileRoute('/_authenticated/dashboard-marketeur/')({
-  component: () => <DashboardPage role='MARKETEUR' />,
+  component: () => <DashboardPage />,
   pendingComponent: RouteSkeleton,
   errorComponent: GeneralError,
 })

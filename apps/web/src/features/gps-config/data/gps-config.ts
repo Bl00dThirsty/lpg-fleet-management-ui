@@ -5,6 +5,7 @@ import type {
   Vehicle as CuratedVehicle,
   Organization as CuratedOrganization,
 } from '@lpg/types'
+import { makeStatusDisplay } from '@/lib/ui/status-display'
 
 export interface GpsConfigView {
   id: string
@@ -23,7 +24,7 @@ export interface GpsConfigView {
   lastSync: string
 }
 
-export const DEVICE_STATUS_LABELS: Record<DeviceStatus, string> = {
+const DEVICE_STATUS_LABELS: Record<DeviceStatus, string> = {
   UNASSIGNED: 'Non assigné',
   ASSIGNED: 'Assigné',
   INMISSION: 'En mission',
@@ -38,8 +39,29 @@ export const DEVICE_STATUS_LABELS: Record<DeviceStatus, string> = {
   LOST: 'Perdu',
 }
 
+const DEVICE_STATUS_CLASSES: Record<DeviceStatus, string> = {
+  UNASSIGNED: 'bg-slate-100 text-slate-700',
+  ASSIGNED: 'bg-sky-100 text-sky-800',
+  INMISSION: 'bg-indigo-100 text-indigo-800',
+  OFFLINE: 'bg-rose-100 text-rose-800',
+  PENDINGSYNC: 'bg-amber-100 text-amber-800',
+  SYNCING: 'bg-amber-100 text-amber-800',
+  SYNCED: 'bg-emerald-100 text-emerald-800',
+  SYNCFAILED: 'bg-rose-100 text-rose-800',
+  MAINTENANCE: 'bg-orange-100 text-orange-800',
+  DEPLOYED: 'bg-emerald-100 text-emerald-800',
+  REMOVED: 'bg-slate-200 text-slate-700',
+  LOST: 'bg-rose-200 text-rose-900',
+}
+
+/** Single source of truth for the device status UI in this feature (AGENTS.md §3). */
+export const gpsDeviceStatusDisplay = makeStatusDisplay<DeviceStatus>({
+  labels: DEVICE_STATUS_LABELS,
+  classes: DEVICE_STATUS_CLASSES,
+})
+
 export function deviceStatusLabel(status: DeviceStatus): string {
-  return DEVICE_STATUS_LABELS[status] ?? status
+  return gpsDeviceStatusDisplay.label(status)
 }
 
 type GpsConfigJson = {

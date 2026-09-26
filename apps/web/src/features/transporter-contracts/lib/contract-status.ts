@@ -16,6 +16,8 @@ export type ContractStatusInput = {
   ended_at?: string | null
 }
 
+import { makeStatusDisplay } from '@/lib/ui/status-display'
+
 export const CONTRACT_STATUS_LABELS: Record<ContractStatus, string> = {
   PENDING: 'Preuve manquante',
   PENDINGTRANSPORTERACK: 'En attente du transporteur',
@@ -35,6 +37,17 @@ export const CONTRACT_STATUS_CLASSES: Record<ContractStatus, string> = {
   SUSPENDED: 'bg-slate-200 text-slate-800',
   CANCELLED: 'bg-slate-200 text-slate-800 line-through',
 }
+
+/**
+ * Single source of truth for the contract status UI (AGENTS.md §3).
+ * `makeStatusDisplay` keeps labels and classes aligned on the same key set,
+ * so future status additions are caught by the compiler, not by a runtime
+ * "undefined" badge.
+ */
+export const contractStatusDisplay = makeStatusDisplay<ContractStatus>({
+  labels: CONTRACT_STATUS_LABELS,
+  classes: CONTRACT_STATUS_CLASSES,
+})
 
 export function deriveContractStatus(
   contract: ContractStatusInput,

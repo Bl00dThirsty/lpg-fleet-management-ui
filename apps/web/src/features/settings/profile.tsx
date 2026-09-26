@@ -1157,7 +1157,7 @@ export function ProfilePage({ tab }: { tab?: string }) {
 
   return (
     <PageShell>
-      <SettingsTabs active='settings' />
+      <SettingsTabs />
       <PageHeader
         title='Mon profil'
         description='Gérez vos informations personnelles, vos notifications, vos préférences et la sécurité.'

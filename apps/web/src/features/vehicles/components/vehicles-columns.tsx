@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { DataTableColumnHeader, StatusIndicator, STATUS_TONE_MAP } from '@/components/data-table'
+import { DataTableColumnHeader, StatusIndicator, STATUS_TONE_MAP, isTransientStatus } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
 import {
   vehicleRiskClasses,
@@ -162,7 +162,11 @@ export function getVehiclesColumns({
       cell: ({ row }) => {
         const status = row.original.status
         return (
-          <StatusIndicator tone={STATUS_TONE_MAP[status] ?? 'muted'} ariaLabel={`Statut: ${vehicleStatusLabels[status]}`}>
+          <StatusIndicator
+            tone={STATUS_TONE_MAP[status] ?? 'muted'}
+            ariaLabel={`Statut: ${vehicleStatusLabels[status]}`}
+            pulse={isTransientStatus(status)}
+          >
             <Badge className={cn('font-medium', vehicleStatusClasses[status])}>
               {vehicleStatusLabels[status]}
             </Badge>

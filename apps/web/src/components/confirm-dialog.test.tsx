@@ -65,6 +65,25 @@ describe('ConfirmDialog', () => {
     expect(handleConfirm).not.toHaveBeenCalled()
   })
 
+  it('exposes pending status and keeps the confirm label accessible', async () => {
+    const { getByRole } = await render(
+      <ConfirmDialog
+        open
+        onOpenChange={vi.fn()}
+        title='Loading'
+        desc='...'
+        isLoading
+        confirmText='Delete'
+        handleConfirm={vi.fn()}
+      />,
+    )
+
+    const confirm = getByRole('button', { name: 'Delete' })
+    await expect.element(confirm).toBeDisabled()
+    await expect.element(confirm).toHaveAttribute('aria-busy', 'true')
+    await expect.element(confirm).toContain('Delete')
+  })
+
   it('when isLoading is true, disables cancel and confirm', async () => {
     const handleConfirm = vi.fn()
     const { getByRole } = await render(

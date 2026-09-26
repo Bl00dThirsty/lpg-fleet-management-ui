@@ -9,6 +9,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from 'react-i18next'
+import { Spinner } from './entity-crud/form-ui'
 
 type ConfirmDialogProps = {
   open: boolean
@@ -28,6 +30,7 @@ type ConfirmDialogProps = {
 )
 
 export function ConfirmDialog(props: ConfirmDialogProps) {
+  const { t } = useTranslation()
   const {
     title,
     desc,
@@ -62,8 +65,11 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
             onClick={handleConfirm}
             variant={destructive ? 'destructive' : 'default'}
             disabled={disabled || isLoading}
+            aria-busy={isLoading || undefined}
           >
+            {isLoading ? <Spinner /> : null}
             {confirmText ?? 'Continue'}
+            {isLoading ? <span className='sr-only'>{t('action.pending')}</span> : null}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

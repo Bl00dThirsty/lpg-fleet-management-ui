@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   flexRender,
   getCoreRowModel,
@@ -22,11 +23,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
-import {
-  truckTenantOptions,
-  type Truck,
-} from '../data/trucks'
+import { truckTenantOptions, type Truck } from '../data/trucks'
 import { DataTableBulkActions } from './data-table-bulk-actions'
+import { RouteSkeleton } from '@/components/layout/route-skeleton'
+import { EmptyState } from '@/components/layout/page'
+import { resolveListState, type ListState } from '@/components/entity-crud'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { getTrucksColumns } from './trucks-columns'
 
 type TrucksTableProps = {
@@ -36,6 +39,9 @@ type TrucksTableProps = {
   onViewDetails: (truck: Truck) => void
   onEdit?: (truck: Truck) => void
   onDelete?: (truck: Truck) => void
+  listState: ListState
+  onRetry: () => void
+  deletingId?: string
 }
 
 export function TrucksTable({
@@ -45,13 +51,17 @@ export function TrucksTable({
   onViewDetails,
   onEdit,
   onDelete,
+  listState,
+  onRetry,
+  deletingId,
 }: TrucksTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
   const columns = useMemo(
-    () => getTrucksColumns({ onViewDetails, onEdit, onDelete }),
-    [onViewDetails, onEdit, onDelete]
+    () => getTrucksColumns({ onViewDetails, onEdit, onDelete, deletingId, t }),
+    [onViewDetails, onEdit, onDelete, deletingId, t]
   )
 
   const {
@@ -102,6 +112,44 @@ export function TrucksTable({
     ensurePageInRange(table.getPageCount())
   }, [table, ensurePageInRange])
 
+  if (listState === 'loading') return <RouteSkeleton />
+  if (listState === 'error') {
+    return (
+      <Alert variant='destructive' role='alert'>
+        <AlertTitle>{t('trucks.errorTitle')}</AlertTitle>
+        <AlertDescription>
+          <p>{t('trucks.errorDescription')}</p>
+          <Button variant='outline' size='sm' onClick={onRetry}>
+            {t('trucks.retry')}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  const hasActiveFilters = Object.values(table.getState().columnFilters).some(
+    (value) => {
+      if (Array.isArray(value)) return value.length > 0
+      return Boolean(value)
+    }
+  )
+  const tableState = resolveListState(
+    false,
+    false,
+    table.getRowModel().rows.length,
+    hasActiveFilters
+  )
+  if (tableState === 'empty' || tableState === 'filtered-empty') {
+    return (
+      <EmptyState
+        title={t(
+          tableState === 'empty' ? 'trucks.empty' : 'trucks.filteredEmpty'
+        )}
+        description={t('trucks.emptyDescription')}
+      />
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -111,18 +159,20 @@ export function TrucksTable({
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher camion, plaque, chauffeur...'
+        searchPlaceholder={t('trucks.search')}
+        searchLabel={t('trucks.searchLabel')}
+        resetFilterLabel={t('trucks.resetFilters')}
         searchKey='id'
         filters={[
           {
             columnId: 'tenant_name',
-            title: 'Entreprise',
+            title: t('trucks.company'),
             options: [...truckTenantOptions],
           },
         ]}
       />
 
-      <div className='overflow-hidden rounded-md border'>
+      <div className='overflow-x-auto rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -180,7 +230,7 @@ export function TrucksTable({
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  Aucun camion ne correspond aux filtres.
+                  {t('trucks.noResults')}
                 </TableCell>
               </TableRow>
             )}

@@ -1,77 +1,37 @@
-# 06 — Role Features & Views (Sidebar / Navigation Spec)
+<!-- generated-by: gsd-doc-writer -->
+# 06 — Role features and views
 
-Every route is guarded by role + effective permission + site scope (see `02_RBAC_ROLES_PERMISSIONS.md`). Each entry notes the primary tables read/written.
+The maintained inventory is [`../features-and-routes.md`](../features-and-routes.md). The current application uses static TanStack Router files, a single permission-gated `AppSidebar`, and `/overview` as the landing route for every role.
 
-## SUPERADMIN — `/super-admin/*`
+## Navigation rules
 
-| Route | Purpose | Tables |
-|---|---|---|
-| `/overview` | National dashboard: volumes, traceability rate, financial indicators, alerts, risk heatmap | declarations, reconciliations, risk_scores, anomalies |
-| `/map` | ArcGIS map: all sites/client_sites, live vehicle positions, flux heatmap, zones | sites, client_sites, vehicle_positions |
-| `/finance` | Subsidy impact, redressement totals, declaration trends | reconciliations, redressements, declarations |
-| `/risks` | Risk model config, manual recompute, score distribution | risk_scores, settings |
-| `/organizations` | CRUD all orgs by type/region | organizations |
-| `/marketeurs`, `/transporters`, `/depots` | Dedicated org-type views | organizations (filtered) |
-| `/sites`, `/client-sites` | Full management + verification queues | sites, client_sites |
-| `/zones` | Polygon zone editor (coverage/forbidden zones) | — (new spatial table if not present) |
-| `/users` | All users, RBAC, MFA status, lock/unlock | users, user_mfa, user_custom_roles |
-| `/vehicles`, `/certificates` | Full fleet + certificate expiry calendar | vehicles |
-| `/devices` | Unified device registry | devices |
-| `/pickups`, `/tours` | All pickups/tours, SLA monitoring | pickup_requests, delivery_tours |
-| `/declarations`, `/reconciliations`, `/redressements` | Full péréquation control | declarations, reconciliations, redressements |
-| `/anomalies/investigation`, `/anomalies/technical` | Dual-track anomaly views | anomalies (filtered by category) |
-| `/settings` | Global key-value settings editor | settings |
-| `/custom-roles` | Permission catalog + role builder | permissions, custom_roles |
-| `/notification-rules` | Anomaly→group routing config | notification_rules |
-| `/transporter-contracts` | Contract registry | transporter_contracts |
-| `/reports`, `/audit-logs`, `/system-health` | Reporting, full audit trail, system status | reports, audit_logs, monitoring_metrics |
+- A route is a file under `apps/web/src/routes/_authenticated/<domain>/index.tsx`; it imports a feature page from `features/<domain>/`.
+- Do not create `/admin/*`, `/marketeur/*`, or `$role/$module` route trees. Role changes visibility, not URL shape.
+- `AppSidebar` projects `ROLE_NAV_DECL` through `requires` permission codes in `config/rbac/nav-items.ts`.
+- MARKETEUR does not receive organization-level views. TRANSPORTEUR receives its own contract/fleet/mission operations. LIVREUR is represented by the field/offline workflow rather than a separate web route tree.
+- `/overview` is personalized by actor and scope. `/dashboard` is a distinct national dashboard, not the universal landing route.
 
-## ADMIN — `/admin/*`
+## Role views by responsibility
 
-`/overview`, `/users` (org-scoped), `/marketeurs`, `/transporters`, `/site-verifications` (queue: ASSIGNED/ACTIVE→VERIFIED), `/pickups` (validation queue), `/declarations` (awaiting reconciliation trigger), `/reconciliations` (gap > tolerance), `/anomalies` (assignment/routing), `/risk-scores` (scoped), `/alert-rules` (threshold/notification config), `/reports`, `/audit-logs` (scoped).
+| Role | View families |
+|---|---|
+| SUPERADMIN | Overview, dashboard, map, organizations, sites, fleet, operations, compliance, risks, reports, settings, audit |
+| ADMIN | Scoped users, verification, pickups, declarations, reconciliations, anomalies, reports, audit |
+| SUPERVISOR | System health, metrics, device/GPS health, technical anomalies, risk monitoring, recompute |
+| INTEGRATEUR | Devices, RFID, GPS configuration, assignments, maintenance, firmware, integrations |
+| AGENT | Assigned sites/client sites, declarations, investigations, reconciliations, visits, password resets |
+| MARKETEUR | Overview, scoped fleet, drivers, pickups, tours, contracts, clients, declarations, performance, reports |
+| TRANSPORTEUR | Overview, tours, contracts, vehicles, drivers, livreurs, performance |
+| LIVREUR | Assigned missions, checkpoints, scans, photos, sync/conflict status in the field experience |
 
-## SUPERVISOR — `/supervisor/*` (Technical track)
+## Feature-folder requirements
 
-`/overview` (Prometheus summary: CPU/mem/network/API latency/P95), `/infra` (8 Grafana dashboard embeds), `/system-metrics` (monitoring_metrics query UI), `/device-health` (battery, offline, sync status), `/gps-tracking` (live GPS, device status), `/alerts` (Kafka timeouts, server unavailable), `/anomalies-technical` (TECHNICAL-category investigation/resolution), `/risk-scores` (monitoring), `/recompute` (manual trigger), `/logs` (centralized, request-ID correlated), `/integrations` (Kafka lag, API health, MinIO connectivity).
+Each domain owns one folder with `index.tsx`, `components/`, `data/`, `lib/`, and `utils/` as applicable. Data builders apply `getScope`; no feature imports curated market JSON directly. Pure transitions and thresholds belong in `lib/`, and tests live beside them. Shared types come from `@lpg/types`; shared permissions come from `@lpg/permissions`.
 
-## INTEGRATEUR — `/integrateur/*` (Device provisioning track)
+## UX contract
 
-`/overview` (device activation dashboard), `/devices` (full registry — GPS/Yabby3 config, PDA, RFID readers), `/rfid-tags` (bulk import, status, location), `/gps-config` (Yabby3 IMEI registry, tracking interval, heartbeat, geofence), `/auth` (certificate fingerprints, API key rotation — `integration_auth`), `/device-assignments` (current user/vehicle mappings), `/status-history` (device_status_history timeline), `/maintenance` (scheduling, replacement workflow), `/firmware` (version registry, OTA status), `/logs`.
+Route-heavy pages include skeleton/pending and `GeneralError` handling where data is loaded. Forms use shadcn Form with inline errors. Mutations are permission-gated, scoped, pending-aware, and cache-invalidating. Sonner reports one outcome per mutation, never validation errors. Labels and errors support FR/EN. Reduced motion is honored by animation components.
 
-## AGENT — `/agent/*` (Investigation/field track)
+## Reference implementations
 
-`/overview` (assigned marketeurs consolidated: declarations, anomalies, site status), `/marketeurs` (regional scope), `/client-sites` (pending verification / low geo confidence), `/declarations` (submitted, awaiting review), `/anomalies-investigation` (VOLUMEGAP, DEVIATIONROUTE, SIPHONNAGE, FILLINGILLEGAL, etc.), `/tours` (investigation-flagged tours), `/visits` (field visit report creation/history), `/reconciliations` (verify action + gap details), `/passwords` (reset for assigned marketeurs and their livreurs).
-
-## MARKETEUR — `/marketeur/*`
-
-`/overview` (fleet status, active tours, monthly volume, quota usage), `/vehicles` (own fleet + certificate expiry alerts), `/drivers` (drivers/livreurs, license expiry), `/devices` (assigned PDA/GPS), `/pickups` (creation wizard + vehicle recommendation), `/pickup-tracking` (live), `/tours-internal`, `/tours-external` (with transporter selection + ack monitoring), `/transporter-contracts` (primary flag), `/clients` (client + client_site management, per-client delivery history), `/declarations` (creation, draft, submission), `/performance` (driver/livreur metrics, anomaly rates), `/reports` (own org scope).
-
-## TRANSPORTEUR — `/transporteur/*`
-
-`/overview` (pending acks, active tours, fleet status), `/tours-pending` (PENDINGTRANSPORTERACK — acknowledge action), `/tours-active` (ACKNOWLEDGED/INPROGRESS assigned to this transporter), `/tours-history` (completed), `/vehicles` (own fleet + certificates), `/drivers`, `/livreurs` (PDA operators, assignment), `/contracts` (with marketeurs, primary indicator), `/performance` (completion rates, on-time metrics).
-
-## LIVREUR — `/livreur/*` (field/mobile, offline-first PDA UI)
-
-`/missions` (today's assigned tours), `/tour-start` (→ INPROGRESS), `/checkpoints` (sequence, expected quantity, navigation), `/scan-rfid` (IN empty / OUT full, bottle status), `/scan-vrac` (meter reading TM, GPS auto-capture), `/photos` (delivery proof capture), `/sync` (manual trigger when online), `/sync-status` (uploaded/pending/conflicts), `/offline-data` (local storage viewer).
-
-## Cross-Role Feature Matrix
-
-| Feature | SUPERADMIN | ADMIN | SUPERVISOR | AGENT | INTEGRATEUR | MARKETEUR | TRANSPORTEUR | LIVREUR |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Manage organizations | ✅ | scoped | — | — | — | — | — | — |
-| Manage users/RBAC | ✅ | scoped | — | reset pwd only | — | own staff | own staff | — |
-| Global settings | ✅ | non-global | — | — | — | — | — | — |
-| Verify sites/client-sites | ✅ | ✅ | — | ✅ | — | — | — | — |
-| Manage vehicles/drivers | ✅ | — | — | — | — | own fleet | own fleet | — |
-| Manage devices (GPS/PDA/RFID) | ✅ | — | monitor only | — | ✅ full lifecycle | assigned only | assigned only | assigned only |
-| Create pickups | — | — | — | — | — | ✅ | — | executes |
-| Create/manage tours | ✅ view-all | ✅ view-scoped | — | ✅ investigate | — | ✅ create | ✅ acknowledge | ✅ execute |
-| Submit declarations | — | — | — | — | — | ✅ | — | — |
-| Trigger/verify reconciliation | ✅ | ✅ | — | ✅ verify | — | — | — | — |
-| Issue/waive redressements | ✅ | ✅ | — | — | — | — | — | — |
-| Resolve INVESTIGATION anomalies | ✅ | ✅ | — | ✅ | — | — | — | — |
-| Resolve TECHNICAL anomalies | ✅ | — | ✅ | — | — | — | — | — |
-| Trigger risk recompute | ✅ | — | ✅ | — | — | — | — | — |
-| View/export audit logs | ✅ | scoped | — | — | — | — | — | — |
-| Generate reports | ✅ | ✅ | — | ✅ | — | ✅ own org | ✅ own org | — |
-| Scan/execute deliveries | — | — | — | — | — | — | — | ✅ |
+Use `/trucks`, `/transporters`, `/marketers`, `/tours`, `/tour-tracking`, and `/dashboard` as the current structural references. Do not infer feature folders from the old role-prefixed route lists in earlier scaffold revisions.

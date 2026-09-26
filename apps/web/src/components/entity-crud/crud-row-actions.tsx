@@ -35,6 +35,8 @@ export interface CrudRowActionsProps {
   onDelete?: () => void | Promise<void>
   /** Extra (non-destructive) menu items. */
   extra?: Array<{ label: string; onSelect: () => void }>
+  pending?: boolean
+  feedbackHandled?: boolean
 }
 
 export function CrudRowActions({
@@ -43,6 +45,8 @@ export function CrudRowActions({
   onEdit,
   onDelete,
   extra,
+  pending = false,
+  feedbackHandled = false,
 }: CrudRowActionsProps) {
   const { t } = useTranslation('common')
   const perm = useEntityPermission(resource)
@@ -56,7 +60,13 @@ export function CrudRowActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' size='icon' aria-label='Actions'>
+          <Button
+            variant='ghost'
+            size='icon'
+            aria-label={t('entityCrud.actions')}
+            aria-busy={pending}
+            disabled={pending}
+          >
             <span className='text-lg leading-none'>⋯</span>
           </Button>
         </DropdownMenuTrigger>
@@ -95,12 +105,17 @@ export function CrudRowActions({
             <AlertDialogCancel>{t('entityCrud.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+              disabled={pending}
               onClick={async () => {
-                try {
+                if (!feedbackHandled) {
+                  try {
+                    await onDelete?.()
+                    toast.success(t('entityCrud.deleted'))
+                  } catch (error) {
+                    toast.error(extractErrorMessage(error))
+                  }
+                } else {
                   await onDelete?.()
-                  toast.success(t('entityCrud.deleted'))
-                } catch (error) {
-                  toast.error(extractErrorMessage(error))
                 }
               }}
             >

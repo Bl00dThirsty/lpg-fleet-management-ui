@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { DotsHorizontalIcon } from '@radix-ui/react-icons'
 import { Clipboard, Eye, Wrench } from 'lucide-react'
 import { toast } from 'sonner'
@@ -21,13 +22,14 @@ export function DataTableRowActions({
   truck,
   onViewDetails,
 }: DataTableRowActionsProps) {
+  const { t } = useTranslation('common')
   const copyTruckId = () => {
     void navigator.clipboard?.writeText(truck.id)
-    toast.success(`${truck.id} copie`)
+    toast.success(t('trucks.copied', { id: truck.id }))
   }
 
   const requestMaintenance = () => {
-    toast.info(`Maintenance planifiee pour ${truck.id}`)
+    toast.info(t('trucks.maintenancePlanned', { id: truck.id }))
   }
 
   return (
@@ -38,25 +40,29 @@ export function DataTableRowActions({
           className='flex h-8 w-8 p-0 data-[state=open]:bg-muted'
         >
           <DotsHorizontalIcon className='h-4 w-4' />
-          <span className='sr-only'>Ouvrir le menu</span>
+           <span className='sr-only'>{t('trucks.openMenu')}</span>
+
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' className='w-48'>
         <DropdownMenuItem onClick={() => onViewDetails(truck)}>
-          Voir les details
+           {t('trucks.viewDetails')}
+
           <DropdownMenuShortcut>
             <Eye size={16} />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={copyTruckId}>
-          Copier l'identifiant
+           {t('trucks.copyId')}
+
           <DropdownMenuShortcut>
             <Clipboard size={16} />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={requestMaintenance}>
-          Planifier maintenance
+           {t('trucks.planMaintenance')}
+
           <DropdownMenuShortcut>
             <Wrench size={16} />
           </DropdownMenuShortcut>

@@ -17,14 +17,25 @@
     "AGENT": "Suivi marketeurs assignés et visites terrain.",
     "MARKETEUR": "Flotte, quotas, tournées et clients.",
     "TRANSPORTEUR": "Flotte, tournées, scans et points de contrôle.",
-    "default": "Pilotage consolidé des volumes transportés, de la réserve utile et des signaux récents du réseau GPL."
+    "default": "Pilotage consolidé des volumes transportés, des livraisons et des signaux récents du réseau GPL."
   },
   "filters": {
-    "title": "Filtres"
+    "title": "Filtres",
+    "dateRange": "Période de dates",
+    "period": "Granularité de la période",
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois",
+    "fleet": "Flotte",
+    "allFleets": "Toutes les flottes",
+    "reset": "Réinitialiser",
+    "export": "Exporter",
+    "contextAllFleets": "toutes les flottes",
+    "contextWithFleet": "flotte {{fleet}}",
+    "liveContext": "Période {{period}} sélectionnée, {{context}}."
   },
   "kpi": {
     "transported": "Volumes transportés",
-    "reserve": "GPL en réserve",
     "delivered": "Flux livrés",
     "alerts": "Alertes ouvertes"
   },
@@ -39,11 +50,6 @@
       "description": "Volumes confirmés par transporteur avec mission et camion associés.",
       "badge": "Livraisons confirmées"
     },
-    "reserve": {
-      "title": "Détails de la réserve utile",
-      "description": "Stock disponible, couverture et inbound prévu sur les sites sensibles.",
-      "badge": "Stocks réseau"
-    },
     "alerts": {
       "title": "Détails des alertes ouvertes",
       "description": "Priorités terrain, responsables et métriques à traiter rapidement.",
@@ -54,39 +60,82 @@
     "title": "Répartition des flux",
     "description": "Vue par flotte sur le volume de GPL actuellement engagé.",
     "transportedLabel": "Volume transporté",
-    "comparedToLastCycle": "comparé au dernier cycle"
+    "carrierTitle": "Contribution par transporteur",
+    "carrierDescription": "Lecture consolidée des volumes chargés et livrés.",
+    "loaded": "{{value}} chargés",
+    "delivered": "{{value}} livrés",
+    "periodFleetContext": "Portefeuille de la période et de la flotte sélectionnées.",
+    "share": "{{value}}% du portefeuille"
   },
   "monthly": {
-    "title": "Volumes mensuels",
-    "subtitle": "6 derniers mois",
-    "viewReport": "Voir rapport",
-    "trendPositive": "Tendance positive sur les flux livrés.",
-    "trendDriver": "La cadence reste principalement tirée par Douala et Bipaga."
+    "title": "Volumes chargés et livrés",
+    "currentPeriodDescription": "Faits de la période calendaire locale sélectionnée.",
+    "chartTitle": "Volumes chargés et livrés",
+    "empty": "Aucun volume sur la période sélectionnée.",
+    "summary": "{{period}} : {{loaded}} chargés et {{delivered}} livrés.",
+    "tableSummary": "Voir les données du graphique",
+    "tableCaption": "Volumes chargés et livrés pour la période sélectionnée",
+    "tablePeriod": "Période",
+    "tableLoaded": "Chargé (TM)",
+    "tableDelivered": "Livré (TM)",
+    "loadedLegend": "Chargé (TM)",
+    "deliveredLegend": "Livré (TM)",
+    "loadedBtlLegend": "Chargé (btl)",
+    "deliveredBtlLegend": "Livré (btl)",
+    "tableLoadedBtl": "Chargé (btl)",
+    "tableDeliveredBtl": "Livré (btl)"
   },
-  "reserveSummary": {
-    "title": "Synthèse réserve",
-    "description": "Lecture globale du stock utile",
-    "reserveUseful": "Réserve utile"
+  "telemetry": {
+    "title": "Télémétrie GPL",
+    "bottlesDescription": "Évolution du niveau de gaz, des bouteilles restantes et livrées pendant la tournée.",
+    "vracDescription": "Évolution du niveau GPL, du volume restant et du volume livré cumulé pendant la tournée.",
+    "empty": "Aucune télémétrie disponible.",
+    "chartTitle": "Graphique de télémétrie GPL",
+    "meterReadingLegend": "Relevé compteur brut",
+    "observationsLegend": "Tags RFID distincts observés",
+    "meterReadingTable": "Relevé compteur brut (TM)",
+    "observationsTable": "Tags RFID distincts observés (btl)",
+    "unavailable": "Indisponible",
+    "remainingBottlesSignal": "Bouteilles restantes",
+    "remainingVracSignal": "Volume restant",
+    "deliveredBottlesHint": "{{delivered}} livrées sur {{total}}",
+    "remainingVracHint": "{{value}}% de la charge initiale",
+    "variationTitle": "Variation GPL sur la tournée",
+    "variationUnavailable": "La télémétrie volumétrique n’est pas disponible pour cette tournée.",
+    "summaryBottles": "{{delivered}} bouteilles livrées sur {{total}} ; {{remaining}} restantes.",
+    "summaryVrac": "{{delivered}} livrés et {{remaining}} restants.",
+    "tableSummary": "Voir les données de télémétrie",
+    "tableCaption": "Données de télémétrie de la tournée",
+    "time": "Heure"
   },
   "recentActivities": {
     "title": "Activités récentes",
     "description": "Les derniers mouvements qui impactent la lecture du réseau.",
-    "viewAll": "Voir tout"
-  },
-  "reserveSites": {
-    "title": "Réserve par site",
-    "description": "Niveau de couverture et flux attendus sur les points sensibles."
+    "viewAll": "Voir tout",
+    "measuredVolume": "volume mesuré"
   },
   "fleetPerformance": {
     "title": "Performance des flottes",
-    "description": "Contribution, niveau de mobilisation et qualité de service par entreprise."
+    "description": "Contribution, niveau de mobilisation et qualité de service par entreprise.",
+    "share": "{{value}}% du volume",
+    "activeTrucks": "{{active}}/{{total}} camions actifs",
+    "activeMissions": "{{count}} missions ouvertes",
+    "delivered": "Livré",
+    "pending": "En attente",
+    "mobilization": "Mobilisation",
+    "serviceRate": "{{value}}% de taux de service",
+    "risk": "Risque",
+    "truckCount": "{{count}} camions"
   },
   "secondary": {
-    "coverage": "Couverture réserve",
     "mobilization": "Mobilisation flotte",
     "serviceRate": "Taux de service",
     "risks": "Écarts & risques",
-    "period": "Période"
+    "period": "Période",
+    "activeTrucks": "{{active}}/{{total}} camions actifs",
+    "periodContext": "Période : {{period}}",
+    "criticalCount": "{{count}} critiques",
+    "riskContext": "{{alerts}} alertes ouvertes"
   },
   "table": {
     "mission": "Mission",
@@ -98,25 +147,127 @@
     "responsible": "Responsable",
     "site": "Site",
     "operator": "Opérateur",
-    "reserve": "Réserve",
-    "coverage": "Couverture",
-    "inbound": "Inbound prévu",
-    "shareOfTotal": "% du total",
-    "toVerify": "à vérifier",
+    "shareOfTotal": "du total",
     "etaOnTime": "ETA tenue",
     "etaToFollow": "ETA à suivre",
     "healthy": "Sain",
     "watch": "A surveiller",
     "critical": "Critique",
     "days": "jours",
-    "missions": "missions",
-    "mission": "mission"
+    "missions": "missions"
   },
   "status": {
     "planned": "Planifiée",
     "in-progress": "En cours",
     "completed": "Terminée",
     "incident": "Incident"
+  },
+  "variation": {
+    "title": "Variation GPL sur la tournée",
+    "description": "Valeurs réelles chargées, dernier relevé compteur, livré et restant.",
+    "lastPing": "Dernier ping {{location}}",
+    "delivered": "livré",
+    "remaining": "restant",
+    "measured": "variation mesurée",
+    "deliveredHint": "Volume livré depuis la tournée",
+    "remainingHint": "Volume restant depuis la tournée",
+    "recordedDelivery": "Livraison enregistrée",
+    "deliveredPercentHint": "{{value}}% livrés",
+    "nextStopLabel": "Prochaine étape",
+    "noNextStop": "Aucune étape en attente",
+    "liveReading": "Dernier relevé compteur",
+    "finalized": "Tournée finalisée",
+    "baseline": "Base de chargement",
+    "departHint": "Départ de {{site}}",
+    "stageLoading": "Au chargement",
+    "stageLive": "Dernier relevé compteur",
+    "stageDelivered": "Livré",
+    "stageRemaining": "Restant"
+  },
+  "period": {
+    "current": "Période courante"
+  },
+  "metrics": {
+    "transported": {
+      "title": "Volumes transportés",
+      "description": "Volume chargé sur l’ensemble des tournées visibles.",
+      "highlight": "{{count}} tournées actives"
+    },
+    "delivered": {
+      "title": "Flux livrés",
+      "description": "Volume déjà délivré ou déposé sur les étapes confirmées.",
+      "highlight": "{{value}}% de service"
+    },
+    "deliveredBottles": {
+      "title": "Flux bouteilles livrés",
+      "description": "Bouteilles comptabilisées sur la période sélectionnée.",
+      "highlight": "{{value}}% de service"
+    },
+    "transportedBottles": {
+      "title": "Flux bouteilles transportés",
+      "description": "Bouteilles chargées sur l’ensemble des tournées visibles.",
+      "highlight": "{{count}} tournées actives"
+    },
+    "alerts": {
+      "title": "Alertes ouvertes",
+      "description": "Anomalies critiques et fenêtres clients dégradées à traiter par priorité.",
+      "highlight": "{{count}} critiques"
+    }
+  },
+  "alerts": {
+    "anomalyTitle": "Anomalie critique {{reference}}",
+    "anomalyDescription": "Une anomalie de sévérité haute est rattachée à cette tournée et demande une action immédiate.",
+    "etaTitle": "ETA dégradée {{reference}}",
+    "etaDescription": "Le respect de la fenêtre client est dégradé et demande un suivi exploitation resserré.",
+    "progressMetric": "{{value}}% de progression"
+  },
+  "activities": {
+    "completedTitle": "Livraison finalisée {{reference}}",
+    "completedDescription": "{{value}} livrés vers {{destination}}.",
+    "plannedTitle": "Préparation de charge {{reference}}",
+    "plannedDescription": "{{value}} réservés pour {{destination}}.",
+    "inProgressTitle": "Acheminement en cours {{reference}}",
+    "inProgressDescription": "{{value}} encore à délivrer vers {{destination}}."
+  },
+  "fleetDetails": {
+    "back": "Retour au tableau de bord",
+    "notFound": "Flotte introuvable.",
+    "description": "Contribution et performance de la flotte.",
+    "activeTrucks": "Camions actifs",
+    "volumeShare": "Part du volume",
+    "transported": "Transporté",
+    "delivered": "Livré",
+    "pending": "En attente",
+    "mobilization": "Mobilisation",
+    "service": "Service",
+    "risk": "Risque",
+    "missions": "Missions associées"
+  },
+  "units": {
+    "days": "jours",
+    "selector": "Unité de volume",
+    "TM": "Vrac (TM)",
+    "btl": "Bouteilles 50 kg (btl)",
+    "count": "compte",
+    "percent": "pour cent"
+  },
+  "export": {
+    "section": "Section",
+    "indicator": "Indicateur",
+    "value": "Valeur",
+    "unit": "Unité",
+    "context": "Contexte",
+    "kpi": "KPI principal",
+    "fleet": "Flotte",
+    "route": "Mission",
+    "activity": "Activité",
+    "units": {
+      "TM": "TM",
+      "btl": "btl",
+      "count": "compte",
+      "percent": "%",
+      "days": "jours"
+    }
   },
   "actions": {
     "viewDetails": "Voir détails",

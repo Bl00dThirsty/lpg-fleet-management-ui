@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import * as routeAccess from './route-access'
 import { canAccessPath, deniedPathRedirect } from './route-access'
 
 describe('route-access', () => {
@@ -87,6 +88,17 @@ describe('route-access', () => {
 
     it('undeclared paths remain open by default', () => {
       expect(canAccessPath('TRANSPORTEUR', '/health')).toBe(true)
+    })
+  })
+
+  describe('legacy settings redirect policy', () => {
+    it('redirects privileged users to the canonical system page and others to profile', () => {
+      const settingsLandingPath = (routeAccess as typeof routeAccess & {
+        settingsLandingPath?: (hasSettingsAccess: boolean) => '/settings/system' | '/settings/profile'
+      }).settingsLandingPath
+      expect(settingsLandingPath).toBeTypeOf('function')
+      expect(settingsLandingPath?.(true)).toBe('/settings/system')
+      expect(settingsLandingPath?.(false)).toBe('/settings/profile')
     })
   })
 

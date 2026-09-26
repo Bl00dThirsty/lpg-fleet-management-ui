@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   flexRender,
   getCoreRowModel,
@@ -10,7 +11,7 @@ import {
   getGroupedRowModel,
   type SortingState,
   type VisibilityState,
-  type GroupingState, 
+  type GroupingState,
   useReactTable,
 } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
@@ -26,6 +27,15 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type Organization } from '@lpg/types'
 import { getMarketersColumns } from './marketers-columns'
+import { RouteSkeleton } from '@/components/layout/route-skeleton'
+import { EmptyState } from '@/components/layout/page'
+import { resolveListState, type ListState } from '@/components/entity-crud'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import {
+  fromMarketerStatusFilterValue,
+  toMarketerStatusFilterValue,
+} from '../lib/status-filter'
 
 type MarketersTableProps = {
   data: Organization[]
@@ -34,6 +44,9 @@ type MarketersTableProps = {
   onViewDetails: (marketer: Organization) => void
   onEdit?: (marketer: Organization) => void
   onDelete?: (marketer: Organization) => void
+  listState: ListState
+  onRetry: () => void
+  deletingId?: string
 }
 
 export function MarketersTable({
@@ -43,14 +56,19 @@ export function MarketersTable({
   onViewDetails,
   onEdit,
   onDelete,
+  listState,
+  onRetry,
+  deletingId,
 }: MarketersTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
   const [grouping, setGrouping] = useState<GroupingState>([])
   const columns = useMemo(
-    () => getMarketersColumns({ onViewDetails, onEdit, onDelete }),
-    [onViewDetails, onEdit, onDelete]
+    () =>
+      getMarketersColumns({ onViewDetails, onEdit, onDelete, deletingId, t }),
+    [onViewDetails, onEdit, onDelete, deletingId, t]
   )
 
   const {
@@ -66,7 +84,19 @@ export function MarketersTable({
     globalFilter: { enabled: false },
     columnFilters: [
       { columnId: 'name', searchKey: 'q', type: 'string' },
-      { columnId: 'is_active', searchKey: 'is_active', type: 'array' },
+      {
+        columnId: 'is_active',
+        searchKey: 'status',
+        type: 'array',
+        serialize: (value) =>
+          Array.isArray(value)
+            ? value.map(fromMarketerStatusFilterValue).filter(Boolean)
+            : [],
+        deserialize: (value) =>
+          Array.isArray(value)
+            ? value.map(toMarketerStatusFilterValue).filter(Boolean)
+            : [],
+      },
     ],
   })
 
@@ -102,6 +132,44 @@ export function MarketersTable({
     ensurePageInRange(table.getPageCount())
   }, [table, ensurePageInRange])
 
+  if (listState === 'loading') return <RouteSkeleton />
+  if (listState === 'error') {
+    return (
+      <Alert variant='destructive' role='alert'>
+        <AlertTitle>{t('marketers.errorTitle')}</AlertTitle>
+        <AlertDescription>
+          <p>{t('marketers.errorDescription')}</p>
+          <Button variant='outline' size='sm' onClick={onRetry}>
+            {t('marketers.retry')}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  const hasActiveFilters = Object.values(table.getState().columnFilters).some(
+    (value) => {
+      if (Array.isArray(value)) return value.length > 0
+      return Boolean(value)
+    }
+  )
+  const tableState = resolveListState(
+    false,
+    false,
+    table.getRowModel().rows.length,
+    hasActiveFilters
+  )
+  if (tableState === 'empty' || tableState === 'filtered-empty') {
+    return (
+      <EmptyState
+        title={t(
+          tableState === 'empty' ? 'marketers.empty' : 'marketers.filteredEmpty'
+        )}
+        description={t('marketers.emptyDescription')}
+      />
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -109,40 +177,44 @@ export function MarketersTable({
         'flex flex-1 flex-col gap-4'
       )}
     >
-    <div className='flex flex-wrap items-center gap-3'>
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder='Rechercher marketer...'
-        searchKey='name'
-        filters={[
-          {
-            columnId: 'is_active',
-            title: 'Statut',
-            options: [
-              { label: 'Actif', value: 'true' },
-              { label: 'Inactif', value: 'false' },
-            ],
-          },
-        ]}
-      />
-      {/* Le sélecteur est maintenant correctement placé en tant qu'enfant (children) */}
-      
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Grouper par</span>
+      <div className='flex flex-wrap items-center gap-3'>
+        <DataTableToolbar
+          table={table}
+          searchPlaceholder={t('marketers.search')}
+          searchLabel={t('marketers.searchLabel')}
+          resetFilterLabel={t('marketers.resetFilters')}
+          searchKey='name'
+          filters={[
+            {
+              columnId: 'is_active',
+               title: t('marketers.status'),
+               options: [
+                { label: t('marketers.active'), value: 'true' },
+                { label: t('marketers.inactive'), value: 'false' },
+              ],
+            },
+          ]}
+        />
+        <div className='flex items-center gap-2'>
+          <span className='text-xs text-muted-foreground'>
+            {t('marketers.groupBy')}
+          </span>
           <select
+            aria-label={t('marketers.groupBy')}
             value={grouping[0] ?? ''}
+
             onChange={(e) =>
               setGrouping(e.target.value ? [e.target.value] : [])
             }
-            className="h-8 rounded-md border bg-background px-2 text-sm"
+            className='h-8 rounded-md border bg-background px-2 text-sm'
           >
-            <option value="">-</option>
-            <option value="sites">sites</option>
+            <option value=''>{t('marketers.groupNone')}</option>
+            <option value='sites'>{t('marketers.groupSites')}</option>
           </select>
         </div>
       </div>
 
-      <div className='overflow-hidden rounded-md border'>
+      <div className='overflow-x-auto rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -200,7 +272,7 @@ export function MarketersTable({
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  Aucun résultat.
+                  {t('marketers.noResults')}
                 </TableCell>
               </TableRow>
             )}

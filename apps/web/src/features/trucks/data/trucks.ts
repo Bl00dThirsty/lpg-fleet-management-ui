@@ -17,6 +17,7 @@ import type {
   RiskLevel,
 } from '@lpg/types'
 import type { UserScope } from '@/features/scope/scope'
+import { scopeBySiteOrCreator, scopeWithOrgId } from '@/features/scope/site-creator'
 
 export type TruckStatus = TourneeStatus
 
@@ -116,7 +117,6 @@ export function getTrucks(
   scope?: UserScope,
   source: CuratedVehicle[] = curated.vehicles as CuratedVehicle[],
 ): Truck[] {
-  const vehicles = source
   const activeOrgs = organizations.filter((o) => o.is_active)
   const toursByVehicle = new Map<string, DeliveryTour>()
   for (const tour of delivery_tours) {
@@ -125,13 +125,22 @@ export function getTrucks(
     }
   }
 
-  const scopeOrgId = scope && scope.view !== 'org' ? scope.orgId : undefined
-  const visibleVehicles = scopeOrgId
-    ? vehicles.filter((v) => v.org_id === scopeOrgId)
-    : vehicles
+  // `vehicles` carries no site column, so the only keys available are the owning
+  // org and the author. Use the same scope helpers as every other operational
+  // data builder so trucks, tours and routes share one scope rule.
+  const visibleVehicles = scope
+    ? scopeBySiteOrCreator(
+        source,
+        scopeWithOrgId(scope),
+        (vehicle) => vehicle.org_id,
+        (vehicle) => vehicle.created_by ?? undefined,
+      )
+    : source
 
   return visibleVehicles.map((v, idx): Truck => {
-    const org: CuratedOrganization | undefined = activeOrgs[idx % Math.max(activeOrgs.length, 1)]
+    const org: CuratedOrganization | undefined = activeOrgs.find(
+      (candidate) => candidate.id === v.org_id,
+    )
     const driver = drivers[Math.min(idx, drivers.length - 1)]
     const tour = toursByVehicle.get(v.id)
     const seedIdx = seededIndex(v.license_plate, TOUR_STATUSES.length)

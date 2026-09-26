@@ -1,5 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { FileCheck, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useCallback, useMemo, useState } from 'react'
@@ -18,6 +19,7 @@ import type { CertificateView } from './data/certificates'
 const route = getRouteApi('/_authenticated/certificates/')
 
 export function CertificatesPage() {
+  const { t } = useTranslation('common')
   const search = route.useSearch()
   const navigate = route.useNavigate()
   const perm = useEntityPermission('certificates')
@@ -69,7 +71,7 @@ export function CertificatesPage() {
           </Badge>
           {perm.canCreate && (
             <Button onClick={() => setEditCert('new')}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau certificat
+              <Plus className='mr-1 h-4 w-4' /> {t('action.newCertificate')}
             </Button>
           )}
         </div>

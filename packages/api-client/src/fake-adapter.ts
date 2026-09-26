@@ -6,7 +6,63 @@
  */
 
 import { curated, AUTH_FIXTURES } from '@lpg/mock-data'
+import type {
+  Organization,
+  UserSiteAssignment,
+  User,
+  Role,
+  MfaStatus,
+} from '@lpg/types'
 import type { ApiAdapter, AuthResult, Credentials, ListResult } from './adapter.ts'
+
+/**
+ * Minimum shape every collection row must expose: an `id` and the soft-delete
+ * marker. The fake adapter only mutates rows through this shape, so the
+ * concrete row type (User, Vehicle, …) is widened to `CollectionRow` at the
+ * boundary and re-narrowed on the way out via `T`.
+ */
+interface CollectionRow {
+  id: string
+  deleted_at?: string | null
+}
+
+const COLLECTIONS: Record<string, CollectionRow[]> = {
+  regions: curated.regions as unknown as CollectionRow[],
+  organizations: curated.organizations as unknown as CollectionRow[],
+  system_roles: curated.system_roles as unknown as CollectionRow[],
+  permissions: curated.permissions as unknown as CollectionRow[],
+  users: curated.users as unknown as CollectionRow[],
+  user_mfa: curated.user_mfa as unknown as CollectionRow[],
+  integration_auth: curated.integration_auth as unknown as CollectionRow[],
+  sites: curated.sites as unknown as CollectionRow[],
+  clients: curated.clients as unknown as CollectionRow[],
+  client_sites: curated.client_sites as unknown as CollectionRow[],
+  vehicles: curated.vehicles as unknown as CollectionRow[],
+  drivers: curated.drivers as unknown as CollectionRow[],
+  devices: curated.devices as unknown as CollectionRow[],
+  transporter_contracts: curated.transporter_contracts as unknown as CollectionRow[],
+  pickup_requests: curated.pickup_requests as unknown as CollectionRow[],
+  delivery_tours: curated.delivery_tours as unknown as CollectionRow[],
+  checkpoints: curated.checkpoints as unknown as CollectionRow[],
+  scan_events: curated.scan_events as unknown as CollectionRow[],
+  declarations: curated.declarations as unknown as CollectionRow[],
+  reconciliations: curated.reconciliations as unknown as CollectionRow[],
+  redressements: curated.redressements as unknown as CollectionRow[],
+  risk_scores: curated.risk_scores as unknown as CollectionRow[],
+  anomalies: curated.anomalies as unknown as CollectionRow[],
+  anomaly_assignments: curated.anomaly_assignments as unknown as CollectionRow[],
+  notification_groups: curated.notification_groups as unknown as CollectionRow[],
+  notification_group_members: curated.notification_group_members as unknown as CollectionRow[],
+  notification_rules: curated.notification_rules as unknown as CollectionRow[],
+  notifications: curated.notifications as unknown as CollectionRow[],
+  rfid_tags: curated.rfid_tags as unknown as CollectionRow[],
+  user_site_assignments: curated.user_site_assignments as unknown as CollectionRow[],
+  custom_roles: curated.custom_roles as unknown as CollectionRow[],
+  user_custom_roles: curated.user_custom_roles as unknown as CollectionRow[],
+  reports: [],
+  audit_logs: [],
+  settings: [],
+}
 
 function paginate<T>(items: T[], page = 1, limit = 20): ListResult<T> {
   const safePage = Math.max(1, page)
@@ -33,42 +89,9 @@ function genId(name: string): string {
   return `${name}-${rnd}`
 }
 
-const COLLECTIONS: Record<string, unknown[]> = {
-  regions: curated.regions,
-  organizations: curated.organizations,
-  system_roles: curated.system_roles,
-  permissions: curated.permissions,
-  users: curated.users,
-  user_mfa: curated.user_mfa,
-  integration_auth: curated.integration_auth,
-  sites: curated.sites,
-  clients: curated.clients,
-  client_sites: curated.client_sites,
-  vehicles: curated.vehicles,
-  drivers: curated.drivers,
-  devices: curated.devices,
-  transporter_contracts: curated.transporter_contracts,
-  pickup_requests: curated.pickup_requests,
-  delivery_tours: curated.delivery_tours,
-  checkpoints: curated.checkpoints,
-  scan_events: curated.scan_events,
-  declarations: curated.declarations,
-  reconciliations: curated.reconciliations,
-  redressements: curated.redressements,
-  risk_scores: curated.risk_scores,
-  anomalies: curated.anomalies,
-  anomaly_assignments: curated.anomaly_assignments,
-  notification_groups: curated.notification_groups,
-  notification_group_members: curated.notification_group_members,
-  notification_rules: curated.notification_rules,
-  notifications: curated.notifications,
-  rfid_tags: (curated as any).rfid_tags ?? [],
-  user_site_assignments: (curated as any).user_site_assignments ?? [],
-  custom_roles: (curated as any).custom_roles ?? [],
-  user_custom_roles: (curated as any).user_custom_roles ?? [],
-  reports: [],
-  audit_logs: [],
-  settings: [],
+interface AuthUserLookup {
+  org_id?: string
+  mfa_status?: MfaStatus
 }
 
 export function createFakeAdapter(): ApiAdapter {
@@ -86,43 +109,45 @@ export function createFakeAdapter(): ApiAdapter {
       if (!name || !COLLECTIONS[collection]) {
         throw new Error(`Fake adapter: unsupported resource ${name ?? path}`)
       }
+      const rows = COLLECTIONS[collection]
 
       // CREATE
       if (method === 'POST') {
-        const body = init?.body ? JSON.parse(String(init.body)) : {}
-        const item = { id: genId(name), ...body }
-        ;(COLLECTIONS[collection] as unknown as any[]).push(item)
+        const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {}
+        const item: CollectionRow = { id: genId(name), ...body }
+        rows.push(item)
         return delay(item as unknown as T)
       }
 
       // UPDATE
       if ((method === 'PATCH' || method === 'PUT') && id) {
-        const coll = COLLECTIONS[collection] as unknown as any[]
-        const idx = coll.findIndex((x) => x.id === id)
-        if (idx === -1) throw new Error('Introuvable')
-        const body = init?.body ? JSON.parse(String(init.body)) : {}
-        coll[idx] = { ...coll[idx], ...body, id }
-        return delay(coll[idx] as unknown as T)
+        const idx = rows.findIndex((x) => x.id === id)
+        const existing: CollectionRow | undefined = idx >= 0 ? rows[idx] : undefined
+        if (!existing) throw new Error('Introuvable')
+        const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {}
+        // The path `id` is the source of truth; ignore any incoming id in the body.
+        const next: CollectionRow = { ...existing, ...body, id: existing.id }
+        rows[idx] = next
+        return delay(next as unknown as T)
       }
 
       // No restore endpoint is documented; deleted rows are recoverable only in DB.
       // DELETE (soft): set deleted_at so the row is excluded from default reads.
       if (method === 'DELETE' && id) {
-        const coll = COLLECTIONS[collection] as unknown as any[]
-        const idx = coll.findIndex((x) => x.id === id)
-        if (idx === -1) throw new Error('Introuvable')
-        const supportsSoftDelete = coll.some((row: any) => 'deleted_at' in row)
-        if (supportsSoftDelete) {
-          coll[idx] = { ...coll[idx], deleted_at: new Date().toISOString() }
+        const idx = rows.findIndex((x) => x.id === id)
+        const existing: CollectionRow | undefined = idx >= 0 ? rows[idx] : undefined
+        if (!existing) throw new Error('Introuvable')
+        if ('deleted_at' in existing) {
+          rows[idx] = { ...existing, deleted_at: new Date().toISOString() }
         } else {
-          coll.splice(idx, 1)
+          rows.splice(idx, 1)
         }
         return delay(undefined as unknown as T)
       }
 
       // READ by id
       if (id) {
-        const item = (COLLECTIONS[collection] as unknown as any[]).find((x) => x.id === id)
+        const item = rows.find((x) => x.id === id)
         if (!item || item.deleted_at != null) throw new Error('Introuvable')
         return delay(item as unknown as T)
       }
@@ -134,32 +159,36 @@ export function createFakeAdapter(): ApiAdapter {
       const match = path.match(/^\/([a-z-]+)/i)
       const name = match?.[1]
       const collection = name?.replace(/-/g, '_') ?? ''
-      if (!name || !COLLECTIONS[collection]) throw new Error(`Fake adapter: unknown resource ${name}`)
-      const items = COLLECTIONS[collection] as T[]
+      if (!name || !COLLECTIONS[collection]) {
+        throw new Error(`Fake adapter: unknown resource ${name}`)
+      }
+      const items = COLLECTIONS[collection] as unknown as T[]
       const qs = path.includes('?') ? path.slice(path.indexOf('?') + 1) : ''
       const params = new URLSearchParams(qs)
       const page = Number(params.get('page') ?? 1)
       const limit = Number(params.get('limit') ?? 20)
       const includeDeleted = params.get('include_deleted') === 'true'
-      const visible = items.filter((row: any) => {
+      const visible = (items as unknown as CollectionRow[]).filter((row) => {
         if (includeDeleted) return true
         return !('deleted_at' in row) || row.deleted_at == null
       })
-      return delay(paginate(visible, page, limit))
+      return delay(paginate(visible as unknown as T[], page, limit))
     },
 
     async login(creds: Credentials): Promise<AuthResult> {
       const fixture =
         AUTH_FIXTURES.find((f) => f.email === creds.email) ?? AUTH_FIXTURES[0]
       if (!fixture) throw new Error('Fake adapter: no auth fixtures available')
-      const user = (curated.users as any[]).find((u) => u.id === fixture.id)
+      const users = curated.users as readonly User[]
+      const orgs = curated.organizations as readonly Organization[]
+      const user = users.find((u) => u.id === fixture.id) as AuthUserLookup | undefined
       const org = user?.org_id
-        ? (curated.organizations as any[]).find((o) => o.id === user.org_id)
+        ? orgs.find((o: Organization) => o.id === user.org_id)
         : undefined
-      const assignments = (curated as any).user_site_assignments ?? []
+      const assignments: readonly UserSiteAssignment[] = curated.user_site_assignments
       const site_ids = assignments
-        .filter((a: any) => a.user_id === fixture.id)
-        .map((a: any) => a.site_id)
+        .filter((a) => a.user_id === fixture.id)
+        .map((a) => a.site_id)
       return delay({
         access_token: fakeToken(fixture.id),
         refresh_token: fakeToken(fixture.id),
@@ -168,12 +197,12 @@ export function createFakeAdapter(): ApiAdapter {
           email: fixture.email,
           first_name: fixture.first_name,
           last_name: fixture.last_name,
-          system_role: fixture.system_role as any,
+          system_role: fixture.system_role as Role,
           org_id: user?.org_id,
           org_name: org?.name,
           org_type: org?.type,
           site_ids,
-          mfa_status: (user as any)?.mfa_status,
+          mfa_status: user?.mfa_status,
         },
       })
     },

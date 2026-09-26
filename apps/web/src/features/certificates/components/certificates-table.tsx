@@ -14,6 +14,7 @@ import {
   type GroupingState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
@@ -62,6 +63,7 @@ export function CertificatesTable({
   onEdit,
   onDelete,
 }: CertificatesTableProps) {
+  const { t } = useTranslation('common')
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
@@ -218,7 +220,7 @@ export function CertificatesTable({
        <div className='flex flex-wrap items-center gap-3'>
         <DataTableToolbar
           table={table}
-          searchPlaceholder='Rechercher une plaque...'
+          searchPlaceholder={t('common:search.certificate')}
           searchKey='licensePlate'
           filters={[
             {

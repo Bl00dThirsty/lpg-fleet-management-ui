@@ -8,7 +8,11 @@ import {
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { handleServerError } from '@/lib/handle-server-error'
+import {
+  extractErrorMessage,
+  isSessionExpiryError,
+  shouldShowGlobalMutationError,
+} from '@/hooks/use-toast-feedback'
 import { NotFoundError } from '@/features/errors/not-found-error'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
@@ -37,6 +41,8 @@ function WsBridge() {
   return null
 }
 
+let sessionExpiryHandled = false
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -55,29 +61,17 @@ const queryClient = new QueryClient({
       staleTime: 10 * 1000, // 10s
     },
     mutations: {
-      onError: (error) => {
-        handleServerError(error)
-
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 304) {
-            toast.error('Content not modified!')
-          }
+      onError: (error, variables, context, mutationFunctionContext) => {
+        handleSessionExpiry(error)
+        if (shouldShowGlobalMutationError(error, variables, context, mutationFunctionContext)) {
+          toast.error(extractErrorMessage(error))
         }
       },
     },
   },
   queryCache: new QueryCache({
     onError: (error) => {
-      if (error instanceof AxiosError) {
-        if (error.response?.status === 401) {
-          toast.error('Session expirée. Veuillez vous reconnecter.')
-          queryClient.clear()
-          router.navigate({ to: '/login' })
-        }
-        if (error.response?.status === 500) {
-          toast.error('Internal server error.')
-        }
-      }
+      handleSessionExpiry(error)
     },
   }),
 })
@@ -89,6 +83,18 @@ const router = createRouter({
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
   defaultNotFoundComponent: NotFoundError,
+})
+
+function handleSessionExpiry(error: unknown) {
+  if (!isSessionExpiryError(error) || sessionExpiryHandled) return
+  sessionExpiryHandled = true
+  toast.error(extractErrorMessage(error))
+  queryClient.clear()
+  void router.navigate({ to: '/login' })
+}
+
+router.subscribe('onResolved', ({ toLocation }) => {
+  if (toLocation.pathname !== '/login') sessionExpiryHandled = false
 })
 
 // Register the router instance for type safety

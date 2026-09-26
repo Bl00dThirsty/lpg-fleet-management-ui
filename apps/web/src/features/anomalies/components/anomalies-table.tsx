@@ -11,6 +11,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
+import { useTranslation } from 'react-i18next'
 import { DataTablePagination, DataTableToolbar } from '@lpg/ui'
 import { cn } from '@/lib/utils'
 import {
@@ -20,6 +21,7 @@ import { getAnomalyColumns } from './anomalies-columns'
 import { anomalyStatusOptions, type AnomalyView } from '../data/anomalies'
 
 export function AnomaliesTable({ rows }: { rows: AnomalyView[] }) {
+  const { t } = useTranslation('common')
   const [sorting, setSorting] = useState<SortingState>([])
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
   const [grouping, setGrouping] = useState<GroupingState>([])
@@ -49,7 +51,7 @@ export function AnomaliesTable({ rows }: { rows: AnomalyView[] }) {
       <div className='flex flex-wrap items-center gap-3'>
         <DataTableToolbar
           table={table}
-          searchPlaceholder='Rechercher une référence, entité...'
+          searchPlaceholder={t('search.anomaly')}
           searchKey='reference'
           filters={[{ columnId: 'status', title: 'Statut', options: anomalyStatusOptions }]}
         />
