@@ -11,6 +11,7 @@ import { api } from '@lpg/api-client'
 import type {
   Anomaly,
   AppUser as User,
+  Checkpoint,
   ClientSite,
   Declaration,
   DeliveryTour,
@@ -220,6 +221,59 @@ export const scanEventsHooks = {
       queryKey: ['scan_events', params],
       queryFn: () =>
         api.scanEvents.list(params as never).then((r) => project<ScanEvent[]>(r.data)),
+    })
+  },
+}
+
+/** Cylinder scan reads (GET /scans). The scanEvents resource targets
+ *  tour-service writes which expose no GET — map layers read here. */
+export const scansHooks = {
+  useList(params?: ListParams): ResultList<ScanEvent> {
+    return useQuery<ScanEvent[], Error>({
+      queryKey: ['scans', params],
+      queryFn: () =>
+        api.scans.list(params as never).then((r) => project<ScanEvent[]>(r.data)),
+    })
+  },
+}
+
+export interface TelemetryTrailPoint {
+  vehicle_id: string
+  lat: number
+  lng: number
+  speed?: number | null
+  heading?: number | null
+  battery_level?: number | null
+  timestamp: string
+}
+
+export const telemetryHooks = {
+  useLatest(vehicleId: string | null | undefined) {
+    return useQuery<TelemetryTrailPoint, Error>({
+      queryKey: ['telemetry', 'latest', vehicleId],
+      queryFn: () =>
+        api.telemetry.latest(vehicleId as string).then((r) => project<TelemetryTrailPoint>(r)),
+      enabled: !!vehicleId,
+      staleTime: 15_000,
+    })
+  },
+  useHistory(vehicleId: string | null | undefined, start?: string, end?: string) {
+    return useQuery<TelemetryTrailPoint[], Error>({
+      queryKey: ['telemetry', 'history', vehicleId, start, end],
+      queryFn: () =>
+        api.telemetry.history(vehicleId as string, start, end).then((r) => project<TelemetryTrailPoint[]>(r)),
+      enabled: !!vehicleId,
+    })
+  },
+}
+
+export const tourCheckpointsHooks = {
+  useList(tourId: string | null | undefined): ResultList<Checkpoint> {
+    return useQuery<Checkpoint[], Error>({
+      queryKey: ['tours', tourId, 'checkpoints'],
+      queryFn: () =>
+        api.tours.checkpoints(tourId as string).then((r) => project<Checkpoint[]>(r)),
+      enabled: !!tourId,
     })
   },
 }

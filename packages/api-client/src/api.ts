@@ -74,9 +74,12 @@ export function createApi(adapter: ApiAdapter) {
     auditLogs: createResourceService<any>(adapter, 'audit-logs'),
     reports: createResourceService<any>(adapter, 'reports'),
 
-    // Sites
+    // Sites — backend exposes GET /sites/nearby?lat=&lon=&radiusKm (Haversine).
+    sitesNearby(lat: number, lon: number, radiusKm = 50) {
+      return request<any>(`/sites/nearby?lat=${lat}&lon=${lon}&radiusKm=${radiusKm}`)
+    },
     sitesNearest(lat: number, lng: number) {
-      return request<any>(`/sites/nearest?lat=${lat}&lng=${lng}`)
+      return request<any>(`/sites/nearby?lat=${lat}&lon=${lng}`)
     },
     sitesVerify(id: string, notes?: string) {
       return request<any>(`/sites/${id}/verify`, { method: 'POST', body: JSON.stringify({ notes }), headers: { 'Content-Type': 'application/json' } })
@@ -127,12 +130,81 @@ export function createApi(adapter: ApiAdapter) {
       return request<any>(`/checkpoints/${id}/skip`, { method: 'POST', body: JSON.stringify({ reason }), headers: { 'Content-Type': 'application/json' } })
     },
 
-    // Scan events
+    // Scan events (tour-service writes; cylinder reads live under /scans)
+    scans: createResourceService<any>(adapter, 'scans'),
     recordScan(body: any) {
       return request<any>('/scan-events', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
     },
-    bulkScanUpload(body: { scans: any[] }) {
-      return request<any>('/scan-events/bulk', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    bulkScanUpload(items: any[]) {
+      return request<any>('/scan-events/bulk', { method: 'POST', body: JSON.stringify({ items }), headers: { 'Content-Type': 'application/json' } })
+    },
+
+    // Tours (tour-service Flux 2 lifecycle; DRAFT->PLANNED->INPROGRESS->CHECKPOINTACTIVE->CLOSED,
+    // EXTERNAL inserts PENDINGTRANSPORTERACK->ACKNOWLEDGED)
+    tours: {
+      list(page = 0, size = 50, filters?: { driverPersonId?: string; status?: string }) {
+        const query = new URLSearchParams({ page: String(page), size: String(size) })
+        if (filters?.driverPersonId) query.set('driverPersonId', filters.driverPersonId)
+        if (filters?.status) query.set('status', filters.status)
+        return adapter.requestList<any>(`/tours?${query.toString()}`)
+      },
+      get(id: string) {
+        return request<any>(`/tours/${id}`)
+      },
+      checkpoints(tourId: string) {
+        return request<any>(`/tours/${tourId}/checkpoints`)
+      },
+      plan(id: string) {
+        return request<any>(`/tours/${id}/plan`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+      sendToTransporter(id: string) {
+        return request<any>(`/tours/${id}/send-to-transporter`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+      acknowledge(id: string) {
+        return request<any>(`/tours/${id}/acknowledge`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+      start(id: string) {
+        return request<any>(`/tours/${id}/start`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+      close(id: string) {
+        return request<any>(`/tours/${id}/close`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+      reachCheckpoint(checkpointId: string) {
+        return request<any>(`/checkpoints/${checkpointId}/reach`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+      completeCheckpoint(checkpointId: string) {
+        return request<any>(`/checkpoints/${checkpointId}/complete`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      },
+    },
+
+    // Pickups (tour-service Flux 1)
+    pickups: {
+      list(page = 0, size = 50) {
+        return adapter.requestList<any>(`/pickups?page=${page}&size=${size}`)
+      },
+      get(id: string) {
+        return request<any>(`/pickups/${id}`)
+      },
+      approve(id: string, approvedQuantity: number) {
+        return request<any>(`/pickups/${id}/approve?approvedQuantity=${approvedQuantity}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' } })
+      },
+      reject(id: string) {
+        return request<any>(`/pickups/${id}/reject`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' } })
+      },
+    },
+
+    // Vehicle telemetry (fleet-device-service)
+    telemetry: {
+      latest(vehicleId: string) {
+        return request<any>(`/telemetry/vehicles/${encodeURIComponent(vehicleId)}/latest`)
+      },
+      history(vehicleId: string, start?: string, end?: string) {
+        const query = new URLSearchParams()
+        if (start) query.set('start', start)
+        if (end) query.set('end', end)
+        const qs = query.toString()
+        return request<any>(`/telemetry/vehicles/${encodeURIComponent(vehicleId)}${qs ? `?${qs}` : ''}`)
+      },
     },
 
     // Declarations / reconciliations / redressements
