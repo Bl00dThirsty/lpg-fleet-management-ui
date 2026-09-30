@@ -44,7 +44,7 @@ export function OverviewKpis({ dashboard }: { dashboard: DashboardView }) {
               <ArrowRight className='size-4' />
             </Link>
           }
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
       ))}
     </section>

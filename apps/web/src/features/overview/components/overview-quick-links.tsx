@@ -52,7 +52,7 @@ export function OverviewQuickLinks({ role }: { role: Role }) {
         {groups.map((group) => (
           <div
             key={group.title}
-            className='rounded-2xl border border-border/60 bg-background shadow-none'
+            className='rounded-2xl border border-border bg-background shadow-sm'
           >
             <div className='border-b border-border/60 px-4 py-3'>
               <p className='text-sm font-medium'>{group.title}</p>

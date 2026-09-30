@@ -108,7 +108,7 @@ export function TourLpgVariationPanel({
             hint={
               trip.status === 'completed'
                 ? 'Mission cloturee'
-                : `Projection apres ${trip.nextStop.site.name}`
+                : `Projection apres ${trip.nextStop?.site.name ?? '—'}`
             }
             formatQuantity={formatQuantity}
           />
@@ -132,7 +132,7 @@ export function TourLpgVariationPanel({
             hint={
               trip.status === 'completed'
                 ? 'Tournée finalisée'
-                : trip.nextStop.site.name
+                : (trip.nextStop?.site.name ?? '—')
             }
           />
           <MetricTile

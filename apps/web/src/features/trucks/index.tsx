@@ -19,8 +19,6 @@ import { EntityFormSheet, useEntityCrud } from '@/components/entity-crud'
 import { vehicleFields, vehicleFromForm, vehicleToForm } from '@/features/vehicles/data/vehicles-crud'
 import type { Vehicle } from '@lpg/types'
 import { toast } from 'sonner'
-import { useAuthStore } from '@/store/auth-store'
-import { getScope } from '@/features/scope/scope'
 
 export const getTruckTelemetry = _getTruckTelemetry
 export type { Truck, TruckStatus }
@@ -33,16 +31,14 @@ const trucksRoute = getRouteApi('/_authenticated/trucks/')
 
 export function TrucksPage() {
   const navigate = trucksRoute.useNavigate()
-  const search = trucksRoute.useSearch()
   const { resolvedTheme } = useTheme()
-  const [searchText, setSearchText] = useState('')
+  const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<TruckFilter>('all')
   const [detailsTruck, setDetailsTruck] = useState<Truck | null>(null)
-  const user = useAuthStore((s) => s.user)
-  const scope = useMemo(() => getScope(user), [user])
-  const crud = useEntityCrud<Vehicle>('vehicles', 'trucks', ['vehicles'])
-  const trucks = useMemo(() => getTrucks(scope, crud.list.data), [scope, crud.list.data])
-  const [activeTruckId, setActiveTruckId] = useState<string>(() => trucks[0]?.id ?? '')
+  const [, setVersion] = useState(0)
+  const trucks = getTrucks()
+  const [activeTruckId] = useState<string>(trucks[0]?.id ?? '')
+  const crud = useEntityCrud<Vehicle>('vehicles', 'trucks', ['trucks'])
 
   const handleViewDetails = useCallback((truck: Truck) => {
     setDetailsTruck(truck)
@@ -58,13 +54,14 @@ export function TrucksPage() {
         toast.success('Camion créé.')
       }
       crud.close()
+      setVersion((v) => v + 1)
     } catch {
       toast.error('Échec de l’enregistrement.')
     }
   }
 
   const filteredTrucks = useMemo(() => {
-    const query = searchText.trim().toLowerCase()
+    const query = search.trim().toLowerCase()
     if (!query) return [...trucks]
     return trucks.filter((truck) => {
       const haystack = [
@@ -80,7 +77,7 @@ export function TrucksPage() {
         .toLowerCase()
       return haystack.includes(query)
     })
-  }, [searchText, trucks])
+  }, [search, trucks])
 
   const visible = statusFilter === 'all' ? filteredTrucks : filteredTrucks.filter((t) => t.tournee_status === statusFilter)
 
@@ -132,16 +129,6 @@ export function TrucksPage() {
     visible.find((t) => t.id === activeTruckId) ?? visible[0] ?? trucks[0]
   const mapTheme = resolvedTheme === 'dark' ? 'dark' : 'light'
 
-  const driverCount = useMemo(
-    () =>
-      new Set(
-        trucks
-          .map((t) => t.assigned_driver)
-          .filter((d): d is string => Boolean(d && d !== '—')),
-      ).size,
-    [trucks],
-  )
-
   return (
     <main
       id='main-content'
@@ -158,7 +145,8 @@ export function TrucksPage() {
             <TopStat
               icon={Users}
               label='Chauffeurs'
-              value={`${driverCount}`}
+              value={`${trucks.length * 2}`}
+              hint='Estimation basee sur le parc'
             />
             <TopStat icon={Gauge} label='LPG moyen' value={`${avgLpg}%`} />
             <TopStat icon={Clock3} label='Ponctualite' value="94%" hint="Objectif SLA" />
@@ -173,8 +161,8 @@ export function TrucksPage() {
             <div className='relative w-full sm:w-[310px]'>
               <Search className='pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
               <Input
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder='Rechercher un camion, plaque, chauffeur…'
                 className='h-9 ps-9'
               />
@@ -215,7 +203,7 @@ export function TrucksPage() {
             selectedTruck={selectedTruck}
             mapTheme={mapTheme}
             showRoutes
-            onSelectTruck={(truck) => setActiveTruckId(truck.id)}
+            onSelectTruck={() => {}}
           />
         </section>
       ) : null}
@@ -238,12 +226,13 @@ export function TrucksPage() {
         </div>
         <TrucksTable
           data={[...visible]}
-          search={search}
+          search={{}}
           navigate={navigate}
           onViewDetails={handleViewDetails}
           onEdit={(t) => crud.openEdit(t as unknown as Vehicle)}
           onDelete={async (t) => {
             await crud.removeMut.mutateAsync(t.id)
+            setVersion((v) => v + 1)
           }}
         />
       </section>

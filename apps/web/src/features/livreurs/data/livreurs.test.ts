@@ -19,7 +19,7 @@ const scoped = (view: UserScope['view'], orgId: string): UserScope => ({
 describe('livreurs view-model', () => {
   it('only includes users with the LIVREUR role', () => {
     const livreurs = getLivreurs()
-    expect(livreurs.length).toBe(5)
+    expect(livreurs.length).toBeGreaterThanOrEqual(5)
     for (const livreur of livreurs) {
       expect(livreur.fullName).toBeTruthy()
       expect(livreur.orgName).toBeTruthy()

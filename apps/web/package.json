@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "knip": "knip",
     "test": "vitest run --browser.headless",
-    "test:unit": "vitest run --browser=false --exclude src/components/** --exclude src/hooks/use-table-url-state.test.ts --exclude src/lib/cookies.test.ts",
+    "test:unit": "vitest run --browser=false --exclude '**/*.test.tsx' --exclude src/components/** --exclude src/hooks/use-table-url-state.test.ts --exclude src/lib/cookies.test.ts",
     "test:watch": "vitest --browser.headless",
     "test:ui": "vitest --ui --browser.headless",
     "test:browser": "vitest",

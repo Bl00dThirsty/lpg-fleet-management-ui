@@ -40,7 +40,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
               {stats.activeFleet} actifs
             </Badge>
           }
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
 
         <MetricCardWithChart
@@ -52,7 +52,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
               sur {stats.totalTours} total
             </Badge>
           }
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
 
         <MetricCardWithChart
@@ -64,7 +64,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
               à reconnaître
             </Badge>
           }
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
 
         <MetricCardWithChart
@@ -76,13 +76,13 @@ export function TransporterOverview({ transporter }: { transporter: Organization
               TM
             </Badge>
           }
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
       </div>
 
       {/* Charts Row 1 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <TrendingUp className='h-4 w-4 text-primary' />
@@ -99,7 +99,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <TrendingUp className='h-4 w-4 text-primary' />
@@ -119,7 +119,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
 
       {/* Charts Row 2 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <BarChart2 className='h-4 w-4 text-primary' />
@@ -147,7 +147,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Package className='h-4 w-4 text-primary' />
@@ -174,7 +174,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
 
       {/* Charts Row 3 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <TrendingUp className='h-4 w-4 text-primary' />
@@ -193,7 +193,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <TrendingUp className='h-4 w-4 text-primary' />
@@ -215,7 +215,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
 
       {/* Charts Row 4 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <CheckCircle className='h-4 w-4 text-primary' />
@@ -240,7 +240,7 @@ export function TransporterOverview({ transporter }: { transporter: Organization
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Package className='h-4 w-4 text-primary' />

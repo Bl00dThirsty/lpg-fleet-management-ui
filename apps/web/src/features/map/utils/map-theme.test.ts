@@ -3,9 +3,9 @@ import {
   getArcgisBasemap,
   getArcgisViewTheme,
   getMarkerOutlineColor,
+  getSiteOutlineColor,
   rgbaFromTuple,
 } from './map-theme'
-import { getSiteOutlineColor } from '@/features/sites/utils/site-graphics'
 
 describe('map-theme', () => {
   it('returns dark basemap for dark theme', () => {

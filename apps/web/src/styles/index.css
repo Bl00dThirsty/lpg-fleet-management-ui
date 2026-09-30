@@ -90,9 +90,11 @@
 }
 
 /* ArcGIS map theme bridge using Calcite variables */
-.fleet-arcgis-map .esri-popup__main-container {
-  border-radius: 12px;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.3);
+.fleet-arcgis-map .esri-popup__main-container,
+.national-arcgis-map .esri-popup__main-container {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 

@@ -62,7 +62,7 @@ export function FinanceKpis({ summary, monthly }: FinanceKpisProps) {
               <ArrowRight className='size-4' />
             </Link>
           }
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
       ))}
     </section>
@@ -106,7 +106,7 @@ export function FinanceSecondaryStats({ summary }: { summary: FinanceSummary }) 
       {secondaryTiles.map((tile) => (
         <div
           key={tile.id}
-          className='rounded-2xl border border-border/60 bg-card p-4 shadow-none'
+          className='rounded-2xl border border-border bg-card p-4 shadow-sm'
         >
           <div className='flex items-center gap-2 text-sm text-muted-foreground'>
             <tile.icon className='size-4 text-primary' />

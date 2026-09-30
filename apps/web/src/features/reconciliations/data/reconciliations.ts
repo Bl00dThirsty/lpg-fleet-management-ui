@@ -5,11 +5,14 @@ export type { ReconciliationStatus }
 
 export interface ReconciliationView {
   id: string
+  declaration_id: string
   reference: string
   declaration_reference: string
   marketeur_name: string
   declared_volume: number
   tracked_volume: number
+  tracked_bottles_out: number | null
+  tracked_bottles_in: number | null
   volume_gap: number
   gap_percentage: number
   subsidy_impact: number
@@ -47,11 +50,14 @@ export function reconciliationsToViews(
       const gapPct = declared > 0 ? Math.abs((r.volume_gap / declared) * 100) : 0
       return {
         id: r.id,
+        declaration_id: r.declaration_id,
         reference: `REC-${String(i + 1).padStart(3, '0')}`,
         declaration_reference: declByRef.get(r.declaration_id) ?? '—',
         marketeur_name: decl ? orgName(decl.marketeur_org_id) : '—',
         declared_volume: declared,
         tracked_volume: r.tracked_volume,
+        tracked_bottles_out: r.tracked_bottles_out ?? null,
+        tracked_bottles_in: r.tracked_bottles_in ?? null,
         volume_gap: r.volume_gap,
         gap_percentage: gapPct,
         subsidy_impact: r.subsidy_impact,

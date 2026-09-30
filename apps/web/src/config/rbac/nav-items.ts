@@ -81,6 +81,8 @@ export interface NavItemDecl {
   static?: boolean
   /** Visual badge (e.g. '!' for alerts). */
   badge?: string
+  /** Visible in the sidebar, but not navigable until the feature is ready. */
+  comingSoon?: boolean
   /** Optional secondary items only rendered when the parent is visible. */
   children?: readonly NavItemDecl[]
 }
@@ -272,6 +274,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'certificates',
+    comingSoon: true,
     label: 'Certificats de jaugeage',
     icon: ShieldCheck,
     path: 'certificates',
@@ -279,6 +282,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'devices',
+    comingSoon: true,
     label: 'Appareils IoT',
     icon: RadioTower,
     path: 'devices',
@@ -323,6 +327,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- Operations: pickups + tours ----------- */
   {
     id: 'pickups',
+    comingSoon: true,
     label: 'Approvisionnements (Flux 1)',
     icon: PackageCheck,
     path: 'pickups',
@@ -353,6 +358,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- Compliance: declarations → reconciliations → redressements ----------- */
   {
     id: 'declarations',
+    comingSoon: true,
     label: 'Déclarations',
     icon: ClipboardList,
     path: 'declarations',
@@ -360,6 +366,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'reconciliations',
+    comingSoon: true,
     label: 'Réconciliations',
     icon: FileBarChart,
     path: 'reconciliations',
@@ -367,6 +374,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'redressements',
+    comingSoon: true,
     label: 'Redressements',
     icon: Receipt,
     path: 'redressements',
@@ -383,6 +391,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'anomalies-investigation',
+    comingSoon: true,
     label: 'Piste Investigation',
     icon: Search,
     path: 'anomalies/investigation',
@@ -390,6 +399,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'anomalies-technical',
+    comingSoon: true,
     label: 'Piste Technique',
     icon: ServerCog,
     path: 'anomalies/technical',
@@ -399,6 +409,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- Risk + anomalies management ----------- */
   {
     id: 'risk-scores',
+    comingSoon: true,
     label: 'Scores de risque',
     icon: FileWarning,
     path: 'risk-scores',
@@ -506,6 +517,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- FINANCE ----------- */
   {
     id: 'finance',
+    comingSoon: true,
     label: 'Indicateurs financiers',
     icon: Wallet,
     path: 'finance',
@@ -556,6 +568,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- OPS / MONITORING ----------- */
   {
     id: 'system-health',
+    comingSoon: true,
     label: 'Santé système',
     icon: HeartPulse,
     path: 'system-health',
@@ -570,6 +583,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'infra',
+    comingSoon: true,
     label: 'Dashboards Grafana',
     icon: ServerCog,
     path: 'infra',
@@ -615,6 +629,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- Static / external links ----------- */
   {
     id: 'grafana',
+    comingSoon: true,
     label: 'Dashboards Grafana',
     icon: ServerCog,
     path: '/grafana',
@@ -623,6 +638,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'prometheus',
+    comingSoon: true,
     label: 'Métriques Prometheus',
     icon: Activity,
     path: '/prometheus',
@@ -791,6 +807,9 @@ TRANSPORTEUR: {
       // on-disk route. Re-introduce when a dedicated LIVREUR milestone lands.
     ],
   },
+  DRIVER: {
+    groups: [],
+  },
 }
 
 /* --------------------------------------------------------------------------
@@ -831,7 +850,8 @@ function toSidebarItem(_role: Role, decl: NavItemDecl) {
     title: decl.label,
     url: resolveFeaturePath(decl),
     icon: decl.icon,
-    badge: decl.badge,
+    badge: decl.comingSoon ? 'soon' : decl.badge,
+    disabled: Boolean(decl.comingSoon),
   }
 }
 

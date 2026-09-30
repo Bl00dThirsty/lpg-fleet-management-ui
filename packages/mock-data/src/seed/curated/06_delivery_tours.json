@@ -122,8 +122,8 @@
       "marketeur_org_id": "org-0002-sctm-0000-000000000001",
       "source_site_id": "site-0030-scdp-garoua",
       "destination_site_id": "site-0004-sctm-garoua",
-      "requested_quantity": 18.0,
-      "approved_quantity": 18.0,
+      "requested_quantity": 18,
+      "approved_quantity": 18,
       "status": "COMPLETED",
       "created_at": "2024-11-20T08:00:00Z",
       "updated_at": "2024-11-21T14:00:00Z",
@@ -136,8 +136,8 @@
       "marketeur_org_id": "org-0003-total-0000-000000000001",
       "source_site_id": "site-0028-scdp-bonaberi",
       "destination_site_id": "site-0012-total-garoua",
-      "requested_quantity": 22.0,
-      "approved_quantity": 20.0,
+      "requested_quantity": 22,
+      "approved_quantity": 20,
       "status": "INPROGRESS",
       "created_at": "2024-11-28T08:00:00Z",
       "updated_at": "2024-11-29T10:00:00Z",
@@ -159,7 +159,7 @@
       "transporter_assigned_at": null,
       "type": "VRAC",
       "status": "CLOSED",
-      "requested_quantity": 12.0,
+      "requested_quantity": 12,
       "loaded_quantity": 11.85,
       "delivered_quantity": 11.62,
       "started_at": "2024-11-25T07:00:00Z",
@@ -182,9 +182,9 @@
       "transporter_assigned_at": null,
       "type": "BOUTEILLES50KG",
       "status": "CLOSED",
-      "requested_quantity": 96.0,
-      "loaded_quantity": 96.0,
-      "delivered_quantity": 96.0,
+      "requested_quantity": 96,
+      "loaded_quantity": 96,
+      "delivered_quantity": 96,
       "started_at": "2024-11-26T07:30:00Z",
       "closed_at": "2024-11-26T11:00:00Z",
       "created_at": "2024-11-25T08:00:00Z",
@@ -205,7 +205,7 @@
       "transporter_assigned_at": "2024-11-27T08:00:00Z",
       "type": "VRAC",
       "status": "INPROGRESS",
-      "requested_quantity": 8.0,
+      "requested_quantity": 8,
       "loaded_quantity": 7.8,
       "delivered_quantity": 3.2,
       "started_at": "2024-11-27T07:00:00Z",
@@ -228,9 +228,9 @@
       "transporter_assigned_at": null,
       "type": "BOUTEILLES50KG",
       "status": "INPROGRESS",
-      "requested_quantity": 72.0,
-      "loaded_quantity": 72.0,
-      "delivered_quantity": 24.0,
+      "requested_quantity": 72,
+      "loaded_quantity": 72,
+      "delivered_quantity": 24,
       "started_at": "2024-11-30T07:00:00Z",
       "closed_at": null,
       "created_at": "2024-11-29T08:00:00Z",
@@ -251,7 +251,7 @@
       "transporter_assigned_at": null,
       "type": "VRAC",
       "status": "PENDINGTRANSPORTERACK",
-      "requested_quantity": 15.0,
+      "requested_quantity": 15,
       "loaded_quantity": null,
       "delivered_quantity": null,
       "started_at": null,
@@ -274,7 +274,7 @@
       "transporter_assigned_at": null,
       "type": "VRAC",
       "status": "PLANNED",
-      "requested_quantity": 10.0,
+      "requested_quantity": 10,
       "loaded_quantity": null,
       "delivered_quantity": null,
       "started_at": null,
@@ -297,9 +297,9 @@
       "transporter_assigned_at": null,
       "type": "BOUTEILLES50KG",
       "status": "INPROGRESS",
-      "requested_quantity": 120.0,
-      "loaded_quantity": 120.0,
-      "delivered_quantity": 48.0,
+      "requested_quantity": 120,
+      "loaded_quantity": 120,
+      "delivered_quantity": 48,
       "started_at": "2024-11-30T07:30:00Z",
       "closed_at": null,
       "created_at": "2024-11-29T08:00:00Z",
@@ -343,7 +343,7 @@
       "transporter_assigned_at": "2024-11-28T08:00:00Z",
       "type": "VRAC",
       "status": "ACKNOWLEDGED",
-      "requested_quantity": 12.0,
+      "requested_quantity": 12,
       "loaded_quantity": null,
       "delivered_quantity": null,
       "started_at": null,
@@ -366,7 +366,7 @@
       "transporter_assigned_at": null,
       "type": "VRAC",
       "status": "DRAFT",
-      "requested_quantity": 9.0,
+      "requested_quantity": 9,
       "loaded_quantity": null,
       "delivered_quantity": null,
       "started_at": null,
@@ -723,7 +723,10 @@
       "livreur_user_id": "user-0010-sctm-livreur1",
       "rfid_tag_id": null,
       "direction": "OUT",
-      "geo_point": [9.5625, 4.0475],
+      "geo_point": [
+        9.5625,
+        4.0475
+      ],
       "timestamp": "2024-11-25T07:20:00Z",
       "meter_reading": 124567.8,
       "photo_url": "https://proofs.sctm-cameroun.com/tour001/cp001.jpg",
@@ -738,7 +741,10 @@
       "livreur_user_id": "user-0010-sctm-livreur1",
       "rfid_tag_id": null,
       "direction": "IN",
-      "geo_point": [11.5140, 3.8790],
+      "geo_point": [
+        11.514,
+        3.879
+      ],
       "timestamp": "2024-11-25T09:55:00Z",
       "meter_reading": 126120.3,
       "photo_url": "https://proofs.sctm-cameroun.com/tour001/cp002.jpg",
@@ -753,7 +759,10 @@
       "livreur_user_id": "user-0011-sctm-livreur2",
       "rfid_tag_id": null,
       "direction": "OUT",
-      "geo_point": [9.5625, 4.0475],
+      "geo_point": [
+        9.5625,
+        4.0475
+      ],
       "timestamp": "2024-11-26T07:55:00Z",
       "meter_reading": 78234.1,
       "photo_url": "https://proofs.sctm-cameroun.com/tour002/cp003.jpg",
@@ -768,7 +777,10 @@
       "livreur_user_id": "user-0011-sctm-livreur2",
       "rfid_tag_id": null,
       "direction": "IN",
-      "geo_point": [9.7280, 4.0720],
+      "geo_point": [
+        9.728,
+        4.072
+      ],
       "timestamp": "2024-11-26T09:27:00Z",
       "meter_reading": 78340.2,
       "photo_url": "https://proofs.sctm-cameroun.com/tour002/cp004.jpg",
@@ -783,7 +795,10 @@
       "livreur_user_id": "user-0011-sctm-livreur2",
       "rfid_tag_id": null,
       "direction": "IN",
-      "geo_point": [9.7450, 4.0520],
+      "geo_point": [
+        9.745,
+        4.052
+      ],
       "timestamp": "2024-11-26T10:37:00Z",
       "meter_reading": 78450.6,
       "photo_url": "https://proofs.sctm-cameroun.com/tour002/cp005.jpg",
@@ -798,7 +813,10 @@
       "livreur_user_id": null,
       "rfid_tag_id": null,
       "direction": "OUT",
-      "geo_point": [9.5625, 4.0475],
+      "geo_point": [
+        9.5625,
+        4.0475
+      ],
       "timestamp": "2024-11-27T07:55:00Z",
       "meter_reading": 198234.5,
       "photo_url": null,
@@ -808,12 +826,123 @@
       "created_by": "user-0029-api-service"
     },
     {
+      "id": "scan-006-telemetry-1",
+      "checkpoint_id": "cp-006-tour3-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        9.75,
+        4.04
+      ],
+      "timestamp": "2024-11-27T08:21:08.571Z",
+      "meter_reading": 198334.5,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-001-mock-1",
+      "conflict_status": null,
+      "created_at": "2024-11-27T08:21:08.571Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-006-telemetry-2",
+      "checkpoint_id": "cp-006-tour3-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        10.13,
+        3.8
+      ],
+      "timestamp": "2024-11-27T08:47:17.142Z",
+      "meter_reading": 198434.5,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-001-mock-2",
+      "conflict_status": null,
+      "created_at": "2024-11-27T08:47:17.142Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-006-telemetry-3",
+      "checkpoint_id": "cp-006-tour3-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        10.53,
+        3.85
+      ],
+      "timestamp": "2024-11-27T09:13:25.714Z",
+      "meter_reading": 198534.5,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-001-mock-3",
+      "conflict_status": null,
+      "created_at": "2024-11-27T09:13:25.714Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-006-telemetry-4",
+      "checkpoint_id": "cp-006-tour3-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        10.71,
+        3.87
+      ],
+      "timestamp": "2024-11-27T09:39:34.285Z",
+      "meter_reading": 198634.5,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-001-mock-4",
+      "conflict_status": null,
+      "created_at": "2024-11-27T09:39:34.285Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-006-telemetry-5",
+      "checkpoint_id": "cp-006-tour3-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        11,
+        3.88
+      ],
+      "timestamp": "2024-11-27T10:05:42.857Z",
+      "meter_reading": 198734.5,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-001-mock-5",
+      "conflict_status": null,
+      "created_at": "2024-11-27T10:05:42.857Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-006-telemetry-6",
+      "checkpoint_id": "cp-006-tour3-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        11.2,
+        3.85
+      ],
+      "timestamp": "2024-11-27T10:31:51.428Z",
+      "meter_reading": 198834.5,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-001-mock-6",
+      "conflict_status": null,
+      "created_at": "2024-11-27T10:31:51.428Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
       "id": "scan-007",
       "checkpoint_id": "cp-007-tour3-seq2",
       "livreur_user_id": null,
       "rfid_tag_id": null,
       "direction": "IN",
-      "geo_point": [11.5090, 3.8840],
+      "geo_point": [
+        11.509,
+        3.884
+      ],
       "timestamp": "2024-11-27T10:58:00Z",
       "meter_reading": 199580.1,
       "photo_url": null,
@@ -828,7 +957,10 @@
       "livreur_user_id": "user-0017-total-livreur1",
       "rfid_tag_id": null,
       "direction": "OUT",
-      "geo_point": [9.5535, 4.0550],
+      "geo_point": [
+        9.5535,
+        4.055
+      ],
       "timestamp": "2024-11-30T07:25:00Z",
       "meter_reading": 45678.9,
       "photo_url": "https://proofs.total.cm/tour004/cp008.jpg",
@@ -838,34 +970,94 @@
       "created_by": "user-0017-total-livreur1"
     },
     {
-      "id": "scan-009",
-      "checkpoint_id": "cp-009-tour4-seq2",
-      "livreur_user_id": "user-0017-total-livreur1",
-      "rfid_tag_id": null,
-      "direction": "IN",
-      "geo_point": [11.5070, 3.8820],
-      "timestamp": "2024-11-30T08:55:00Z",
-      "meter_reading": 45912.3,
-      "photo_url": "https://proofs.total.cm/tour004/cp009.jpg",
-      "pda_sync_id": "PDA-TOTAL-001-20241130-085500",
-      "conflict_status": null,
-      "created_at": "2024-11-30T08:55:00Z",
-      "created_by": "user-0017-total-livreur1"
-    },
-    {
-      "id": "scan-010",
+      "id": "scan-010-telemetry-1",
       "checkpoint_id": "cp-010-tour7-seq1",
-      "livreur_user_id": "user-0011-sctm-livreur2",
+      "livreur_user_id": null,
       "rfid_tag_id": null,
       "direction": "OUT",
-      "geo_point": [9.5625, 4.0475],
-      "timestamp": "2024-11-30T07:55:00Z",
-      "meter_reading": 89456.2,
-      "photo_url": "https://proofs.sctm-cameroun.com/tour007/cp010.jpg",
-      "pda_sync_id": "PDA-SCTM-002-20241130-075500",
+      "geo_point": [
+        9.75,
+        4.04
+      ],
+      "timestamp": "2024-11-30T07:25:30.000Z",
+      "meter_reading": 45688.9,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-002-mock-1",
       "conflict_status": null,
-      "created_at": "2024-11-30T07:55:00Z",
-      "created_by": "user-0011-sctm-livreur2"
+      "created_at": "2024-11-30T07:25:30.000Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-010-telemetry-2",
+      "checkpoint_id": "cp-010-tour7-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        10.13,
+        3.8
+      ],
+      "timestamp": "2024-11-30T07:26:00.000Z",
+      "meter_reading": 45698.9,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-002-mock-2",
+      "conflict_status": null,
+      "created_at": "2024-11-30T07:26:00.000Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-010-telemetry-3",
+      "checkpoint_id": "cp-010-tour7-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        10.53,
+        3.85
+      ],
+      "timestamp": "2024-11-30T07:26:30.000Z",
+      "meter_reading": 45708.9,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-002-mock-3",
+      "conflict_status": null,
+      "created_at": "2024-11-30T07:26:30.000Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-010-telemetry-4",
+      "checkpoint_id": "cp-010-tour7-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        10.71,
+        3.87
+      ],
+      "timestamp": "2024-11-30T07:27:00.000Z",
+      "meter_reading": 45718.9,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-002-mock-4",
+      "conflict_status": null,
+      "created_at": "2024-11-30T07:27:00.000Z",
+      "created_by": "user-0029-api-service"
+    },
+    {
+      "id": "scan-010-telemetry-5",
+      "checkpoint_id": "cp-010-tour7-seq1",
+      "livreur_user_id": null,
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        11,
+        3.88
+      ],
+      "timestamp": "2024-11-30T07:27:30.000Z",
+      "meter_reading": 45728.9,
+      "photo_url": null,
+      "pda_sync_id": "GPS-TL-002-mock-5",
+      "conflict_status": null,
+      "created_at": "2024-11-30T07:27:30.000Z",
+      "created_by": "user-0029-api-service"
     },
     {
       "id": "scan-011",
@@ -873,7 +1065,10 @@
       "livreur_user_id": "user-0021-aza-livreur",
       "rfid_tag_id": null,
       "direction": "OUT",
-      "geo_point": [11.4950, 3.8400],
+      "geo_point": [
+        11.495,
+        3.84
+      ],
       "timestamp": "2024-11-30T07:28:00Z",
       "meter_reading": 34567.8,
       "photo_url": "https://proofs.azagroup.com/tour008/cp012.jpg",
@@ -883,12 +1078,51 @@
       "created_by": "user-0021-aza-livreur"
     },
     {
+      "id": "scan-010",
+      "checkpoint_id": "cp-010-tour7-seq1",
+      "livreur_user_id": "user-0011-sctm-livreur2",
+      "rfid_tag_id": null,
+      "direction": "OUT",
+      "geo_point": [
+        9.5625,
+        4.0475
+      ],
+      "timestamp": "2024-11-30T07:55:00Z",
+      "meter_reading": 89456.2,
+      "photo_url": "https://proofs.sctm-cameroun.com/tour007/cp010.jpg",
+      "pda_sync_id": "PDA-SCTM-002-20241130-075500",
+      "conflict_status": null,
+      "created_at": "2024-11-30T07:55:00Z",
+      "created_by": "user-0011-sctm-livreur2"
+    },
+    {
+      "id": "scan-009",
+      "checkpoint_id": "cp-009-tour4-seq2",
+      "livreur_user_id": "user-0017-total-livreur1",
+      "rfid_tag_id": null,
+      "direction": "IN",
+      "geo_point": [
+        11.507,
+        3.882
+      ],
+      "timestamp": "2024-11-30T08:55:00Z",
+      "meter_reading": 45912.3,
+      "photo_url": "https://proofs.total.cm/tour004/cp009.jpg",
+      "pda_sync_id": "PDA-TOTAL-001-20241130-085500",
+      "conflict_status": null,
+      "created_at": "2024-11-30T08:55:00Z",
+      "created_by": "user-0017-total-livreur1"
+    },
+    {
       "id": "scan-012",
       "checkpoint_id": "cp-013-tour8-seq2",
       "livreur_user_id": "user-0021-aza-livreur",
       "rfid_tag_id": null,
       "direction": "IN",
-      "geo_point": [11.5090, 3.8840],
+      "geo_point": [
+        11.509,
+        3.884
+      ],
       "timestamp": "2024-11-30T09:05:00Z",
       "meter_reading": 34789.4,
       "photo_url": "https://proofs.azagroup.com/tour008/cp013.jpg",

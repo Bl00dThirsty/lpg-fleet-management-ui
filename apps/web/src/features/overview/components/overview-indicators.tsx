@@ -76,7 +76,7 @@ function IndicatorCard({ card }: { card: OverviewCard }) {
       to={card.href as never}
       className='group block'
     >
-      <Card className='flex h-full flex-col rounded-2xl border-border/60 shadow-none transition-colors group-hover:border-border group-hover:bg-muted/30'>
+      <Card className='flex h-full flex-col rounded-2xl border-border shadow-sm transition-colors group-hover:border-border group-hover:bg-muted/30'>
         <CardHeader className='flex flex-row items-center gap-3 space-y-0 pb-3'>
           <div
             className={cn(

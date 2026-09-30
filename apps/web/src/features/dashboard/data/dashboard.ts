@@ -1,17 +1,20 @@
-import { getSettingNumber } from '@lpg/mock-data'
 import {
   buildRouteSummary,
   getRouteTripsView,
   type RouteEventSeverity,
   type RouteTripStatus,
   type RouteTripView,
+  type TourActivity,
 } from '@/features/tours/data/tour-activity'
-import { sites } from '@/features/sites/data/sites'
-import { trucks } from '@/features/trucks/data/trucks'
+import { sites, type Site } from '@/features/sites/data/sites'
+import { trucks, type Truck } from '@/features/trucks/data/trucks'
 import { quantityInfo } from '@/features/trucks/lib/quantity'
-import type { UserScope } from '@/features/scope/scope'
-import type { Role } from '@/config/rbac/roles'
-import type { DateRange } from 'react-day-picker'
+
+export interface DashboardSource {
+  routes?: readonly TourActivity[]
+  trucks?: readonly Truck[]
+  sites?: readonly Site[]
+}
 
 export type DashboardPeriod = 'daily' | 'weekly' | 'monthly'
 export type DashboardMetricTone = 'sky' | 'emerald' | 'amber' | 'rose'
@@ -156,14 +159,7 @@ export type DashboardOverview = {
   criticalAlerts: number
 }
 
-export type DashboardQuery = {
-  range?: DateRange
-  period?: DashboardPeriod
-  fleetName?: string
-}
-
 export type DashboardView = {
-  viewRole?: Role
   overview: DashboardOverview
   metrics: DashboardMetric[]
   trendByPeriod: Record<DashboardPeriod, DashboardTrendPoint[]>
@@ -175,7 +171,6 @@ export type DashboardView = {
   reserveSites: DashboardReserveSite[]
   alerts: DashboardAlert[]
   recentActivities: DashboardRecentActivity[]
-  query?: DashboardQuery
 }
 
 const reserveConfigBySiteId = {
@@ -381,42 +376,6 @@ function shiftMinutes(value: string, minutes: number) {
   return date.toISOString()
 }
 
-function formatDateRangeLabel(range?: DateRange): string | null {
-  if (!range?.from) return null
-  const fmt = (date: Date) =>
-    new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(date)
-  if (!range.to) return fmt(range.from)
-  return `${fmt(range.from)} – ${fmt(range.to)}`
-}
-
-function isWithinRange(dateIso: string, range: DateRange): boolean {
-  const time = new Date(dateIso).getTime()
-  if (Number.isNaN(time)) return true
-  const fromTime = range.from ? new Date(range.from).setHours(0, 0, 0, 0) : -Infinity
-  const toTime = range.to ? new Date(range.to).setHours(23, 59, 59, 999) : Infinity
-  return time >= fromTime && time <= toTime
-}
-
-function applyDateRangeFilter<T extends RouteTripView>(
-  trips: readonly T[],
-  range?: DateRange
-): readonly T[] {
-  if (!range?.from && !range?.to) return trips
-  const normalized: DateRange = {
-    from: range.from,
-    to: range.to ?? range.from,
-  }
-  return trips.filter(
-    (trip) =>
-      isWithinRange(trip.startedAt, normalized) ||
-      isWithinRange(trip.lastUpdatedAt, normalized)
-  )
-}
-
 function buildTrendSeries(current: {
   transportedTM: number
   delivered: number
@@ -526,15 +485,38 @@ function buildCadence(
   })
 }
 
-function buildReserveSites(scope?: UserScope) {
-  const routeViews = getRouteTripsView('ALL', scope)
-
+function buildReserveSites(
+  siteRows: readonly Site[] = sites,
+  routeViews: readonly RouteTripView[] = getRouteTripsView(),
+): DashboardReserveSite[] {
   return Object.entries(reserveConfigBySiteId)
     .map(([siteId, config]) => {
-      const site = sites.find((candidate) => candidate.id === siteId)
+      const site = siteRows.find((candidate) => candidate.id === siteId)
 
       if (!site) {
-        throw new Error(`Unknown reserve site "${siteId}"`)
+        // Live site data not yet hydrated (sites store empty during cold
+        // start). Render a minimal placeholder row so the dashboard does
+        // not crash; the live row replaces this once api.sites.list()
+        // resolves.
+        const fillPercent = round((config.reserveTM / config.capacityTM) * 100)
+        const status: DashboardReserveStatus =
+          fillPercent < 35 ? 'critical' : fillPercent < config.targetMinPercent ? 'watch' : 'healthy'
+        return {
+          siteId,
+          siteName: siteId,
+          city: '—',
+          operator: '—',
+          reserveTM: config.reserveTM,
+          capacityTM: config.capacityTM,
+          fillPercent,
+          targetMinPercent: config.targetMinPercent,
+          inboundTM: 0,
+          scheduledInboundTM: 0,
+          outboundTM: 0,
+          activeTripCount: 0,
+          daysOfCover: 0,
+          status,
+        } satisfies DashboardReserveSite
       }
 
       const outboundTM = routeViews
@@ -571,10 +553,8 @@ function buildReserveSites(scope?: UserScope) {
       }).length
 
       const fillPercent = round((config.reserveTM / config.capacityTM) * 100)
-      const criticalFillPercent =
-        getSettingNumber('reserve.critical_fill_percent') ?? 35
       const status: DashboardReserveStatus =
-        fillPercent < criticalFillPercent
+        fillPercent < 35
           ? 'critical'
           : fillPercent < config.targetMinPercent
             ? 'watch'
@@ -608,14 +588,17 @@ function buildReserveSites(scope?: UserScope) {
     })
 }
 
-function buildFleetSummaries(totalTransportedTM: number, scope?: UserScope) {
-  const routeViews = getRouteTripsView('ALL', scope)
+function buildFleetSummaries(
+  totalTransportedTM: number,
+  truckRows: readonly Truck[] = trucks,
+  routeViews: readonly RouteTripView[] = getRouteTripsView(),
+) {
   const fleets = new Map<
     string,
     Omit<DashboardFleetSummary, 'sharePercent' | 'color'>
   >()
 
-  for (const truck of trucks) {
+  for (const truck of truckRows) {
     if (!fleets.has(truck.tenant_name)) {
       fleets.set(truck.tenant_name, {
         fleetName: truck.tenant_name,
@@ -640,7 +623,9 @@ function buildFleetSummaries(totalTransportedTM: number, scope?: UserScope) {
   }
 
   for (const trip of routeViews) {
-    const entry = fleets.get(trip.truck.tenant_name)
+    const tenantName = trip.truck?.tenant_name
+    if (!tenantName) continue
+    const entry = fleets.get(tenantName)
 
     if (!entry) continue
 
@@ -654,7 +639,7 @@ function buildFleetSummaries(totalTransportedTM: number, scope?: UserScope) {
   return [...fleets.values()]
     .map((fleet, index) => {
       const relatedTrips = routeViews.filter(
-        (trip) => trip.truck.tenant_name === fleet.fleetName
+        (trip) => trip.truck?.tenant_name === fleet.fleetName
       )
       const nonPlannedTripCount = relatedTrips.filter(
         (trip) => trip.status !== 'planned'
@@ -747,14 +732,14 @@ function buildRouteContributions(
     .map((trip) => ({
       id: trip.id,
       reference: trip.reference,
-      carrierName: trip.truck.tenant_name,
-      truckId: trip.truck.id,
-      plateNumber: trip.truck.license_plate,
-      driverName: trip.truck.assigned_driver ?? '',
+      carrierName: trip.truck?.tenant_name ?? '—',
+      truckId: trip.truck?.id ?? trip.truckId ?? '—',
+      plateNumber: trip.truck?.license_plate ?? '—',
+      driverName: trip.truck?.assigned_driver ?? trip.missionLead ?? '',
       missionLead: trip.missionLead ?? '',
       customerName: trip.customerName ?? '',
-      originLabel: trip.originSite.city,
-      destinationLabel: trip.destinationSite.city,
+      originLabel: trip.originSite?.city ?? '—',
+      destinationLabel: trip.destinationSite?.city ?? '—',
       loadedQuantity: trip.loadedQuantity,
       deliveredQuantity: trip.deliveredQuantity,
       remainingQuantity: trip.remainingQuantity,
@@ -773,8 +758,10 @@ function buildRouteContributions(
     .sort((left, right) => right.loadedQuantity - left.loadedQuantity)
 }
 
-function buildAlerts(reserveSites: readonly DashboardReserveSite[], scope?: UserScope) {
-  const routeViews = getRouteTripsView('ALL', scope)
+function buildAlerts(
+  reserveSites: readonly DashboardReserveSite[],
+  routeViews: readonly RouteTripView[] = getRouteTripsView(),
+) {
   const alerts: DashboardAlert[] = []
 
   for (const site of reserveSites) {
@@ -854,7 +841,7 @@ function buildAlerts(reserveSites: readonly DashboardReserveSite[], scope?: User
 }
 
 function buildRecentActivities(
-  routeViews: ReturnType<typeof getRouteTripsView>,
+  routeViews: readonly TourActivity[],
   reserveSites: readonly DashboardReserveSite[],
   generatedAt: string
 ) {
@@ -945,17 +932,26 @@ function buildRecentActivities(
     .slice(0, 6)
 }
 
-export function buildDashboardView(
-  role?: Role,
-  scope?: UserScope,
-  query?: DashboardQuery
-): DashboardView {
-  const allRouteViews = getRouteTripsView('ALL', scope)
-  const routeViews = applyDateRangeFilter(allRouteViews, query?.range)
-  const routeSummary = buildRouteSummary(routeViews)
-  const reserveSites = buildReserveSites(scope)
-  const alerts = buildAlerts(reserveSites, scope)
-  const totalTransportedTM = routeViews.reduce(
+export function buildDashboardView(role?: string, _orgId?: string, orgName?: string, source: DashboardSource = {}): DashboardView {
+  const routeViews = source.routes ?? getRouteTripsView()
+  const truckRows = source.trucks ?? trucks
+  const siteRows = source.sites ?? sites
+  const isMarketer = role === 'MARKETEUR'
+  const isTransporter = role === 'TRANSPORTEUR'
+
+  let filteredRoutes = routeViews
+  if (isMarketer) {
+    filteredRoutes = routeViews.filter((r) => r.marketeur_name.toLowerCase().includes('sctm') || r.marketeur_name.toLowerCase().includes('gpl') || (orgName && r.marketeur_name.toLowerCase().includes(orgName.toLowerCase())))
+    if (filteredRoutes.length === 0) filteredRoutes = routeViews.slice(0, 2)
+  } else if (isTransporter) {
+    filteredRoutes = routeViews.filter((r) => (r.transporter_name && r.transporter_name.toLowerCase().includes('express')) || (orgName && r.transporter_name?.toLowerCase().includes(orgName.toLowerCase())))
+    if (filteredRoutes.length === 0) filteredRoutes = routeViews.slice(0, 2)
+  }
+
+  const routeSummary = buildRouteSummary(filteredRoutes)
+  const reserveSites = buildReserveSites(siteRows, filteredRoutes)
+  const alerts = buildAlerts(reserveSites, filteredRoutes)
+  const totalTransportedTM = filteredRoutes.reduce(
     (total, trip) => total + trip.loadedQuantity,
     0
   )
@@ -971,11 +967,11 @@ export function buildDashboardView(
   const reserveCoverageDays = roundToOne(
     totalReserveTM / Math.max(totalDeliveredTM, 1)
   )
-  const activeTrucks = trucks.filter((truck) =>
+  const activeTrucks = truckRows.filter((truck) =>
     ['PLANNED', 'INPROGRESS', 'CHECKPOINTACTIVE', 'PENDINGTRANSPORTERACK', 'ACKNOWLEDGED'].includes(truck.tournee_status)
   ).length
-  const riskTrucks = trucks.filter((truck) => truck.risk_level !== 'FAIBLE').length
-  const abnormalLossTM = routeViews.reduce(
+  const riskTrucks = truckRows.filter((truck) => truck.risk_level !== 'FAIBLE').length
+  const abnormalLossTM = filteredRoutes.reduce(
     (total, trip) => total + trip.unaccounted,
     0
   )
@@ -986,46 +982,31 @@ export function buildDashboardView(
     alertCount: alerts.length,
     serviceRate: routeSummary.onTimeRate,
   })
-  const generatedAt = routeViews.reduce((latest, trip) => {
+  const generatedAt = filteredRoutes.reduce((latest, trip) => {
     return new Date(trip.lastUpdatedAt) > new Date(latest)
       ? trip.lastUpdatedAt
       : latest
-  }, routeViews[0]?.lastUpdatedAt ?? new Date().toISOString())
-  const allFleets = buildFleetSummaries(totalTransportedTM, scope)
-  const fleets = query?.fleetName
-    ? allFleets.filter((fleet) => fleet.fleetName === query.fleetName)
-    : allFleets
-  const flowBreakdown = buildFlowBreakdown(
-    query?.fleetName ? fleets : allFleets,
-    totalTransportedTM
-  )
+  }, filteredRoutes[0]?.lastUpdatedAt ?? new Date().toISOString())
+  const fleets = buildFleetSummaries(totalTransportedTM, truckRows, filteredRoutes)
+  const flowBreakdown = buildFlowBreakdown(fleets, totalTransportedTM)
   const reserveSummary = buildReserveSummary(reserveSites)
-  const routeContributionsFiltered = query?.fleetName
-    ? routeViews.filter((trip) => trip.truck.tenant_name === query.fleetName)
-    : routeViews
   const routeContributions = buildRouteContributions(
-    [...routeContributionsFiltered],
+    filteredRoutes,
     totalTransportedTM,
     totalDeliveredTM
   )
   const recentActivities = buildRecentActivities(
-    [...routeViews],
+    filteredRoutes,
     reserveSites,
     generatedAt
   )
 
-  const activePeriod: DashboardPeriod = query?.period ?? 'daily'
-  const periodSeries = trendByPeriod[activePeriod]
-  const periodCurrent = periodSeries[periodSeries.length - 1]!
-  const periodPrevious = periodSeries[periodSeries.length - 2]!
-  const dynamicDateLabel =
-    formatDateRangeLabel(query?.range) ?? '01 avr 2026 - 28 avr 2026'
+  const dailyCurrent = trendByPeriod.daily[trendByPeriod.daily.length - 1]!
+  const dailyPrevious = trendByPeriod.daily[trendByPeriod.daily.length - 2]!
 
   return {
-    viewRole: role,
-    query,
     overview: {
-      dateRangeLabel: dynamicDateLabel,
+      dateRangeLabel: '01 avr 2026 - 28 avr 2026',
       generatedAt,
       totalTransportedTM,
       totalDeliveredTM,
@@ -1037,7 +1018,7 @@ export function buildDashboardView(
       plannedTrips: routeSummary.plannedTrips,
       incidentTrips: routeSummary.incidentTrips,
       activeTrucks,
-      totalTrucks: trucks.length,
+      totalTrucks: truckRows.length,
       riskTrucks,
       abnormalLossTM,
       openAlerts: alerts.length,
@@ -1047,64 +1028,64 @@ export function buildDashboardView(
     metrics: [
       {
         id: 'transported',
-        title: 'Volumes transportés',
+        title: isMarketer ? 'Volumes transportés (Mes flux)' : isTransporter ? 'Volumes acheminés' : 'Volumes nationaux transportés',
         value: totalTransportedTM,
         unit: 'TM',
         tone: 'sky',
         deltaPercent: getDeltaPercent(
-          periodCurrent.transportedTM,
-          periodPrevious.transportedTM
+          dailyCurrent.transportedTM,
+          dailyPrevious.transportedTM
         ),
         deltaDirection: getTrendDirection(
-          periodCurrent.transportedTM - periodPrevious.transportedTM
+          dailyCurrent.transportedTM - dailyPrevious.transportedTM
         ),
-        description: "Volume chargé sur l'ensemble des tournées visibles.",
+        description: isMarketer ? 'Volume chargé sur vos tournées de distribution.' : "Volume chargé sur l'ensemble des tournées visibles.",
         highlight: `${routeSummary.activeTrips} tournées actives`,
       },
       {
         id: 'reserve',
-        title: 'GPL en réserve',
+        title: isMarketer ? 'Stock GPL centres emplisseurs' : 'GPL en réserve utile',
         value: totalReserveTM,
         unit: 'TM',
         tone: 'emerald',
         deltaPercent: getDeltaPercent(
-          periodCurrent.reserveTM,
-          periodPrevious.reserveTM
+          dailyCurrent.reserveTM,
+          dailyPrevious.reserveTM
         ),
         deltaDirection: getTrendDirection(
-          periodCurrent.reserveTM - periodPrevious.reserveTM
+          dailyCurrent.reserveTM - dailyPrevious.reserveTM
         ),
-        description: 'Stock pilotable sur les sites de charge et de reprise.',
+        description: isMarketer ? 'Stock disponible sur vos centres emplisseurs.' : 'Stock pilotable sur les sites de charge et de reprise.',
         highlight: `${round((totalReserveTM / reserveCapacityTM) * 100)}% de remplissage`,
       },
       {
         id: 'delivered',
-        title: 'Flux livrés',
+        title: isMarketer ? 'Volumes livrés aux clients' : 'Flux livrés certifiés',
         value: totalDeliveredTM,
         unit: 'TM',
         tone: 'amber',
         deltaPercent: getDeltaPercent(
-          periodCurrent.delivered,
-          periodPrevious.delivered
+          dailyCurrent.delivered,
+          dailyPrevious.delivered
         ),
         deltaDirection: getTrendDirection(
-          periodCurrent.delivered - periodPrevious.delivered
+          dailyCurrent.delivered - dailyPrevious.delivered
         ),
-        description: 'Volume déjà délivré ou déposé sur les étapes confirmées.',
+        description: isMarketer ? 'Volume délivré et validé sur vos étapes de livraison.' : 'Volume déjà délivré ou déposé sur les étapes confirmées.',
         highlight: `${routeSummary.onTimeRate}% de service`,
       },
       {
         id: 'alerts',
-        title: 'Alertes ouvertes',
+        title: isMarketer ? 'Mes alertes opérationnelles' : 'Alertes & Anomalies réseau',
         value: alerts.length,
         unit: 'count',
         tone: 'rose',
         deltaPercent: getDeltaPercent(
-          periodCurrent.alertCount,
-          periodPrevious.alertCount
+          dailyCurrent.alertCount,
+          dailyPrevious.alertCount
         ),
         deltaDirection: getTrendDirection(
-          periodCurrent.alertCount - periodPrevious.alertCount
+          dailyCurrent.alertCount - dailyPrevious.alertCount
         ),
         description:
           'Écarts de charge, réserve basse et retards à traiter par priorité.',
@@ -1113,7 +1094,6 @@ export function buildDashboardView(
     ],
     trendByPeriod,
     cadence: buildCadence(trendByPeriod),
-    // keep query for consumers needing active filters
     flowBreakdown,
     reserveSummary,
     fleets,

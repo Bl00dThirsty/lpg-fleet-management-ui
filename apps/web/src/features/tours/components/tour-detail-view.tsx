@@ -1,4 +1,4 @@
-import { type ElementType, useState } from 'react'
+import { useMemo, useState, type ElementType } from 'react'
 import {
   AlertTriangle,
   ArrowRight,
@@ -6,11 +6,23 @@ import {
   Clock3,
   MapPinned,
   Package,
+  Smartphone,
   Truck,
   UserRound,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Card,
   CardContent,
@@ -20,28 +32,43 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import {
+  checkpointStatusLabels,
   routeSeverityClasses,
   routeSeverityLabels,
   routeStatusLabels,
+  type CheckpointStatus,
   type TourActivity,
 } from '../data/tour-activity'
-import { TourActions } from './tour-actions'
+import type { Checkpoint } from '@lpg/types'
+import { useToursStore } from '@/store/tours-store'
+import { tourActions } from '../data/tour-machine'
+import { TourActions, isCloseAllowed } from './tour-actions'
 import { TourCorridorMap } from './tour-corridor-map'
 import { TourLpgVariationPanel } from './tour-lpg-variation-panel'
 import { TourTelemetryChart } from './tour-telemetry-chart'
+import { TourPdaSimulatorModal } from './tour-pda-simulator-modal'
 import { formatTm, formatBtl } from '@/features/map/utils/format'
 
 type TourDetailViewProps = {
   trip: TourActivity | null
 }
 
-export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
-  const [trip, setTrip] = useState(propTrip)
-  const [seenTripId, setSeenTripId] = useState(propTrip?.id ?? null)
-  if ((seenTripId ?? null) !== (propTrip?.id ?? null)) {
-    setSeenTripId(propTrip?.id ?? null)
-    setTrip(propTrip)
-  }
+export function TourDetailView({ trip }: TourDetailViewProps) {
+  const [pdaModalOpen, setPdaModalOpen] = useState(false)
+  const checkpointsByTour = useToursStore((s) => s.checkpointsByTour[trip?.id ?? ''])
+  const allCheckpoints = useToursStore((s) => s.checkpoints)
+  const tourCheckpoints: Checkpoint[] = useMemo(() => {
+    if (!trip) return []
+    if (checkpointsByTour) return checkpointsByTour
+    return allCheckpoints.filter((c) => (c.tournee_id ?? c.tour_id) === trip.id)
+  }, [trip, checkpointsByTour, allCheckpoints])
+  const checkpointById = useMemo(
+    () => new Map(tourCheckpoints.map((c) => [c.id, c])),
+    [tourCheckpoints],
+  )
+  const [busyCheckpointId, setBusyCheckpointId] = useState<string | null>(null)
+  const [skipTargetId, setSkipTargetId] = useState<string | null>(null)
+  const [skipReason, setSkipReason] = useState('')
 
   if (!trip) {
     return (
@@ -58,13 +85,51 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
     )
   }
 
+  const closeOfferedByMachine = tourActions({
+    status: trip.tourneeStatus,
+    execution_mode: trip.execution_mode,
+  }).includes('close')
+  const closeBlockedByCheckpoints = closeOfferedByMachine && !isCloseAllowed(tourCheckpoints)
+
+  async function runCheckpointAction(checkpointId: string, kind: 'reach' | 'complete') {
+    setBusyCheckpointId(checkpointId)
+    try {
+      if (kind === 'reach') {
+        await useToursStore.getState().reachCheckpoint(checkpointId)
+        toast.success('Arrivée enregistrée')
+      } else {
+        await useToursStore.getState().completeCheckpoint(checkpointId)
+        toast.success('Point de contrôle terminé')
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Action impossible')
+    } finally {
+      setBusyCheckpointId(null)
+    }
+  }
+
+  async function confirmSkip() {
+    if (!skipTargetId || !skipReason.trim()) return
+    setBusyCheckpointId(skipTargetId)
+    try {
+      await useToursStore.getState().skipCheckpoint(skipTargetId, skipReason.trim())
+      toast.success('Point de contrôle sauté')
+      setSkipTargetId(null)
+      setSkipReason('')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Action impossible')
+    } finally {
+      setBusyCheckpointId(null)
+    }
+  }
+
   return (
     <div className='space-y-4'>
       <Card className='overflow-hidden border-transparent shadow-sm'>
         <div className='bg-[linear-gradient(135deg,rgba(15,23,42,1),rgba(15,23,42,0.96),rgba(6,78,59,0.96))] px-6 py-6 text-slate-50'>
           <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
             <div className='space-y-4'>
-              <div className='flex flex-wrap gap-2'>
+              <div className='flex flex-wrap items-center gap-2'>
                 <Badge className='border-transparent bg-white/10 text-white'>
                   {trip.reference}
                 </Badge>
@@ -74,6 +139,15 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
                 <Badge className='border-transparent bg-white/10 text-white'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>
+                <Button
+                  size='sm'
+                  variant='secondary'
+                  className='bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold shadow-sm flex items-center gap-1.5 ml-2'
+                  onClick={() => setPdaModalOpen(true)}
+                >
+                  <Smartphone className='size-4' />
+                  Terminal PDA Livreur
+                </Button>
               </div>
 
               <div className='space-y-2'>
@@ -121,7 +195,7 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
                   variant='outline'
                   className='border-transparent bg-muted/35 text-foreground'
                 >
-                  Prochaine étape: {trip.nextStop.site.name}
+                  Prochaine étape: {trip.nextStop?.site.name ?? '—'}
                 </Badge>
               </div>
 
@@ -208,10 +282,32 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
             </div>
           </div>
         </CardContent>
+      </Card>
 
-        <div className='px-6 pb-4'>
-          <TourActions tour={trip} onPerformed={setTrip} />
-        </div>
+      <Card>
+        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+          <div>
+            <CardTitle>Actions de la tournée</CardTitle>
+            <CardDescription>
+              Transitions validées par le serveur — un refus est affiché sans modifier le suivi.
+            </CardDescription>
+          </div>
+          <Button
+            onClick={() => setPdaModalOpen(true)}
+            className='bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow flex items-center gap-2 shrink-0'
+          >
+            <Smartphone className='size-4' />
+            Simulateur PDA Livreur (Terrain)
+          </Button>
+        </CardHeader>
+        <CardContent className='space-y-3'>
+          <TourActions tour={trip} checkpoints={tourCheckpoints} />
+          {closeBlockedByCheckpoints && (
+            <p className='text-sm text-amber-700 dark:text-amber-300'>
+              Clôture impossible : tous les points de contrôle doivent être terminés ou sautés.
+            </p>
+          )}
+        </CardContent>
       </Card>
 
        <TourLpgVariationPanel trip={trip} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} zeroUnit={trip.tourneeType === 'VRAC' ? '0 TM' : '0 btl'} />
@@ -235,7 +331,7 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
           </CardHeader>
           <CardContent className='space-y-4'>
             {trip.stops.map((stop, index) => {
-              const isCurrent = !stop.completed && stop.id === trip.nextStop.id
+              const isCurrent = !stop.completed && stop.id === trip.nextStop?.id
 
               return (
                 <div key={stop.id} className='flex gap-4'>
@@ -310,6 +406,17 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
                     <p className='mt-3 text-sm text-muted-foreground'>
                       {stop.note}
                     </p>
+
+                    <StopCheckpointControls
+                      status={checkpointById.get(stop.id)?.status ?? stop.checkpointStatus}
+                      disabled={busyCheckpointId === stop.id}
+                      onReach={() => runCheckpointAction(stop.id, 'reach')}
+                      onComplete={() => runCheckpointAction(stop.id, 'complete')}
+                      onSkip={() => {
+                        setSkipTargetId(stop.id)
+                        setSkipReason('')
+                      }}
+                    />
                   </div>
                 </div>
               )
@@ -377,6 +484,95 @@ export function TourDetailView({ trip: propTrip }: TourDetailViewProps) {
           </CardContent>
         </Card>
       </section>
+
+      <Dialog
+        open={skipTargetId !== null}
+        onOpenChange={(o) => {
+          if (!o) {
+            setSkipTargetId(null)
+            setSkipReason('')
+          }
+        }}
+      >
+        <DialogContent className='sm:max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Sauter le point de contrôle</DialogTitle>
+            <DialogDescription>
+              Le motif du saut est obligatoire et sera transmis au serveur.
+            </DialogDescription>
+          </DialogHeader>
+          <div className='space-y-2 py-2'>
+            <label htmlFor='skip-reason' className='text-sm font-medium'>
+              Motif du saut
+            </label>
+            <Textarea
+              id='skip-reason'
+              value={skipReason}
+              onChange={(e) => setSkipReason(e.target.value)}
+              placeholder='Ex. client fermé, accès impossible…'
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => {
+                setSkipTargetId(null)
+                setSkipReason('')
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              disabled={!skipReason.trim() || busyCheckpointId !== null}
+              onClick={confirmSkip}
+            >
+              Confirmer le saut
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <TourPdaSimulatorModal
+        open={pdaModalOpen}
+        onOpenChange={setPdaModalOpen}
+        trip={trip}
+      />
+    </div>
+  )
+}
+
+function StopCheckpointControls({
+  status,
+  disabled,
+  onReach,
+  onComplete,
+  onSkip,
+}: {
+  status: CheckpointStatus | undefined
+  disabled: boolean
+  onReach: () => void
+  onComplete: () => void
+  onSkip: () => void
+}) {
+  if (status === undefined || status === 'COMPLETED' || status === 'SKIPPED') return null
+  return (
+    <div className='mt-3 flex flex-wrap items-center gap-2'>
+      <Badge variant='outline' className='border-transparent bg-background/75'>
+        {checkpointStatusLabels[status]}
+      </Badge>
+      {status === 'PENDING' && (
+        <Button size='sm' onClick={onReach} disabled={disabled}>
+          Marquer arrivé
+        </Button>
+      )}
+      {status === 'REACHED' && (
+        <Button size='sm' onClick={onComplete} disabled={disabled}>
+          Terminer le point
+        </Button>
+      )}
+      <Button size='sm' variant='outline' onClick={onSkip} disabled={disabled}>
+        Sauter le point
+      </Button>
     </div>
   )
 }

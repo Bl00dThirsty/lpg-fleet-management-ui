@@ -411,6 +411,8 @@ const LIVREUR_GRANTS = [
   'anomalies.read', 'alerts.read', 'metrics.read', 'livreurs.read',
 ] as const satisfies readonly PermissionCode[]
 
+const DRIVER_GRANTS: readonly PermissionCode[] = LIVREUR_GRANTS
+
 /**
  * Role → granted permission codes. Exhaustive over `Role`; the build enforces
  * every role is present and every code exists in the catalog.
@@ -424,6 +426,7 @@ export const ROLE_GRANTS: Record<Role, readonly PermissionCode[]> = {
   MARKETEUR: MARKETEUR_GRANTS,
   TRANSPORTEUR: TRANSPORTEUR_GRANTS,
   LIVREUR: LIVREUR_GRANTS,
+  DRIVER: DRIVER_GRANTS,
 }
 
 /** Coarse (action, resource) pairs, kept for backward compatibility. */
@@ -457,6 +460,10 @@ export const ROLE_PERMISSIONS: Record<Role, Array<[Action, Resource]>> = {
     return [action, resource]
   }),
   LIVREUR: LIVREUR_GRANTS.map((code) => {
+    const { resource, action } = parseCode(code)
+    return [action, resource]
+  }),
+  DRIVER: DRIVER_GRANTS.map((code) => {
     const { resource, action } = parseCode(code)
     return [action, resource]
   }),
@@ -505,6 +512,7 @@ export const ROLES = [
   'MARKETEUR',
   'TRANSPORTEUR',
   'LIVREUR',
+  'DRIVER',
 ] as const
 
 /** Numeric authority level; a user may create roles at or below their own. */
@@ -517,6 +525,7 @@ export const HIERARCHY_LEVEL: Record<Role, number> = {
   MARKETEUR: 40,
   TRANSPORTEUR: 40,
   LIVREUR: 20,
+  DRIVER: 20,
 }
 
 export function roleLevel(role: Role): number {
@@ -542,6 +551,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   MARKETEUR: 'Marketeur',
   TRANSPORTEUR: 'Transporteur',
   LIVREUR: 'Livreur',
+  DRIVER: 'Chauffeur (PDA)',
 }
 
 /** Short descriptions of each role's mandate. */
@@ -558,6 +568,8 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
     'Transporteur — flotte, tournées, scans RFID/PDA, points de contrôle et chauffeurs',
   LIVREUR:
     'Application PDA mobile — missions, scans RFID et livraisons (sans interface web)',
+  DRIVER:
+    'Chauffeur PDA mobile — missions, scans RFID et livraisons (sans interface web)',
 }
 
 export function roleLabel(role: Role): string {

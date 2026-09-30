@@ -22,11 +22,9 @@ import {
   getArcgisBasemap,
   getArcgisViewTheme,
   getMarkerOutlineColor,
-} from '@/features/map/utils/map-theme'
-import {
-  getSiteIconUrl,
   getSiteOutlineColor,
-} from '@/features/sites/utils/site-graphics'
+  getSiteIconUrl,
+} from '@/features/map/utils/map-theme'
 import type { MapTheme } from '@/features/map/utils/map-theme'
 import { LegendSiteIcon } from '@/features/map/utils/legend'
 import {
@@ -36,6 +34,10 @@ import {
   type TruckStatus,
 } from '../data/trucks'
 import { quantityInfo } from '../lib/quantity'
+import { activeTourForVehicle } from '@/features/tours/data/active-tour'
+import { useToursStore } from '@/store/tours-store'
+import { useRoadRoutes } from '@/features/map/data/road-routes'
+import { projectOnRoad, type RoadCoordinate, type RoadRoute } from '@/features/map/lib/road-routing'
 
 const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
 
@@ -83,6 +85,17 @@ export function TrucksMap({
   const initialThemeRef = useRef(mapTheme)
   const [isReady, setIsReady] = useState(false)
   const [loadFailed, setLoadFailed] = useState(false)
+  const tours = useToursStore((state) => state.tours)
+  const routeTrips = useMemo(() => trucks.map((truck) => ({
+    truck,
+    trip: activeTourForVehicle(truck.id, tours),
+  })).filter((entry) => entry.trip !== null), [trucks, tours])
+  const roadQueries = useRoadRoutes(routeTrips.map(({ trip }) => ({ stops: [
+    [trip!.originSite.longitude, trip!.originSite.latitude],
+    ...trip!.stops.map((stop): RoadCoordinate => [stop.site.longitude, stop.site.latitude]),
+    [trip!.destinationSite.longitude, trip!.destinationSite.latitude],
+  ] })), showRoutes)
+  const roads = useMemo(() => new Map(routeTrips.map(({ truck }, index) => [truck.id, roadQueries[index]?.data])), [routeTrips, roadQueries])
   const siteTotals = useMemo(() => {
     const totals = {
       depot: 0,
@@ -199,20 +212,26 @@ export function TrucksMap({
     if (!isReady || !graphicsLayer) return
 
     const routeGraphics = showRoutes
-      ? trucks
-          .filter((truck) => truck.tournee_status === 'INPROGRESS')
-          .map((truck) => createRouteGraphic(truck, mapTheme))
+      ? trucks.flatMap((truck) => {
+          const road = roads.get(truck.id)
+          return road ? [createRouteGraphic(truck, road)] : []
+        })
       : []
     const siteGraphics = sites.flatMap((site) =>
       createSiteGraphics(site, mapTheme)
     )
     const truckGraphics = trucks.map((truck) =>
-      createTruckGraphic(truck, truck.id === selectedTruck.id, mapTheme)
+      createTruckGraphic(
+        import.meta.env.VITE_API_MODE === 'fake' && roads.get(truck.id)
+          ? { ...truck, lng: projectOnRoad([truck.lng, truck.lat], roads.get(truck.id)!.paths)[0],
+              lat: projectOnRoad([truck.lng, truck.lat], roads.get(truck.id)!.paths)[1] }
+          : truck,
+        truck.id === selectedTruck.id, mapTheme)
     )
 
     graphicsLayer.removeAll()
     graphicsLayer.addMany([...routeGraphics, ...siteGraphics, ...truckGraphics])
-  }, [isReady, mapTheme, selectedTruck.id, showRoutes, sites, trucks])
+  }, [isReady, mapTheme, selectedTruck.id, showRoutes, sites, trucks, roads])
 
   useEffect(() => {
     const view = viewRef.current
@@ -275,6 +294,15 @@ export function TrucksMap({
         ) : null}
       </div>
 
+      {showRoutes && (
+        <div role='status' className='absolute bottom-4 left-4 rounded-lg bg-background/95 px-3 py-2 text-xs shadow-sm'>
+          {roadQueries.some((query) => query.isError)
+            ? 'Certains trajets routiers sont indisponibles.'
+            : roadQueries.some((query) => query.isPending)
+              ? 'Calcul des trajets routiers…'
+              : roads.size ? 'Itinéraires routiers ArcGIS' : 'Aucune tournée active à afficher.'}
+        </div>
+      )}
       {!isReady && !loadFailed ? (
         <div className='pointer-events-none absolute inset-0 flex items-center justify-center bg-background/40 text-sm text-muted-foreground backdrop-blur-[1px]'>
           Chargement de la carte ArcGIS...
@@ -370,7 +398,7 @@ function createSiteGraphics(site: Site, mapTheme: MapTheme) {
     siteType: site.type,
   }
 
-  if (marker.iconKind === 'factory' || marker.iconKind === 'house') {
+  if (marker.iconKind === 'marker') {
     return [
       new Graphic({
         geometry: new Point({
@@ -380,25 +408,13 @@ function createSiteGraphics(site: Site, mapTheme: MapTheme) {
         }),
         symbol: {
           type: 'simple-marker',
-          style: 'circle',
-          color: marker.haloColor,
-          size: marker.haloSize ?? marker.size + 14,
-          outline: { color: outlineColor, width: 1.2 },
-        },
-        attributes: baseAttributes,
-        popupTemplate,
-      }),
-      new Graphic({
-        geometry: new Point({
-          longitude: site.longitude,
-          latitude: site.latitude,
-          spatialReference: { wkid: 4326 },
-        }),
-        symbol: {
-          type: 'picture-marker',
-          url: getSiteIconUrl(site.type, mapTheme),
-          width: marker.iconWidth ?? 22,
-          height: marker.iconHeight ?? 22,
+          style: marker.style,
+          color: marker.color,
+          size: marker.size,
+          outline: {
+            color: outlineColor,
+            width: 1.5,
+          },
         },
         attributes: baseAttributes,
         popupTemplate,
@@ -522,22 +538,17 @@ function escapePopupValue(value: string | undefined) {
   })
 }
 
-function createRouteGraphic(truck: Truck, _mapTheme: MapTheme) {
+function createRouteGraphic(truck: Truck, road: RoadRoute) {
   return new Graphic({
     geometry: new Polyline({
-      paths: [
-        [
-          [truck.lng, truck.lat],
-          [truck.lng + 0.01, truck.lat + 0.01],
-        ],
-      ],
+      paths: road.paths,
       spatialReference: { wkid: 4326 },
     }),
     symbol: {
       type: 'simple-line',
       color: [250, 204, 21, 0.9],
       width: 3,
-      style: 'short-dash',
+      style: 'solid',
     },
     attributes: {
       kind: 'route',

@@ -1,32 +1,16 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
-import { useMemo } from 'react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@lpg/ui'
 import { PageShell } from '@/components/layout/page'
 import { PageHeader } from '@/components/layout/page-header'
 import { formatTm } from '@/features/map/utils/format'
-import { getScope } from '@/features/scope/scope'
-import { useAuthStore } from '@/store/auth-store'
-import { useToursStore } from '@/store/tours-store'
 import { buildDashboardView } from './data/dashboard'
-
-function useDashboard() {
-  const user = useAuthStore((s) => s.user)
-  const scope = useMemo(() => getScope(user), [user])
-  const storeTours = useToursStore((s) => s.tours)
-  const storeCheckpoints = useToursStore((s) => s.checkpoints)
-  return useMemo(
-    () => buildDashboardView(undefined, scope),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scope, storeTours, storeCheckpoints]
-  )
-}
 
 export function FleetDetailPage() {
   const { fleetName } = useParams({ from: '/_authenticated/dashboard/fleets/$fleetName' })
-  const dashboard = useDashboard()
+  const dashboard = buildDashboardView()
   const fleet = dashboard.fleets.find(
-    (candidate) => candidate.fleetName === fleetName
+    (candidate) => candidate.fleetName === decodeURIComponent(fleetName)
   )
 
   return (
@@ -55,7 +39,7 @@ export function FleetDetailPage() {
             <MiniStat label='Service' value={`${fleet.onTimeRate}%`} />
             <MiniStat label='Risque' value={`${fleet.riskTruckCount} camion${fleet.riskTruckCount > 1 ? 's' : ''}`} />
           </div>
-          <Card className='rounded-2xl border-border/60 shadow-none'>
+          <Card className='rounded-2xl border-border shadow-sm'>
             <CardHeader>
               <CardTitle>Missions associées</CardTitle>
             </CardHeader>
@@ -88,7 +72,7 @@ export function FleetDetailPage() {
 
 export function ReserveSiteDetailPage() {
   const { siteId } = useParams({ from: '/_authenticated/dashboard/sites/$siteId' })
-  const dashboard = useDashboard()
+  const dashboard = buildDashboardView()
   const site = dashboard.reserveSites.find((candidate) => candidate.siteId === siteId)
 
   return (
@@ -115,7 +99,7 @@ export function ReserveSiteDetailPage() {
             <MiniStat label='Inbound prévu' value={formatTm(site.scheduledInboundTM)} />
             <MiniStat label='Sorties' value={formatTm(site.outboundTM)} />
           </div>
-          <Card className='rounded-2xl border-border/60 shadow-none'>
+          <Card className='rounded-2xl border-border shadow-sm'>
             <CardHeader>
               <CardTitle>Seuil cible</CardTitle>
             </CardHeader>

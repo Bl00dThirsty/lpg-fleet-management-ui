@@ -12,6 +12,7 @@ export type Role =
   | 'MARKETEUR'
   | 'TRANSPORTEUR'
   | 'LIVREUR'
+  | 'DRIVER'
 
 export type OrgType =
   | 'REGULATEUR'
@@ -402,6 +403,7 @@ export interface PickupRequest extends BaseEntity {
 
 export interface DeliveryTour extends BaseEntity {
   id: string
+  tour_code?: string
   marketeur_org_id: string
   execution_mode: ExecutionMode
   source_site_id?: string | null
@@ -414,16 +416,20 @@ export interface DeliveryTour extends BaseEntity {
   sent_to_transporter_at?: string | null
   type: TourneeType
   status: TourneeStatus
+  status_description?: string | null
+  status_date?: string | null
   requested_quantity: number
   loaded_quantity?: number | null
   delivered_quantity?: number | null
   started_at?: string | null
   closed_at?: string | null
+  checkpoints?: Checkpoint[]
 }
 
 export interface Checkpoint extends BaseEntity {
   id: string
   tournee_id: string
+  tour_id?: string
   site_id?: string | null
   client_site_id?: string | null
   sequence: number
@@ -431,6 +437,8 @@ export interface Checkpoint extends BaseEntity {
   expected_arrival?: string | null
   actual_arrival?: string | null
   status: CheckpointStatus
+  status_description?: string | null
+  status_date?: string | null
   skip_reason?: string | null
 }
 
@@ -448,6 +456,21 @@ export interface ScanEvent {
   conflict_status?: string | null
   created_at?: string
   created_by?: string | null
+}
+
+export interface DeliveryEvent {
+  id: string
+  tour_id: string
+  checkpoint_id: string
+  sequence: number
+  site_id?: string
+  site_name?: string
+  delivered: number
+  returned: number
+  geo?: [number, number]
+  proof_url?: string
+  client_validated: boolean
+  validated_at: string
 }
 
 export interface RfidTag {

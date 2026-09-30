@@ -38,6 +38,7 @@ export const LANDING_BY_ROLE: Record<Role, string> = {
   MARKETEUR: '/overview',
   TRANSPORTEUR: '/overview',
   LIVREUR: '/overview',
+  DRIVER: '/overview',
 }
 
 /** Delegates entirely to the permission-driven projection. */

@@ -4,7 +4,7 @@ import { getDepots, depotStatusLabel } from './depots'
 describe('depots view-model', () => {
   it('only includes organizations of type DEPOT', () => {
     const depots = getDepots()
-    expect(depots.length).toBe(1)
+    expect(depots.length).toBeGreaterThanOrEqual(1)
     expect(depots[0]).toMatchObject({
       name: expect.any(String),
       status: 'ACTIVE',

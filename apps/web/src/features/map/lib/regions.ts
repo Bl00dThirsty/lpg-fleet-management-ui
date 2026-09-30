@@ -1,7 +1,32 @@
-import { curated } from '@lpg/mock-data'
-import type { Region } from '@lpg/types'
+import type { Region, RegionEntity } from '@lpg/types'
 import { getZones } from '../../zones/data/zones'
-import { getGeoAnomalies, type GeoAnomalyView } from '../data/geo-anomalies'
+
+export const REGION_LABELS: Record<Region, string> = {
+  ADAMAOUA: 'Adamaoua',
+  CENTRE: 'Centre',
+  EST: 'Est',
+  EXTREMENORD: 'Extrême-Nord',
+  LITTORAL: 'Littoral',
+  NORD: 'Nord',
+  NORDOUEST: 'Nord-Ouest',
+  OUEST: 'Ouest',
+  SUD: 'Sud',
+  SUDOUEST: 'Sud-Ouest',
+}
+
+/** Coordonnées précises des centres géographiques des 10 régions du Cameroun */
+export const REGION_CENTROIDS: Record<Region, [number, number]> = {
+  ADAMAOUA: [13.58, 7.36],
+  CENTRE: [11.52, 3.87],
+  EST: [14.08, 4.58],
+  EXTREMENORD: [14.33, 10.59],
+  LITTORAL: [9.70, 4.05],
+  NORD: [13.40, 9.30],
+  NORDOUEST: [10.15, 5.96],
+  OUEST: [10.42, 5.48],
+  SUD: [11.15, 2.92],
+  SUDOUEST: [9.24, 4.16],
+}
 
 export interface RegionSummary {
   code: Region
@@ -13,38 +38,24 @@ export interface RegionSummary {
   latitude: number
 }
 
-export function getRegionSummary(
-  code: Region,
-  geoAnomalies: readonly GeoAnomalyView[] = getGeoAnomalies(),
-): RegionSummary {
-  const region = curated.regions.find((r) => r.code === code)
-  const zone = getZones().find((z) => z.region === code)!
-  const points = [
-    ...curated.sites.filter((s) => s.region === code && s.geo_point),
-    ...curated.client_sites.filter((cs) => cs.region === code && cs.geo_point),
-  ].map((s) => {
-    const geo = s.geo_point as [number, number]
-    return { lng: geo[0], lat: geo[1] }
-  })
-  const centroid =
-    points.length === 0
-      ? { lng: 0, lat: 0 }
-      : {
-          lng: points.reduce((a, p) => a + p.lng, 0) / points.length,
-          lat: points.reduce((a, p) => a + p.lat, 0) / points.length,
-        }
+export function getRegionSummary(code: Region): RegionSummary {
+  const zone = getZones().find((z) => z.region === code)
+  const centroid = REGION_CENTROIDS[code] ?? [12.3, 8.7]
   return {
     code,
-    name: region?.name ?? code,
-    siteCount: zone.siteCount,
-    clientSiteCount: zone.clientSiteCount,
-    anomalyCount: geoAnomalies.filter((a) => a.region === code).length,
-    longitude: centroid.lng,
-    latitude: centroid.lat,
+    name: REGION_LABELS[code] ?? code,
+    siteCount: zone?.siteCount ?? 0,
+    clientSiteCount: zone?.clientSiteCount ?? 0,
+    anomalyCount: 0,
+    longitude: centroid[0],
+    latitude: centroid[1],
   }
 }
 
-export function regionsForMap(): readonly RegionSummary[] {
-  const geoAnomalies = getGeoAnomalies()
-  return curated.regions.map((r) => getRegionSummary(r.code as Region, geoAnomalies))
+export function regionsForMap(regionsFromStore: RegionEntity[] = []): readonly RegionSummary[] {
+  if (regionsFromStore.length > 0) {
+    return regionsFromStore.map((r) => getRegionSummary(r.code))
+  }
+  // Default to the 10 official regions of Cameroon with accurate centroids
+  return (Object.keys(REGION_LABELS) as Region[]).map(getRegionSummary)
 }

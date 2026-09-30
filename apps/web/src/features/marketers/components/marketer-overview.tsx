@@ -61,34 +61,34 @@ export function MarketerOverview({ marketer }: { marketer: Organization }) {
           value={stats.sites}
           icon={Building2}
           sparkline={[stats.sites, stats.vehicles, stats.personnel, stats.clientSites]}
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
         <MetricCardWithChart
           label='Camions'
           value={stats.vehicles}
           icon={Truck}
           sparkline={[stats.vehicles, stats.sites, stats.clientSites, stats.personnel]}
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
         <MetricCardWithChart
           label='Utilisateurs'
           value={stats.personnel}
           icon={Users}
           sparkline={[stats.personnel, stats.clientSites, stats.vehicles, stats.sites]}
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
         <MetricCardWithChart
           label='Sites clients'
           value={stats.clientSites}
           icon={Package}
           sparkline={[stats.clientSites, stats.personnel, stats.sites, stats.vehicles]}
-          className='rounded-2xl border-border/60 shadow-none'
+          className='rounded-2xl border-border shadow-sm'
         />
       </div>
 
       {/* Charts Row 1 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <TrendingUp className='h-4 w-4 text-primary' />
@@ -105,7 +105,7 @@ export function MarketerOverview({ marketer }: { marketer: Organization }) {
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <TrendingUp className='h-4 w-4 text-primary' />
@@ -125,7 +125,7 @@ export function MarketerOverview({ marketer }: { marketer: Organization }) {
 
       {/* Charts Row 2 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <PieChart className='h-4 w-4 text-primary' />
@@ -145,7 +145,7 @@ export function MarketerOverview({ marketer }: { marketer: Organization }) {
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <BarChart2 className='h-4 w-4 text-primary' />
@@ -169,7 +169,7 @@ export function MarketerOverview({ marketer }: { marketer: Organization }) {
 
       {/* Charts Row 3 */}
       <div className='grid gap-4 lg:grid-cols-2'>
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Activity className='h-4 w-4 text-primary' />
@@ -186,7 +186,7 @@ export function MarketerOverview({ marketer }: { marketer: Organization }) {
           </CardContent>
         </Card>
 
-        <Card className='rounded-2xl border-border/60 shadow-none'>
+        <Card className='rounded-2xl border-border shadow-sm'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Package className='h-4 w-4 text-primary' />

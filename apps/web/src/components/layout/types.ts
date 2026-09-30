@@ -3,6 +3,7 @@ import { type LinkProps } from '@tanstack/react-router'
 type BaseItem = {
   title: string
   badge?: string
+  disabled?: boolean
   icon?: React.ElementType
 }
 
@@ -37,4 +38,13 @@ type SidebarData = {
   navGroups: NavGroup[]
 }
 
-export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink, BaseItem, Item, CollapsibleItem }
+export type {
+  SidebarData,
+  NavGroup,
+  NavItem,
+  NavCollapsible,
+  NavLink,
+  BaseItem,
+  Item,
+  CollapsibleItem,
+}

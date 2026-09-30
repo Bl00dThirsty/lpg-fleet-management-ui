@@ -1,16 +1,25 @@
 import { useMemo } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@lpg/ui'
-import { hasPermission } from '@lpg/permissions'
+import { hasPermission, type PermissionCode } from '@lpg/permissions'
+import type { Checkpoint } from '@lpg/types'
 import { useRoleStore } from '@/store/role-store'
 import { useToursStore } from '@/store/tours-store'
 import { type TourActivity, type TourneeStatus, type ExecutionMode } from '../data/tour-activity'
 import {
-  ACTION_PERMISSION,
   tourActions,
   TOUR_ACTION_LABELS,
   type TourAction,
 } from '../data/tour-machine'
+
+const ACTION_PERMISSION: Record<TourAction, PermissionCode> = {
+  'send-to-transporter': 'tours.create',
+  acknowledge: 'tours.assign',
+  plan: 'tours.write',
+  start: 'tours.write',
+  close: 'tours.write',
+  cancel: 'tours.write',
+}
 
 const ACTION_VARIANT: Record<TourAction, 'default' | 'outline' | 'destructive'> = {
   'send-to-transporter': 'default',
@@ -37,30 +46,45 @@ export const MODE_CLASS: Record<ExecutionMode, string> = {
   EXTERNAL: 'bg-indigo-100 text-indigo-800',
 }
 
+const TERMINAL_CHECKPOINT_STATUSES: ReadonlySet<string> = new Set(['COMPLETED', 'SKIPPED'])
+
+/**
+ * Backend guard mirror: a tour closes only once every stop is terminal
+ * (COMPLETED or SKIPPED). With no checkpoints loaded the guard is vacuously
+ * true — the server remains the source of truth and refusals surface as
+ * errors.
+ */
+export function isCloseAllowed(checkpoints?: Checkpoint[]): boolean {
+  if (!checkpoints) return true
+  return checkpoints.every((c) => TERMINAL_CHECKPOINT_STATUSES.has(c.status))
+}
+
 export function TourActions({
   tour,
+  checkpoints,
   onPerformed,
 }: {
   tour: TourActivity
+  checkpoints?: Checkpoint[]
   onPerformed?: (next: TourActivity) => void
 }) {
   const activeRole = useRoleStore((s) => s.activeRole)
   const actions = useMemo(
     () =>
       tourActions({ status: tour.tourneeStatus, execution_mode: tour.execution_mode })
-        .filter(
-          (action) => hasPermission(activeRole, ACTION_PERMISSION[action]),
-        )
-        // acknowledge requires the transporter's crew, captured via the
-        // transporter crew-assignment dialog (features/transporters), not a
-        // bare status button.
-        .filter((action) => action !== 'acknowledge'),
-    [tour, activeRole],
+        .filter((action) => hasPermission(activeRole, ACTION_PERMISSION[action]))
+        .filter((action) => action !== 'close' || isCloseAllowed(checkpoints)),
+    [tour, activeRole, checkpoints],
   )
 
-  function handleAction(action: TourAction) {
+  async function handleAction(action: TourAction) {
     try {
-      const updated = useToursStore.getState().performAction(tour.id, action)
+      const extra: any = {}
+      if (action === 'close') {
+        extra.loadedQuantity = tour.requested_quantity
+        extra.deliveredQuantity = tour.requested_quantity
+      }
+      const updated = await useToursStore.getState().performActionAsync(tour.id, action, extra)
       toast.success(`${tour.reference} — ${TOUR_ACTION_LABELS[action]}`)
       onPerformed?.(updated)
     } catch (err) {

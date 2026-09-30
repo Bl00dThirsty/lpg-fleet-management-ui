@@ -1,6 +1,23 @@
 import type { ApiAdapter, AuthResult, AuthUser, Credentials } from './adapter.ts'
 import { createResourceService } from './resource.ts'
 
+/**
+ * POST /api/v1/scan-events payload. Transcription of the tour-service
+ * CreateScanEventDto: exactly one of direction or meterReading, GPS mandatory.
+ */
+export interface ScanEventPayload {
+  checkpointId: string
+  livreurUserId: string
+  rfidTagId?: string | null
+  direction?: 'IN' | 'OUT' | null
+  geoLng: number
+  geoLat: number
+  meterReading?: number | null
+  photoUrl?: string | null
+  pdaSyncId?: string | null
+  timestamp?: string | null
+}
+
 export function createAuthService(adapter: ApiAdapter) {
   return {
     login(creds: Credentials): Promise<AuthResult> {
@@ -43,6 +60,18 @@ export function createApi(adapter: ApiAdapter) {
     organizations: createResourceService<any>(adapter, 'organizations'),
     users: createResourceService<any>(adapter, 'users'),
     sites: createResourceService<any>(adapter, 'sites'),
+
+    // Users (extended): create-with-auth provisions a login account in the
+    // same atomic operation as the person row. The backend
+    // (csph-fleet-backend/user-service) maps this on
+    // POST /api/v1/users/with-auth and requires CreatePersonWithAuthRequest.
+    usersCreateWithAuth(body: any) {
+      return request<any>('/users/with-auth', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'Content-Type': 'application/json' },
+      })
+    },
     clients: createResourceService<any>(adapter, 'clients'),
     clientSites: createResourceService<any>(adapter, 'client-sites'),
     vehicles: createResourceService<any>(adapter, 'vehicles'),
@@ -100,39 +129,199 @@ export function createApi(adapter: ApiAdapter) {
       return request<any>(`/devices/${id}/assign`, { method: 'POST', body: JSON.stringify({ user_id, vehicle_id }), headers: { 'Content-Type': 'application/json' } })
     },
 
-    // Pickup requests
+    // Pickup requests (Flux 1 Approvisionnements - Spring Boot tour-service)
+    pickups: {
+      list(page = 0, size = 50, filters?: { marketerOrganizationId?: string; sourceSiteId?: string; status?: string }) {
+        const query = new URLSearchParams({ page: String(page), size: String(size) })
+        if (filters?.marketerOrganizationId) query.set('marketerOrganizationId', filters.marketerOrganizationId)
+        if (filters?.sourceSiteId) query.set('sourceSiteId', filters.sourceSiteId)
+        if (filters?.status) query.set('status', filters.status)
+        return adapter.requestList<any>(`/pickups?${query.toString()}`)
+      },
+      get(id: string) {
+        return request<any>(`/pickups/${id}`)
+      },
+      create(body: any) {
+        return request<any>('/pickups', {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      update(id: string, body: any) {
+        return request<any>(`/pickups/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      approve(id: string, approvedQuantity: number) {
+        return request<any>(`/pickups/${id}/approve?approvedQuantity=${approvedQuantity}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      reject(id: string) {
+        return request<any>(`/pickups/${id}/reject`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      delete(id: string) {
+        return request<void>(`/pickups/${id}`, { method: 'DELETE' })
+      },
+    },
+
+    // Legacy pickup helpers
     pickupValidate(id: string, approved_quantity: number) {
-      return request<any>(`/pickup-requests/${id}/validate`, { method: 'PATCH', body: JSON.stringify({ approved_quantity }), headers: { 'Content-Type': 'application/json' } })
+      return request<any>(`/pickups/${id}/approve?approvedQuantity=${approved_quantity}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' } })
     },
     pickupComplete(id: string) {
-      return request<any>(`/pickup-requests/${id}/complete`, { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } })
+      return request<any>(`/pickups/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'COMPLETED' }), headers: { 'Content-Type': 'application/json' } })
     },
 
-    // Delivery tours
-    tourStart(id: string, body: { started_at: string; lat: number; lng: number }) {
-      return request<any>(`/delivery-tours/${id}/start`, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    // Delivery tours (Spring Boot tour-service lifecycle).
+    //
+    // Chain: DRAFT -> PLANNED -> INPROGRESS -> CHECKPOINTACTIVE -> CLOSED
+    // (INTERNAL), with PENDINGTRANSPORTERACK -> ACKNOWLEDGED inserted after
+    // PLANNED for EXTERNAL. Every transition below is a real endpoint; the old
+    // `/validate` fused arrival with completion and is deleted server-side.
+    tours: {
+      list(page = 0, size = 50) {
+        return adapter.requestList<any>(`/tours?page=${page}&size=${size}`)
+      },
+      get(id: string) {
+        return request<any>(`/tours/${id}`)
+      },
+      create(body: any) {
+        return request<any>('/tours', {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      plan(id: string) {
+        return request<any>(`/tours/${id}/plan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      sendToTransporter(id: string) {
+        return request<any>(`/tours/${id}/send-to-transporter`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      acknowledge(id: string) {
+        return request<any>(`/tours/${id}/acknowledge`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      update(id: string, body: any) {
+        return request<any>(`/tours/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      delete(id: string) {
+        return request<void>(`/tours/${id}`, { method: 'DELETE' })
+      },
+      start(id: string) {
+        return request<any>(`/tours/${id}/start`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      close(id: string, loadedQuantity?: number, deliveredQuantity?: number) {
+        const query = new URLSearchParams()
+        if (loadedQuantity != null) query.set('loadedQuantity', String(loadedQuantity))
+        if (deliveredQuantity != null) query.set('deliveredQuantity', String(deliveredQuantity))
+        const qStr = query.toString() ? `?${query.toString()}` : ''
+        return request<any>(`/tours/${id}/close${qStr}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      cancel(id: string, reason?: string) {
+        const qStr = reason ? `?reason=${encodeURIComponent(reason)}` : ''
+        return request<any>(`/tours/${id}/cancel${qStr}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      assignDriver(id: string, driverId?: string, driverPersonId?: string) {
+        const query = new URLSearchParams()
+        if (driverId) query.set('driverId', driverId)
+        if (driverPersonId) query.set('driverPersonId', driverPersonId)
+        const qStr = query.toString() ? `?${query.toString()}` : ''
+        return request<any>(`/tours/${id}/assign-driver${qStr}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      assignVehicle(id: string, vehicleId: string) {
+        return request<any>(`/tours/${id}/assign-vehicle?vehicleId=${encodeURIComponent(vehicleId)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      getCheckpoints(tourId: string) {
+        return request<any[]>(`/tours/${tourId}/checkpoints`)
+      },
+      addCheckpoint(tourId: string, checkpoint: any) {
+        return request<any>(`/tours/${tourId}/checkpoints`, {
+          method: 'POST',
+          body: JSON.stringify(checkpoint),
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      // PENDING -> REACHED. Records the arrival instant; the server promotes
+      // the tour to CHECKPOINTACTIVE on first arrival. Bodyless by design.
+      reachCheckpoint(checkpointId: string) {
+        return request<any>(`/checkpoints/${checkpointId}/reach`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      // REACHED -> COMPLETED. Bodyless by design. This replaces
+      // validateCheckpoint (`/tours/checkpoints/{id}/validate`), which never
+      // existed server-side and 404'd on every call.
+      completeCheckpoint(checkpointId: string) {
+        return request<any>(`/checkpoints/${checkpointId}/complete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      skipCheckpoint(checkpointId: string, reason: string) {
+        return request<any>(`/checkpoints/${checkpointId}/skip?reason=${encodeURIComponent(reason)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
     },
-    tourClose(id: string, body: { closed_at: string }) {
-      return request<any>(`/delivery-tours/${id}/close`, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+
+    // Legacy tour helpers
+    tourStart(id: string, body?: { started_at?: string; lat?: number; lng?: number }) {
+      return request<any>(`/tours/${id}/start`, { method: 'POST', body: JSON.stringify(body || {}), headers: { 'Content-Type': 'application/json' } })
+    },
+    tourClose(id: string, body?: { closed_at?: string; loadedQuantity?: number; deliveredQuantity?: number }) {
+      return request<any>(`/tours/${id}/close`, { method: 'POST', body: JSON.stringify(body || {}), headers: { 'Content-Type': 'application/json' } })
     },
     tourReplay(id: string) {
-      return request<any>(`/delivery-tours/${id}/replay`)
+      return request<any>(`/tours/${id}/replay`)
     },
 
-    // Checkpoints
-    checkpointReach(id: string, body: { lat: number; lng: number }) {
-      return request<any>(`/checkpoints/${id}/reach`, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
-    },
-    checkpointSkip(id: string, reason: string) {
-      return request<any>(`/checkpoints/${id}/skip`, { method: 'POST', body: JSON.stringify({ reason }), headers: { 'Content-Type': 'application/json' } })
-    },
-
-    // Scan events
-    recordScan(body: any) {
+    // Scan events (tour-service; the gateway routes /scan-events/** there, NOT
+    // to cylinder-service). Single create + bulk resync share the
+    // CreateScanEvent shape: exactly one of direction (IN/OUT) or meterReading
+    // (VRAC, >= 0), GPS mandatory, UUIDs as strings.
+    recordScan(body: ScanEventPayload) {
       return request<any>('/scan-events', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
     },
-    bulkScanUpload(body: { scans: any[] }) {
-      return request<any>('/scan-events/bulk', { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } })
+    bulkScanUpload(items: ScanEventPayload[]) {
+      return request<any>('/scan-events/bulk', { method: 'POST', body: JSON.stringify({ items }), headers: { 'Content-Type': 'application/json' } })
     },
 
     // Declarations / reconciliations / redressements

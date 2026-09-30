@@ -53,6 +53,23 @@ export function getReconciliationColumns(): ColumnDef<ReconciliationView>[] {
       enableGrouping: true,
     },
     {
+      id: 'bottles_flow',
+      header: 'Bouteilles (OUT / IN)',
+      cell: ({ row }) => {
+        const outBtl = row.original.tracked_bottles_out
+        const inBtl = row.original.tracked_bottles_in
+        if (outBtl == null && inBtl == null) return '—'
+        return (
+          <span className='font-mono text-xs'>
+            <span className='text-emerald-700 font-semibold'>{outBtl ?? 0}</span> livrées /{' '}
+            <span className='text-blue-700 font-semibold'>{inBtl ?? 0}</span> reprises
+          </span>
+        )
+      },
+      meta: { label: 'Bouteilles (OUT / IN)' },
+      enableGrouping: false,
+    },
+    {
       accessorKey: 'gap_percentage',
       header: ({ column }) => <DataTableColumnHeader column={column} title='Ecart %' />,
       cell: ({ row }) => {
