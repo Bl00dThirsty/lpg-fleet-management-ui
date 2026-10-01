@@ -222,7 +222,7 @@ export function TrucksMap({
     )
     const truckGraphics = trucks.map((truck) =>
       createTruckGraphic(
-        import.meta.env.VITE_API_MODE === 'fake' && roads.get(truck.id)
+        (import.meta.env.VITE_API_MODE ?? 'fake') === 'fake' && roads.get(truck.id)
           ? { ...truck, lng: projectOnRoad([truck.lng, truck.lat], roads.get(truck.id)!.paths)[0],
               lat: projectOnRoad([truck.lng, truck.lat], roads.get(truck.id)!.paths)[1] }
           : truck,
