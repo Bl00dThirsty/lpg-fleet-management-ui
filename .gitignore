@@ -14,7 +14,9 @@ dist-ssr
 
 .env
 .vercel
-
+.zcode
+.agents
+/skills-lock.json
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -33,3 +35,20 @@ dist-ssr
 # Vitest artifacts (browser screenshots/attachments)
 **/__screenshots__/
 .vitest-attachments/
+
+/.turbo
+
+# Tooling/cache artifacts
+.superpowers/
+docs/superpowers/
+tmp/
+*.tmp
+.temp/
+.cache/
+
+# Build outputs
+build/
+out/
+.next/
+.nuxt/
+.parcel-cache/

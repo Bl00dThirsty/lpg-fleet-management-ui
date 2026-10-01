@@ -1,0 +1,25 @@
+import { getTrucks, type Truck } from '@/features/trucks/data/trucks'
+import { quantityInfo } from '@/features/trucks/lib/quantity'
+
+export interface VracSummary {
+  totalTM: number
+  unit: 'TM'
+  activeTruckCount: number
+}
+
+export function aggregateVracVolume(trucksForVrac?: Truck[]): VracSummary {
+  const sourceTrucks = trucksForVrac ?? getTrucks()
+  const vracTrucks: Truck[] = sourceTrucks.filter(
+    (t) => t.type === 'VRAC' && (t.max_volume ?? 0) > 0,
+  )
+  let totalTM = 0
+  for (const truck of vracTrucks) {
+    const info = quantityInfo(truck)
+    if (info.unit === ' TM') totalTM += info.loaded
+  }
+  return {
+    totalTM: Math.round(totalTM * 100) / 100,
+    unit: 'TM',
+    activeTruckCount: vracTrucks.length,
+  }
+}

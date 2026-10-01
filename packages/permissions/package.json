@@ -3,10 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
   "dependencies": {
-    "@casl/ability": "^6.7.1"
+    "@casl/ability": "^6.7.1",
+    "@lpg/types": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.1.4"
   }
 }

@@ -4,13 +4,19 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "predev": "node scripts/dev-kill.js",
     "dev": "turbo run dev",
+    "dev:kill": "node scripts/dev-kill.js",
+    "mock": "turbo run dev --filter @lpg/mock-api",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "prettier": "^3.2.5",
-    "turbo": "^1.13.2"
+    "turbo": "^2.10.5"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "dependencies": {
+    "@hookform/resolvers": "^5.5.7"
+  }
 }

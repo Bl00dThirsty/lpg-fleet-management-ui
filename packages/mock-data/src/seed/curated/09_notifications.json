@@ -1,0 +1,1182 @@
+{
+  "metadata": {
+    "schema_version": "6.2",
+    "description": "CSPH GPL Traceability System — Notification groups, members, rules, and notifications",
+    "delivery_channels": {
+      "EMAIL": "Default for all users; transactional via SMTP relay smtp.csph.cm",
+      "SMS": "MTN Cameroun SMPP gateway smpp.mtn.cm:2775 — used for CRITICAL and CRITIQUEEXTREME",
+      "PUSH": "Mobile app push via FCM (Firebase Cloud Messaging) for livreurs and field agents",
+      "IN_APP": "Bell icon in the CSPH web portal — polled every 60s",
+      "WEBHOOK": "Outbound JSON webhook for partner integrations (SCDP, MINEE, DGSN)"
+    },
+    "notification_group_types": {
+      "TECHNICAL": "Routes device/GPS/Kafka/server/PDA anomalies to the technical support team",
+      "INVESTIGATION": "Routes suspected-fraud anomalies (siphonnage, substitution, falsification) to CSPH investigation unit",
+      "ADMIN": "Routes system-level events (login, role changes, settings updates) to CSPH administrators",
+      "MARKETING": "Routes marketeer-specific events (declarations, redressements, dispatch) to the relevant marketeur's commercial team",
+      "TRANSPORT": "Routes transporter-acknowledgement and tournee-routing issues to transporter dispatch teams"
+    },
+    "severity_routing_logic": "Severity (FAIBLE / MODERE / ELEVE / CRITIQUE / CRITIQUEEXTREME) + anomaly_type determine which group receives the notification. CRITIQUEEXTREME anomalies also send SMS and trigger the DGSN escalation webhook.",
+    "sla_notes": "INVESTIGATION: 24h acknowledgement, 7d resolution target. TECHNICAL: 4h ack for ELEVE+, 24h for MODERE, 72h for FAIBLE. ADMIN/MARKETING/TRANSPORT: 8h ack for ELEVE+."
+  },
+  "notification_groups": [
+    {
+      "id": "ng-001-csph-tech",
+      "name": "CSPH — Équipe Support Technique",
+      "type": "TECHNICAL",
+      "is_active": true,
+      "created_at": "2022-01-20T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "ng-002-csph-investigation",
+      "name": "CSPH — Cellule Investigation & Fraude",
+      "type": "INVESTIGATION",
+      "is_active": true,
+      "created_at": "2022-01-20T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "ng-003-csph-admin",
+      "name": "CSPH — Administration Plateforme",
+      "type": "ADMIN",
+      "is_active": true,
+      "created_at": "2022-01-20T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "ng-004-sctm-commercial",
+      "name": "SCTM — Direction Commerciale & Logistique",
+      "type": "MARKETING",
+      "is_active": true,
+      "created_at": "2022-04-10T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0006-sctm-admin",
+      "updated_by": "user-0006-sctm-admin"
+    },
+    {
+      "id": "ng-005-total-commercial",
+      "name": "TotalEnergies Cameroun — Pôle GPL",
+      "type": "MARKETING",
+      "is_active": true,
+      "created_at": "2022-03-15T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0014-total-admin",
+      "updated_by": "user-0014-total-admin"
+    },
+    {
+      "id": "ng-006-aza-commercial",
+      "name": "AZA Afrigaz — Équipe Opérationnelle",
+      "type": "MARKETING",
+      "is_active": true,
+      "created_at": "2022-05-15T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0019-aza-admin",
+      "updated_by": "user-0019-aza-admin"
+    },
+    {
+      "id": "ng-007-translog-dispatch",
+      "name": "Translog — Cellule Dispatch",
+      "type": "TRANSPORT",
+      "is_active": true,
+      "created_at": "2022-05-10T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0024-translog-admin",
+      "updated_by": "user-0024-translog-admin"
+    },
+    {
+      "id": "ng-008-express-dispatch",
+      "name": "Express GPL — Dispatch & Chauffeurs",
+      "type": "TRANSPORT",
+      "is_active": true,
+      "created_at": "2022-07-10T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0027-express-admin",
+      "updated_by": "user-0027-express-admin"
+    },
+    {
+      "id": "ng-009-scdp-depot",
+      "name": "SCDP — Exploitation Dépôts",
+      "type": "TECHNICAL",
+      "is_active": true,
+      "created_at": "2022-02-15T08:00:00Z",
+      "updated_at": "2024-11-15T10:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0022-scdp-admin",
+      "updated_by": "user-0022-scdp-admin"
+    }
+  ],
+  "notification_group_members": [
+    {
+      "id": "ngm-001",
+      "group_id": "ng-001-csph-tech",
+      "user_id": "user-0002-csph-admin",
+      "created_at": "2022-01-20T08:00:00Z",
+      "updated_at": "2022-01-20T08:00:00Z"
+    },
+    {
+      "id": "ngm-002",
+      "group_id": "ng-001-csph-tech",
+      "user_id": "user-0008-sctm-supervisor",
+      "created_at": "2022-10-01T08:00:00Z",
+      "updated_at": "2022-10-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-003",
+      "group_id": "ng-002-csph-investigation",
+      "user_id": "user-0003-csph-supervisor",
+      "created_at": "2022-06-01T08:00:00Z",
+      "updated_at": "2022-06-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-004",
+      "group_id": "ng-002-csph-investigation",
+      "user_id": "user-0004-csph-supervisor2",
+      "created_at": "2022-09-01T08:00:00Z",
+      "updated_at": "2022-09-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-005",
+      "group_id": "ng-002-csph-investigation",
+      "user_id": "user-0005-csph-investigator",
+      "created_at": "2023-01-10T08:00:00Z",
+      "updated_at": "2023-01-10T08:00:00Z"
+    },
+    {
+      "id": "ngm-006",
+      "group_id": "ng-003-csph-admin",
+      "user_id": "user-0001-csph-super",
+      "created_at": "2022-01-20T08:00:00Z",
+      "updated_at": "2022-01-20T08:00:00Z"
+    },
+    {
+      "id": "ngm-007",
+      "group_id": "ng-003-csph-admin",
+      "user_id": "user-0002-csph-admin",
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2022-02-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-008",
+      "group_id": "ng-004-sctm-commercial",
+      "user_id": "user-0006-sctm-admin",
+      "created_at": "2022-04-10T08:00:00Z",
+      "updated_at": "2022-04-10T08:00:00Z"
+    },
+    {
+      "id": "ngm-009",
+      "group_id": "ng-004-sctm-commercial",
+      "user_id": "user-0007-sctm-marketeur",
+      "created_at": "2022-07-01T08:00:00Z",
+      "updated_at": "2022-07-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-010",
+      "group_id": "ng-004-sctm-commercial",
+      "user_id": "user-0009-sctm-marketeur2",
+      "created_at": "2023-03-01T08:00:00Z",
+      "updated_at": "2023-03-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-011",
+      "group_id": "ng-005-total-commercial",
+      "user_id": "user-0014-total-admin",
+      "created_at": "2022-03-15T08:00:00Z",
+      "updated_at": "2022-03-15T08:00:00Z"
+    },
+    {
+      "id": "ngm-012",
+      "group_id": "ng-005-total-commercial",
+      "user_id": "user-0015-total-marketeur",
+      "created_at": "2022-08-01T08:00:00Z",
+      "updated_at": "2022-08-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-013",
+      "group_id": "ng-005-total-commercial",
+      "user_id": "user-0016-total-supervisor",
+      "created_at": "2022-12-01T08:00:00Z",
+      "updated_at": "2022-12-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-014",
+      "group_id": "ng-006-aza-commercial",
+      "user_id": "user-0019-aza-admin",
+      "created_at": "2022-05-15T08:00:00Z",
+      "updated_at": "2022-05-15T08:00:00Z"
+    },
+    {
+      "id": "ngm-015",
+      "group_id": "ng-006-aza-commercial",
+      "user_id": "user-0020-aza-marketeur",
+      "created_at": "2022-09-01T08:00:00Z",
+      "updated_at": "2022-09-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-016",
+      "group_id": "ng-007-translog-dispatch",
+      "user_id": "user-0024-translog-admin",
+      "created_at": "2022-05-10T08:00:00Z",
+      "updated_at": "2022-05-10T08:00:00Z"
+    },
+    {
+      "id": "ngm-017",
+      "group_id": "ng-007-translog-dispatch",
+      "user_id": "user-0025-translog-dispatcher",
+      "created_at": "2022-08-01T08:00:00Z",
+      "updated_at": "2022-08-01T08:00:00Z"
+    },
+    {
+      "id": "ngm-018",
+      "group_id": "ng-008-express-dispatch",
+      "user_id": "user-0027-express-admin",
+      "created_at": "2022-07-10T08:00:00Z",
+      "updated_at": "2022-07-10T08:00:00Z"
+    },
+    {
+      "id": "ngm-019",
+      "group_id": "ng-008-express-dispatch",
+      "user_id": "user-0028-express-chauffeur",
+      "created_at": "2022-07-10T08:00:00Z",
+      "updated_at": "2022-07-10T08:00:00Z"
+    },
+    {
+      "id": "ngm-020",
+      "group_id": "ng-009-scdp-depot",
+      "user_id": "user-0022-scdp-admin",
+      "created_at": "2022-02-15T08:00:00Z",
+      "updated_at": "2022-02-15T08:00:00Z"
+    },
+    {
+      "id": "ngm-021",
+      "group_id": "ng-009-scdp-depot",
+      "user_id": "user-0023-scdp-agent",
+      "created_at": "2023-04-01T08:00:00Z",
+      "updated_at": "2023-04-01T08:00:00Z"
+    }
+  ],
+  "notification_rules": [
+    {
+      "id": "nr-001-sipho-critique",
+      "name": "SIPHONNAGE — toutes sévérités → investigation",
+      "anomaly_type": "SIPHONNAGE",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-002-substitution",
+      "name": "SUBSTITUTIONBOUTEILLES — toutes sévérités → investigation",
+      "anomaly_type": "SUBSTITUTIONBOUTEILLES",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-003-falsif",
+      "name": "FALSIFICATIONPREUVES — toutes sévérités → investigation",
+      "anomaly_type": "FALSIFICATIONPREUVES",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-004-filling-illegal",
+      "name": "FILLINGILLEGAL — toutes sévérités → investigation",
+      "anomaly_type": "FILLINGILLEGAL",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-005-diversion",
+      "name": "DIVERSIONSUBSIDIES — toutes sévérités → investigation",
+      "anomaly_type": "DIVERSIONSUBSIDIES",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-006-volgap",
+      "name": "VOLUMEGAP MODERE+ → investigation + marketeur commercial",
+      "anomaly_type": "VOLUMEGAP",
+      "min_severity": "MODERE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-007-deviationroute",
+      "name": "DEVIATIONROUTE MODERE+ → investigation",
+      "anomaly_type": "DEVIATIONROUTE",
+      "min_severity": "MODERE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-008-checkpointmissed",
+      "name": "CHECKPOINTMISSED → transport marketeur",
+      "anomaly_type": "CHECKPOINTMISSED",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-008-express-dispatch",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-009-scanoseq",
+      "name": "SCANOUTOFSEQUENCE — toutes sévérités → technique",
+      "anomaly_type": "SCANOUTOFSEQUENCE",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-010-pdaunsynced",
+      "name": "PDAUNSYNCED MODERE+ → support technique",
+      "anomaly_type": "PDAUNSYNCED",
+      "min_severity": "MODERE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-011-battery",
+      "name": "BATTERYCRITICAL MODERE+ → support technique",
+      "anomaly_type": "BATTERYCRITICAL",
+      "min_severity": "MODERE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-012-gpsfailure",
+      "name": "GPSFAILURE — toutes sévérités → technique",
+      "anomaly_type": "GPSFAILURE",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-013-gpsremoved",
+      "name": "GPSREMOVED — toutes sévérités → investigation (fraude)",
+      "anomaly_type": "GPSREMOVED",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-002-csph-investigation",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-014-kafkatimeout",
+      "name": "KAFKATIMEOUT MODERE+ → support technique",
+      "anomaly_type": "KAFKATIMEOUT",
+      "min_severity": "MODERE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-015-iotdegradation",
+      "name": "IOTDEGRADATION → support technique",
+      "anomaly_type": "IOTDEGRADATION",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-016-serverunavailable",
+      "name": "SERVERUNAVAILABLE — toutes sévérités → admin",
+      "anomaly_type": "SERVERUNAVAILABLE",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-003-csph-admin",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-017-tourneeunassigned",
+      "name": "TOURNEEUNASSIGNEDTOOLONG → dispatch transport",
+      "anomaly_type": "TOURNEEUNASSIGNEDTOOLONG",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-008-express-dispatch",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-018-transporternoack",
+      "name": "TRANSPORTERNOACK → dispatch transport",
+      "anomaly_type": "TRANSPORTERNOACK",
+      "min_severity": "FAIBLE",
+      "target_group_id": "ng-008-express-dispatch",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    },
+    {
+      "id": "nr-019-deviceoffline",
+      "name": "DEVICEOFFLINE MODERE+ → support technique",
+      "anomaly_type": "DEVICEOFFLINE",
+      "min_severity": "MODERE",
+      "target_group_id": "ng-001-csph-tech",
+      "is_active": true,
+      "created_at": "2022-02-01T08:00:00Z",
+      "updated_at": "2024-06-01T08:00:00Z",
+      "deleted_at": null,
+      "created_by": "user-0002-csph-admin",
+      "updated_by": "user-0002-csph-admin"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-001-anom001-sipho-sctm",
+      "rule_id": "nr-001-sipho-critique",
+      "anomaly_id": "anom-001-sipho-sctm-nov",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "EMAIL",
+      "subject": "[CSPH-INV] Siphonnage suspecté — SCTM Bonabéri tour-001 (115 000 FCFA)",
+      "body": "Anomalie SIPHONNAGE détectée (sévérité ELEVE) sur le véhicule veh-0001-lt1123ub du marketeur SCTM lors de la tournée tour-001 le 25/11/2024. Perte estimée : 230L (~0,9% sur 12 000L chargés). Voir détails dans l'anomalie anom-001-sipho-sctm-nov.",
+      "payload_json": {
+        "anomaly_type": "SIPHONNAGE",
+        "severity": "ELEVE",
+        "loss_fcfa": 1150000,
+        "link": "https://csph.cm/anomalies/anom-001-sipho-sctm-nov"
+      },
+      "is_read": true,
+      "read_at": "2024-11-25T13:05:00Z",
+      "delivered_at": "2024-11-25T12:01:23Z",
+      "created_at": "2024-11-25T12:01:00Z"
+    },
+    {
+      "id": "notif-002-anom002-sipho-camgaz-sms",
+      "rule_id": "nr-001-sipho-critique",
+      "anomaly_id": "anom-002-sipho-camgaz-oct",
+      "target_user_id": "user-0005-csph-investigator",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "SMS",
+      "subject": null,
+      "body": "CSPH: SIPHONNAGE CRITIQUE CAMGAZ veh-0019 perte 62kL/mois 31M FCFA. Enquêter. anom-002",
+      "payload_json": {
+        "phone": "+237670123450",
+        "operator": "MTN Cameroon",
+        "smsc": "smpp.mtn.cm:2775",
+        "anomaly_type": "SIPHONNAGE",
+        "severity": "CRITIQUE"
+      },
+      "is_read": true,
+      "read_at": "2024-11-20T10:05:00Z",
+      "delivered_at": "2024-11-20T10:01:18Z",
+      "created_at": "2024-11-20T10:01:00Z"
+    },
+    {
+      "id": "notif-003-anom003-substit-aza",
+      "rule_id": "nr-002-substitution",
+      "anomaly_id": "anom-003-substit-aza",
+      "target_user_id": "user-0020-aza-marketeur",
+      "target_group_id": "ng-006-aza-commercial",
+      "channel": "EMAIL",
+      "subject": "[AZA] Substitution de bouteilles détectée — Pharma Nord csite-0005",
+      "body": "2 bouteilles de 50kg AZA échangées contre des modèles plus anciens/corrodés lors de la tournée tour-008. Investigation ouverte par CSPH. RDV site Pharma Nord sous 24h.",
+      "payload_json": {
+        "anomaly_type": "SUBSTITUTIONBOUTEILLES",
+        "severity": "CRITIQUE",
+        "bottles_involved": 2,
+        "link": "https://csph.cm/anomalies/anom-003-substit-aza"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-30T10:01:44Z",
+      "created_at": "2024-11-30T10:01:00Z"
+    },
+    {
+      "id": "notif-004-anom004-falsif-push",
+      "rule_id": "nr-003-falsif",
+      "anomaly_id": "anom-004-falsif-pda-total",
+      "target_user_id": "user-0005-csph-investigator",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "PUSH",
+      "subject": "Falsification preuves CRITIQUE — Arnaud ND OBO",
+      "body": "7 photos de preuve avec EXIF falsifié détectées. Livreur suspended. Dossier anom-004.",
+      "payload_json": {
+        "anomaly_type": "FALSIFICATIONPREUVES",
+        "severity": "CRITIQUEEXTREME",
+        "device_id": "dev-0012-pda-total-002",
+        "livreur_id": "user-0018-total-livreur2",
+        "fcm_token": "eA...masked...9z"
+      },
+      "is_read": true,
+      "read_at": "2024-11-28T15:35:00Z",
+      "delivered_at": "2024-11-28T15:00:34Z",
+      "created_at": "2024-11-28T15:00:00Z"
+    },
+    {
+      "id": "notif-005-anom004-falsif-webhook-dgsn",
+      "rule_id": "nr-003-falsif",
+      "anomaly_id": "anom-004-falsif-pda-total",
+      "target_user_id": null,
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "WEBHOOK",
+      "subject": null,
+      "body": null,
+      "payload_json": {
+        "webhook_url": "https://dgsn.cm/api/v1/cspl-alerts",
+        "http_status": 200,
+        "retry_count": 0,
+        "payload_signature_sha256": "a4f1...masked...8e0",
+        "incident_ref": "DGSN-2024-11-28-0917"
+      },
+      "is_read": true,
+      "read_at": "2024-11-28T15:01:00Z",
+      "delivered_at": "2024-11-28T15:00:42Z",
+      "created_at": "2024-11-28T15:00:00Z"
+    },
+    {
+      "id": "notif-006-anom005-divsub-sctm-ngaound",
+      "rule_id": "nr-005-diversion",
+      "anomaly_id": "anom-005-divsub-sctm-ngaound",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "EMAIL",
+      "subject": "[CSPH-INV] Détournement subsides GPL — SCTM Ngaoundéré",
+      "body": "1 850 bouteilles 12,5kg scannées comme 'domestique' mais livrées à clients industriels. Site-0007 Ngaoundéré. Perte subvention 2,82M FCFA. Voir anom-005.",
+      "payload_json": {
+        "anomaly_type": "DIVERSIONSUBSIDIES",
+        "severity": "CRITIQUE",
+        "bottles_30d": 1850,
+        "link": "https://csph.cm/anomalies/anom-005-divsub-sctm-ngaound"
+      },
+      "is_read": true,
+      "read_at": "2024-11-20T08:30:00Z",
+      "delivered_at": "2024-11-20T08:01:11Z",
+      "created_at": "2024-11-20T08:01:00Z"
+    },
+    {
+      "id": "notif-007-anom006-deviation-resolved",
+      "rule_id": "nr-007-deviationroute",
+      "anomaly_id": "anom-006-route-dev-tl-001",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "IN_APP",
+      "subject": "Déviation route tour-003 — RESOLU",
+      "body": "Investigation fermée. Arrêt Bassa-market légitime.",
+      "payload_json": {
+        "anomaly_type": "DEVIATIONROUTE",
+        "severity": "MODERE",
+        "status": "RESOLU",
+        "closed_by": "user-0003-csph-supervisor"
+      },
+      "is_read": true,
+      "read_at": "2024-11-28T10:30:00Z",
+      "delivered_at": "2024-11-28T10:05:00Z",
+      "created_at": "2024-11-28T10:05:00Z"
+    },
+    {
+      "id": "notif-008-anom007-fill-illegal-sms",
+      "rule_id": "nr-004-filling-illegal",
+      "anomaly_id": "anom-007-fill-illegal-azagu",
+      "target_user_id": "user-0004-csph-supervisor2",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "SMS",
+      "subject": null,
+      "body": "CSPH: REMPLISSAGE ILLEGAL AZA Douala PK17 (site-0015) nuit 26/11 02h-04h 240 bouteilles 1,8M FCFA. anom-007",
+      "payload_json": {
+        "phone": "+237670123451",
+        "operator": "MTN Cameroon",
+        "anomaly_type": "FILLINGILLEGAL",
+        "severity": "CRITIQUE"
+      },
+      "is_read": true,
+      "read_at": "2024-11-26T05:10:00Z",
+      "delivered_at": "2024-11-26T05:01:32Z",
+      "created_at": "2024-11-26T05:01:00Z"
+    },
+    {
+      "id": "notif-009-anom008-cp-missed",
+      "rule_id": "nr-008-checkpointmissed",
+      "anomaly_id": "anom-008-checkpoint-missed-tour4",
+      "target_user_id": "user-0016-total-supervisor",
+      "target_group_id": "ng-005-total-commercial",
+      "channel": "EMAIL",
+      "subject": "[Total] Checkpoint manqué — Hôtel du Centre Bastos (cp-009)",
+      "body": "La tournée tour-004 n'a pas scanné le checkpoint cp-009 à l'Hôtel du Centre Annexe Bastos (csite-0002). Réception client a signalé retard 4h. Merci de vous rapprocher du livreur Stéphane FOFACK.",
+      "payload_json": {
+        "anomaly_type": "CHECKPOINTMISSED",
+        "severity": "MODERE",
+        "client_site_id": "csite-0002-shc-bastos",
+        "livreur_id": "user-0017-total-livreur1"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-30T11:01:08Z",
+      "created_at": "2024-11-30T11:01:00Z"
+    },
+    {
+      "id": "notif-010-anom010-battery-total002",
+      "rule_id": "nr-011-battery",
+      "anomaly_id": "anom-010-battery-pda-total002",
+      "target_user_id": "user-0014-total-admin",
+      "target_group_id": "ng-005-total-commercial",
+      "channel": "PUSH",
+      "subject": "PDA-TOTAL-002 batterie 23%",
+      "body": "PDA-TOTAL-002 en dessous du seuil critique. À remplacer avant 15%.",
+      "payload_json": {
+        "anomaly_type": "BATTERYCRITICAL",
+        "severity": "ELEVE",
+        "device_serial": "PDA-TOTAL-002"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-28T13:01:25Z",
+      "created_at": "2024-11-28T13:01:00Z"
+    },
+    {
+      "id": "notif-011-anom011-battery-total003",
+      "rule_id": "nr-011-battery",
+      "anomaly_id": "anom-011-battery-pda-total003",
+      "target_user_id": "user-0014-total-admin",
+      "target_group_id": "ng-005-total-commercial",
+      "channel": "EMAIL",
+      "subject": "[Total] PDA-TOTAL-003 HORS SERVICE — maintenance MNT-2024-1142",
+      "body": "Niveau batterie 8%, device OFFLINE depuis 10+ jours. Ticket maintenance ouvert. ETA 2024-12-03.",
+      "payload_json": {
+        "anomaly_type": "BATTERYCRITICAL",
+        "severity": "CRITIQUE",
+        "device_serial": "PDA-TOTAL-003"
+      },
+      "is_read": true,
+      "read_at": "2024-11-25T09:00:00Z",
+      "delivered_at": "2024-11-25T08:01:55Z",
+      "created_at": "2024-11-25T08:01:00Z"
+    },
+    {
+      "id": "notif-012-anom012-gps-fail-resolved",
+      "rule_id": "nr-012-gpsfailure",
+      "anomaly_id": "anom-012-gps-fail-tl-001",
+      "target_user_id": "user-0024-translog-admin",
+      "target_group_id": "ng-007-translog-dispatch",
+      "channel": "IN_APP",
+      "subject": "GPS-TL-001 couverture cellulaire — résolu",
+      "body": "Signal rétabli zone Bassa. Aucune action requise.",
+      "payload_json": {
+        "anomaly_type": "GPSFAILURE",
+        "severity": "MODERE",
+        "status": "RESOLU"
+      },
+      "is_read": true,
+      "read_at": "2024-11-27T13:30:00Z",
+      "delivered_at": "2024-11-27T13:05:00Z",
+      "created_at": "2024-11-27T13:05:00Z"
+    },
+    {
+      "id": "notif-013-anom013-pda002-unsynced",
+      "rule_id": "nr-010-pdaunsynced",
+      "anomaly_id": "anom-013-pda-unsynced-pda002",
+      "target_user_id": "user-0008-sctm-supervisor",
+      "target_group_id": "ng-001-csph-tech",
+      "channel": "EMAIL",
+      "subject": "[CSPH-TECH] PDA-TOTAL-002 42h hors-ligne — bloqué par FALSIF en cours",
+      "body": "Device offline, 18 events en file d'attente. Ne pas débloquer tant que anom-004 n'est pas fermé.",
+      "payload_json": {
+        "anomaly_type": "PDAUNSYNCED",
+        "severity": "ELEVE",
+        "device_serial": "PDA-TOTAL-002",
+        "blocking_anomaly": "anom-004-falsif-pda-total"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-30T08:01:40Z",
+      "created_at": "2024-11-30T08:01:00Z"
+    },
+    {
+      "id": "notif-014-anom014-rfid-aza-offline",
+      "rule_id": "nr-019-deviceoffline",
+      "anomaly_id": "anom-014-pda-unsynced-rfid-aza",
+      "target_user_id": "user-0019-aza-admin",
+      "target_group_id": "ng-006-aza-commercial",
+      "channel": "EMAIL",
+      "subject": "[AZA] RFID-AZA-01 OFFLINE — coupure fibre Camtel",
+      "body": "Lecteur RFID site-0014 Yaoundé sans réseau depuis 60h. Ticket Camtel 2024-11-27-8821. ETA rétablissement 2024-12-01 18:00.",
+      "payload_json": {
+        "anomaly_type": "DEVICEOFFLINE",
+        "severity": "MODERE",
+        "device_serial": "RFID-AZA-01",
+        "telco_ticket": "2024-11-27-8821"
+      },
+      "is_read": true,
+      "read_at": "2024-11-30T11:00:00Z",
+      "delivered_at": "2024-11-30T10:01:30Z",
+      "created_at": "2024-11-30T10:01:00Z"
+    },
+    {
+      "id": "notif-015-anom015-tour-unassigned",
+      "rule_id": "nr-017-tourneeunassigned",
+      "anomaly_id": "anom-015-tour-unassigned-tour5",
+      "target_user_id": "user-0027-express-admin",
+      "target_group_id": "ng-008-express-dispatch",
+      "channel": "EMAIL",
+      "subject": "[Express] Tournée tour-005 non assignée 36h",
+      "body": "Tournée VRAC 15 000L du marketeur SCTM en attente. Délai dépassé (12h).",
+      "payload_json": {
+        "anomaly_type": "TOURNEEUNASSIGNEDTOOLONG",
+        "severity": "MODERE",
+        "tournee_id": "tour-005"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-30T20:01:10Z",
+      "created_at": "2024-11-30T20:01:00Z"
+    },
+    {
+      "id": "notif-016-anom016-noack",
+      "rule_id": "nr-018-transporternoack",
+      "anomaly_id": "anom-016-transp-noack-tour5",
+      "target_user_id": "user-0027-express-admin",
+      "target_group_id": "ng-008-express-dispatch",
+      "channel": "SMS",
+      "subject": null,
+      "body": "CSPH: Express GPL tour-005 sans accusé 36h. Confirmer chauffeur/véhicule. anom-016",
+      "payload_json": {
+        "phone": "+237670123452",
+        "operator": "MTN Cameroon",
+        "anomaly_type": "TRANSPORTERNOACK",
+        "severity": "MODERE"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-30T20:01:48Z",
+      "created_at": "2024-11-30T20:01:00Z"
+    },
+    {
+      "id": "notif-017-anom017-gps-removed-sms",
+      "rule_id": "nr-013-gpsremoved",
+      "anomaly_id": "anom-017-gps-removed-veh3",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "SMS",
+      "subject": null,
+      "body": "CSPH URGENT: GPS veh-0003-lt3345ud déconnecté. Conduite suspecte 14h post-coupure. anom-017",
+      "payload_json": {
+        "phone": "+237670123453",
+        "operator": "MTN Cameroon",
+        "anomaly_type": "GPSREMOVED",
+        "severity": "CRITIQUE",
+        "vehicle_id": "veh-0003-lt3345ud"
+      },
+      "is_read": true,
+      "read_at": "2024-11-30T10:05:00Z",
+      "delivered_at": "2024-11-30T10:01:22Z",
+      "created_at": "2024-11-30T10:01:00Z"
+    },
+    {
+      "id": "notif-018-anom017-gps-removed-dgsn",
+      "rule_id": "nr-013-gpsremoved",
+      "anomaly_id": "anom-017-gps-removed-veh3",
+      "target_user_id": null,
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "WEBHOOK",
+      "subject": null,
+      "body": null,
+      "payload_json": {
+        "webhook_url": "https://dgsn.cm/api/v1/cspl-alerts",
+        "http_status": 200,
+        "retry_count": 0,
+        "incident_ref": "DGSN-2024-11-30-1422",
+        "vehicle_id": "veh-0003-lt3345ud"
+      },
+      "is_read": true,
+      "read_at": "2024-11-30T10:02:00Z",
+      "delivered_at": "2024-11-30T10:01:35Z",
+      "created_at": "2024-11-30T10:01:00Z"
+    },
+    {
+      "id": "notif-019-anom018-kafka-resolved",
+      "rule_id": "nr-014-kafkatimeout",
+      "anomaly_id": "anom-018-kafka-timeout",
+      "target_user_id": "user-0002-csph-admin",
+      "target_group_id": "ng-001-csph-tech",
+      "channel": "IN_APP",
+      "subject": "Kafka lag 287s — résolu",
+      "body": "412 events rejoués. ZFS pool scrub terminé.",
+      "payload_json": {
+        "anomaly_type": "KAFKATIMEOUT",
+        "severity": "MODERE",
+        "status": "RESOLU"
+      },
+      "is_read": true,
+      "read_at": "2024-11-22T05:35:00Z",
+      "delivered_at": "2024-11-22T05:31:00Z",
+      "created_at": "2024-11-22T05:31:00Z"
+    },
+    {
+      "id": "notif-020-anom019-iot-total",
+      "rule_id": "nr-015-iotdegradation",
+      "anomaly_id": "anom-019-iot-degr-total",
+      "target_user_id": "user-0014-total-admin",
+      "target_group_id": "ng-005-total-commercial",
+      "channel": "EMAIL",
+      "subject": "[Total] Dégradation IoT — 3 devices en 24h",
+      "body": "2 devices offline, 1 batterie faible, 1 en attente sync. Vérifier flotte Total.",
+      "payload_json": {
+        "anomaly_type": "IOTDEGRADATION",
+        "severity": "MODERE",
+        "affected_devices": [
+          "dev-0012-pda-total-002",
+          "dev-0014-pda-total-003",
+          "dev-0011-pda-total-001"
+        ]
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-30T11:01:50Z",
+      "created_at": "2024-11-30T11:01:00Z"
+    },
+    {
+      "id": "notif-021-anom020-server-pager",
+      "rule_id": "nr-016-serverunavailable",
+      "anomaly_id": "anom-020-server-unavail",
+      "target_user_id": "user-0002-csph-admin",
+      "target_group_id": "ng-003-csph-admin",
+      "channel": "PUSH",
+      "subject": "csph-api 8min downtime — failover node-1",
+      "body": "1842 requêtes rejetées. PostgreSQL primary failover.",
+      "payload_json": {
+        "anomaly_type": "SERVERUNAVAILABLE",
+        "severity": "MODERE",
+        "downtime_minutes": 8
+      },
+      "is_read": true,
+      "read_at": "2024-11-23T14:25:00Z",
+      "delivered_at": "2024-11-23T14:23:18Z",
+      "created_at": "2024-11-23T14:23:00Z"
+    },
+    {
+      "id": "notif-022-anom021-volgap-camgaz-sms",
+      "rule_id": "nr-006-volgap",
+      "anomaly_id": "anom-021-volgap-camgaz-oct",
+      "target_user_id": "user-0004-csph-supervisor2",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "SMS",
+      "subject": null,
+      "body": "CSPH: VOLUMEGAP CAMGAZ 10% (62kL, 31M FCFA) octobre DISPUTE. anom-021",
+      "payload_json": {
+        "phone": "+237670123454",
+        "operator": "MTN Cameroon",
+        "anomaly_type": "VOLUMEGAP",
+        "severity": "CRITIQUE"
+      },
+      "is_read": true,
+      "read_at": "2024-11-15T08:30:00Z",
+      "delivered_at": "2024-11-15T08:01:55Z",
+      "created_at": "2024-11-15T08:01:00Z"
+    },
+    {
+      "id": "notif-023-anom022-volgap-sctm-ok",
+      "rule_id": "nr-006-volgap",
+      "anomaly_id": "anom-022-volgap-sctm-oct",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "IN_APP",
+      "subject": "VOLUMEGAP SCTM oct. — DANS TOLÉRANCE 0,9%",
+      "body": "Approuvé. Aucun redressement requis.",
+      "payload_json": {
+        "anomaly_type": "VOLUMEGAP",
+        "severity": "FAIBLE",
+        "gap_pct": 0.9,
+        "status": "RESOLU"
+      },
+      "is_read": true,
+      "read_at": "2024-11-15T14:30:00Z",
+      "delivered_at": "2024-11-15T14:01:00Z",
+      "created_at": "2024-11-15T14:01:00Z"
+    },
+    {
+      "id": "notif-024-anom023-sipho-tradex",
+      "rule_id": "nr-001-sipho-critique",
+      "anomaly_id": "anom-023-sipho-tradex-nov",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "EMAIL",
+      "subject": "[CSPH-INV] Siphonnage TRADEX tour-009 — 6,67% perte",
+      "body": "TRADEX Logpom tour-009 800L perdu. 4M FCFA subvention. Site-0021 à investiguer.",
+      "payload_json": {
+        "anomaly_type": "SIPHONNAGE",
+        "severity": "MODERE",
+        "vehicle_id": "veh-0028-lt5568tx"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-29T16:01:30Z",
+      "created_at": "2024-11-29T16:01:00Z"
+    },
+    {
+      "id": "notif-025-anom024-substit-livreur2",
+      "rule_id": "nr-002-substitution",
+      "anomaly_id": "anom-024-substit-sctm-bottles",
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "EMAIL",
+      "subject": "[CSPH-INV] 4 RFID mismatched — livreur ABDOU KARIM (user-0011)",
+      "body": "Tournée tour-002 : 96 bouteilles sorties, 96 rentrées, mais 4 tags RFID diffèrent. Investigation ouverte.",
+      "payload_json": {
+        "anomaly_type": "SUBSTITUTIONBOUTEILLES",
+        "severity": "ELEVE",
+        "livreur_id": "user-0011-sctm-livreur2"
+      },
+      "is_read": true,
+      "read_at": "2024-11-28T15:00:00Z",
+      "delivered_at": "2024-11-28T14:01:42Z",
+      "created_at": "2024-11-28T14:01:00Z"
+    },
+    {
+      "id": "notif-026-anom009-scan-oseq",
+      "rule_id": "nr-009-scanoseq",
+      "anomaly_id": "anom-009-scan-oseq-tour2",
+      "target_user_id": "user-0006-sctm-admin",
+      "target_group_id": "ng-004-sctm-commercial",
+      "channel": "IN_APP",
+      "subject": "SCANOUTOFSEQUENCE — faux positif (PDA clock drift)",
+      "body": "Résolu. Re-sync NTP effectué.",
+      "payload_json": {
+        "anomaly_type": "SCANOUTOFSEQUENCE",
+        "severity": "FAIBLE",
+        "status": "RESOLU"
+      },
+      "is_read": true,
+      "read_at": "2024-11-26T14:05:00Z",
+      "delivered_at": "2024-11-26T13:00:00Z",
+      "created_at": "2024-11-26T13:00:00Z"
+    },
+    {
+      "id": "notif-027-anom025-pda-sctm3-resolved",
+      "rule_id": "nr-010-pdaunsynced",
+      "anomaly_id": "anom-025-pda-unsynced-pda-sctm3",
+      "target_user_id": "user-0006-sctm-admin",
+      "target_group_id": "ng-004-sctm-commercial",
+      "channel": "IN_APP",
+      "subject": "PDA-SCTM-003 resyncé",
+      "body": "6 events rejoués. Livreur briefé sur charge overnight.",
+      "payload_json": {
+        "anomaly_type": "PDAUNSYNCED",
+        "severity": "FAIBLE",
+        "status": "RESOLU"
+      },
+      "is_read": true,
+      "read_at": "2024-11-29T18:30:00Z",
+      "delivered_at": "2024-11-29T18:01:00Z",
+      "created_at": "2024-11-29T18:01:00Z"
+    },
+    {
+      "id": "notif-028-admin-login-super",
+      "rule_id": null,
+      "anomaly_id": null,
+      "target_user_id": "user-0002-csph-admin",
+      "target_group_id": "ng-003-csph-admin",
+      "channel": "EMAIL",
+      "subject": "[CSPH-ADMIN] Login SUPERADMIN depuis IP inhabituelle 197.215.34.12",
+      "body": "Bertin NDOUMBETANE (user-0001) s'est connecté depuis 197.215.34.12 (ASN: MTN Cameroun mobile) le 2024-11-29 07:45 UTC. IP non reconnue dans la liste VIP habituelle (41.205.78.0/24). Veuillez confirmer.",
+      "payload_json": {
+        "event_type": "LOGINSUCCESS",
+        "user_id": "user-0001-csph-super",
+        "ip": "197.215.34.12",
+        "geolocation": "Yaoundé, Cameroun",
+        "is_vip_ip": false
+      },
+      "is_read": true,
+      "read_at": "2024-11-29T08:30:00Z",
+      "delivered_at": "2024-11-29T07:46:00Z",
+      "created_at": "2024-11-29T07:46:00Z"
+    },
+    {
+      "id": "notif-029-admin-permission-denied",
+      "rule_id": null,
+      "anomaly_id": null,
+      "target_user_id": "user-0002-csph-admin",
+      "target_group_id": "ng-003-csph-admin",
+      "channel": "EMAIL",
+      "subject": "[CSPH-ADMIN] 3× PERMISSIONDENIED pour user-0018-total-livreur2",
+      "body": "Le livreur Arnaud ND OBO a tenté d'accéder à /api/v1/declarations (3 fois en 5 min). Élévation de privilège suspectée.",
+      "payload_json": {
+        "event_type": "PERMISSIONDENIED",
+        "user_id": "user-0018-total-livreur2",
+        "endpoint": "/api/v1/declarations",
+        "ip": "41.78.24.11",
+        "occurrences": 3,
+        "linked_anomaly": "anom-004-falsif-pda-total"
+      },
+      "is_read": true,
+      "read_at": "2024-11-28T14:30:00Z",
+      "delivered_at": "2024-11-28T14:00:30Z",
+      "created_at": "2024-11-28T14:00:00Z"
+    },
+    {
+      "id": "notif-030-marketing-redressement-camgaz",
+      "rule_id": null,
+      "anomaly_id": null,
+      "target_user_id": "user-0005-csph-investigator",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "EMAIL",
+      "subject": "[CSPH] Redressement red-001-camgaz ÉMIS — 31M FCFA",
+      "body": "Le redressement red-001-camgaz (31 000 000 FCFA) a été émis à l'encontre de CAMGAZ suite à la réconciliation recon-007-camgaz-oct2024. Date d'échéance : 2024-12-06.",
+      "payload_json": {
+        "redressement_id": "red-001-camgaz",
+        "amount_fcfa": 31000000,
+        "due_date": "2024-12-06",
+        "marketeur_org_id": "org-0005-camg-0000-000000000001"
+      },
+      "is_read": true,
+      "read_at": "2024-11-21T10:30:00Z",
+      "delivered_at": "2024-11-21T10:01:00Z",
+      "created_at": "2024-11-21T10:01:00Z"
+    },
+    {
+      "id": "notif-031-marketing-redressement-paid",
+      "rule_id": null,
+      "anomaly_id": null,
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "IN_APP",
+      "subject": "Redressement red-002 PAID (13,94M FCFA)",
+      "body": "Paiement SCTM reçu. Réf. CSPH-BK-2024-SEP-001.",
+      "payload_json": {
+        "redressement_id": "red-002-historical-sctm",
+        "amount_fcfa": 13940000,
+        "transaction_ref": "CSPH-BK-2024-SEP-001"
+      },
+      "is_read": true,
+      "read_at": "2024-11-05T15:00:00Z",
+      "delivered_at": "2024-11-05T14:31:00Z",
+      "created_at": "2024-11-05T14:31:00Z"
+    },
+    {
+      "id": "notif-032-decl-submitted-camgaz",
+      "rule_id": null,
+      "anomaly_id": null,
+      "target_user_id": "user-0003-csph-supervisor",
+      "target_group_id": "ng-002-csph-investigation",
+      "channel": "EMAIL",
+      "subject": "[CSPH] Déclaration CAMGAZ octobre 620 000L soumise",
+      "body": "decl-007-camgaz-oct2024 soumise par CAMGAZ. Volume 620 000L. En attente réconciliation.",
+      "payload_json": {
+        "declaration_id": "decl-007-camgaz-oct2024",
+        "declared_volume_l": 620000,
+        "marketeur_org_id": "org-0005-camg-0000-000000000001"
+      },
+      "is_read": true,
+      "read_at": "2024-11-07T08:30:00Z",
+      "delivered_at": "2024-11-07T08:01:00Z",
+      "created_at": "2024-11-07T08:01:00Z"
+    },
+    {
+      "id": "notif-033-site-suspended",
+      "rule_id": null,
+      "anomaly_id": null,
+      "target_user_id": "user-0019-aza-admin",
+      "target_group_id": "ng-006-aza-commercial",
+      "channel": "EMAIL",
+      "subject": "[AZA] site-0015-douala — SUSPENDED (enquête en cours)",
+      "body": "CSPH a suspendu le site AZA Douala PK17 dans le cadre de l'anomalie anom-007 (remplissage illégal). Re-vérification terrain requise avant ré-activation.",
+      "payload_json": {
+        "site_id": "site-0015-aza-douala",
+        "previous_status": "ACTIVE",
+        "new_status": "SUSPENDED",
+        "reason": "anom-007-fill-illegal-azagu investigation"
+      },
+      "is_read": false,
+      "read_at": null,
+      "delivered_at": "2024-11-26T05:02:00Z",
+      "created_at": "2024-11-26T05:02:00Z"
+    }
+  ]
+}
