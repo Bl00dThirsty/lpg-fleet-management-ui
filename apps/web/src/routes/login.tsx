@@ -14,12 +14,14 @@ export const Route = createFileRoute('/login')({
   component: LoginPage,
 })
 
+const remoteMode = import.meta.env.VITE_API_MODE === 'http'
+
 function LoginPage() {
   const login = useAuthStore((s) => s.login)
   const setActiveRole = useRoleStore((s) => s.setActiveRole)
   const navigate = useNavigate()
   const [selectedUserId, setSelectedUserId] = useState<string>(fakeProfiles[0]!.id)
-  const [password, setPassword] = useState('password')
+  const [password, setPassword] = useState(remoteMode ? '' : 'password')
   const [submitting, setSubmitting] = useState(false)
 
   const selectedUser: FakeProfile =
@@ -98,7 +100,7 @@ function LoginPage() {
                   required
                 />
                 <p className='text-xs text-muted-foreground'>
-                  Mode démo — n'importe quel mot de passe est accepté.
+                  {remoteMode ? 'Utilisez le mot de passe du compte de test Supabase.' : "Mode démo — n'importe quel mot de passe est accepté."}
                 </p>
               </div>
 

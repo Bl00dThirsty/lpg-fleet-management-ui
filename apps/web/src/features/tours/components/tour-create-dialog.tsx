@@ -533,7 +533,7 @@ export function TourCreateDialog({
       const tourId = created.id
 
       // Séquence 1 (dépôt) + Séquences 2..N (clients) checkpoints registered
-      for (const cp of allCheckpointsPayload) {
+      for (const cp of (import.meta.env.VITE_API_MODE === 'http' ? [] : allCheckpointsPayload)) {
         try {
           await api.tours.addCheckpoint(tourId, {
             siteId: cp.site_id,
@@ -552,7 +552,8 @@ export function TourCreateDialog({
         if (currentStatus !== 'PLANNED') {
           try {
             await useToursStore.getState().performActionAsync(tourId, 'plan')
-          } catch {
+          } catch (error) {
+            if (import.meta.env.VITE_API_MODE === 'http') throw error
             useToursStore.getState().performAction(tourId, 'plan')
           }
         }
@@ -561,7 +562,8 @@ export function TourCreateDialog({
         if (currentStatus !== 'PENDINGTRANSPORTERACK') {
           try {
             await useToursStore.getState().performActionAsync(tourId, 'send-to-transporter')
-          } catch {
+          } catch (error) {
+            if (import.meta.env.VITE_API_MODE === 'http') throw error
             useToursStore.getState().performAction(tourId, 'send-to-transporter')
           }
         }

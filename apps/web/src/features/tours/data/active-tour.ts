@@ -12,7 +12,7 @@ export function activeTourForVehicle(
   vehicleId: string,
   storeTours = useToursStore.getState().tours,
 ): TourActivity | null {
-  const tours = storeTours && storeTours.length > 0 ? storeTours : (curated.delivery_tours as DeliveryTour[])
+  const tours = (import.meta.env.VITE_API_MODE === 'http' || (storeTours && storeTours.length > 0)) ? storeTours : (curated.delivery_tours as DeliveryTour[])
   const matches = tours
     .filter((t) => t.vehicle_id === vehicleId)
     .sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''))
