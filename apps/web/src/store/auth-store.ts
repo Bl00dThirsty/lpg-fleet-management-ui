@@ -74,7 +74,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'lpg-auth',
+      name: import.meta.env.VITE_API_MODE === 'http' ? 'lpg-auth-dispatch' : 'lpg-auth',
       partialize: (state) => ({
         user: state.user,
         status: state.status,

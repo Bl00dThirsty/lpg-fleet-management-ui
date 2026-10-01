@@ -913,7 +913,7 @@ export function getTourActivity(
 ): TourActivity[] {
   const opts: TourEnrichOptions = 'view' in optsOrScope ? { scope: optsOrScope } : optsOrScope
   const storeTours = useToursStore.getState().tours
-  let tours = storeTours && storeTours.length > 0 ? storeTours : (defaultDeliveryTours as DeliveryTour[])
+  let tours = (import.meta.env.VITE_API_MODE === 'http' || (storeTours && storeTours.length > 0)) ? storeTours : (defaultDeliveryTours as DeliveryTour[])
   const scope = opts.scope
   if (scope && scope.view !== 'org') {
     if (scope.view === 'site' && scope.orgId) {
@@ -923,7 +923,7 @@ export function getTourActivity(
     }
   }
   const storeCheckpoints = useToursStore.getState().checkpoints
-  const checkpoints = opts.checkpoints ?? (storeCheckpoints && storeCheckpoints.length > 0 ? storeCheckpoints : (defaultCheckpoints as Checkpoint[]))
+  const checkpoints = opts.checkpoints ?? ((import.meta.env.VITE_API_MODE === 'http' || (storeCheckpoints && storeCheckpoints.length > 0)) ? storeCheckpoints : (defaultCheckpoints as Checkpoint[]))
   return tours
     .filter(slicePredicate(slice))
     .map((tour, index) => buildView(tour, { ...opts, checkpoints }, index))
@@ -935,12 +935,12 @@ export function getTourActivityById(
 ): TourActivity | undefined {
   const opts: TourEnrichOptions = 'view' in optsOrScope ? { scope: optsOrScope } : optsOrScope
   const storeTours = useToursStore.getState().tours
-  const tours = storeTours && storeTours.length > 0 ? storeTours : (defaultDeliveryTours as DeliveryTour[])
+  const tours = (import.meta.env.VITE_API_MODE === 'http' || (storeTours && storeTours.length > 0)) ? storeTours : (defaultDeliveryTours as DeliveryTour[])
   const index = tours.findIndex((t) => t.id === id)
   if (index === -1) return undefined
   const tour = tours[index]!
   const storeCheckpoints = useToursStore.getState().checkpoints
-  const checkpoints = opts.checkpoints ?? (storeCheckpoints && storeCheckpoints.length > 0 ? storeCheckpoints : (defaultCheckpoints as Checkpoint[]))
+  const checkpoints = opts.checkpoints ?? ((import.meta.env.VITE_API_MODE === 'http' || (storeCheckpoints && storeCheckpoints.length > 0)) ? storeCheckpoints : (defaultCheckpoints as Checkpoint[]))
   return buildView(tour, { ...opts, checkpoints }, index)
 }
 

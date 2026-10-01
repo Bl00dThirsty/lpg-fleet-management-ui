@@ -30,7 +30,7 @@ function flaggedTourIds(): string[] {
 
 export function followUpFor(ctx: FollowUpContext): TourActivity[] {
   const storeTours = useToursStore.getState().tours
-  const tours = storeTours && storeTours.length > 0 ? storeTours : (curated.delivery_tours as DeliveryTour[])
+  const tours = (import.meta.env.VITE_API_MODE === 'http' || (storeTours && storeTours.length > 0)) ? storeTours : (curated.delivery_tours as DeliveryTour[])
   if (ctx.role === 'SUPERADMIN') return toTourActivities(tours)
   if (ctx.role === 'AGENT') {
     const orgIds = agentScopedMarketeurOrgIds(ctx.userId)

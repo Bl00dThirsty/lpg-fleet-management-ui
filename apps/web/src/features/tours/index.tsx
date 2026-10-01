@@ -66,7 +66,7 @@ export function ToursPage() {
           description='Flux 2 — livraisons créées par les marketeurs et exécutées en interne ou par un transporteur.'
         />
         <div className='flex items-center gap-2'>
-          {selectedTrip && (
+          {selectedTrip && import.meta.env.VITE_API_MODE !== 'http' && (
             <Button
               variant='outline'
               onClick={() => setPdaModalOpen(true)}
