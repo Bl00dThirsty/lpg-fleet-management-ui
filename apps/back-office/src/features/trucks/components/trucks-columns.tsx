@@ -115,12 +115,12 @@ export function getTrucksColumns({
       enableSorting: false,
     },
     {
-      accessorKey: 'marketer',
+      accessorKey: 'homeDepot',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title='Site' />
       ),
       cell: ({ row }) => (
-        <LongText className='max-w-44'>{row.original.marketer}</LongText>
+        <LongText className='max-w-44'>{row.original.homeDepot}</LongText>
       ),
       filterFn: (row, id, value) =>
         (value as string[]).includes(String(row.getValue(id))),

@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedInfrastructureRouteImport } from './routes/_authenticated/infrastructure'
 import { Route as AuthenticatedTrucksIndexRouteImport } from './routes/_authenticated/trucks/index'
 import { Route as AuthenticatedTransportersIndexRouteImport } from './routes/_authenticated/transporters/index'
 import { Route as AuthenticatedRoutesIndexRouteImport } from './routes/_authenticated/routes/index'
@@ -21,14 +20,13 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedTransportersTransporterIdRouteImport } from './routes/_authenticated/transporters/$transporterId'
 import { Route as AuthenticatedSettingsGeneralRouteImport } from './routes/_authenticated/settings/general'
 import { Route as AuthenticatedMarketersMarketerIdRouteImport } from './routes/_authenticated/marketers/$marketerId'
+import { Route as AuthenticatedActivityTripTrackingRouteImport } from './routes/_authenticated/activity/trip-tracking'
 import { Route as AuthenticatedSettingsGeneralIndexRouteImport } from './routes/_authenticated/settings/general/index'
 import { Route as AuthenticatedSettingsAppearanceIndexRouteImport } from './routes/_authenticated/settings/appearance/index'
-import { Route as AuthenticatedActivityTripTrackingIndexRouteImport } from './routes/_authenticated/activity/trip-tracking/index'
 import { Route as AuthenticatedSettingsGeneralSoftwareRouteImport } from './routes/_authenticated/settings/general/software'
 import { Route as AuthenticatedSettingsGeneralLanguageRouteImport } from './routes/_authenticated/settings/general/language'
 import { Route as AuthenticatedSettingsGeneralDateRouteImport } from './routes/_authenticated/settings/general/date'
 import { Route as AuthenticatedSettingsGeneralAboutRouteImport } from './routes/_authenticated/settings/general/about'
-import { Route as AuthenticatedActivityTripTrackingTripIdRouteImport } from './routes/_authenticated/activity/trip-tracking/$tripId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -44,12 +42,6 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedInfrastructureRoute =
-  AuthenticatedInfrastructureRouteImport.update({
-    id: '/infrastructure',
-    path: '/infrastructure',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedTrucksIndexRoute =
   AuthenticatedTrucksIndexRouteImport.update({
     id: '/trucks/',
@@ -98,6 +90,12 @@ const AuthenticatedMarketersMarketerIdRoute =
     path: '/marketers/$marketerId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedActivityTripTrackingRoute =
+  AuthenticatedActivityTripTrackingRouteImport.update({
+    id: '/activity/trip-tracking',
+    path: '/activity/trip-tracking',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsGeneralIndexRoute =
   AuthenticatedSettingsGeneralIndexRouteImport.update({
     id: '/',
@@ -108,12 +106,6 @@ const AuthenticatedSettingsAppearanceIndexRoute =
   AuthenticatedSettingsAppearanceIndexRouteImport.update({
     id: '/settings/appearance/',
     path: '/settings/appearance/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedActivityTripTrackingIndexRoute =
-  AuthenticatedActivityTripTrackingIndexRouteImport.update({
-    id: '/activity/trip-tracking/',
-    path: '/activity/trip-tracking/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedSettingsGeneralSoftwareRoute =
@@ -140,17 +132,11 @@ const AuthenticatedSettingsGeneralAboutRoute =
     path: '/about',
     getParentRoute: () => AuthenticatedSettingsGeneralRoute,
   } as any)
-const AuthenticatedActivityTripTrackingTripIdRoute =
-  AuthenticatedActivityTripTrackingTripIdRouteImport.update({
-    id: '/activity/trip-tracking/$tripId',
-    path: '/activity/trip-tracking/$tripId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
-  '/infrastructure': typeof AuthenticatedInfrastructureRoute
+  '/activity/trip-tracking': typeof AuthenticatedActivityTripTrackingRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/settings/general': typeof AuthenticatedSettingsGeneralRouteWithChildren
   '/transporters/$transporterId': typeof AuthenticatedTransportersTransporterIdRoute
@@ -159,19 +145,17 @@ export interface FileRoutesByFullPath {
   '/routes/': typeof AuthenticatedRoutesIndexRoute
   '/transporters/': typeof AuthenticatedTransportersIndexRoute
   '/trucks/': typeof AuthenticatedTrucksIndexRoute
-  '/activity/trip-tracking/$tripId': typeof AuthenticatedActivityTripTrackingTripIdRoute
   '/settings/general/about': typeof AuthenticatedSettingsGeneralAboutRoute
   '/settings/general/date': typeof AuthenticatedSettingsGeneralDateRoute
   '/settings/general/language': typeof AuthenticatedSettingsGeneralLanguageRoute
   '/settings/general/software': typeof AuthenticatedSettingsGeneralSoftwareRoute
-  '/activity/trip-tracking/': typeof AuthenticatedActivityTripTrackingIndexRoute
   '/settings/appearance/': typeof AuthenticatedSettingsAppearanceIndexRoute
   '/settings/general/': typeof AuthenticatedSettingsGeneralIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/infrastructure': typeof AuthenticatedInfrastructureRoute
   '/': typeof AuthenticatedIndexRoute
+  '/activity/trip-tracking': typeof AuthenticatedActivityTripTrackingRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/transporters/$transporterId': typeof AuthenticatedTransportersTransporterIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
@@ -179,12 +163,10 @@ export interface FileRoutesByTo {
   '/routes': typeof AuthenticatedRoutesIndexRoute
   '/transporters': typeof AuthenticatedTransportersIndexRoute
   '/trucks': typeof AuthenticatedTrucksIndexRoute
-  '/activity/trip-tracking/$tripId': typeof AuthenticatedActivityTripTrackingTripIdRoute
   '/settings/general/about': typeof AuthenticatedSettingsGeneralAboutRoute
   '/settings/general/date': typeof AuthenticatedSettingsGeneralDateRoute
   '/settings/general/language': typeof AuthenticatedSettingsGeneralLanguageRoute
   '/settings/general/software': typeof AuthenticatedSettingsGeneralSoftwareRoute
-  '/activity/trip-tracking': typeof AuthenticatedActivityTripTrackingIndexRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceIndexRoute
   '/settings/general': typeof AuthenticatedSettingsGeneralIndexRoute
 }
@@ -192,8 +174,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/infrastructure': typeof AuthenticatedInfrastructureRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/activity/trip-tracking': typeof AuthenticatedActivityTripTrackingRoute
   '/_authenticated/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/_authenticated/settings/general': typeof AuthenticatedSettingsGeneralRouteWithChildren
   '/_authenticated/transporters/$transporterId': typeof AuthenticatedTransportersTransporterIdRoute
@@ -202,12 +184,10 @@ export interface FileRoutesById {
   '/_authenticated/routes/': typeof AuthenticatedRoutesIndexRoute
   '/_authenticated/transporters/': typeof AuthenticatedTransportersIndexRoute
   '/_authenticated/trucks/': typeof AuthenticatedTrucksIndexRoute
-  '/_authenticated/activity/trip-tracking/$tripId': typeof AuthenticatedActivityTripTrackingTripIdRoute
   '/_authenticated/settings/general/about': typeof AuthenticatedSettingsGeneralAboutRoute
   '/_authenticated/settings/general/date': typeof AuthenticatedSettingsGeneralDateRoute
   '/_authenticated/settings/general/language': typeof AuthenticatedSettingsGeneralLanguageRoute
   '/_authenticated/settings/general/software': typeof AuthenticatedSettingsGeneralSoftwareRoute
-  '/_authenticated/activity/trip-tracking/': typeof AuthenticatedActivityTripTrackingIndexRoute
   '/_authenticated/settings/appearance/': typeof AuthenticatedSettingsAppearanceIndexRoute
   '/_authenticated/settings/general/': typeof AuthenticatedSettingsGeneralIndexRoute
 }
@@ -216,7 +196,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/infrastructure'
+    | '/activity/trip-tracking'
     | '/marketers/$marketerId'
     | '/settings/general'
     | '/transporters/$transporterId'
@@ -225,19 +205,17 @@ export interface FileRouteTypes {
     | '/routes/'
     | '/transporters/'
     | '/trucks/'
-    | '/activity/trip-tracking/$tripId'
     | '/settings/general/about'
     | '/settings/general/date'
     | '/settings/general/language'
     | '/settings/general/software'
-    | '/activity/trip-tracking/'
     | '/settings/appearance/'
     | '/settings/general/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/infrastructure'
     | '/'
+    | '/activity/trip-tracking'
     | '/marketers/$marketerId'
     | '/transporters/$transporterId'
     | '/dashboard'
@@ -245,20 +223,18 @@ export interface FileRouteTypes {
     | '/routes'
     | '/transporters'
     | '/trucks'
-    | '/activity/trip-tracking/$tripId'
     | '/settings/general/about'
     | '/settings/general/date'
     | '/settings/general/language'
     | '/settings/general/software'
-    | '/activity/trip-tracking'
     | '/settings/appearance'
     | '/settings/general'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
-    | '/_authenticated/infrastructure'
     | '/_authenticated/'
+    | '/_authenticated/activity/trip-tracking'
     | '/_authenticated/marketers/$marketerId'
     | '/_authenticated/settings/general'
     | '/_authenticated/transporters/$transporterId'
@@ -267,12 +243,10 @@ export interface FileRouteTypes {
     | '/_authenticated/routes/'
     | '/_authenticated/transporters/'
     | '/_authenticated/trucks/'
-    | '/_authenticated/activity/trip-tracking/$tripId'
     | '/_authenticated/settings/general/about'
     | '/_authenticated/settings/general/date'
     | '/_authenticated/settings/general/language'
     | '/_authenticated/settings/general/software'
-    | '/_authenticated/activity/trip-tracking/'
     | '/_authenticated/settings/appearance/'
     | '/_authenticated/settings/general/'
   fileRoutesById: FileRoutesById
@@ -303,13 +277,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/infrastructure': {
-      id: '/_authenticated/infrastructure'
-      path: '/infrastructure'
-      fullPath: '/infrastructure'
-      preLoaderRoute: typeof AuthenticatedInfrastructureRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/trucks/': {
@@ -368,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketersMarketerIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/activity/trip-tracking': {
+      id: '/_authenticated/activity/trip-tracking'
+      path: '/activity/trip-tracking'
+      fullPath: '/activity/trip-tracking'
+      preLoaderRoute: typeof AuthenticatedActivityTripTrackingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/general/': {
       id: '/_authenticated/settings/general/'
       path: '/'
@@ -380,13 +354,6 @@ declare module '@tanstack/react-router' {
       path: '/settings/appearance'
       fullPath: '/settings/appearance/'
       preLoaderRoute: typeof AuthenticatedSettingsAppearanceIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/activity/trip-tracking/': {
-      id: '/_authenticated/activity/trip-tracking/'
-      path: '/activity/trip-tracking'
-      fullPath: '/activity/trip-tracking/'
-      preLoaderRoute: typeof AuthenticatedActivityTripTrackingIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings/general/software': {
@@ -416,13 +383,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/general/about'
       preLoaderRoute: typeof AuthenticatedSettingsGeneralAboutRouteImport
       parentRoute: typeof AuthenticatedSettingsGeneralRoute
-    }
-    '/_authenticated/activity/trip-tracking/$tripId': {
-      id: '/_authenticated/activity/trip-tracking/$tripId'
-      path: '/activity/trip-tracking/$tripId'
-      fullPath: '/activity/trip-tracking/$tripId'
-      preLoaderRoute: typeof AuthenticatedActivityTripTrackingTripIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
@@ -455,8 +415,8 @@ const AuthenticatedSettingsGeneralRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedInfrastructureRoute: typeof AuthenticatedInfrastructureRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedActivityTripTrackingRoute: typeof AuthenticatedActivityTripTrackingRoute
   AuthenticatedMarketersMarketerIdRoute: typeof AuthenticatedMarketersMarketerIdRoute
   AuthenticatedSettingsGeneralRoute: typeof AuthenticatedSettingsGeneralRouteWithChildren
   AuthenticatedTransportersTransporterIdRoute: typeof AuthenticatedTransportersTransporterIdRoute
@@ -465,14 +425,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRoutesIndexRoute: typeof AuthenticatedRoutesIndexRoute
   AuthenticatedTransportersIndexRoute: typeof AuthenticatedTransportersIndexRoute
   AuthenticatedTrucksIndexRoute: typeof AuthenticatedTrucksIndexRoute
-  AuthenticatedActivityTripTrackingTripIdRoute: typeof AuthenticatedActivityTripTrackingTripIdRoute
-  AuthenticatedActivityTripTrackingIndexRoute: typeof AuthenticatedActivityTripTrackingIndexRoute
   AuthenticatedSettingsAppearanceIndexRoute: typeof AuthenticatedSettingsAppearanceIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedInfrastructureRoute: AuthenticatedInfrastructureRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedActivityTripTrackingRoute:
+    AuthenticatedActivityTripTrackingRoute,
   AuthenticatedMarketersMarketerIdRoute: AuthenticatedMarketersMarketerIdRoute,
   AuthenticatedSettingsGeneralRoute:
     AuthenticatedSettingsGeneralRouteWithChildren,
@@ -483,10 +442,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRoutesIndexRoute: AuthenticatedRoutesIndexRoute,
   AuthenticatedTransportersIndexRoute: AuthenticatedTransportersIndexRoute,
   AuthenticatedTrucksIndexRoute: AuthenticatedTrucksIndexRoute,
-  AuthenticatedActivityTripTrackingTripIdRoute:
-    AuthenticatedActivityTripTrackingTripIdRoute,
-  AuthenticatedActivityTripTrackingIndexRoute:
-    AuthenticatedActivityTripTrackingIndexRoute,
   AuthenticatedSettingsAppearanceIndexRoute:
     AuthenticatedSettingsAppearanceIndexRoute,
 }

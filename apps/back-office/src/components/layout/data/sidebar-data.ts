@@ -1,4 +1,4 @@
-import { LayoutDashboard, Route, Truck, Building2, Handshake, MapIcon } from 'lucide-react'
+import { LayoutDashboard, Route, Truck, Building2, Handshake, MapIcon, Server } from 'lucide-react'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
@@ -22,7 +22,7 @@ export const sidebarData: SidebarData = {
           icon: Route,
         },
         {
-          title: 'Camions',
+          title: 'Flotte',
           url: '/trucks',
           icon: Truck,
         },
@@ -50,6 +50,16 @@ export const sidebarData: SidebarData = {
           title: 'Suivi de mes tournées',
           icon: MapIcon,
           url: '/activity/trip-tracking',
+        },
+      ],
+    },
+    {
+      title: 'Administration & Système',
+      items: [
+        {
+          title: 'Infrastructure',
+          icon: Server,
+          url: '/infrastructure',
         },
       ],
     },

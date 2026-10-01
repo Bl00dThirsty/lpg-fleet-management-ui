@@ -30,6 +30,7 @@ const statusBadgeClasses: Record<Trip['status'], string> = {
 
 type TripDetailsProps = {
   trip: Trip | null
+  selectedCheckpointId?: string | null
 }
 
 function EmptyTripOverview() {
@@ -40,7 +41,41 @@ function EmptyTripOverview() {
   )
 }
 
-function TripOverview({ trip }: { trip: Trip }) {
+function CheckpointOverview({ checkpoint }: { checkpoint: Trip['checkpoints'][0] }) {
+  return (
+    <div className='flex flex-col gap-4 mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-6'>
+      <div className='flex items-center justify-between'>
+        <h2 className='font-semibold text-lg'>Point de livraison sélectionné</h2>
+        <Badge variant='outline' className='bg-background'>{checkpoint.status}</Badge>
+      </div>
+      
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+        <div className='flex flex-col gap-1.5'>
+          <div className='text-muted-foreground text-xs'>Nom</div>
+          <div className='text-sm font-medium'>{checkpoint.name}</div>
+        </div>
+        <div className='flex flex-col gap-1.5'>
+          <div className='text-muted-foreground text-xs'>Adresse</div>
+          <div className='text-sm font-medium'>{checkpoint.address}</div>
+        </div>
+        <div className='flex flex-col gap-1.5'>
+          <div className='text-muted-foreground text-xs'>Heure prévue</div>
+          <div className='text-sm font-medium'>{checkpoint.scheduledTime}</div>
+        </div>
+        {checkpoint.actualTime && (
+          <div className='flex flex-col gap-1.5'>
+            <div className='text-muted-foreground text-xs'>Heure réelle</div>
+            <div className='text-sm font-medium'>{checkpoint.actualTime}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function TripOverview({ trip, selectedCheckpointId }: { trip: Trip, selectedCheckpointId?: string | null }) {
+  const selectedCheckpoint = selectedCheckpointId ? trip.checkpoints?.find(c => c.id === selectedCheckpointId) : null
+
   return (
     <div className='flex flex-col gap-4'>
       <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
@@ -162,11 +197,15 @@ function TripOverview({ trip }: { trip: Trip }) {
           </div>
         </AlertDescription>
       </Alert>
+
+      {selectedCheckpoint && (
+        <CheckpointOverview checkpoint={selectedCheckpoint} />
+      )}
     </div>
   )
 }
 
-export function TripDetails({ trip }: TripDetailsProps) {
+export function TripDetails({ trip, selectedCheckpointId }: TripDetailsProps) {
   if (!trip) {
     return (
       <div className='flex h-full min-h-0 flex-col overflow-hidden'>
@@ -213,7 +252,7 @@ export function TripDetails({ trip }: TripDetailsProps) {
             
             <ScrollArea className='flex-1'>
               <TabsContent value='overview' className='m-0 p-4 sm:p-6'>
-                <TripOverview trip={trip} />
+                <TripOverview trip={trip} selectedCheckpointId={selectedCheckpointId} />
               </TabsContent>
               <TabsContent value='documents' className='m-0 p-4 sm:p-6'>
                 <div className='grid min-h-[12rem] place-items-center rounded-lg border border-dashed text-muted-foreground text-sm'>

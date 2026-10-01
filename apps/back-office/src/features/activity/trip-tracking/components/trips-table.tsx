@@ -22,39 +22,32 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { DatePickerWithRange } from '@/components/ui/date-range-picker'
 import {
-  contractTierOptions,
-  truckStatusOptions,
-  truckTenantOptions,
-  truckSiteOptions,
-  type Truck,
-} from '../data/trucks'
-import { DataTableBulkActions } from './data-table-bulk-actions'
-import { getTrucksColumns } from './trucks-columns'
+  cargoTypeOptions,
+  tripStatusOptions,
+  type Trip,
+} from '../data/trip-data'
+import { getTripsColumns } from './trips-columns'
 
-type TrucksTableProps = {
-  data: Truck[]
+type TripsTableProps = {
+  data: Trip[]
   search: Record<string, unknown>
   navigate: NavigateFn
-  onViewDetails: (truck: Truck) => void
+  onViewDetails: (trip: Trip) => void
 }
 
-export function TrucksTable({
+export function TripsTable({
   data,
   search,
   navigate,
   onViewDetails,
-}: TrucksTableProps) {
+}: TripsTableProps) {
   const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    compartments: false,
-    gpsImei: false,
-    permitExpiry: false,
-    lastPing: false,
-  })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
   const columns = useMemo(
-    () => getTrucksColumns({ onViewDetails }),
+    () => getTripsColumns({ onViewDetails }),
     [onViewDetails]
   )
 
@@ -72,9 +65,9 @@ export function TrucksTable({
     columnFilters: [
       { columnId: 'id', searchKey: 'q', type: 'string' },
       { columnId: 'status', searchKey: 'status', type: 'array' },
-      { columnId: 'tenantName', searchKey: 'company', type: 'array' },
-      { columnId: 'homeDepot', searchKey: 'site', type: 'array' },
-      { columnId: 'contractTier', searchKey: 'contract', type: 'array' },
+      { columnId: 'cargoType', searchKey: 'type', type: 'array' },
+      { columnId: 'createdAt', searchKey: 'created', type: 'array' },
+      { columnId: 'updatedAt', searchKey: 'updated', type: 'array' },
     ],
   })
 
@@ -116,31 +109,68 @@ export function TrucksTable({
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Rechercher camion, plaque, chauffeur...'
+        searchPlaceholder='Rechercher par ID Tournée...'
         searchKey='id'
         filters={[
           {
             columnId: 'status',
             title: 'Statut',
-            options: truckStatusOptions,
+            options: tripStatusOptions,
           },
           {
-            columnId: 'tenantName',
-            title: 'Entreprise',
-            options: truckTenantOptions,
-          },
-          {
-            columnId: 'homeDepot',
-            title: 'Site',
-            options: truckSiteOptions,
-          },
-          {
-            columnId: 'contractTier',
-            title: 'Contrat',
-            options: contractTierOptions,
+            columnId: 'cargoType',
+            title: 'Type de chargement',
+            options: cargoTypeOptions,
           },
         ]}
-      />
+      >
+        <div className='flex items-center gap-2'>
+          <div className='flex flex-col gap-1.5'>
+            <span className='text-xs font-medium text-muted-foreground'>Créé</span>
+            <DatePickerWithRange
+              placeholder='Toutes les dates'
+              value={(() => {
+                const val = table.getColumn('createdAt')?.getFilterValue() as string[]
+                if (!val || val.length !== 2) return undefined
+                return { from: new Date(val[0]), to: new Date(val[1]) }
+              })()}
+              onChange={(date) => {
+                if (date?.from && date?.to) {
+                  table.getColumn('createdAt')?.setFilterValue([
+                    date.from.toISOString(),
+                    date.to.toISOString(),
+                  ])
+                } else {
+                  table.getColumn('createdAt')?.setFilterValue(undefined)
+                }
+              }}
+              className='w-auto lg:w-[240px]'
+            />
+          </div>
+          <div className='flex flex-col gap-1.5'>
+            <span className='text-xs font-medium text-muted-foreground'>Modifié</span>
+            <DatePickerWithRange
+              placeholder='Toutes les dates'
+              value={(() => {
+                const val = table.getColumn('updatedAt')?.getFilterValue() as string[]
+                if (!val || val.length !== 2) return undefined
+                return { from: new Date(val[0]), to: new Date(val[1]) }
+              })()}
+              onChange={(date) => {
+                if (date?.from && date?.to) {
+                  table.getColumn('updatedAt')?.setFilterValue([
+                    date.from.toISOString(),
+                    date.to.toISOString(),
+                  ])
+                } else {
+                  table.getColumn('updatedAt')?.setFilterValue(undefined)
+                }
+              }}
+              className='w-auto lg:w-[240px]'
+            />
+          </div>
+        </div>
+      </DataTableToolbar>
 
       <div className='overflow-hidden rounded-md border'>
         <Table>
@@ -154,7 +184,7 @@ export function TrucksTable({
                     className={cn(
                       'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
                       header.column.columnDef.meta?.className,
-                      header.column.columnDef.meta?.thClassName
+                      (header.column.columnDef.meta as any)?.thClassName
                     )}
                   >
                     {header.isPlaceholder
@@ -174,8 +204,8 @@ export function TrucksTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className='group/row'
-                  onDoubleClick={() => onViewDetails(row.original)}
+                  className='group/row cursor-pointer'
+                  onClick={() => onViewDetails(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
@@ -183,7 +213,7 @@ export function TrucksTable({
                       className={cn(
                         'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
                         cell.column.columnDef.meta?.className,
-                        cell.column.columnDef.meta?.tdClassName
+                        (cell.column.columnDef.meta as any)?.tdClassName
                       )}
                     >
                       {flexRender(
@@ -200,7 +230,7 @@ export function TrucksTable({
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  Aucun camion ne correspond aux filtres.
+                  Aucune tournée ne correspond aux filtres.
                 </TableCell>
               </TableRow>
             )}
@@ -208,7 +238,6 @@ export function TrucksTable({
         </Table>
       </div>
       <DataTablePagination table={table} className='mt-auto' />
-      <DataTableBulkActions table={table} />
     </div>
   )
 }

@@ -1,54 +1,37 @@
-import * as React from 'react'
-
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { useState } from 'react'
 import { trips } from '../data/trip-data'
 import { TripDetails } from './trip-details'
-import { TripList } from './trip-list'
+import { CheckpointsList } from './checkpoints-list'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 
-export function SuiviTripsLayout() {
-  const [detailsOpen, setDetailsOpen] = React.useState(false)
-  const [selectedTripId, setSelectedTripId] = React.useState<string | null>(trips[0].id)
-  
-  const selectedTrip = trips.find((trip) => trip.id === selectedTripId) ?? trips[0]
-
-  function handleSelectTrip(tripId: string) {
-    setSelectedTripId(tripId)
-
-    // On mobile screens (< 1024px in this context, matching lg breakpoint), open the sheet
-    if (window.innerWidth < 1024) {
-      setDetailsOpen(true)
-    }
-  }
+export function SuiviTripsLayout({ tripId }: { tripId: string }) {
+  const selectedTrip = trips.find((trip) => trip.id === tripId) ?? trips[0]
+  const [selectedCheckpointId, setSelectedCheckpointId] = useState<string | null>(null)
 
   return (
-    <>
-      <div
-        className='grid flex-1 min-h-0 overflow-hidden lg:grid-cols-[400px_minmax(0,1fr)] lg:divide-x border-t'
-      >
+    <div className='flex flex-col flex-1 min-h-0'>
+      <div className='px-4 py-2 border-b bg-muted/20'>
+        <Button variant='ghost' size='sm' asChild className='gap-2'>
+          <Link to='/activity/trip-tracking'>
+            <ArrowLeft className='size-4' />
+            Retour à la liste
+          </Link>
+        </Button>
+      </div>
+      <div className='grid flex-1 min-h-0 overflow-hidden lg:grid-cols-[400px_minmax(0,1fr)] lg:divide-x'>
         <div className='h-full overflow-hidden bg-muted/10'>
-          <TripList
-            trips={trips}
-            selectedTripId={selectedTripId}
-            onSelectTrip={handleSelectTrip}
+          <CheckpointsList 
+            trip={selectedTrip} 
+            selectedCheckpointId={selectedCheckpointId}
+            onSelectCheckpoint={setSelectedCheckpointId}
           />
         </div>
         <div className='hidden h-full overflow-hidden lg:block bg-background'>
-          <TripDetails trip={selectedTrip} />
+          <TripDetails trip={selectedTrip} selectedCheckpointId={selectedCheckpointId} />
         </div>
       </div>
-
-      <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <SheetContent
-          side='right'
-          className='w-full gap-0 p-0 sm:max-w-none md:w-3/4'
-        >
-          <SheetHeader className='sr-only'>
-            <SheetTitle>{selectedTrip ? `Tournée ${selectedTrip.id}` : 'Détails de la tournée'}</SheetTitle>
-            <SheetDescription>Détails de la tournée sélectionnée et suivi du trajet.</SheetDescription>
-          </SheetHeader>
-          <TripDetails trip={selectedTrip} />
-        </SheetContent>
-      </Sheet>
-    </>
+    </div>
   )
 }

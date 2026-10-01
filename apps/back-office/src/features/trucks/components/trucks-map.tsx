@@ -11,6 +11,8 @@ import type { ClickEvent } from '@arcgis/core/views/input/types.js'
 import { AlertTriangle, Wifi } from 'lucide-react'
 import lpgSphereIconUrl from '@/assets/lpg-sphere.png'
 import lpgCenterSvgRaw from '@/assets/lpg.svg?raw'
+import arrowRightBlackUrl from '@/assets/arrow-right-black.png'
+import arrowRightRedUrl from '@/assets/arrow-right-red.png'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -23,7 +25,6 @@ import {
   getTruckTelemetry,
   statusLabels,
   type Truck,
-  type TruckStatus,
 } from '../data/trucks'
 
 const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
@@ -45,12 +46,7 @@ type MapTheme = 'light' | 'dark'
 
 type HitTestResults = Awaited<ReturnType<MapView['hitTest']>>['results']
 
-const statusColors: Record<TruckStatus, [number, number, number, number]> = {
-  available: [16, 185, 129, 0.95],
-  in_transit: [14, 165, 233, 0.95],
-  maintenance: [245, 158, 11, 0.95],
-  inactive: [100, 116, 139, 0.9],
-}
+
 
 const siteMarkerTokens: Record<
   SiteType,
@@ -378,8 +374,15 @@ function createTruckGraphic(
   mapTheme: MapTheme
 ) {
   const telemetry = getTruckTelemetry(truck.id)
-  const color = statusColors[truck.status]
-  const outlineColor = getMarkerOutlineColor(mapTheme, isSelected)
+  const isActive = truck.status === 'available' || truck.status === 'in_transit'
+  const iconUrl = isActive ? arrowRightBlackUrl : arrowRightRedUrl
+  
+  const angle = calculateBearing(
+    truck.latitude,
+    truck.longitude,
+    truck.destinationLatitude,
+    truck.destinationLongitude
+  )
 
   return new Graphic({
     geometry: new Point({
@@ -388,14 +391,11 @@ function createTruckGraphic(
       spatialReference: { wkid: 4326 },
     }),
     symbol: {
-      type: 'simple-marker',
-      style: 'circle',
-      color,
-      size: isSelected ? 15 : 11,
-      outline: {
-        color: outlineColor,
-        width: isSelected ? 3 : 1.5,
-      },
+      type: 'picture-marker',
+      url: iconUrl,
+      width: isSelected ? 32 : 24,
+      height: isSelected ? 32 : 24,
+      angle: angle,
     },
     attributes: {
       kind: 'truck',
@@ -610,16 +610,7 @@ function getArcgisViewTheme(mapTheme: MapTheme) {
       }
 }
 
-function getMarkerOutlineColor(
-  mapTheme: MapTheme,
-  isSelected: boolean
-): [number, number, number, number] {
-  if (mapTheme === 'dark') {
-    return isSelected ? [248, 250, 252, 1] : [226, 232, 240, 0.86]
-  }
 
-  return isSelected ? [255, 255, 255, 1] : [15, 23, 42, 0.28]
-}
 
 function getSiteOutlineColor(mapTheme: MapTheme): [
   number,
@@ -677,4 +668,17 @@ function LegendSiteIcon({
 
 function rgbaFromTuple(value: [number, number, number, number]) {
   return `rgba(${value[0]}, ${value[1]}, ${value[2]}, ${value[3]})`
+}
+
+function calculateBearing(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const dy = lat2 - lat1
+  const dx = lon2 - lon1
+  if (dx === 0 && dy === 0) return 0
+  
+  // atan2 gives the angle from the positive X axis (East).
+  // A right-pointing arrow is already aligned with East.
+  // In geographic coordinates, positive Y is North.
+  // To rotate the right arrow to point North (dy>0), it needs to rotate -90 degrees (counter-clockwise in map screen space, or 270 deg clockwise).
+  // ArcGIS rotates clockwise by default.
+  return -Math.atan2(dy, dx) * (180 / Math.PI)
 }

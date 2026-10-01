@@ -18,6 +18,7 @@ type DataTableToolbarProps<TData> = {
       icon?: React.ComponentType<{ className?: string }>
     }[]
   }[]
+  children?: React.ReactNode
 }
 
 export function DataTableToolbar<TData>({
@@ -25,13 +26,14 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = 'Filter...',
   searchKey,
   filters = [],
+  children,
 }: DataTableToolbarProps<TData>) {
   const isFiltered =
     table.getState().columnFilters.length > 0 || table.getState().globalFilter
 
   return (
-    <div className='flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between'>
-      <div className='flex flex-1 flex-col-reverse items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center'>
+    <div className='flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between'>
+      <div className='flex flex-1 flex-col-reverse items-start gap-2 sm:flex-row sm:flex-wrap sm:items-end'>
         {searchKey ? (
           <Input
             placeholder={searchPlaceholder}
@@ -51,7 +53,8 @@ export function DataTableToolbar<TData>({
             className='h-8 w-37.5 lg:w-62.5'
           />
         )}
-        <div className='flex flex-wrap gap-2'>
+        <div className='flex flex-wrap items-end gap-2'>
+          {children}
           {filters.map((filter) => {
             const column = table.getColumn(filter.columnId)
             if (!column) return null
