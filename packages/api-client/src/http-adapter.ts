@@ -9,7 +9,7 @@ type UnauthorizedHandler = () => void
 function resolveBaseURL(override?: string): string {
   if (override) return override
   const mode = (import.meta as any).env?.VITE_API_MODE
-  if (mode === 'mock' || !mode) return 'http://localhost:8787/api/v1'
+  if (mode === 'mock') return 'http://localhost:8787/api/v1'
   return (import.meta as any).env?.VITE_API_BASE_URL ?? '/api/v1'
 }
 
@@ -101,7 +101,8 @@ export function createHttpAdapter(baseURL?: string): ApiAdapter {
 }
 
 export function createApiAdapter(): ApiAdapter {
-  const mode = (import.meta as any).env?.VITE_API_MODE
-  if (mode === 'fake') return fakeAdapter
-  return createHttpAdapter()
+  const mode = (import.meta as any).env?.VITE_API_MODE ?? 'fake'
+  if (mode === 'http') return createHttpAdapter()
+  if (mode === 'mock') return createHttpAdapter('http://localhost:8787/api/v1')
+  return fakeAdapter
 }

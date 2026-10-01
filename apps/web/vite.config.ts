@@ -23,6 +23,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    'import.meta.env.VITE_API_MODE': JSON.stringify(process.env.VITE_API_MODE || 'fake'),
+  },
   test: {
     silent: 'passed-only',
     unstubEnvs: true,

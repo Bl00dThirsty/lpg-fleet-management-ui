@@ -56,13 +56,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       async hydrateSession() {
-        const { refreshToken, status } = useAuthStore.getState()
-        if (!refreshToken || status === 'authenticated') return
+        const { refreshToken, accessToken, status } = useAuthStore.getState()
+        if (accessToken && status === 'authenticated') return
+        if (!refreshToken) return
         try {
           const result = await api.auth.refresh(refreshToken)
           await applyAuthResult(result)
         } catch {
-          set({ status: 'unauthenticated' })
+          set({ status: 'unauthenticated', accessToken: null, refreshToken: null })
         }
       },
 
@@ -74,14 +75,11 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'lpg-auth',
-      // Persist only the session identity, never the credentials. Access and
-      // refresh tokens live in memory for the duration of the session; they
-      // must not survive in localStorage where any script on the origin
-      // (or an XSS) could read them. Token refresh-on-reload is out of scope
-      // for the mock adapter — the user re-authenticates via the demo login.
       partialize: (state) => ({
         user: state.user,
         status: state.status,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
       }),
     },
   ),

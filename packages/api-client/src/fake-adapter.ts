@@ -181,8 +181,12 @@ export function createFakeAdapter(): ApiAdapter {
       })
     },
 
-    async refresh(): Promise<AuthResult> {
-      throw new Error('Fake adapter: refresh not supported')
+    async refresh(refresh_token: string): Promise<AuthResult> {
+      const parts = refresh_token?.split('.')
+      const id = parts?.[1]
+      const fixture = AUTH_FIXTURES.find((f) => f.id === id) ?? AUTH_FIXTURES[0]
+      if (!fixture) throw new Error('Fake adapter: no auth fixtures available')
+      return this.login({ email: fixture.email, password: '' })
     },
 
     setAccessTokenGetter(): void {},
