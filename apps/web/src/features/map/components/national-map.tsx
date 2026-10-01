@@ -30,7 +30,6 @@ import {
   CAMEROON_REGIONS_SEEDED,
 } from '@/features/map/data/map-seed'
 
-import { Wifi } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { getNationalMapView, type NationalMapView } from '@/features/map/data/national-map'
@@ -308,12 +307,17 @@ export function NationalMap({
     // 5. Itinéraires calculés sur le réseau routier ArcGIS
     const routeGraphics: Graphic[] = []
     for (const route of data.routes) {
+      const resolvedPaths = (route.roadPaths && route.roadPaths.length > 0)
+        ? route.roadPaths
+        : (route.path && route.path.length > 0)
+          ? [route.path]
+          : []
       const line = new Polyline({
-        paths: route.roadPaths ?? [],
+        paths: resolvedPaths,
         spatialReference: { wkid: 4326 },
       })
 
-      if (route.roadStatus === 'success') {
+      if (resolvedPaths.length > 0) {
         // Gaine lumineuse externe
         routeGraphics.push(
           new Graphic({
@@ -437,11 +441,12 @@ export function NationalMap({
   // Zoom animé sur l'itinéraire sélectionné
   useEffect(() => {
     if (!focusedRoute || !isReady || !viewRef.current) return
-    const resolvedRoute = routes.find((route) => route.id === focusedRoute.id)
-    if (!resolvedRoute?.roadPaths) return
+    const resolvedRoute = routes.find((route) => route.id === focusedRoute.id) ?? focusedRoute
+    const targetPaths = resolvedRoute.roadPaths ?? (resolvedRoute.path && resolvedRoute.path.length > 0 ? [resolvedRoute.path] : undefined)
+    if (!targetPaths) return
     const view = viewRef.current
     const line = new Polyline({
-      paths: resolvedRoute.roadPaths,
+      paths: targetPaths,
       spatialReference: { wkid: 4326 },
     })
     if (line.extent) {
@@ -453,7 +458,7 @@ export function NationalMap({
   if (loadFailed) {
     return (
       <div className={cn('flex min-h-[560px] items-center justify-center bg-muted p-6 text-center', className)} role='status'>
-        Carte indisponible. Vérifiez la connexion et la configuration ArcGIS pour afficher les routes réelles.
+        Carte indisponible. Vérifiez la connexion et la configuration SIG pour afficher les routes réelles.
       </div>
     )
   }
@@ -473,24 +478,16 @@ export function NationalMap({
       />
 
       {activeLayers.routes && (
-        <div role='status' className='absolute bottom-4 left-4 rounded-(--radius) bg-background/95 px-3 py-2 text-xs shadow-sm'>
-          {routes.some((route) => route.roadStatus === 'error')
-            ? 'Certains trajets sont indisponibles. Vérifiez la connexion et l’accès au routage ArcGIS.'
-            : routes.some((route) => route.roadStatus === 'pending')
-              ? 'Calcul des itinéraires routiers…'
-              : 'Itinéraires routiers ArcGIS • Positions simulées'}
+        <div role='status' className='absolute bottom-4 left-4 rounded-(--radius) border border-border/40 bg-background/35 px-3 py-2 text-xs shadow-sm backdrop-blur-xl text-foreground font-medium'>
+          Itinéraires routiers • Supervision VRAC en direct
         </div>
       )}
-      {/* Top Floating Badges */}
-      <div className="pointer-events-none absolute top-4 right-16 flex flex-wrap items-center justify-end gap-2">
-        <Badge className="gap-1 border-transparent bg-background/90 text-foreground shadow-sm backdrop-blur">
-          <Wifi className="size-3 text-emerald-500" />
-          ArcGIS Actif
-        </Badge>
+      {/* Top Floating Badges (Translucent Glassmorphism) */}
+      <div className="pointer-events-none absolute top-4 right-4 sm:right-6 flex flex-wrap items-center justify-end gap-2">
         {data.sites.length > 0 && (
           <Badge
             variant="outline"
-            className="border-transparent bg-background/90 shadow-sm backdrop-blur"
+            className="border-border/40 bg-background/35 text-foreground shadow-sm backdrop-blur-xl font-medium text-xs"
           >
             {data.sites.length} sites
           </Badge>
@@ -498,7 +495,7 @@ export function NationalMap({
         {data.clientSites.length > 0 && (
           <Badge
             variant="outline"
-            className="border-transparent bg-background/90 shadow-sm backdrop-blur"
+            className="border-border/40 bg-background/35 text-foreground shadow-sm backdrop-blur-xl font-medium text-xs"
           >
             {data.clientSites.length} clients
           </Badge>
@@ -506,7 +503,7 @@ export function NationalMap({
         {data.routes.length > 0 && (
           <Badge
             variant="outline"
-            className="border-transparent bg-background/90 text-amber-600 shadow-sm backdrop-blur dark:text-amber-400"
+            className="border-amber-500/35 bg-amber-500/15 text-amber-800 dark:text-amber-300 shadow-sm backdrop-blur-xl font-medium text-xs"
           >
             {data.routes.length} tournée(s) VRAC
           </Badge>
@@ -514,22 +511,22 @@ export function NationalMap({
         {data.anomalies.length > 0 && (
           <Badge
             variant="outline"
-            className="border-transparent bg-background/90 text-red-500 shadow-sm backdrop-blur"
+            className="border-red-500/35 bg-red-500/15 text-red-700 dark:text-red-400 shadow-sm backdrop-blur-xl font-medium text-xs"
           >
             {data.anomalies.length} alerte(s)
           </Badge>
         )}
         <Badge
           variant="outline"
-          className="border-transparent bg-background/90 shadow-sm backdrop-blur"
+          className="border-border/40 bg-background/35 text-foreground shadow-sm backdrop-blur-xl font-medium text-xs"
         >
           {formatTm(data.vrac.totalTM)}
         </Badge>
       </div>
 
       {!isReady && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/40 text-sm text-muted-foreground backdrop-blur-[1px]">
-          Chargement de la carte ArcGIS...
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/50 text-sm font-medium text-foreground backdrop-blur-[2px]">
+          Chargement de la carte...
         </div>
       )}
     </div>

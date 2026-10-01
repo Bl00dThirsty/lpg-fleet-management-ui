@@ -49,9 +49,9 @@ export function useVracRoadRoutes(): VracTourRoute[] {
         const road = result.data
         return {
           ...route,
-          path: road?.paths[0] ?? [],
-          roadPaths: road?.paths,
-          roadStatus: result.status,
+          path: road?.paths[0] ?? route.path ?? [],
+          roadPaths: road?.paths ?? (route.path.length > 0 ? [route.path] : undefined),
+          roadStatus: road ? result.status : 'success',
           distanceKm: road
             ? Math.round(road.distanceKm * 10) / 10
             : route.distanceKm,

@@ -1,15 +1,4 @@
-import { useMemo, useState, type ElementType } from 'react'
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  Clock3,
-  MapPinned,
-  Package,
-  Smartphone,
-  Truck,
-  UserRound,
-} from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -44,8 +33,6 @@ import { useToursStore } from '@/store/tours-store'
 import { tourActions } from '../data/tour-machine'
 import { TourActions, isCloseAllowed } from './tour-actions'
 import { TourCorridorMap } from './tour-corridor-map'
-import { TourLpgVariationPanel } from './tour-lpg-variation-panel'
-import { TourTelemetryChart } from './tour-telemetry-chart'
 import { TourPdaSimulatorModal } from './tour-pda-simulator-modal'
 import { formatTm, formatBtl } from '@/features/map/utils/format'
 
@@ -125,41 +112,38 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
 
   return (
     <div className='space-y-4'>
-      <Card className='overflow-hidden border-transparent shadow-sm'>
-        <div className='bg-[linear-gradient(135deg,rgba(15,23,42,1),rgba(15,23,42,0.96),rgba(6,78,59,0.96))] px-6 py-6 text-slate-50'>
+      <Card className='overflow-hidden border border-border shadow-sm'>
+        <div className='border-b border-border bg-card px-6 py-5 text-card-foreground'>
           <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
-            <div className='space-y-4'>
+            <div className='space-y-3'>
               <div className='flex flex-wrap items-center gap-2'>
-                <Badge className='border-transparent bg-white/10 text-white'>
+                <Badge variant='outline'>
                   {trip.reference}
                 </Badge>
-                <Badge className='border-transparent bg-white/10 text-white'>
+                <Badge variant='secondary'>
                   {routeStatusLabels[trip.status]}
                 </Badge>
-                <Badge className='border-transparent bg-white/10 text-white'>
+                <Badge variant='outline'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>
                 <Button
                   size='sm'
-                  variant='secondary'
-                  className='bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold shadow-sm flex items-center gap-1.5 ml-2'
+                  variant='outline'
+                  className='ml-2 font-medium shadow-xs'
                   onClick={() => setPdaModalOpen(true)}
                 >
-                  <Smartphone className='size-4' />
                   Terminal PDA Livreur
                 </Button>
               </div>
 
-              <div className='space-y-2'>
-                <h2 className='font-display text-2xl font-semibold tracking-tight'>
+              <div className='space-y-1'>
+                <h2 className='text-2xl font-bold tracking-tight text-foreground flex items-center gap-2'>
                   {trip.originSite.name}
-                  <ArrowRight className='mx-2 inline size-5 text-emerald-300' />
+                  <span className='text-muted-foreground font-normal'>→</span>
                   {trip.destinationSite.name}
                 </h2>
-                <p className='max-w-3xl text-sm text-slate-300'>
-                  Tournée {trip.reference} pour {trip.customerName}. Le suivi
-                  rassemble le camion, le niveau GPL, les étapes logistiques et
-                  les alertes terrain dans un seul écran.
+                <p className='max-w-3xl text-xs text-muted-foreground'>
+                  Tournée {trip.reference} pour {trip.customerName}. Suivi logistique et étapes terrain.
                 </p>
               </div>
             </div>
@@ -170,7 +154,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                 value={formatQuantity(trip.loadedQuantity, trip.tourneeType)}
               />
               <HeroMetric
-                label='Volume livre'
+                label='Volume livré'
                 value={formatQuantity(trip.deliveredQuantity, trip.tourneeType)}
               />
               <HeroMetric
@@ -216,7 +200,6 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
 
             <div className='grid gap-3 md:grid-cols-3'>
               <DetailSignal
-                icon={AlertTriangle}
                 label='Écart non justifié'
                 value={trip.unaccounted > 0 ? formatQuantity(trip.unaccounted, trip.tourneeType) : trip.tourneeType === 'VRAC' ? '0 TM' : '0 btl'}
                 hint={
@@ -226,13 +209,11 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                 }
               />
               <DetailSignal
-                icon={MapPinned}
                 label='Étapes couvertes'
                 value={`${trip.completed_checkpoints}/${trip.checkpoint_count}`}
                 hint={`${trip.checkpoint_count - trip.completed_checkpoints} restantes`}
               />
               <DetailSignal
-                icon={Clock3}
                 label='Dernier ping'
                 value={formatDateTime(trip.lastUpdatedAt)}
                 hint={
@@ -242,13 +223,11 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                 }
               />
               <DetailSignal
-                icon={Package}
                 label='Volume restant'
                 value={formatQuantity(trip.remainingQuantity, trip.tourneeType)}
                 hint={`${trip.remainingPercent}% de la charge initiale`}
               />
               <DetailSignal
-                icon={CheckCircle2}
                 label='Livraison comptabilisée'
                 value={formatQuantity(trip.deliveredQuantity, trip.tourneeType)}
                 hint={`${trip.deliveredPercent}% déjà affectés`}
@@ -256,26 +235,22 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
             </div>
           </div>
 
-          <div className='rounded-2xl bg-muted/30 p-4 shadow-xs'>
-            <p className='text-sm font-medium'>Equipe engagée</p>
-            <div className='mt-4 space-y-3 text-sm'>
+          <div className='rounded-lg border border-border bg-card p-4 shadow-xs'>
+            <p className='text-sm font-semibold mb-3'>Équipe engagée</p>
+            <div className='space-y-2 text-sm'>
               <InfoRow
-                icon={Truck}
                 label='Camion'
                 value={`${trip.truck.id} - ${trip.truck.license_plate}`}
               />
               <InfoRow
-                icon={UserRound}
                 label='Chauffeur'
                 value={trip.truck.assigned_driver ?? ''}
               />
               <InfoRow
-                icon={UserRound}
                 label='Responsable mission'
                 value={trip.missionLead}
               />
               <InfoRow
-                icon={MapPinned}
                 label='Position courante'
                 value={trip.truck.current_location ?? ''}
               />
@@ -294,9 +269,9 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           </div>
           <Button
             onClick={() => setPdaModalOpen(true)}
-            className='bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow flex items-center gap-2 shrink-0'
+            variant='outline'
+            className='font-medium shadow-xs shrink-0'
           >
-            <Smartphone className='size-4' />
             Simulateur PDA Livreur (Terrain)
           </Button>
         </CardHeader>
@@ -310,15 +285,8 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
         </CardContent>
       </Card>
 
-       <TourLpgVariationPanel trip={trip} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} zeroUnit={trip.tourneeType === 'VRAC' ? '0 TM' : '0 btl'} />
-
-      <section className='grid gap-4 2xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]'>
+      <section className='w-full'>
         <TourCorridorMap trip={trip} formatDateTime={formatDateTime} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} />
-        <TourTelemetryChart
-          trip={trip}
-          formatQuantity={(v) => formatQuantity(v, trip.tourneeType)}
-          formatShortTime={formatShortTime}
-        />
       </section>
 
       <section className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]'>
@@ -353,7 +321,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                     ) : null}
                   </div>
 
-                  <div className='flex-1 rounded-2xl bg-muted/20 px-4 py-4 shadow-xs'>
+                  <div className='flex-1 rounded-lg border border-border bg-card px-4 py-4 shadow-xs'>
                     <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
                       <div>
                         <div className='flex flex-wrap items-center gap-2'>
@@ -432,7 +400,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
-            <div className='rounded-2xl bg-muted/25 px-4 py-4 shadow-xs'>
+            <div className='rounded-lg border border-border bg-card px-4 py-4 shadow-xs'>
               <p className='text-sm font-semibold'>SLA & anomalies</p>
               {trip.sla_transporter_no_ack && (
                 <p className='mt-2 flex items-center gap-1.5 font-medium text-amber-800 dark:text-amber-200'>
@@ -462,7 +430,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
               {trip.events.map((event) => (
                 <div
                   key={event.id}
-                  className='rounded-2xl bg-muted/25 px-4 py-4 shadow-xs'
+                  className='rounded-lg border border-border bg-card px-4 py-4 shadow-xs'
                 >
                   <div className='flex items-start justify-between gap-3'>
                     <div>
@@ -579,65 +547,55 @@ function StopCheckpointControls({
 
 function HeroMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className='min-w-[130px] rounded-2xl bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur'>
-      <p className='text-xs tracking-wide text-slate-300 uppercase'>{label}</p>
-      <p className='mt-1 text-lg font-semibold text-white'>{value}</p>
+    <div className='min-w-[130px] rounded-lg border border-border bg-muted/40 px-4 py-2.5 shadow-xs'>
+      <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>{label}</p>
+      <p className='mt-1 text-lg font-bold text-foreground'>{value}</p>
     </div>
   )
 }
 
 function DetailSignal({
-  icon: Icon,
   label,
   value,
   hint,
 }: {
-  icon: ElementType
   label: string
   value: string
   hint: string
 }) {
   return (
-    <div className='rounded-2xl bg-muted/30 px-4 py-4 shadow-xs'>
-      <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-        <Icon className='size-3.5' />
+    <div className='rounded-lg border border-border bg-card p-4 shadow-xs'>
+      <div className='text-xs font-medium uppercase tracking-wide text-muted-foreground'>
         {label}
       </div>
-      <p className='mt-2 text-lg font-semibold'>{value}</p>
+      <p className='mt-2 text-xl font-bold tracking-tight text-foreground'>{value}</p>
       <p className='mt-1 text-xs text-muted-foreground'>{hint}</p>
     </div>
   )
 }
 
 function InfoRow({
-  icon: Icon,
   label,
   value,
 }: {
-  icon: ElementType
   label: string
   value: string
 }) {
   return (
-    <div className='flex items-start gap-3'>
-      <span className='mt-0.5 flex size-8 items-center justify-center rounded-full bg-background text-muted-foreground shadow-xs'>
-        <Icon className='size-4' />
-      </span>
-      <div>
-        <p className='text-xs text-muted-foreground'>{label}</p>
-        <p className='text-sm font-medium'>{value}</p>
-      </div>
+    <div className='flex items-baseline justify-between gap-2 border-b border-border/40 pb-2.5 last:border-0 last:pb-0'>
+      <span className='text-xs text-muted-foreground'>{label}</span>
+      <span className='text-xs font-semibold text-foreground text-right truncate max-w-[190px]'>{value || '—'}</span>
     </div>
   )
 }
 
 function TripListMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className='rounded-xl bg-muted/25 px-3 py-2.5'>
-      <p className='text-[11px] tracking-wide text-muted-foreground uppercase'>
+    <div className='rounded-lg border border-border/60 bg-muted/30 px-3 py-2'>
+      <p className='text-[11px] font-medium tracking-wide text-muted-foreground uppercase'>
         {label}
       </p>
-      <p className='mt-1 text-sm font-medium'>{value}</p>
+      <p className='mt-1 text-sm font-semibold text-foreground'>{value}</p>
     </div>
   )
 }
@@ -645,16 +603,6 @@ function TripListMetric({ label, value }: { label: string; value: string }) {
 function formatQuantity(value: number, type: TourActivity['tourneeType'] = 'VRAC'): string {
   if (type === 'VRAC') return formatTm(value)
   return formatBtl(value)
-}
-
-function formatShortTime(value: string) {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return new Intl.DateTimeFormat('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
 }
 
 function formatDateTime(value: string) {

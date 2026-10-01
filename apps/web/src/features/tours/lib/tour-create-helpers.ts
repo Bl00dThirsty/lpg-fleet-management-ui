@@ -1,3 +1,5 @@
+import type { AuthUser } from '@lpg/api-client'
+
 /**
  * Pure helpers for the tour creation dialog (Phase 3 items 3.5 – 3.7).
  *
@@ -113,4 +115,32 @@ export function nextCheckpointSequence(rows: readonly { sequence: number }[]): n
     if (Number.isFinite(s) && s > max) max = s
   }
   return max + 1
+}
+
+
+type CrewIdentity = {
+  org_id?: string | null
+  organization_id?: string | null
+  is_active?: boolean
+  deleted_at?: string | null
+}
+
+/** Only regulator organizations have cross-organization visibility. */
+export function canViewAllTourCrew(user: AuthUser | null): boolean {
+  return user?.org_type === 'REGULATEUR'
+}
+
+export function canUseTourCrewMember(user: AuthUser | null, member: CrewIdentity): boolean {
+  if (!user || member.is_active === false || member.deleted_at) return false
+  if (canViewAllTourCrew(user)) return true
+  const organizationId = member.org_id ?? member.organization_id
+  return Boolean(user.org_id && organizationId && user.org_id === organizationId)
+}
+
+export function filterTourCrew<T extends CrewIdentity>(rows: T[], user: AuthUser | null): T[] {
+  return rows.filter((row) => canUseTourCrewMember(user, row))
+}
+
+export function isTourLivreur(row: unknown, resolvedCodes?: string[]): boolean {
+  return (resolvedCodes ?? extractUserRoleCodes(row)).includes('LIVREUR')
 }

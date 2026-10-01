@@ -35,7 +35,7 @@ export function TourActiveHeader({
       : null
 
   return (
-    <Card className='border-transparent bg-background/80 shadow-sm'>
+    <Card className='border border-border shadow-sm'>
       <CardHeader className='border-b bg-muted/30'>
         <div className='flex flex-wrap items-center justify-between gap-2'>
           <div>

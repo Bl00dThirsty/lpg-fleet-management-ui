@@ -91,6 +91,9 @@ export function createFakeAdapter(): ApiAdapter {
       if (method === 'POST') {
         const body = init?.body ? JSON.parse(String(init.body)) : {}
         const item = { id: genId(name), ...body }
+        if (collection === 'delivery_tours' && !item.status) {
+          item.status = 'DRAFT'
+        }
         ;(COLLECTIONS[collection] as unknown as any[]).push(item)
         return delay(item as unknown as T)
       }

@@ -39,7 +39,7 @@ export function NationalMapFilters({
 }: NationalMapFiltersProps) {
   return (
     <nav
-      className={`pointer-events-auto flex flex-col gap-1.5 rounded-(--radius) border border-border bg-background/90 p-3 shadow-lg backdrop-blur-md max-h-[calc(100vh-220px)] overflow-y-auto ${className}`}
+      className={`pointer-events-auto flex flex-col gap-1.5 rounded-(--radius) border border-border/40 bg-background/50 p-3 shadow-2xl backdrop-blur-xl max-h-[calc(100vh-220px)] overflow-y-auto ${className}`}
     >
       <div className="flex items-center gap-1.5 border-b border-border pb-2 px-1">
         <Layers className="size-3.5 text-primary" />

@@ -4,7 +4,7 @@ import lpgSphereIconUrl from '@/assets/lpg-sphere.png'
 export type MapTheme = 'light' | 'dark'
 
 export function getArcgisBasemap(mapTheme: MapTheme): string {
-  return mapTheme === 'dark' ? 'dark-gray-vector' : 'streets-navigation-vector'
+  return mapTheme === 'dark' ? 'dark-gray' : 'streets'
 }
 
 export function getArcgisViewTheme(

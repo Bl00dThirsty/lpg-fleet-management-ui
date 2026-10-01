@@ -1,5 +1,8 @@
+import type { AuthUser } from '@lpg/api-client'
 import { describe, expect, it } from 'vitest'
 import {
+  filterTourCrew,
+  isTourLivreur,
   buildCheckpointPayload,
   extractUserRoleCodes,
   nextCheckpointSequence,
@@ -91,5 +94,34 @@ describe('3.7 nextCheckpointSequence', () => {
   it('starts at 1 and follows max(entered) + 1', () => {
     expect(nextCheckpointSequence([])).toBe(1)
     expect(nextCheckpointSequence([{ sequence: 1 }, { sequence: 3 }])).toBe(4)
+  })
+})
+
+
+describe('tour crew organization scope', () => {
+  const marketer: AuthUser = { id: 'm', email: 'm@test.cm', first_name: 'M', last_name: 'S', system_role: 'MARKETEUR', org_id: 'sctm', org_type: 'MARKETEUR' }
+  const rows = [{ id: 's', org_id: 'sctm' }, { id: 't', org_id: 'total' }, { id: 'unknown' }]
+  it('restricts each marketer to their organization', () => {
+    expect(filterTourCrew(rows, marketer).map((row) => row.id)).toEqual(['s'])
+    expect(filterTourCrew(rows, { ...marketer, org_id: 'total' }).map((row) => row.id)).toEqual(['t'])
+  })
+  it('allows the regulator to see all organizations', () => {
+    expect(filterTourCrew(rows, { ...marketer, system_role: 'SUPERVISOR', org_type: 'REGULATEUR' })).toEqual(rows)
+  })
+  it('fails closed without an authenticated organization', () => {
+    expect(filterTourCrew(rows, null)).toEqual([])
+    expect(filterTourCrew(rows, { ...marketer, org_id: undefined })).toEqual([])
+  })
+  it('accepts the organization alias and excludes unavailable personnel', () => {
+    expect(filterTourCrew([
+      { id: 'alias', organization_id: 'sctm' },
+      { id: 'inactive', org_id: 'sctm', is_active: false },
+      { id: 'deleted', org_id: 'sctm', deleted_at: '2026-01-01' },
+    ], marketer).map((row) => row.id)).toEqual(['alias'])
+  })
+  it('does not interpret a missing or unrelated role as LIVREUR', () => {
+    expect(isTourLivreur({})).toBe(false)
+    expect(isTourLivreur({ system_role: 'MARKETEUR' })).toBe(false)
+    expect(isTourLivreur({ system_role: 'LIVREUR' })).toBe(true)
   })
 })

@@ -65,7 +65,7 @@ export function MarketerDetailsPage() {
 
       <Tabs defaultValue='overview' className='w-full'>
         <div className='overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0'>
-          <TabsList className='inline-flex w-auto min-w-full sm:grid sm:w-full sm:grid-cols-5 lg:w-[750px]'>
+          <TabsList className='inline-flex w-auto min-w-full sm:grid sm:w-full sm:grid-cols-6 lg:w-[900px]'>
             <TabsTrigger value='overview' className='whitespace-nowrap text-xs sm:text-sm'>Vue d'ensemble</TabsTrigger>
             <TabsTrigger value='sites' className='whitespace-nowrap text-xs sm:text-sm'>Sites </TabsTrigger>
             <TabsTrigger value='pickups' className='whitespace-nowrap text-xs sm:text-sm'>
@@ -89,7 +89,7 @@ export function MarketerDetailsPage() {
             <MarketerPickupsList marketer={marketer} />
           </TabsContent>
           <TabsContent value='bulk' className='m-0'>
-            <MarketerBulkRoutes marketer={marketer} />
+            <MarketerBulkRoutes key={marketer.id} marketer={marketer} />
           </TabsContent>
           <TabsContent value='cylinders' className='m-0'>
             <MarketerCylindersRoutes marketer={marketer} />

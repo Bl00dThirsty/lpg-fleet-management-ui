@@ -47,27 +47,27 @@ export function RiskScoresPage() {
           value={summary.total.toLocaleString('fr-FR')}
           icon={FileWarning}
           sparkline={byType.map((t) => t.count)}
-          className='rounded-2xl border-border shadow-sm'
+          className='rounded-lg border-border shadow-sm'
         />
         <MetricCardWithChart
           label='Score moyen'
           value={summary.average.toLocaleString('fr-FR')}
           icon={Gauge}
           sparkline={byType.map((t) => t.average)}
-          className='rounded-2xl border-border shadow-sm'
+          className='rounded-lg border-border shadow-sm'
         />
         <MetricCardWithChart
           label='Risque élevé'
           value={summary.eleve.toLocaleString('fr-FR')}
           sparkline={[summary.faible, summary.modere, summary.eleve, summary.critique]}
-          className='rounded-2xl border-border shadow-sm'
+          className='rounded-lg border-border shadow-sm'
         />
         <MetricCardWithChart
           label='Risque critique'
           value={summary.critique.toLocaleString('fr-FR')}
           icon={AlertOctagon}
           sparkline={[summary.faible, summary.modere, summary.eleve, summary.critique]}
-          className='rounded-2xl border-border shadow-sm'
+          className='rounded-lg border-border shadow-sm'
         />
       </section>
 

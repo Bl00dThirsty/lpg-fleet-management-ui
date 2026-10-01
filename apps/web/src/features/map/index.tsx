@@ -12,6 +12,9 @@ import {
   Moon,
   Navigation,
   Radio,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -28,6 +31,7 @@ export function NationalMapPage() {
   const [layers, setLayers] = useState<Record<MapLayerKey, boolean>>(getInitialLayers())
   const [mapTheme, setMapTheme] = useState<MapTheme>('light')
   const [showFilters, setShowFilters] = useState(false)
+  const [showTourDrawer, setShowTourDrawer] = useState(true)
   const [selectedRouteCode, setSelectedRouteCode] = useState<string>('TR-VRAC-DLA-001')
   const userRole = useAuthStore((s) => s.user?.system_role) ?? 'CSPH'
 
@@ -83,7 +87,7 @@ export function NationalMapPage() {
               className="gap-1.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 py-1 px-2.5 text-xs font-medium"
             >
               <Radio className="size-3 animate-pulse text-emerald-500" />
-              Données simulées • Routes ArcGIS
+              Données temps réel • Réseau SIG
             </Badge>
 
             <Badge variant="outline" className="py-1 px-2.5 text-xs text-muted-foreground">
@@ -151,12 +155,12 @@ export function NationalMapPage() {
 
       {/* ── Interactive Map Section ─────────────────────────────────── */}
       <section className="relative rounded-(--radius) border border-border bg-background/95 p-3 shadow-md backdrop-blur-md">
-        {/* Floating Quick Action Controls */}
-        <div className="pointer-events-none absolute top-6 left-6 z-20 flex flex-wrap items-center gap-2">
+        {/* Floating Quick Action Controls (Shifted right to clear native ArcGIS zoom buttons) */}
+        <div className="pointer-events-none absolute top-4 sm:top-5 left-16 sm:left-20 z-20 flex flex-wrap items-center gap-2">
           <Button
             size="sm"
             variant="outline"
-            className="pointer-events-auto gap-2 bg-background/90 shadow-sm backdrop-blur text-xs font-medium"
+            className="pointer-events-auto gap-2 border border-border/40 bg-background/35 shadow-sm backdrop-blur-xl text-xs font-medium hover:bg-background/60 text-foreground transition-all"
             onClick={() => setShowFilters(!showFilters)}
           >
             <Layers className="size-3.5 text-primary" />
@@ -166,7 +170,7 @@ export function NationalMapPage() {
           <Button
             size="sm"
             variant="outline"
-            className="pointer-events-auto gap-2 bg-background/90 shadow-sm backdrop-blur text-xs font-medium"
+            className="pointer-events-auto gap-2 border border-border/40 bg-background/35 shadow-sm backdrop-blur-xl text-xs font-medium hover:bg-background/60 text-foreground transition-all"
             onClick={() => setMapTheme(mapTheme === 'light' ? 'dark' : 'light')}
           >
             {mapTheme === 'light' ? (
@@ -186,7 +190,7 @@ export function NationalMapPage() {
             <Button
               size="sm"
               variant="secondary"
-              className="pointer-events-auto gap-1.5 bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 shadow-xs text-xs font-medium"
+              className="pointer-events-auto gap-1.5 border border-amber-500/35 bg-amber-500/15 text-amber-800 dark:text-amber-300 hover:bg-amber-500/25 shadow-sm backdrop-blur-xl text-xs font-medium transition-all"
               onClick={() => handleFocusRoute(currentRoute)}
             >
               <Navigation className="size-3.5 text-amber-600 dark:text-amber-400" />
@@ -197,7 +201,7 @@ export function NationalMapPage() {
 
         {/* Floating Layer Filters Panel */}
         {showFilters && (
-          <div className="pointer-events-auto absolute top-16 left-6 z-30 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="pointer-events-auto absolute top-16 left-16 sm:left-20 z-30 animate-in fade-in slide-in-from-top-2 duration-200">
             <NationalMapFilters
               layers={layers}
               mapTheme={mapTheme}
@@ -207,15 +211,32 @@ export function NationalMapPage() {
           </div>
         )}
 
-        {/* Floating Itinerary Card on the Right */}
-        <div className="pointer-events-none absolute top-6 right-6 z-20 hidden md:block max-w-sm">
-          <VracItineraryCard
-            routes={routes}
-            selectedRouteCode={selectedRouteCode}
-            onSelectRoute={handleSelectRoute}
-            onFocusRoute={handleFocusRoute}
-          />
-        </div>
+        {/* Floating Itinerary Card on the Right (Collapsible with Vertical Lateral Tab at Middle Right) */}
+        {showTourDrawer ? (
+          <div className="pointer-events-none absolute top-4 sm:top-6 right-4 sm:right-6 z-20 hidden md:block max-w-sm animate-in fade-in slide-in-from-right-4 duration-200">
+            <VracItineraryCard
+              routes={routes}
+              selectedRouteCode={selectedRouteCode}
+              onSelectRoute={handleSelectRoute}
+              onFocusRoute={handleFocusRoute}
+              onClose={() => setShowTourDrawer(false)}
+            />
+          </div>
+        ) : (
+          <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-0 z-20 hidden md:block animate-in fade-in slide-in-from-right-3 duration-200">
+            <button
+              type="button"
+              onClick={() => setShowTourDrawer(true)}
+              className="pointer-events-auto group flex flex-col items-center justify-center gap-2.5 rounded-l-xl border border-r-0 border-border/40 bg-background/40 hover:bg-background/65 backdrop-blur-xl px-2 py-4 shadow-2xl transition-all hover:pl-3 cursor-pointer text-foreground"
+              title="Afficher le volet de suivi des tournées"
+            >
+              <ChevronLeft className="size-4 text-amber-500 transition-transform group-hover:-translate-x-1" />
+              <span className="[writing-mode:vertical-rl] rotate-180 text-xs font-semibold tracking-wider text-foreground select-none uppercase">
+                Suivi Tournée
+              </span>
+            </button>
+          </div>
+        )}
 
         {/* Main Map Viewer */}
         <NationalMap
@@ -229,12 +250,26 @@ export function NationalMapPage() {
 
         {/* Mobile Itinerary Drawer at bottom on small screens */}
         <div className="mt-3 block md:hidden">
-          <VracItineraryCard
-            routes={routes}
-            selectedRouteCode={selectedRouteCode}
-            onSelectRoute={handleSelectRoute}
-            onFocusRoute={handleFocusRoute}
-          />
+          <div className="flex items-center justify-between py-1">
+            <button
+              type="button"
+              onClick={() => setShowTourDrawer(!showTourDrawer)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-primary transition-colors"
+            >
+              <Truck className="size-3.5 text-amber-500" />
+              {showTourDrawer ? 'Masquer le volet de tournée' : 'Afficher le volet de tournée'}
+              {showTourDrawer ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+            </button>
+          </div>
+          {showTourDrawer && (
+            <VracItineraryCard
+              routes={routes}
+              selectedRouteCode={selectedRouteCode}
+              onSelectRoute={handleSelectRoute}
+              onFocusRoute={handleFocusRoute}
+              onClose={() => setShowTourDrawer(false)}
+            />
+          )}
         </div>
       </section>
 

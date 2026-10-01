@@ -25,6 +25,7 @@ import { useRoadRoutes } from '@/features/map/data/road-routes'
 import { projectOnRoad, type RoadRoute, type RoadCoordinate } from '@/features/map/lib/road-routing'
 
 type TourCorridorMapProps = {
+  compact?: boolean
   trip: RouteTripView
   formatDateTime: (value: string) => string
   formatQuantity?: (value: number) => string
@@ -62,6 +63,7 @@ export function TourCorridorMap({
   trip,
   formatDateTime,
   formatQuantity,
+  compact = false,
 }: TourCorridorMapProps) {
   const { resolvedTheme } = useTheme()
   const mapTheme = resolvedTheme
@@ -167,6 +169,61 @@ export function TourCorridorMap({
       .catch(() => undefined)
   }, [isReady, mapTheme, trip, formatQuantity, road])
 
+  const mapCanvas = (
+        <div
+          className={cn(
+            'fleet-arcgis-map relative h-[400px] overflow-hidden rounded-lg bg-muted/55 shadow-inner',
+            mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light',
+            compact && 'h-[300px] rounded-none shadow-none'
+          )}
+          data-map-theme={mapTheme}
+        >
+          <div
+            ref={mapContainerRef}
+            className='absolute inset-0 h-full w-full'
+          />
+
+          <div className='pointer-events-none absolute top-4 right-4 flex flex-wrap gap-2'>
+            <Badge className='gap-1 bg-background/90 text-foreground shadow-sm backdrop-blur'>
+              <Truck className='size-3.5 text-sky-500' />
+              {trip.truck.id}
+            </Badge>
+            <Badge
+              variant='outline'
+              className='border-transparent bg-background/90 shadow-sm backdrop-blur'
+            >
+              ArcGIS
+            </Badge>
+          </div>
+
+          <div role='status' className='absolute bottom-3 left-3 rounded-lg bg-background/95 px-3 py-2 text-xs shadow-sm'>
+            {roadQuery?.isError ? roadQuery?.error?.message : roadQuery?.isPending
+              ? 'Calcul du trajet routier…'
+              : 'Itinéraire routier ArcGIS'}
+          </div>
+          {!isReady && !loadFailed ? (
+            <div className='pointer-events-none absolute inset-0 flex items-center justify-center bg-background/40 text-sm text-muted-foreground backdrop-blur-[1px]'>
+              Chargement de la carte ArcGIS...
+            </div>
+          ) : null}
+
+          {loadFailed ? (
+            <div className='absolute inset-x-4 top-16 rounded-lg border border-amber-500/30 bg-background/95 px-3 py-2 text-sm text-amber-700 shadow-sm backdrop-blur dark:text-amber-300'>
+              La carte ArcGIS n'a pas pu charger. Verifie la cle API et les
+              restrictions de domaine.
+            </div>
+          ) : null}
+        </div>
+  )
+
+  if (compact) {
+    return arcgisApiKey ? mapCanvas : (
+      <div className='flex h-[300px] items-center justify-center bg-muted/30 p-6 text-sm text-muted-foreground'>
+        La carte est indisponible pour le moment.
+      </div>
+    )
+  }
+
   if (!arcgisApiKey) {
     return (
       <Card className='overflow-hidden border-transparent shadow-sm'>
@@ -214,7 +271,7 @@ export function TourCorridorMap({
   }
 
   return (
-    <Card className='overflow-hidden border-transparent shadow-sm'>
+    <Card className='overflow-hidden border border-border shadow-sm'>
       <CardHeader className='border-b bg-muted/20'>
         <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
           <div>
@@ -242,49 +299,7 @@ export function TourCorridorMap({
         </div>
       </CardHeader>
       <CardContent className='space-y-4 p-4'>
-        <div
-          className={cn(
-            'fleet-arcgis-map relative h-[320px] overflow-hidden rounded-2xl bg-muted/55 shadow-inner',
-            mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light'
-          )}
-          data-map-theme={mapTheme}
-        >
-          <div
-            ref={mapContainerRef}
-            className='absolute inset-0 h-full w-full'
-          />
-
-          <div className='pointer-events-none absolute top-4 right-4 flex flex-wrap gap-2'>
-            <Badge className='gap-1 bg-background/90 text-foreground shadow-sm backdrop-blur'>
-              <Truck className='size-3.5 text-sky-500' />
-              {trip.truck.id}
-            </Badge>
-            <Badge
-              variant='outline'
-              className='border-transparent bg-background/90 shadow-sm backdrop-blur'
-            >
-              ArcGIS
-            </Badge>
-          </div>
-
-          <div role='status' className='absolute bottom-3 left-3 rounded-lg bg-background/95 px-3 py-2 text-xs shadow-sm'>
-            {roadQuery?.isError ? roadQuery?.error?.message : roadQuery?.isPending
-              ? 'Calcul du trajet routier…'
-              : 'Itinéraire routier ArcGIS'}
-          </div>
-          {!isReady && !loadFailed ? (
-            <div className='pointer-events-none absolute inset-0 flex items-center justify-center bg-background/40 text-sm text-muted-foreground backdrop-blur-[1px]'>
-              Chargement de la carte ArcGIS...
-            </div>
-          ) : null}
-
-          {loadFailed ? (
-            <div className='absolute inset-x-4 top-16 rounded-lg border border-amber-500/30 bg-background/95 px-3 py-2 text-sm text-amber-700 shadow-sm backdrop-blur dark:text-amber-300'>
-              La carte ArcGIS n'a pas pu charger. Verifie la cle API et les
-              restrictions de domaine.
-            </div>
-          ) : null}
-        </div>
+        {mapCanvas}
 
         <div className='flex flex-wrap items-center gap-2 text-xs text-muted-foreground'>
           <span className='font-medium text-foreground'>Legende :</span>

@@ -336,6 +336,7 @@ export type TourActivity = RouteTripView & {
 }
 
 export interface TourEnrichOptions {
+  sites?: Site[]
   checkpoints?: Checkpoint[]
   anomalies?: Anomaly[]
   settings?: Setting[]
@@ -765,10 +766,10 @@ function buildView(tourRaw: DeliveryTour, opts: TourEnrichOptions = {}, index: n
   const driverRows = opts.drivers ?? defaultDrivers
   const scanRows = opts.scanEvents ?? defaultScanEvents
   const userRows = opts.users ?? defaultUsers
-  const siteIndex = buildSiteIndex(sites, clientSiteRows)
+  const siteIndex = buildSiteIndex(opts.sites ?? sites, clientSiteRows)
   const tourCheckpoints = checkpointRows.filter(
     (checkpoint) => checkpoint.tournee_id === tour.id || checkpoint.tour_id === tour.id,
-  )
+  ).sort((left, right) => left.sequence - right.sequence)
   const stops = buildStops(tourCheckpoints, tour)
   const originSiteId = stops[0]?.siteId ?? ''
   const destinationSiteId = stops.length > 0 ? (stops[stops.length - 1]?.siteId ?? '') : ''
@@ -783,7 +784,7 @@ function buildView(tourRaw: DeliveryTour, opts: TourEnrichOptions = {}, index: n
   const truckId = tour.vehicle_id ?? fallbackTruckId(tour.marketeur_org_id, tour.type, vehicleRows)
   const truck = requireTruck(truckId)
   const expectedArrivalAt =
-    (stops.length > 0 ? stops[stops.length - 1]?.windowLabel : undefined) ??
+    tourCheckpoints[tourCheckpoints.length - 1]?.expected_arrival ??
     tour.closed_at ??
     tour.updated_at ??
     ''
