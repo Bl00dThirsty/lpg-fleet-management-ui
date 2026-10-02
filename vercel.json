@@ -4,8 +4,15 @@
   "buildCommand": "pnpm turbo run build --filter @lpg/web",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install",
+  "build": {
+    "env": {
+      "VITE_API_MODE": "http",
+      "VITE_API_BASE_URL": "https://ppooruggjjmaezlpjxrv.supabase.co/functions/v1/gpl-dispatch"
+    }
+  },
   "env": {
-    "VITE_API_MODE": "fake"
+    "VITE_API_MODE": "http",
+    "VITE_API_BASE_URL": "https://ppooruggjjmaezlpjxrv.supabase.co/functions/v1/gpl-dispatch"
   },
   "rewrites": [
     {

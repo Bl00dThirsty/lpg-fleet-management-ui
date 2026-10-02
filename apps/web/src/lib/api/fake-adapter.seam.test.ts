@@ -30,4 +30,12 @@ describe('fake-adapter write support (CRUD integration seam)', () => {
     await expect(api.clients.patch('does-not-exist', {} as never)).rejects.toThrow()
     await expect(api.clients.remove('does-not-exist')).rejects.toThrow()
   })
+
+  it('refreshes auth session using fake adapter refresh', async () => {
+    const loginResult = await api.auth.login({ email: 'b.ndoumbetane@csph.cm', password: 'password' })
+    const refreshed = await api.auth.refresh(loginResult.refresh_token)
+    expect(refreshed.user.email).toBe('b.ndoumbetane@csph.cm')
+    expect(refreshed.access_token).toBeTruthy()
+  })
 })
+

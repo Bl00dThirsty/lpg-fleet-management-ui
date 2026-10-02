@@ -384,7 +384,7 @@ function MapSignals({
 
 function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuantity: (value: number) => string, road?: RoadRoute) {
   const displayPosition = (longitude: number, latitude: number): RoadCoordinate =>
-    road && import.meta.env.VITE_API_MODE === 'fake'
+    road && (import.meta.env.VITE_API_MODE ?? 'fake') === 'fake'
       ? projectOnRoad([longitude, latitude], road.paths)
       : [longitude, latitude]
   const routeGraphic = new Graphic({

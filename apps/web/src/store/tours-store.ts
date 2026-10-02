@@ -138,9 +138,11 @@ function assertTourCrew(draft: TourDraft, driver: Parameters<typeof canUseTourCr
   }
 }
 
+const remoteMode = ['http', 'mock'].includes(import.meta.env.VITE_API_MODE ?? '')
+
 export const useToursStore = create<ToursState>()((set, get) => ({
-  tours: curated.delivery_tours.map((t) => ({ ...t })),
-  checkpoints: curated.checkpoints.map((c) => ({ ...c })),
+  tours: remoteMode ? [] : curated.delivery_tours.map((t) => ({ ...t })),
+  checkpoints: remoteMode ? [] : curated.checkpoints.map((c) => ({ ...c })),
   checkpointsByTour: {},
   checkpointsLoading: {},
   deliveryEvents: [],
@@ -167,13 +169,15 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await api.tours.list(0, 100)
-      if (res && Array.isArray(res.data) && res.data.length > 0) {
-        set({ tours: res.data as DeliveryTour[], loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
+      if (res && Array.isArray(res.data) && (remoteMode || res.data.length > 0)) {
+        const rows = res.data as (DeliveryTour & { checkpoints?: Checkpoint[] })[]
+        const checkpoints = remoteMode ? rows.flatMap((tour) => tour.checkpoints ?? []) : get().checkpoints
+        set({ tours: rows, checkpoints, loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
       } else {
         set({ loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
       }
     } catch {
-      set({ loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
+      set({ loading: false, hasLoaded: !remoteMode, error: remoteMode ? "Impossible de charger les tournées du serveur." : null, lastFetchedAt: Date.now() })
     }
   },
 
@@ -308,15 +312,18 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(res)) {
         saved = res as unknown as DeliveryTour
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // In-memory fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       return get().createTour(draft)
     }
 
-    const newCheckpoints = (draft.checkpoints ?? []).map((cp, idx) => ({
+    const serverCheckpoints = (saved as DeliveryTour & { checkpoints?: Checkpoint[] }).checkpoints
+    const newCheckpoints = serverCheckpoints ?? (draft.checkpoints ?? []).map((cp, idx) => ({
       id: cp.id ?? `cp-${saved!.id}-${idx + 1}`,
       tour_id: saved!.id,
       tournee_id: saved!.id,
@@ -427,10 +434,12 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(updated)) {
         saved = updated as unknown as DeliveryTour
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // In-memory fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       return get().performAction(id, action, extra)
     }
@@ -449,10 +458,12 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(updated)) {
         saved = updated as unknown as DeliveryTour
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // Fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       const current = get().tours.find((t) => t.id === id)
       if (current) {
@@ -480,10 +491,12 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(updated)) {
         saved = updated as unknown as DeliveryTour
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // Fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       const current = get().tours.find((t) => t.id === id)
       if (current) {
@@ -510,10 +523,12 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(updated)) {
         saved = updated as unknown as Checkpoint
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // Fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       const existing = get().checkpoints.find((c) => c.id === checkpointId)
       if (existing) {
@@ -550,10 +565,12 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(updated)) {
         saved = updated as unknown as Checkpoint
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // Fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       const existing = get().checkpoints.find((c) => c.id === checkpointId)
       if (existing) {
@@ -592,10 +609,12 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       if (hasId(updated)) {
         saved = updated as unknown as Checkpoint
       }
-    } catch {
+    } catch (error) {
+      if (remoteMode) throw error
       // Fallback
     }
 
+    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
     if (!saved) {
       const existing = get().checkpoints.find((c) => c.id === checkpointId)
       if (existing) {
@@ -666,3 +685,10 @@ export function newTourId(): string {
 export function newCheckpointId(tourId: string, sequence: number): string {
   return `${tourId}-seq-${sequence}`
 }
+
+// A change of account must never reuse the previous user's hydrated tours.
+useAuthStore.subscribe((state, previous) => {
+  if (remoteMode && state.user?.id !== previous.user?.id) {
+    useToursStore.setState({ tours: [], checkpoints: [], checkpointsByTour: {}, checkpointsLoading: {}, deliveryEvents: [], scanEvents: [], hasLoaded: false, lastFetchedAt: 0, error: null })
+  }
+})

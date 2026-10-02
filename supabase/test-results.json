@@ -1,0 +1,32 @@
+{
+  "tour_id": "3ef40784-b013-495d-8bf1-3c2abc9f358c",
+  "tour_code": "TEST-DISPATCH-1790868340",
+  "passed": [
+    "Crew restricted to SCTM",
+    "Created PLANNED tour with two persisted checkpoints",
+    "Assigned driver receives tour",
+    "Other driver cannot see tour",
+    "Foreign organization cannot open tour by ID",
+    "Foreign assignment rejected",
+    "New assignee receives reassigned tour",
+    "Previous assignee loses access",
+    "Regulator can see tour",
+    "Anonymous access denied",
+    "Driver cannot create tours"
+  ],
+  "browser_created_tour": {
+    "id": "50dd55b3-4e2e-4a36-ae61-6c2363c4a87f",
+    "tour_code": "TRP-3690",
+    "assigned_livreur_receives": true,
+    "checkpoints": 3
+  },
+  "physical_device_test": {
+    "tour_id": "8c04fdb3-a357-419f-8db2-de0f25d98f02",
+    "tour_code": "TEST-PDA-1790870394",
+    "device_model": "MBA5",
+    "created_while_app_open": true,
+    "automatic_assignment_visible": true,
+    "automatic_revocation_verified": true,
+    "installed_apk": true
+  }
+}

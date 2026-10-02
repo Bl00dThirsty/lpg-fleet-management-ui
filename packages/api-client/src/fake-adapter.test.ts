@@ -44,10 +44,18 @@ describe('fake-adapter write support (CRUD integration seam)', () => {
   })
 })
 
-describe('fake-adapter login', () => {
+describe('fake-adapter login & session', () => {
   it('includes org_type and site_ids on the logged-in user', async () => {
     const result = await api.auth.login({ email: 'b.ndoumbetane@csph.cm', password: 'password' })
     expect(result.user.org_type).toBeDefined()
     expect(Array.isArray(result.user.site_ids)).toBe(true)
   })
+
+  it('refreshes session from refresh token', async () => {
+    const loginResult = await api.auth.login({ email: 'b.ndoumbetane@csph.cm', password: 'password' })
+    const refreshed = await api.auth.refresh(loginResult.refresh_token)
+    expect(refreshed.user.email).toBe('b.ndoumbetane@csph.cm')
+    expect(refreshed.access_token).toBeTruthy()
+  })
 })
+
