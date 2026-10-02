@@ -231,8 +231,14 @@ export function NationalMapPage() {
               title="Afficher le volet de suivi des tournées"
             >
               <ChevronLeft className="size-4 text-amber-500 transition-transform group-hover:-translate-x-1" />
+              <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                <Truck className="size-4" />
+              </div>
               <span className="[writing-mode:vertical-rl] rotate-180 text-xs font-semibold tracking-wider text-foreground select-none uppercase">
                 Suivi Tournée
+              </span>
+              <span className="rounded-full bg-amber-500/25 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
+                {currentRoute?.tourCode ? currentRoute.tourCode.replace('TR-VRAC-', '') : 'VRAC'}
               </span>
             </button>
           </div>
