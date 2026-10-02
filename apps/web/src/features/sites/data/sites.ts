@@ -79,7 +79,7 @@ function viewStatusFromSeed(
   return isActive ? 'active' : 'planned'
 }
 
-function cityFromAddress(address: string | undefined): string {
+export function cityFromAddress(address: string | undefined): string {
   if (!address) return '—'
   const parts = address.split(',').map((p) => p.trim()).filter(Boolean)
   const beforeCam = parts.filter((p) => !/cameroun/i.test(p))

@@ -33,7 +33,6 @@ import { useToursStore } from '@/store/tours-store'
 import { tourActions } from '../data/tour-machine'
 import { TourActions, isCloseAllowed } from './tour-actions'
 import { TourCorridorMap } from './tour-corridor-map'
-import { TourPdaSimulatorModal } from './tour-pda-simulator-modal'
 import { formatTm, formatBtl } from '@/features/map/utils/format'
 
 type TourDetailViewProps = {
@@ -41,7 +40,6 @@ type TourDetailViewProps = {
 }
 
 export function TourDetailView({ trip }: TourDetailViewProps) {
-  const [pdaModalOpen, setPdaModalOpen] = useState(false)
   const checkpointsByTour = useToursStore((s) => s.checkpointsByTour[trip?.id ?? ''])
   const allCheckpoints = useToursStore((s) => s.checkpoints)
   const tourCheckpoints: Checkpoint[] = useMemo(() => {
@@ -87,6 +85,17 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
       } else {
         await useToursStore.getState().completeCheckpoint(checkpointId)
         toast.success('Point de contrôle terminé')
+        const updatedCheckpoints = trip
+          ? useToursStore.getState().checkpoints.filter(
+              (c) => (c.tournee_id ?? c.tour_id) === trip.id,
+            )
+          : []
+        const allDone =
+          updatedCheckpoints.length > 0 &&
+          updatedCheckpoints.every((c) => c.status === 'COMPLETED' || c.status === 'SKIPPED')
+        if (allDone) {
+          toast.success('Tous les points sont livrés — Tournée terminée avec succès !')
+        }
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Action impossible')
@@ -126,14 +135,6 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                 <Badge variant='outline'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>
-                <Button
-                  size='sm'
-                  variant='outline'
-                  className='ml-2 font-medium shadow-xs'
-                  onClick={() => setPdaModalOpen(true)}
-                >
-                  Terminal PDA Livreur
-                </Button>
               </div>
 
               <div className='space-y-1'>
@@ -260,20 +261,13 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
       </Card>
 
       <Card>
-        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+        <CardHeader>
           <div>
             <CardTitle>Actions de la tournée</CardTitle>
             <CardDescription>
               Transitions validées par le serveur — un refus est affiché sans modifier le suivi.
             </CardDescription>
           </div>
-          <Button
-            onClick={() => setPdaModalOpen(true)}
-            variant='outline'
-            className='font-medium shadow-xs shrink-0'
-          >
-            Simulateur PDA Livreur (Terrain)
-          </Button>
         </CardHeader>
         <CardContent className='space-y-3'>
           <TourActions tour={trip} checkpoints={tourCheckpoints} />
@@ -299,7 +293,10 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           </CardHeader>
           <CardContent className='space-y-4'>
             {trip.stops.map((stop, index) => {
-              const isCurrent = !stop.completed && stop.id === trip.nextStop?.id
+              const liveCp = checkpointById.get(stop.id)
+              const currentStatus = liveCp?.status ?? stop.checkpointStatus ?? (stop.completed ? 'COMPLETED' : 'PENDING')
+              const isCompleted = currentStatus === 'COMPLETED' || currentStatus === 'SKIPPED'
+              const isCurrent = !isCompleted && stop.id === trip.nextStop?.id
 
               return (
                 <div key={stop.id} className='flex gap-4'>
@@ -307,7 +304,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                     <div
                       className={cn(
                         'flex size-10 items-center justify-center rounded-full text-sm font-semibold shadow-xs',
-                        stop.completed
+                        isCompleted
                           ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                           : isCurrent
                             ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
@@ -330,45 +327,75 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                             variant='outline'
                             className='border-transparent bg-background/75'
                           >
-                            {stop.site.city}
+                            {stop.city || stop.site.city}
                           </Badge>
                         </div>
                         <p className='mt-1 text-sm text-muted-foreground'>
-                          {stop.site.name}
+                          {stop.role === 'loading' ? (
+                            <span>Dépôt source : <strong className='font-medium text-foreground'>{stop.pointName || stop.site.name}</strong></span>
+                          ) : (
+                            <span>
+                              Client destinataire : <strong className='font-medium text-foreground'>{stop.clientName || stop.pointName || stop.site.name}</strong>
+                              {stop.pointName && stop.pointName !== stop.clientName ? ` (${stop.pointName})` : ''}
+                            </span>
+                          )}
+                          {stop.contactName ? (
+                            <span className='ml-2 text-xs text-muted-foreground'>• Contact : {stop.contactName} {stop.contactPhone ? `(${stop.contactPhone})` : ''}</span>
+                          ) : null}
+                          {stop.address ? (
+                            <span className='block text-xs text-muted-foreground mt-0.5'>{stop.address}</span>
+                          ) : null}
                         </p>
                       </div>
                       <Badge
                         className={cn(
                           'border-transparent',
-                          stop.completed
+                          isCompleted
                             ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                            : isCurrent
-                              ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
-                              : 'bg-slate-500/10 text-slate-700 dark:text-slate-300'
+                            : currentStatus === 'REACHED'
+                              ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                              : isCurrent
+                                ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                                : 'bg-slate-500/10 text-slate-700 dark:text-slate-300'
                         )}
                       >
-                        {stop.completed
-                          ? 'Terminé'
-                          : isCurrent
-                            ? 'En cours'
-                            : 'À venir'}
+                        {isCompleted
+                          ? (currentStatus === 'SKIPPED' ? 'Sauté' : 'Terminé')
+                          : currentStatus === 'REACHED'
+                            ? 'Arrivé sur site'
+                            : isCurrent
+                              ? 'En cours'
+                              : 'À venir'}
                       </Badge>
                     </div>
 
                     <div className='mt-3 grid gap-3 text-sm md:grid-cols-3'>
                       <TripListMetric
-                        label='Fenêtre'
-                        value={stop.windowLabel}
+                        label='Client / Point de livraison'
+                        value={stop.clientName || stop.pointName || stop.site.name}
                       />
                       <TripListMetric
-                        label='Volume'
+                        label='Volume / Quantité'
                         value={
-                          stop.deliveredQuantity
-                            ? formatQuantity(stop.deliveredQuantity, trip.tourneeType)
-                            : '--'
+                          isCompleted
+                            ? `${formatQuantity(stop.deliveredQuantity ?? stop.expectedQuantity ?? 0, trip.tourneeType)} livrées`
+                            : stop.role === 'loading'
+                              ? `${formatQuantity(trip.loadedQuantity || trip.requested_quantity || 0, trip.tourneeType)} à charger`
+                              : `${formatQuantity(stop.expectedQuantity ?? 0, trip.tourneeType)} à livrer`
                         }
                       />
-                      <TripListMetric label='Rôle' value={stop.role} />
+                      <TripListMetric
+                        label='Statut de livraison'
+                        value={
+                          currentStatus === 'COMPLETED'
+                            ? 'Terminé (Livré)'
+                            : currentStatus === 'REACHED'
+                              ? 'Arrivé sur site'
+                              : currentStatus === 'SKIPPED'
+                                ? 'Sauté (non livré)'
+                                : 'En attente'
+                        }
+                      />
                     </div>
 
                     <p className='mt-3 text-sm text-muted-foreground'>
@@ -376,7 +403,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                     </p>
 
                     <StopCheckpointControls
-                      status={checkpointById.get(stop.id)?.status ?? stop.checkpointStatus}
+                      status={currentStatus}
                       disabled={busyCheckpointId === stop.id}
                       onReach={() => runCheckpointAction(stop.id, 'reach')}
                       onComplete={() => runCheckpointAction(stop.id, 'complete')}
@@ -499,12 +526,6 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <TourPdaSimulatorModal
-        open={pdaModalOpen}
-        onOpenChange={setPdaModalOpen}
-        trip={trip}
-      />
     </div>
   )
 }
