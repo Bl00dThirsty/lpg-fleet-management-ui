@@ -12,7 +12,8 @@ import type {
   TourneeType,
   Vehicle,
 } from '@lpg/types'
-import { sites, type Site } from '@/features/sites/data/sites'
+import { sites, type Site, getSites, cityFromAddress } from '@/features/sites/data/sites'
+import { curated } from '@lpg/mock-data'
 import { trucks, type Truck } from '@/features/trucks/data/trucks'
 import {
   anomalies as defaultAnomalies,
@@ -85,9 +86,16 @@ export type RouteTripStop = {
   completed: boolean
   windowLabel: string
   deliveredQuantity?: number
+  expectedQuantity?: number
   note: string
   /** Server checkpoint status backing this stop (absent for hand-built rows). */
   checkpointStatus?: CheckpointStatus
+  clientName?: string
+  pointName?: string
+  city?: string
+  address?: string
+  contactName?: string
+  contactPhone?: string
 }
 
 export type RouteTelemetryPoint = {
@@ -194,7 +202,7 @@ function clientSiteToSite(cs: ClientSite): Site {
     id: cs.id,
     name: cs.name,
     type: 'delivery-point' as const,
-    city: cs.address?.split(',')[1]?.trim() || 'Cameroun',
+    city: cityFromAddress(cs.address),
     region: cs.region,
     operator: 'Client Distributeur',
     latitude: Array.isArray(cs.geo_point) ? cs.geo_point[0] ?? 4.05 : 4.05,
@@ -209,8 +217,10 @@ function buildSiteIndex(
   clientSiteRows: ClientSite[] = defaultClientSites,
 ): Map<string, Site> {
   const index = new Map<string, Site>()
-  for (const site of siteRows) index.set(site.id, site)
-  for (const cs of clientSiteRows) {
+  const effectiveSites = siteRows && siteRows.length > 0 ? siteRows : getSites(curated.sites as any)
+  const effectiveClientSites = clientSiteRows && clientSiteRows.length > 0 ? clientSiteRows : (curated.client_sites as ClientSite[])
+  for (const site of effectiveSites) index.set(site.id, site)
+  for (const cs of effectiveClientSites) {
     if (!index.has(cs.id)) index.set(cs.id, clientSiteToSite(cs))
   }
   return index
@@ -230,9 +240,13 @@ function requireSite(siteId: string, index: Map<string, Site>): Site {
   if (!siteId) return placeholderSite()
   const site = index.get(siteId)
   if (site) return site
+  const directCs = (curated.client_sites as ClientSite[]).find((c) => c.id === siteId)
+  if (directCs) return clientSiteToSite(directCs)
+  const directOp = (curated.sites as any[]).find((s) => s.id === siteId)
+  if (directOp) return getSites([directOp])[0]!
   return {
     id: siteId,
-    name: 'Site de livraison',
+    name: 'Point de livraison',
     type: 'delivery-point',
     city: 'Cameroun',
     region: 'LITTORAL',
@@ -458,15 +472,12 @@ function stopNote(checkpoint: Checkpoint): string {
   }
 }
 
-function stopTitle(role: RouteStopRole, checkpoint: Checkpoint): string {
-  const base = role === 'loading' ? 'Chargement' : role === 'delivery' ? 'Livraison finale' : 'Contrôle intermédiaire'
-  const label = checkpoint.status === 'COMPLETED' ? 'confirmé' : checkpoint.status === 'REACHED' ? 'arrivé' : 'planifié'
-  return `${base} ${label}`
-}
-
 function buildStops(
   tourCheckpoints: Checkpoint[],
   tour: DeliveryTour,
+  siteIndex?: Map<string, Site>,
+  clientSites: ClientSite[] = (defaultClientSites.length > 0 ? defaultClientSites : (curated.client_sites as ClientSite[])),
+  orgs: Organization[] = (defaultOrganizations.length > 0 ? defaultOrganizations : (curated.organizations as Organization[])),
 ): RouteTripStop[] {
   return tourCheckpoints.map((checkpoint, index) => {
     const isFirst = index === 0
@@ -476,18 +487,55 @@ function buildStops(
       : isLast
         ? 'delivery'
         : 'checkpoint'
-    const completed = checkpoint.status !== 'PENDING'
+    const completed = checkpoint.status === 'COMPLETED' || checkpoint.status === 'SKIPPED'
+    const siteId = stopFromId(checkpoint)
+    const clientSite = clientSites.find((cs) => cs.id === checkpoint.client_site_id || cs.id === siteId)
+    const site = siteIndex?.get(siteId)
+
+    // Resolve client organization name
+    let clientName: string | undefined = undefined
+    if (clientSite) {
+      const clientOrg = orgs.find((o) => o.id === clientSite.client_org_id)
+      clientName = clientOrg?.name ?? (clientSite.name.includes('—') ? clientSite.name.split('—')[0]!.trim() : clientSite.name)
+    } else if (site) {
+      clientName = site.operator
+    }
+
+    const pointName = clientSite?.name ?? site?.name ?? (role === 'loading' ? 'Dépôt principal' : 'Point de livraison')
+    const city = clientSite ? cityFromAddress(clientSite.address) : (site?.city ?? 'Douala')
+    const address = clientSite?.address ?? site?.description ?? ''
+    const contactName = clientSite?.site_contact_name
+    const contactPhone = clientSite?.site_contact_phone
+
+    const expectedQty = checkpoint.expected_quantity ?? (role === 'loading' ? (tour.loaded_quantity ?? tour.requested_quantity) : (tour.delivered_quantity ?? tour.loaded_quantity ?? tour.requested_quantity))
+    const deliveredQty = (checkpoint as any).delivered_quantity ?? (completed ? expectedQty : undefined)
+
+    let title = ''
+    if (role === 'loading') {
+      title = pointName ? `Chargement — ${pointName}` : 'Chargement au dépôt'
+    } else if (role === 'delivery') {
+      title = clientName ? `Livraison client — ${clientName}` : 'Livraison finale'
+    } else {
+      title = clientName ? `Étape de contrôle — ${clientName}` : 'Contrôle intermédiaire'
+    }
 
     return {
       id: checkpoint.id,
-      siteId: stopFromId(checkpoint),
+      siteId,
       role,
-      title: stopTitle(role, checkpoint),
+      title,
       completed,
       windowLabel: windowLabel(checkpoint.expected_arrival),
-      deliveredQuantity: isLast ? (tour.delivered_quantity ?? 0) : undefined,
+      expectedQuantity: expectedQty,
+      deliveredQuantity: deliveredQty,
       note: stopNote(checkpoint),
       checkpointStatus: checkpoint.status,
+      clientName,
+      pointName,
+      city,
+      address,
+      contactName,
+      contactPhone,
     }
   })
 }
@@ -766,20 +814,32 @@ function buildView(tourRaw: DeliveryTour, opts: TourEnrichOptions = {}, index: n
   const driverRows = opts.drivers ?? defaultDrivers
   const scanRows = opts.scanEvents ?? defaultScanEvents
   const userRows = opts.users ?? defaultUsers
-  const siteIndex = buildSiteIndex(opts.sites ?? sites, clientSiteRows)
+  const effectiveClientSites = clientSiteRows.length > 0 ? clientSiteRows : (curated.client_sites as ClientSite[])
+  const effectiveOrgs = orgRows.length > 0 ? orgRows : (curated.organizations as Organization[])
+  const siteIndex = buildSiteIndex(opts.sites ?? sites, effectiveClientSites)
   const tourCheckpoints = checkpointRows.filter(
     (checkpoint) => checkpoint.tournee_id === tour.id || checkpoint.tour_id === tour.id,
   ).sort((left, right) => left.sequence - right.sequence)
-  const stops = buildStops(tourCheckpoints, tour)
+  const stops = buildStops(tourCheckpoints, tour, siteIndex, effectiveClientSites, effectiveOrgs)
   const originSiteId = stops[0]?.siteId ?? ''
   const destinationSiteId = stops.length > 0 ? (stops[stops.length - 1]?.siteId ?? '') : ''
   const originSite = originSiteId ? requireSite(originSiteId, siteIndex) : placeholderSite()
   const destinationSite = destinationSiteId
     ? requireSite(destinationSiteId, siteIndex)
     : placeholderSite()
-  const status = routeStatusFromTournee(tour.status)
+
+  const allDone =
+    tourCheckpoints.length > 0 &&
+    tourCheckpoints.every((cp) => cp.status === 'COMPLETED' || cp.status === 'SKIPPED')
+
+  const effectiveTourneeStatus: TourneeStatus =
+    allDone && tour.status !== 'CANCELLED' ? 'CLOSED' : tour.status
+  const status = routeStatusFromTournee(effectiveTourneeStatus)
   const loaded = tour.loaded_quantity ?? tour.requested_quantity ?? 0
-  const delivered = tour.delivered_quantity ?? (status === 'completed' ? loaded : 0)
+  const delivered =
+    status === 'completed'
+      ? (tour.delivered_quantity ?? loaded)
+      : (tour.delivered_quantity ?? 0)
   const remaining = Math.max(loaded - delivered, 0)
   const truckId = tour.vehicle_id ?? fallbackTruckId(tour.marketeur_org_id, tour.type, vehicleRows)
   const truck = requireTruck(truckId)
@@ -851,7 +911,7 @@ function buildView(tourRaw: DeliveryTour, opts: TourEnrichOptions = {}, index: n
     ),
     unaccounted,
     attentionLevel: getHighestSeverity(events),
-    tourneeStatus: tour.status,
+    tourneeStatus: effectiveTourneeStatus,
     tourneeType: tour.type,
     execution_mode: tour.execution_mode,
     marketeur_name: orgName(tour.marketeur_org_id, orgRows) ?? 'SCTM',
@@ -861,7 +921,7 @@ function buildView(tourRaw: DeliveryTour, opts: TourEnrichOptions = {}, index: n
     livreur_name: personName(tour.livreur_user_id, userRows, driverRows),
     requested_quantity: tour.requested_quantity,
     loaded_quantity: tour.loaded_quantity ?? null,
-    delivered_quantity: tour.delivered_quantity ?? null,
+    delivered_quantity: status === 'completed' ? (tour.delivered_quantity ?? loaded) : (tour.delivered_quantity ?? null),
     checkpoint_count: tourCheckpoints.length,
     completed_checkpoints: tourCheckpoints.filter((cp) => cp.status === 'COMPLETED').length,
     created_at: tour.created_at ?? '',

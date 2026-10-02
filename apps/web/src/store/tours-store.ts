@@ -585,8 +585,44 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     if (!saved) throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
 
     const tourId = checkpointTourId(saved) ?? get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ?? null
+    const nextCheckpoints = applyCheckpointUpdate(get().checkpoints, saved)
+    let nextTours = get().tours
+
+    if (tourId) {
+      const tourCheckpoints = nextCheckpoints.filter(
+        (c) => (checkpointTourId(c) ?? c.tournee_id ?? c.tour_id) === tourId,
+      )
+      const allTerminal =
+        tourCheckpoints.length > 0 &&
+        tourCheckpoints.every((c) => c.status === 'COMPLETED' || c.status === 'SKIPPED')
+
+      const currentTour = nextTours.find((t) => t.id === tourId)
+      if (currentTour && currentTour.status !== 'CLOSED' && currentTour.status !== 'CANCELLED') {
+        if (allTerminal) {
+          const loadedQty = currentTour.loaded_quantity ?? currentTour.requested_quantity ?? 0
+          const updatedTour: DeliveryTour = {
+            ...currentTour,
+            status: 'CLOSED',
+            closed_at: currentTour.closed_at ?? new Date().toISOString(),
+            delivered_quantity: currentTour.delivered_quantity ?? loadedQty,
+            updated_at: new Date().toISOString(),
+          }
+          nextTours = nextTours.map((t) => (t.id === tourId ? updatedTour : t))
+          if (remoteMode) {
+            try {
+              api.tours.close(tourId, updatedTour.loaded_quantity ?? undefined, updatedTour.delivered_quantity ?? undefined).catch(() => {})
+            } catch {
+              // Remote fallback ignored
+            }
+          }
+          emitWs('tour:update', { id: tourId }, useAuthStore.getState().user?.id)
+        }
+      }
+    }
+
     set({
-      checkpoints: applyCheckpointUpdate(get().checkpoints, saved),
+      checkpoints: nextCheckpoints,
+      tours: nextTours,
       checkpointsByTour:
         tourId != null
           ? {
@@ -630,8 +666,44 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     if (!saved) throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
 
     const tourId = checkpointTourId(saved) ?? get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ?? null
+    const nextCheckpoints = applyCheckpointUpdate(get().checkpoints, saved)
+    let nextTours = get().tours
+
+    if (tourId) {
+      const tourCheckpoints = nextCheckpoints.filter(
+        (c) => (checkpointTourId(c) ?? c.tournee_id ?? c.tour_id) === tourId,
+      )
+      const allTerminal =
+        tourCheckpoints.length > 0 &&
+        tourCheckpoints.every((c) => c.status === 'COMPLETED' || c.status === 'SKIPPED')
+
+      const currentTour = nextTours.find((t) => t.id === tourId)
+      if (currentTour && currentTour.status !== 'CLOSED' && currentTour.status !== 'CANCELLED') {
+        if (allTerminal) {
+          const loadedQty = currentTour.loaded_quantity ?? currentTour.requested_quantity ?? 0
+          const updatedTour: DeliveryTour = {
+            ...currentTour,
+            status: 'CLOSED',
+            closed_at: currentTour.closed_at ?? new Date().toISOString(),
+            delivered_quantity: currentTour.delivered_quantity ?? loadedQty,
+            updated_at: new Date().toISOString(),
+          }
+          nextTours = nextTours.map((t) => (t.id === tourId ? updatedTour : t))
+          if (remoteMode) {
+            try {
+              api.tours.close(tourId, updatedTour.loaded_quantity ?? undefined, updatedTour.delivered_quantity ?? undefined).catch(() => {})
+            } catch {
+              // Remote fallback ignored
+            }
+          }
+          emitWs('tour:update', { id: tourId }, useAuthStore.getState().user?.id)
+        }
+      }
+    }
+
     set({
-      checkpoints: applyCheckpointUpdate(get().checkpoints, saved),
+      checkpoints: nextCheckpoints,
+      tours: nextTours,
       checkpointsByTour:
         tourId != null
           ? {

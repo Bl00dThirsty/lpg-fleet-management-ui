@@ -1,8 +1,9 @@
 import { getRouteApi } from '@tanstack/react-router'
-import { Plus, Users } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
+import { Button } from '@lpg/ui'
 import { useCallback, useState } from 'react'
+import { PageShell, SectionCard } from '@/components/layout/page'
+import { PageHeader } from '@/components/layout/page-header'
 import { EntityFormSheet, useEntityCrud } from '@/components/entity-crud'
 import { ClientsTable } from './components/clients-table'
 import { ClientDetailsSheet } from './components/client-details-sheet'
@@ -42,26 +43,21 @@ export function ClientsPage() {
   const clients = getClients(crud.list.data)
 
   return (
-    <main
-      id='main-content'
-      className='flex-1 space-y-4 bg-gradient-to-b from-slate-50 via-white to-slate-100 p-4 sm:p-6 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900'
-    >
-      <section className='rounded-lg border border-border bg-card p-3 shadow-sm sm:p-4'>
-        <div className='flex flex-wrap items-center gap-2'>
-          <Users className='h-6 w-6 text-primary' />
-          <h1 className='text-2xl font-bold tracking-tight'>Clients</h1>
-          <Badge variant='outline' className='ml-auto'>
-            {clients.length}
-          </Badge>
-          {crud.perm.canCreate && (
-            <Button onClick={crud.openCreate}>
-              <Plus className='mr-1 h-4 w-4' /> Nouveau client
-            </Button>
-          )}
-        </div>
-      </section>
+    <PageShell>
+      <div className='flex flex-wrap items-center justify-between gap-4'>
+        <PageHeader
+          title='Clients et sites de livraison'
+          description='Référentiel des clients distributeurs, contrats associés et points de livraison.'
+        />
+        {crud.perm.canCreate && (
+          <Button onClick={crud.openCreate} className='flex items-center gap-2'>
+            <Plus className='h-4 w-4' />
+            Ajouter un client
+          </Button>
+        )}
+      </div>
 
-      <section className='space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm'>
+      <SectionCard>
         <ClientsTable
           data={clients}
           search={search}
@@ -70,7 +66,7 @@ export function ClientsPage() {
           onEdit={(c) => crud.openEdit(c as unknown as Client)}
           onDelete={(c) => crud.removeMut.mutateAsync(c.id)}
         />
-      </section>
+      </SectionCard>
 
       <ClientDetailsSheet
         client={detailsClient}
@@ -85,14 +81,14 @@ export function ClientsPage() {
         onOpenChange={(open) => {
           if (!open) crud.close()
         }}
-        title={crud.editing ? 'Modifier le client' : 'Nouveau client'}
-        description={crud.editing ? 'Mettez à jour les informations du client.' : 'Créez un nouveau client.'}
+        title={crud.editing ? 'Modifier le client' : 'Ajouter un client'}
+        description={crud.editing ? 'Mettez à jour les informations du client.' : 'Créez un nouveau client distributeur.'}
         fields={clientFields}
         initial={crud.editing ? clientToForm(crud.editing) : null}
         onSubmit={handleSubmit}
         onCancel={crud.close}
         submitting={crud.createMut.isPending || crud.updateMut.isPending}
       />
-    </main>
+    </PageShell>
   )
 }
