@@ -39,7 +39,7 @@ export function FleetDetailPage() {
             <MiniStat label='Service' value={`${fleet.onTimeRate}%`} />
             <MiniStat label='Risque' value={`${fleet.riskTruckCount} camion${fleet.riskTruckCount > 1 ? 's' : ''}`} />
           </div>
-          <Card className='rounded-2xl border-border shadow-sm'>
+          <Card className='rounded-lg border-border shadow-sm'>
             <CardHeader>
               <CardTitle>Missions associées</CardTitle>
             </CardHeader>
@@ -99,7 +99,7 @@ export function ReserveSiteDetailPage() {
             <MiniStat label='Inbound prévu' value={formatTm(site.scheduledInboundTM)} />
             <MiniStat label='Sorties' value={formatTm(site.outboundTM)} />
           </div>
-          <Card className='rounded-2xl border-border shadow-sm'>
+          <Card className='rounded-lg border-border shadow-sm'>
             <CardHeader>
               <CardTitle>Seuil cible</CardTitle>
             </CardHeader>

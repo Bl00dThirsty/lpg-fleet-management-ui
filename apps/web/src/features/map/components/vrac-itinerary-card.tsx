@@ -6,6 +6,7 @@ import {
   Navigation,
   CircleDot,
   Radio,
+  X,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ export interface VracItineraryCardProps {
   selectedRouteCode: string
   onSelectRoute: (routeCode: string) => void
   onFocusRoute: (route: VracTourRoute) => void
+  onClose?: () => void
   className?: string
 }
 
@@ -25,6 +27,7 @@ export function VracItineraryCard({
   selectedRouteCode,
   onSelectRoute,
   onFocusRoute,
+  onClose,
   className = '',
 }: VracItineraryCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
@@ -34,7 +37,7 @@ export function VracItineraryCard({
 
   return (
     <div
-      className={`pointer-events-auto w-full max-w-md rounded-(--radius) border border-border bg-background/90 p-4 shadow-xl backdrop-blur-md transition-all ${className}`}
+      className={`pointer-events-auto w-full max-w-md rounded-(--radius) border border-border/40 bg-background/50 p-4 shadow-2xl backdrop-blur-xl transition-all ${className}`}
     >
       {/* Header with Tour Selector */}
       <div className="flex items-center justify-between gap-2 border-b border-border pb-3">
@@ -71,6 +74,17 @@ export function VracItineraryCard({
           >
             {isExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
           </Button>
+          {onClose && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="size-7 p-0 text-muted-foreground hover:text-foreground"
+              onClick={onClose}
+              title="Masquer le volet"
+            >
+              <X className="size-4" />
+            </Button>
+          )}
         </div>
       </div>
 

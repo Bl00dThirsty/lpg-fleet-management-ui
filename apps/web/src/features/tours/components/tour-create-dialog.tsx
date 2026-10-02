@@ -24,6 +24,9 @@ import {
 } from '@/lib/entity-data'
 import {
   extractUserRoleCodes,
+  canViewAllTourCrew,
+  filterTourCrew,
+  isTourLivreur,
   toRequestedQuantity,
   type CheckpointDraftRow,
 } from '../lib/tour-create-helpers'
@@ -45,15 +48,33 @@ interface VehicleOption {
   id: string
   type: string
   license_plate: string
+  org_id?: string
+  organization_id?: string
   max_volume?: number | null
   max_bottle_count?: number | null
 }
 
 interface CandidateUser {
+  org_id?: string
+  organization_id?: string
+  is_active?: boolean
+  deleted_at?: string | null
   id: string
   first_name?: string
   last_name?: string
   license_number?: string
+}
+
+interface DriverOption {
+  org_id?: string
+  is_active?: boolean
+  deleted_at?: string | null
+  id: string
+  first_name?: string
+  last_name?: string
+  license_number?: string
+  organization_id?: string
+  status?: string
 }
 
 interface RawSite {
@@ -123,6 +144,8 @@ export function TourCreateDialog({
   onSuccess,
 }: TourCreateDialogProps) {
   const authUser = useAuthStore((s) => s.user)
+  const isRegulator = canViewAllTourCrew(authUser)
+  const [crewError, setCrewError] = useState<string | null>(null)
   const [tourCode, setTourCode] = useState(() => `TRP-${Math.floor(1000 + Math.random() * 9000)}`)
   const [executionMode, setExecutionMode] = useState<ExecutionMode>('INTERNAL')
   const [cargoType, setCargoType] = useState<TourneeType>('BOUTEILLES50KG')
@@ -138,7 +161,7 @@ export function TourCreateDialog({
   const [orgs, setOrgs] = useState<OrgOption[]>([])
   const [vehicles, setVehicles] = useState<VehicleOption[]>([])
   const [candidates, setCandidates] = useState<CandidateUser[]>([])
-  const [drivers, setDrivers] = useState<any[]>([])
+  const [drivers, setDrivers] = useState<DriverOption[]>([])
   const [roleCodesById, setRoleCodesById] = useState<Record<string, string[]>>({})
   const [rolesResolving, setRolesResolving] = useState(false)
   const [rawSites, setRawSites] = useState<RawSite[]>([])
@@ -155,6 +178,9 @@ export function TourCreateDialog({
     let cancelled = false
     setDataError(null)
     setCheckpointError(null)
+    setCrewError(null)
+    setDriverId('')
+    setLivreurId('')
     setTourCode(`TRP-${Math.floor(1000 + Math.random() * 9000)}`)
 
     ;(async () => {
@@ -186,14 +212,14 @@ export function TourCreateDialog({
         const usrData = (usrRes.status === 'fulfilled' && Array.isArray(usrRes.value?.data) && usrRes.value.data.length > 0)
           ? usrRes.value.data
           : defaultUsers
-        const rows = (usrData as CandidateUser[]).filter((u) => !!u && typeof u.id === 'string')
+        const rows = filterTourCrew((usrData as CandidateUser[]).filter((u) => !!u && typeof u.id === 'string'), authUser)
         setCandidates(rows)
 
         // Drivers
         const drvData = (drvRes.status === 'fulfilled' && Array.isArray(drvRes.value?.data) && drvRes.value.data.length > 0)
           ? drvRes.value.data
           : defaultDrivers
-        setDrivers(drvData)
+        setDrivers(drvData as DriverOption[])
 
         // Sites (with fallback)
         const siteData = (siteRes.status === 'fulfilled' && Array.isArray(siteRes.value?.data) && siteRes.value.data.length > 0)
@@ -207,16 +233,13 @@ export function TourCreateDialog({
           : defaultClientSites
         setRawClientSites(csData as RawClientSite[])
 
-        // Find initial marketer (prefer user's org if marketeur, or SCTM, or first marketeur)
+        // Keep marketers in their own organization; regulators may choose any marketer.
         const marketers = (orgData as OrgOption[]).filter(
           (o) => o.type === 'MARKETEUR' || o.type === 'MKT' || o.type?.toUpperCase().includes('MARKET'),
         )
-        const defaultMkt = marketers.find((m) => m.id === authUser?.org_id) ||
-          marketers.find((m) => m.name.toLowerCase().includes('sctm')) ||
-          marketers[0]
-        if (defaultMkt) {
-          setMarketerId(defaultMkt.id)
-        }
+        const defaultMkt = marketers.find((m) => m.id === authUser?.org_id) ??
+          (canViewAllTourCrew(authUser) ? marketers[0] : undefined)
+        setMarketerId(defaultMkt?.id ?? '')
 
         const transporters = (orgData as OrgOption[]).filter((o) => o.type === 'TRANSPORTEUR')
         if (transporters[0]) {
@@ -260,43 +283,42 @@ export function TourCreateDialog({
   // Filter available Marketers (MKT vs MARKETEUR bug resolved)
   const availableMarketers = useMemo(() => {
     return orgs.filter(
-      (o) => o.type === 'MARKETEUR' || o.type === 'MKT' || o.type?.toUpperCase().includes('MARKET'),
+      (o) => (o.type === 'MARKETEUR' || o.type === 'MKT' || o.type?.toUpperCase().includes('MARKET')) &&
+        (isRegulator || Boolean(authUser?.org_id && o.id === authUser.org_id)),
     )
-  }, [orgs])
+  }, [orgs, authUser, isRegulator])
 
   const availableTransporters = useMemo(() => {
     return orgs.filter((o) => o.type === 'TRANSPORTEUR')
   }, [orgs])
 
   const availableVehicles = useMemo(() => {
-    return vehicles.filter((v) => v.type === cargoType)
-  }, [vehicles, cargoType])
+    return filterTourCrew(vehicles, authUser).filter((v) => v.type === cargoType)
+  }, [vehicles, cargoType, authUser])
 
-  // Resolve drivers and livreurs
-  // Drivers are directly fetched from api.drivers
+  const availableDrivers = useMemo(() => filterTourCrew(drivers, authUser), [drivers, authUser])
+  const livreurs = useMemo(
+    () => filterTourCrew(candidates, authUser).filter((candidate) =>
+      isTourLivreur(candidate, roleCodesById[candidate.id]),
+    ),
+    [candidates, roleCodesById, authUser],
+  )
 
-  const livreurs = useMemo(() => {
-    return candidates.filter((c) => {
-      const codes = roleCodesById[c.id] ?? []
-      return codes.includes('LIVREUR') || codes.length === 0 || (c as { system_role?: string }).system_role === 'LIVREUR'
-    })
-  }, [candidates, roleCodesById])
-
-  // Default vehicle, driver, livreur
+  // Clear stale choices on identity/data changes; never retain out-of-scope IDs.
   useEffect(() => {
-    if (availableVehicles.length > 0 && !vehicleId) {
+    if (!availableVehicles.some((vehicle) => vehicle.id === vehicleId)) {
       setVehicleId(availableVehicles[0]?.id ?? '')
     }
   }, [availableVehicles, vehicleId])
 
   useEffect(() => {
-    if (drivers.length > 0 && !driverId) {
-      setDriverId(drivers[0]?.id ?? '')
+    if (!availableDrivers.some((driver) => driver.id === driverId)) {
+      setDriverId(availableDrivers[0]?.id ?? '')
     }
-  }, [drivers, driverId])
+  }, [availableDrivers, driverId])
 
   useEffect(() => {
-    if (livreurs.length > 0 && !livreurId) {
+    if (!livreurs.some((livreur) => livreur.id === livreurId)) {
       setLivreurId(livreurs[0]?.id ?? '')
     }
   }, [livreurs, livreurId])
@@ -444,6 +466,19 @@ export function TourCreateDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (submitting) return
+    setCrewError(null)
+    if (!availableMarketers.some((marketer) => marketer.id === marketerId)) {
+      setCrewError('Sélectionnez une organisation autorisée.')
+      return
+    }
+    if (executionMode === 'INTERNAL' && (
+      !availableDrivers.some((driver) => driver.id === driverId) ||
+      !livreurs.some((livreur) => livreur.id === livreurId) ||
+      !availableVehicles.some((vehicle) => vehicle.id === vehicleId)
+    )) {
+      setCrewError('Sélectionnez un véhicule, un chauffeur et un livreur autorisés pour votre organisation.')
+      return
+    }
     if (!depotSiteId) {
       toast.error('Veuillez sélectionner le dépôt de chargement (Séquence 1)')
       return
@@ -510,20 +545,25 @@ export function TourCreateDialog({
       }
 
       // Auto-transition:
-      // If INTERNAL: POST /tours/{id}/plan -> PLANNED
-      // If EXTERNAL: POST /tours/{id}/send-to-transporter -> PENDINGTRANSPORTERACK
+      const currentTour = useToursStore.getState().tours.find((t) => t.id === tourId)
+      const currentStatus = currentTour?.status ?? created.tourneeStatus
+
       if (executionMode === 'INTERNAL') {
-        try {
-          await useToursStore.getState().performActionAsync(tourId, 'plan')
-        } catch {
-          useToursStore.getState().performAction(tourId, 'plan')
+        if (currentStatus !== 'PLANNED') {
+          try {
+            await useToursStore.getState().performActionAsync(tourId, 'plan')
+          } catch {
+            useToursStore.getState().performAction(tourId, 'plan')
+          }
         }
         toast.success(`Tournée ${tourCode} planifiée avec succès ! Statut : PLANNED (1 Dépôt + ${clientStops.length} arrêts clients)`)
       } else {
-        try {
-          await useToursStore.getState().performActionAsync(tourId, 'send-to-transporter')
-        } catch {
-          useToursStore.getState().performAction(tourId, 'send-to-transporter')
+        if (currentStatus !== 'PENDINGTRANSPORTERACK') {
+          try {
+            await useToursStore.getState().performActionAsync(tourId, 'send-to-transporter')
+          } catch {
+            useToursStore.getState().performAction(tourId, 'send-to-transporter')
+          }
         }
         toast.success(`Tournée ${tourCode} transmise au transporteur ! Statut : PENDINGTRANSPORTERACK`)
       }
@@ -565,6 +605,7 @@ export function TourCreateDialog({
             </div>
           )}
 
+          {crewError && <p role='alert' className='text-sm text-destructive'>{crewError}</p>}
           {/* SECTION 1: Paramètres généraux */}
           <div className='rounded-lg border bg-muted/20 p-3 space-y-3'>
             <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between'>
@@ -631,6 +672,7 @@ export function TourCreateDialog({
                 </label>
                 <select
                   value={marketerId}
+                  disabled={!isRegulator}
                   onChange={(e) => setMarketerId(e.target.value)}
                   className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                 >
@@ -684,11 +726,13 @@ export function TourCreateDialog({
                     Chauffeur (Rôle DRIVER){rolesResolving ? ' (chargement...)' : ''}
                   </label>
                   <select
+                    aria-label='Chauffeur'
                     value={driverId}
                     onChange={(e) => setDriverId(e.target.value)}
                     className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                   >
-                    {drivers.map((d) => (
+                    <option value=''>{availableDrivers.length ? 'Choisir un chauffeur' : 'Aucun chauffeur disponible dans votre organisation'}</option>
+                    {availableDrivers.map((d) => (
                       <option key={d.id} value={d.id}>
                         {d.first_name} {d.last_name} {d.license_number ? `— Permis: ${d.license_number}` : ''}
                       </option>
@@ -701,10 +745,12 @@ export function TourCreateDialog({
                     Livreur / Convoyeur (PDA Mobile)
                   </label>
                   <select
+                    aria-label='Livreur / Convoyeur'
                     value={livreurId}
                     onChange={(e) => setLivreurId(e.target.value)}
                     className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                   >
+                    <option value=''>{livreurs.length ? 'Choisir un livreur' : 'Aucun livreur disponible dans votre organisation'}</option>
                     {livreurs.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.first_name} {u.last_name}

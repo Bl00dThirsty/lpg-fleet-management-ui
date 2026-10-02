@@ -75,7 +75,7 @@ export function DriversPage() {
 
   return (
     <Main className='space-y-4 bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900'>
-      <section className='rounded-2xl border-transparent bg-background/88 p-4 shadow-sm backdrop-blur-sm'>
+      <section className='rounded-lg border border-border bg-card p-4 shadow-sm'>
         <div className='flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between'>
           <div className='flex flex-wrap items-center gap-2'>
             <TopStat
@@ -111,7 +111,7 @@ export function DriversPage() {
         </div>
       </section>
 
-      <section className='space-y-4 rounded-xl border-transparent bg-background/92 p-4 shadow-sm'>
+      <section className='space-y-4 rounded-lg border border-border bg-card p-4 shadow-sm'>
         <div className='flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between'>
           <div>
             <h2 className='text-xl font-semibold tracking-tight'>
@@ -166,7 +166,7 @@ export function DriversPage() {
 
 function TopStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className='inline-flex items-center gap-1.5 rounded-full border-transparent bg-background/90 px-2.5 py-1 text-xs shadow-xs'>
+    <div className='inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2.5 py-1 text-xs shadow-xs'>
       <span className='text-muted-foreground'>{label}</span>
       <span className='font-semibold'>{value}</span>
     </div>

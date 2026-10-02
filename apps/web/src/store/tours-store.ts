@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { api } from '@lpg/api-client'
 import { curated } from '@lpg/mock-data'
 import { assertPermission, PERMISSION_DENIED } from '@/lib/security/guards'
-import { getScope, isRegulateurView } from '@/features/scope/scope'
+import { canViewAllTourCrew, canUseTourCrewMember, isTourLivreur } from '@/features/tours/lib/tour-create-helpers'
+import { useUsersStore } from '@/store/users-store'
 import { emitWs } from '@/lib/ws/mock-ws'
 import { useContractsStore } from '@/store/contracts-store'
 import { useAuthStore } from '@/store/auth-store'
@@ -29,6 +30,7 @@ import {
 export interface TourDraft {
   id?: string
   tour_code?: string
+  status?: DeliveryTour['status']
   marketeur_org_id: string
   execution_mode: ExecutionMode
   type: TourneeType
@@ -117,6 +119,25 @@ function hasId(obj: unknown): obj is { id: string } {
   return typeof obj === 'object' && obj !== null && typeof (obj as { id?: unknown }).id === 'string'
 }
 
+function assertTourOrganization(draft: TourDraft) {
+  const user = useAuthStore.getState().user
+  if (!user) throw new Error(PERMISSION_DENIED)
+  assertPermission(user.system_role, 'tours.create')
+  if (!canViewAllTourCrew(user) && (!user.org_id || draft.marketeur_org_id !== user.org_id)) {
+    throw new Error(PERMISSION_DENIED)
+  }
+  return user
+}
+
+function assertTourCrew(draft: TourDraft, driver: Parameters<typeof canUseTourCrewMember>[1] | undefined, livreur: Parameters<typeof canUseTourCrewMember>[1] | undefined) {
+  const user = assertTourOrganization(draft)
+  if (canViewAllTourCrew(user) || draft.execution_mode !== 'INTERNAL') return
+  if (!driver || !canUseTourCrewMember(user, driver) || !livreur ||
+      !canUseTourCrewMember(user, livreur) || !isTourLivreur(livreur)) {
+    throw new Error('Le chauffeur et le livreur doivent être actifs et appartenir à votre organisation.')
+  }
+}
+
 export const useToursStore = create<ToursState>()((set, get) => ({
   tours: curated.delivery_tours.map((t) => ({ ...t })),
   checkpoints: curated.checkpoints.map((c) => ({ ...c })),
@@ -180,16 +201,14 @@ export const useToursStore = create<ToursState>()((set, get) => ({
   },
 
   createTour(draft: TourDraft) {
-    const user = useAuthStore.getState().user
-    const role: Role = user?.system_role ?? 'LIVREUR'
-    assertPermission(role, 'tours.create')
-    const scope = getScope(user)
-    if (!isRegulateurView(scope) && draft.marketeur_org_id !== scope.orgId) {
-      throw new Error(PERMISSION_DENIED)
-    }
+    const user = assertTourOrganization(draft)
+    assertTourCrew(draft,
+      curated.drivers.find((driver) => driver.id === draft.driver_id),
+      useUsersStore.getState().users.find((livreur) => livreur.id === draft.livreur_user_id),
+    )
     const now = new Date().toISOString()
     const initialStatus: DeliveryTour['status'] =
-      draft.execution_mode === 'INTERNAL' ? 'PLANNED' : 'PENDINGTRANSPORTERACK'
+      draft.status ?? (draft.execution_mode === 'INTERNAL' ? 'PLANNED' : 'PENDINGTRANSPORTERACK')
     const tourId = draft.id || newTourId()
     const tour: DeliveryTour = {
       id: tourId,
@@ -275,6 +294,14 @@ export const useToursStore = create<ToursState>()((set, get) => ({
   },
 
   async createTourAsync(draft: TourDraft) {
+    const user = assertTourOrganization(draft)
+    if (!canViewAllTourCrew(user) && draft.execution_mode === 'INTERNAL') {
+      const [driver, livreur] = await Promise.all([
+        draft.driver_id ? api.drivers.getById(draft.driver_id) : undefined,
+        draft.livreur_user_id ? api.users.getById(draft.livreur_user_id) : undefined,
+      ])
+      assertTourCrew(draft, driver, livreur)
+    }
     let saved: DeliveryTour | null = null
     try {
       const res = await api.tours.create(draft as unknown as Parameters<typeof api.tours.create>[0])

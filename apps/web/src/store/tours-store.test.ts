@@ -1,4 +1,5 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { api } from '@lpg/api-client'
+import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest'
 import { useToursStore } from './tours-store'
 import { useAuthStore } from './auth-store'
 import { PERMISSION_DENIED } from '@/lib/security/guards'
@@ -583,5 +584,32 @@ describe('tours store', () => {
         /Transition interdite/,
       )
     })
+  })
+})
+
+
+describe('marketer crew assignment guards', () => {
+  const draft = { marketeur_org_id: MARKETEUR_ORG, execution_mode: 'INTERNAL' as const, type: 'VRAC' as const, requested_quantity: 10, vehicle_id: VEHICLE_ID, driver_id: DRIVER_ID, livreur_user_id: LIVREUR_ID }
+  beforeEach(() => {
+    useToursStore.setState(freshSeed())
+    useAuthStore.setState({ user: { ...SUPERADMIN_USER, system_role: 'MARKETEUR', org_id: MARKETEUR_ORG, org_type: 'MARKETEUR' } })
+  })
+  afterEach(() => vi.restoreAllMocks())
+  it('rejects a foreign driver without changing tours', () => {
+    const foreign = curated.drivers.find((row) => row.org_id !== MARKETEUR_ORG)!
+    const before = useToursStore.getState().tours
+    expect(() => useToursStore.getState().createTour({ ...draft, driver_id: foreign.id })).toThrow('votre organisation')
+    expect(useToursStore.getState().tours).toBe(before)
+  })
+  it('rejects a foreign livreur', () => {
+    const foreign = curated.users.find((row) => row.org_id !== MARKETEUR_ORG && row.system_role === 'LIVREUR')!
+    expect(() => useToursStore.getState().createTour({ ...draft, livreur_user_id: foreign.id })).toThrow('votre organisation')
+  })
+  it('rejects a cross-organization async request before saving', async () => {
+    vi.spyOn(api.drivers, 'getById').mockResolvedValue({ id: 'foreign', org_id: 'another-org', is_active: true })
+    vi.spyOn(api.users, 'getById').mockResolvedValue(curated.users.find((row) => row.id === LIVREUR_ID)!)
+    const save = vi.spyOn(api.tours, 'create')
+    await expect(useToursStore.getState().createTourAsync({ ...draft, driver_id: 'foreign' })).rejects.toThrow('votre organisation')
+    expect(save).not.toHaveBeenCalled()
   })
 })

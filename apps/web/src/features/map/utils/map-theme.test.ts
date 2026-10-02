@@ -9,10 +9,10 @@ import {
 
 describe('map-theme', () => {
   it('returns dark basemap for dark theme', () => {
-    expect(getArcgisBasemap('dark')).toBe('dark-gray-vector')
+    expect(getArcgisBasemap('dark')).toBe('dark-gray')
   })
-  it('returns streets-navigation-vector for light theme', () => {
-    expect(getArcgisBasemap('light')).toBe('streets-navigation-vector')
+  it('returns streets for light theme', () => {
+    expect(getArcgisBasemap('light')).toBe('streets')
   })
   it('outline colors are 4-tuples', () => {
     expect(getMarkerOutlineColor('light', true)).toHaveLength(4)
