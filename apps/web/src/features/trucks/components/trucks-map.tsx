@@ -38,10 +38,13 @@ import { activeTourForVehicle } from '@/features/tours/data/active-tour'
 import { useToursStore } from '@/store/tours-store'
 import { useRoadRoutes } from '@/features/map/data/road-routes'
 import { projectOnRoad, type RoadCoordinate, type RoadRoute } from '@/features/map/lib/road-routing'
+import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
 
-const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
+const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '')
+  .trim()
+  .replace(/^["']|["']$/g, '')
 
-if (arcgisApiKey) {
+if (arcgisApiKey && arcgisApiKey.length > 20) {
   esriConfig.apiKey = arcgisApiKey
 }
 
@@ -121,16 +124,22 @@ export function TrucksMap({
   }, [onSelectTruck])
 
   useEffect(() => {
-    if (!arcgisApiKey || !mapContainerRef.current) return
+    if (!mapContainerRef.current) return
 
     const initialTruck = initialTruckRef.current
     const initialTheme = initialThemeRef.current
     const graphicsLayer = new GraphicsLayer({
       title: 'Camions LPG',
     })
+    const initialBasemap = arcgisApiKey
+      ? getArcgisBasemap(initialTheme)
+      : createRobustBasemap(initialTheme)
     const map = new ArcGISMap({
-      basemap: getArcgisBasemap(initialTheme),
+      basemap: initialBasemap,
       layers: [graphicsLayer],
+    })
+    map.basemap?.load?.().catch(() => {
+      map.basemap = createRobustBasemap(initialTheme)
     })
     const view = new MapView({
       container: mapContainerRef.current,
@@ -174,14 +183,16 @@ export function TrucksMap({
     })
 
     view
-      .when()
-      .then(() => {
+      .when(() => {
         setLoadFailed(false)
         setIsReady(true)
       })
       .catch((err) => {
         if (err && err.name === 'AbortError') return
-        setLoadFailed(true)
+        console.warn('Trucks map view load warning, switching to robust basemap:', err)
+        map.basemap = createRobustBasemap(initialTheme)
+        setLoadFailed(false)
+        setIsReady(true)
       })
 
     return () => {
@@ -203,7 +214,11 @@ export function TrucksMap({
     if (lastAppliedTheme.current === mapTheme) return
 
     lastAppliedTheme.current = mapTheme
-    map.basemap = getArcgisBasemap(mapTheme)
+    const targetBasemap = arcgisApiKey ? getArcgisBasemap(mapTheme) : createRobustBasemap(mapTheme)
+    map.basemap = targetBasemap
+    map.basemap?.load?.().catch(() => {
+      map.basemap = createRobustBasemap(mapTheme)
+    })
     view.theme = getArcgisViewTheme(mapTheme)
   }, [isReady, mapTheme])
 
@@ -245,15 +260,14 @@ export function TrucksMap({
       .catch(() => undefined)
   }, [isReady, selectedTruck])
 
-  if (!arcgisApiKey) {
+  if (loadFailed) {
     return (
       <div className='flex min-h-[560px] items-center justify-center bg-muted/30 p-6 text-center md:min-h-[620px]'>
         <div className='max-w-sm space-y-2'>
           <AlertTriangle className='mx-auto size-8 text-amber-500' />
-          <p className='text-sm font-medium'>ArcGIS </p>
+          <p className='text-sm font-medium'>Carte indisponible</p>
           <p className='text-sm text-muted-foreground'>
-            Renseigne VITE_ARCGIS_API_KEY dans le fichier .env pour charger la
-            carte.
+            Vérifiez la connexion réseau pour charger les données cartographiques.
           </p>
         </div>
       </div>

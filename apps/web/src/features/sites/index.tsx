@@ -95,10 +95,23 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
         title={title}
         description={`${rows.length} site(s) répartis sur ${regionCount} région(s). Statuts: UNASSIGNED → ASSIGNED → ACTIVE → VERIFIED. SUSPENDED/REJECTED accessibles par AGENT/ADMIN/SUPERADMIN.`}
         actions={
-          perm.canCreate ? (
+          kind === 'client_site' ? (
+            <div className='flex items-center gap-2'>
+              <Button
+                variant='outline'
+                onClick={() => navigate({ to: '/clients' })}
+              >
+                Gérer les clients
+              </Button>
+              <Button onClick={() => navigate({ to: '/clients/new' })}>
+                <Plus className='mr-1 h-4 w-4' />
+                Nouveau client
+              </Button>
+            </div>
+          ) : perm.canCreate ? (
             <Button onClick={() => setCreating(true)}>
               <Plus className='mr-1 h-4 w-4' />
-              {kind === 'site' ? 'Nouveau site' : 'Nouveau site client'}
+              Nouveau site
             </Button>
           ) : undefined
         }

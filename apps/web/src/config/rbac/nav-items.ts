@@ -687,6 +687,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
           'transporters',
           'depots',
           'sites',
+          'clients',
           'client-sites',
           'zones',
            'users',
@@ -727,7 +728,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   },
   ADMIN: {
     groups: [
-      { title: 'Gestion', items: ['overview', 'users', 'marketers', 'transporters', 'dashboard-admin'] },
+      { title: 'Gestion', items: ['overview', 'users', 'marketers', 'transporters', 'clients', 'dashboard-admin'] },
       {
         title: 'Validation & Contrôle',
         items: ['site-verifications', 'pickups', 'declarations', 'reconciliations'],
@@ -765,7 +766,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   },
   AGENT: {
     groups: [
-      { title: 'Suivi terrain', items: ['overview', 'marketers', 'client-sites'] },
+      { title: 'Suivi terrain', items: ['overview', 'marketers', 'clients', 'client-sites'] },
       {
         title: 'Investigation (Piste métier)',
         items: ['declarations', 'anomalies-investigation', 'tours', 'tour-tracking', 'visits'],

@@ -16,7 +16,14 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
-    VitePWA(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+      },
+    }),
   ],
   resolve: {
     alias: {

@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { getNationalMapView, type NationalMapView } from '@/features/map/data/national-map'
 import {
+  getArcgisBasemap,
   getArcgisViewTheme,
   getMarkerOutlineColor,
   rgbaFromTuple,
@@ -53,14 +54,10 @@ import lpgImageUrl from '@/assets/lpg.png'
 
 import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
 
-const rawApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
-const isApiKeyValid = Boolean(
-  rawApiKey &&
-  !rawApiKey.includes('..') &&
-  !rawApiKey.includes('...') &&
-  rawApiKey.length > 50,
-)
-if (isApiKeyValid) {
+const rawApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '')
+  .trim()
+  .replace(/^["']|["']$/g, '')
+if (rawApiKey && rawApiKey.length > 20) {
   esriConfig.apiKey = rawApiKey
 }
 
@@ -155,9 +152,16 @@ export function NationalMap({
     }
     layersRef.current = perLayer
 
+    const initialBasemap = rawApiKey ? getArcgisBasemap(mapTheme) : createRobustBasemap(mapTheme)
+
     const map = new ArcGISMap({
-      basemap: createRobustBasemap(mapTheme),
+      basemap: initialBasemap,
       layers: Object.values(perLayer),
+    })
+
+    // Auto-fallback: si le fond de carte échoue à charger les tuiles, basculer sur OSM/CartoDB
+    map.basemap?.load?.().catch(() => {
+      map.basemap = createRobustBasemap(mapTheme)
     })
 
     const view = new MapView({
@@ -191,7 +195,8 @@ export function NationalMap({
       })
       .catch((err: unknown) => {
         if (err && (err as { name?: string }).name === 'AbortError') return
-        console.warn('MapView load event warning:', err)
+        console.warn('MapView load event warning, switching to robust basemap:', err)
+        map.basemap = createRobustBasemap(mapTheme)
         setLoadFailed(false)
         setIsReady(true)
       })
@@ -213,7 +218,11 @@ export function NationalMap({
     const map = mapRef.current
     const view = viewRef.current
     if (!map || !view) return
-    map.basemap = createRobustBasemap(mapTheme)
+    const targetBasemap = rawApiKey ? getArcgisBasemap(mapTheme) : createRobustBasemap(mapTheme)
+    map.basemap = targetBasemap
+    map.basemap?.load?.().catch(() => {
+      map.basemap = createRobustBasemap(mapTheme)
+    })
     view.theme = getArcgisViewTheme(mapTheme)
   }, [mapTheme])
 

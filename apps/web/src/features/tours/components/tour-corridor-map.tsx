@@ -37,15 +37,11 @@ import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
 
 type MapTheme = 'light' | 'dark'
 
-const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
-const isApiKeyValid = Boolean(
-  arcgisApiKey &&
-  !arcgisApiKey.includes('..') &&
-  !arcgisApiKey.includes('...') &&
-  arcgisApiKey.length > 50,
-)
+const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '')
+  .trim()
+  .replace(/^["']|["']$/g, '')
 
-if (isApiKeyValid) {
+if (arcgisApiKey && arcgisApiKey.length > 20) {
   esriConfig.apiKey = arcgisApiKey
 }
 
@@ -107,10 +103,19 @@ export function TourCorridorMap({
     const graphicsLayer = new GraphicsLayer({
       title: `Tournée ${initialTrip.reference}`,
     })
+    const initialBasemap = arcgisApiKey
+      ? getArcgisBasemap(initialTheme === 'dark' ? 'dark' : 'light')
+      : createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light')
+
     const map = new ArcGISMap({
-      basemap: createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light'),
+      basemap: initialBasemap,
       layers: [graphicsLayer],
     })
+
+    map.basemap?.load?.().catch(() => {
+      map.basemap = createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light')
+    })
+
     const view = new MapView({
       container: mapContainerRef.current,
       map,
@@ -138,7 +143,8 @@ export function TourCorridorMap({
         setIsReady(true)
       })
       .catch((err: unknown) => {
-        console.warn('Tour corridor map view warning:', err)
+        console.warn('Tour corridor map view warning, switching to robust basemap:', err)
+        map.basemap = createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light')
         setLoadFailed(false)
         setIsReady(true)
       })
@@ -157,19 +163,15 @@ export function TourCorridorMap({
     const map = mapRef.current
     const view = viewRef.current
     if (!map || !view) return
-    map.basemap = createRobustBasemap(mapTheme === 'dark' ? 'dark' : 'light')
+    const targetBasemap = arcgisApiKey
+      ? getArcgisBasemap(mapTheme === 'dark' ? 'dark' : 'light')
+      : createRobustBasemap(mapTheme === 'dark' ? 'dark' : 'light')
+    map.basemap = targetBasemap
+    map.basemap?.load?.().catch(() => {
+      map.basemap = createRobustBasemap(mapTheme === 'dark' ? 'dark' : 'light')
+    })
     view.theme = getArcgisViewTheme(mapTheme)
   }, [mapTheme])
-
-  useEffect(() => {
-    const map = mapRef.current
-    const view = viewRef.current
-
-    if (!isReady || !map || !view) return
-
-    map.basemap = getArcgisBasemap(mapTheme)
-    view.theme = getArcgisViewTheme(mapTheme)
-  }, [isReady, mapTheme])
 
   useEffect(() => {
     const graphicsLayer = graphicsLayerRef.current
