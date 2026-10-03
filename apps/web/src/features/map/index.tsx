@@ -15,9 +15,20 @@ import {
   ChevronLeft,
   ChevronDown,
   ChevronUp,
+  Search,
+  Filter,
+  X,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { NationalMap } from './components/national-map'
 import { NationalMapFilters } from './components/national-map-filters'
 import { VracItineraryCard } from './components/vrac-itinerary-card'
@@ -36,9 +47,41 @@ export function NationalMapPage() {
   const userRole = useAuthStore((s) => s.user?.system_role) ?? 'CSPH'
 
   const routes = useVracRoadRoutes()
+
+  const allMarketerNames = useMemo(() => {
+    return Array.from(new Set(routes.map((r) => r.marketerName))).filter(Boolean)
+  }, [routes])
+
+  const [selectedMarketer, setSelectedMarketer] = useState<string>('ALL')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+
+  const suggestions = useMemo(() => {
+    if (!searchQuery.trim()) return allMarketerNames
+    const q = searchQuery.toLowerCase().trim()
+    return allMarketerNames.filter((name) => name.toLowerCase().includes(q))
+  }, [allMarketerNames, searchQuery])
+
+  const filteredRoutes = useMemo(() => {
+    if (selectedMarketer === 'ALL') {
+      if (!searchQuery.trim()) return routes
+      const q = searchQuery.toLowerCase().trim()
+      return routes.filter(
+        (r) =>
+          r.marketerName.toLowerCase().includes(q) ||
+          r.title.toLowerCase().includes(q) ||
+          r.tourCode.toLowerCase().includes(q)
+      )
+    }
+    return routes.filter((r) => r.marketerName === selectedMarketer)
+  }, [routes, selectedMarketer, searchQuery])
+
   const currentRoute = useMemo(
-    () => routes.find((r) => r.tourCode === selectedRouteCode) ?? routes[0] ?? null,
-    [routes, selectedRouteCode],
+    () =>
+      filteredRoutes.find((r) => r.tourCode === selectedRouteCode) ??
+      filteredRoutes[0] ??
+      null,
+    [filteredRoutes, selectedRouteCode],
   )
   const [focusedRoute, setFocusedRoute] = useState<VracTourRoute | null>(currentRoute)
 
@@ -48,13 +91,35 @@ export function NationalMapPage() {
 
   const handleSelectRoute = (code: string) => {
     setSelectedRouteCode(code)
-    const match = routes.find((r) => r.tourCode === code) ?? null
+    const match = filteredRoutes.find((r) => r.tourCode === code) ?? null
     setFocusedRoute(match)
   }
 
   const handleFocusRoute = (route: VracTourRoute) => {
     setSelectedRouteCode(route.tourCode)
     setFocusedRoute(route)
+  }
+
+  const handleSelectMarketer = (marketer: string) => {
+    setSelectedMarketer(marketer)
+    if (marketer !== 'ALL') {
+      setSearchQuery('')
+      const match = routes.find((r) => r.marketerName === marketer)
+      if (match) {
+        setSelectedRouteCode(match.tourCode)
+        setFocusedRoute(match)
+      }
+    }
+    setIsSearchFocused(false)
+  }
+
+  const handleResetFilter = () => {
+    setSelectedMarketer('ALL')
+    setSearchQuery('')
+    if (routes[0]) {
+      setSelectedRouteCode(routes[0].tourCode)
+      setFocusedRoute(routes[0])
+    }
   }
 
   return (
@@ -153,6 +218,124 @@ export function NationalMapPage() {
         </div>
       </section>
 
+      {/* ── Marketer Filter & Search Bar ──────────────────────────────── */}
+      <section className="rounded-(--radius) border border-border bg-background/95 p-3.5 shadow-sm backdrop-blur-md">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-1 flex-col gap-2.5 sm:flex-row sm:items-center">
+            {/* Search Input with Autocomplete Suggestions */}
+            <div className="relative flex-1 max-w-md">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher un marketeur (TotalEnergies, Tradex, SCTM...)"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    if (selectedMarketer !== 'ALL') setSelectedMarketer('ALL')
+                  }}
+                  onFocus={() => setIsSearchFocused(true)}
+                  className="pl-9 pr-8 h-9 text-xs"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('')
+                      handleSelectMarketer('ALL')
+                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Suggestions Dropdown list */}
+              {isSearchFocused && suggestions.length > 0 && (
+                <div
+                  className="absolute top-full left-0 z-50 mt-1 w-full rounded-md border border-border bg-popover p-1 shadow-lg backdrop-blur-md"
+                  onMouseLeave={() => setIsSearchFocused(false)}
+                >
+                  <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Marketeurs proposés
+                  </div>
+                  {suggestions.map((marketer) => {
+                    const count = routes.filter((r) => r.marketerName === marketer).length
+                    return (
+                      <button
+                        key={marketer}
+                        type="button"
+                        onMouseDown={() => handleSelectMarketer(marketer)}
+                        className="flex w-full items-center justify-between rounded px-2.5 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
+                      >
+                        <span className="font-medium truncate pr-2">{marketer}</span>
+                        <Badge variant="outline" className="text-[10px] shrink-0 border-primary/30 text-primary">
+                          {count} tournée{count > 1 ? 's' : ''}
+                        </Badge>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Select Marketer Dropdown */}
+            <div className="w-full sm:w-64">
+              <Select
+                value={selectedMarketer}
+                onValueChange={(val) => handleSelectMarketer(val)}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <div className="flex items-center gap-2 truncate">
+                    <Filter className="size-3.5 text-muted-foreground shrink-0" />
+                    <SelectValue placeholder="Tous les marketeurs" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-xs">
+                    Tous les marketeurs ({routes.length} tournées)
+                  </SelectItem>
+                  {allMarketerNames.map((name) => (
+                    <SelectItem key={name} value={name} className="text-xs">
+                      {name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Reset Button */}
+            {(selectedMarketer !== 'ALL' || searchQuery) && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleResetFilter}
+                className="h-9 gap-1.5 text-xs text-muted-foreground hover:text-foreground shrink-0"
+              >
+                <X className="size-3.5" />
+                Réinitialiser
+              </Button>
+            )}
+          </div>
+
+          {/* Active Filter status */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+            <span>Affichage :</span>
+            <Badge variant="secondary" className="font-semibold text-xs py-0.5">
+              {selectedMarketer === 'ALL'
+                ? searchQuery
+                  ? `Recherche: "${searchQuery}"`
+                  : 'Toutes les tournées'
+                : selectedMarketer}
+            </Badge>
+            <span className="text-[11px]">
+              ({filteredRoutes.length} tournée{filteredRoutes.length > 1 ? 's' : ''} visible{filteredRoutes.length > 1 ? 's' : ''})
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* ── Interactive Map Section ─────────────────────────────────── */}
       <section className="relative rounded-(--radius) border border-border bg-background/95 p-3 shadow-md backdrop-blur-md">
         {/* Floating Quick Action Controls (Shifted right to clear native ArcGIS zoom buttons) */}
@@ -215,7 +398,7 @@ export function NationalMapPage() {
         {showTourDrawer ? (
           <div className="pointer-events-none absolute top-4 sm:top-6 right-4 sm:right-6 z-20 hidden md:block max-w-sm animate-in fade-in slide-in-from-right-4 duration-200">
             <VracItineraryCard
-              routes={routes}
+              routes={filteredRoutes}
               selectedRouteCode={selectedRouteCode}
               onSelectRoute={handleSelectRoute}
               onFocusRoute={handleFocusRoute}
@@ -227,18 +410,12 @@ export function NationalMapPage() {
             <button
               type="button"
               onClick={() => setShowTourDrawer(true)}
-              className="pointer-events-auto group flex flex-col items-center justify-center gap-2.5 rounded-l-xl border border-r-0 border-border/40 bg-background/40 hover:bg-background/65 backdrop-blur-xl px-2 py-4 shadow-2xl transition-all hover:pl-3 cursor-pointer text-foreground"
+              className="pointer-events-auto group flex flex-col items-center justify-center gap-2 rounded-l-xl border border-r-0 border-border/40 bg-background/40 hover:bg-background/65 backdrop-blur-xl px-2 py-4 shadow-2xl transition-all hover:pl-3 cursor-pointer text-foreground"
               title="Afficher le volet de suivi des tournées"
             >
               <ChevronLeft className="size-4 text-amber-500 transition-transform group-hover:-translate-x-1" />
-              <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400">
-                <Truck className="size-4" />
-              </div>
-              <span className="[writing-mode:vertical-rl] rotate-180 text-xs font-semibold tracking-wider text-foreground select-none uppercase">
+              <span className="[writing-mode:vertical-rl] rotate-180 py-1 text-xs font-semibold tracking-wider text-foreground select-none uppercase">
                 Suivi Tournée
-              </span>
-              <span className="rounded-full bg-amber-500/25 px-1.5 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
-                {currentRoute?.tourCode ? currentRoute.tourCode.replace('TR-VRAC-', '') : 'VRAC'}
               </span>
             </button>
           </div>
@@ -246,7 +423,7 @@ export function NationalMapPage() {
 
         {/* Main Map Viewer */}
         <NationalMap
-          routes={routes}
+          routes={filteredRoutes}
           mapTheme={mapTheme}
           layers={layers}
           focusedRoute={focusedRoute}

@@ -125,6 +125,12 @@ export function ClientsTable({
               itemLabel='ce client'
               onEdit={onEdit ? () => onEdit?.(row.original) : undefined}
               onDelete={onDelete ? () => onDelete?.(row.original) : undefined}
+              extra={[
+                {
+                  label: 'Consulter la fiche',
+                  onSelect: () => onViewDetails(row.original),
+                },
+              ]}
             />
           </div>
         ),

@@ -31,11 +31,11 @@ export function DataTablePagination<TData>({
   return (
     <div
       className={cn(
-        'flex flex-col-reverse items-center justify-between gap-4 px-2 py-2 sm:flex-row sm:gap-6',
+        'flex flex-col-reverse items-center justify-between gap-3 px-2 py-3 sm:flex-row sm:gap-6 flex-wrap overflow-x-auto',
         className
       )}
     >
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-2 shrink-0'>
         <Select
           value={`${table.getState().pagination.pageSize}`}
           onValueChange={(value) => {
@@ -58,11 +58,11 @@ export function DataTablePagination<TData>({
         </p>
       </div>
 
-      <div className='flex items-center gap-4 sm:gap-6 lg:gap-8'>
-        <div className='text-sm font-medium text-muted-foreground whitespace-nowrap'>
+      <div className='flex flex-wrap items-center justify-end gap-3 sm:gap-4 lg:gap-6'>
+        <div className='text-sm font-medium text-muted-foreground whitespace-nowrap shrink-0'>
           Page {currentPage} sur {totalPages}
         </div>
-        <div className='flex items-center space-x-1 sm:space-x-2'>
+        <div className='flex items-center space-x-1 sm:space-x-1.5 flex-nowrap'>
           <Button
             variant='outline'
             className='hidden size-8 p-0 sm:inline-flex'

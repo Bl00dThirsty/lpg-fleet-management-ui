@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -33,6 +34,7 @@ import { useToursStore } from '@/store/tours-store'
 import { tourActions } from '../data/tour-machine'
 import { TourActions, isCloseAllowed } from './tour-actions'
 import { TourCorridorMap } from './tour-corridor-map'
+import { TourPdaSimulatorModal } from './tour-pda-simulator-modal'
 import { formatTm, formatBtl } from '@/features/map/utils/format'
 
 type TourDetailViewProps = {
@@ -54,6 +56,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
   const [busyCheckpointId, setBusyCheckpointId] = useState<string | null>(null)
   const [skipTargetId, setSkipTargetId] = useState<string | null>(null)
   const [skipReason, setSkipReason] = useState('')
+  const [pdaModalOpen, setPdaModalOpen] = useState(false)
 
   if (!trip) {
     return (
@@ -135,6 +138,15 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                 <Badge variant='outline'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>
+                <Button
+                  size='sm'
+                  variant='outline'
+                  className='h-6 px-2.5 text-xs font-medium shadow-xs flex items-center gap-1.5 ml-1'
+                  onClick={() => setPdaModalOpen(true)}
+                >
+                  <Smartphone className='size-3.5' />
+                  Terminal PDA Livreur
+                </Button>
               </div>
 
               <div className='space-y-1'>
@@ -261,13 +273,21 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
           <div>
             <CardTitle>Actions de la tournée</CardTitle>
             <CardDescription>
               Transitions validées par le serveur — un refus est affiché sans modifier le suivi.
             </CardDescription>
           </div>
+          <Button
+            onClick={() => setPdaModalOpen(true)}
+            variant='outline'
+            className='font-medium shadow-xs shrink-0 flex items-center gap-2'
+          >
+            <Smartphone className='size-4' />
+            Simulateur PDA Livreur (Terrain)
+          </Button>
         </CardHeader>
         <CardContent className='space-y-3'>
           <TourActions tour={trip} checkpoints={tourCheckpoints} />
@@ -526,6 +546,12 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <TourPdaSimulatorModal
+        open={pdaModalOpen}
+        onOpenChange={setPdaModalOpen}
+        trip={trip}
+      />
     </div>
   )
 }
