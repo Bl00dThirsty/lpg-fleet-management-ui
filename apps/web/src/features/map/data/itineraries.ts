@@ -185,8 +185,123 @@ export const YAOUNDE_VRAC_ROUTE: VracTourRoute = {
   ],
 }
 
+/**
+ * Itinéraire SCTM Ouest : SCDP Bafoussam ➔ Brasseries du Cameroun Bafoussam
+ */
+export const SCTM_VRAC_ROUTE: VracTourRoute = {
+  id: 'tour-vrac-bfm-003',
+  tourCode: 'TR-VRAC-BFM-003',
+  title: 'SCDP Bafoussam → Brasseries du Cameroun',
+  executionMode: 'INTERNAL',
+  status: 'INPROGRESS',
+  statusLabel: 'En cours — Livraison zone industrielle',
+  marketerName: 'SCTM — Société Camerounaise de Transformations Métalliques',
+  transporterName: 'Flotte Interne SCTM',
+  vehiclePlate: 'OU-512-AA',
+  vehicleType: 'Camion Citerne VRAC (Capacité 22 TM)',
+  driverName: 'Michel Kamga',
+  driverPhone: '+237 675 33 22 11',
+  departureName: 'Dépôt SCDP Bafoussam',
+  departureCoords: [10.4150, 5.4750],
+  destinationName: 'Brasseries du Cameroun (Usine Bafoussam)',
+  destinationCoords: [10.4350, 5.4950],
+  currentPosition: [10.4250, 5.4850],
+  loadedQuantityTM: 20.0,
+  capacityTM: 22.0,
+  distanceKm: 4.8,
+  estimatedDurationMin: 15,
+  startedAt: '10:00',
+  estimatedArrival: '10:25',
+  product: 'GPL Vrac Industriel',
+  pressureBars: 12.0,
+  temperatureCelsius: 21.5,
+  path: [
+    [10.4150, 5.4750],
+    [10.4200, 5.4800],
+    [10.4250, 5.4850],
+    [10.4300, 5.4900],
+    [10.4350, 5.4950],
+  ],
+  checkpoints: [
+    {
+      id: 'cp-bfm-1',
+      name: 'Dépôt SCDP Bafoussam — Chargement',
+      type: 'loading',
+      coords: [10.4150, 5.4750],
+      status: 'COMPLETED',
+      plannedTime: '10:00',
+      actualTime: '10:05',
+    },
+    {
+      id: 'cp-bfm-2',
+      name: 'Usine SABC Bafoussam — Dépotage',
+      type: 'delivery',
+      coords: [10.4350, 5.4950],
+      status: 'PENDING',
+      plannedTime: '10:25',
+    },
+  ],
+}
+
+/**
+ * Itinéraire Camgaz Littoral / Sud-Ouest : SONARA Limbé ➔ Sawa Hotel Douala
+ */
+export const CAMGAZ_VRAC_ROUTE: VracTourRoute = {
+  id: 'tour-vrac-lmb-004',
+  tourCode: 'TR-VRAC-LMB-004',
+  title: 'Terminal SONARA Limbé → Sawa Hotel Douala',
+  executionMode: 'EXTERNAL',
+  status: 'PLANNED',
+  statusLabel: 'Planifiée — Convoi inter-urbain',
+  marketerName: 'Camgaz — Société Camerounaise de Gaz',
+  transporterName: 'Express Gaz Transport',
+  vehiclePlate: 'SW-834-BB',
+  vehicleType: 'Camion Citerne VRAC (Capacité 28 TM)',
+  driverName: 'David Ngolle',
+  driverPhone: '+237 691 22 44 66',
+  departureName: 'Raffinerie SONARA Limbé',
+  departureCoords: [9.1950, 4.0120],
+  destinationName: 'Hôtel Sawa Douala (Bonanjo)',
+  destinationCoords: [9.6890, 4.0430],
+  currentPosition: [9.1950, 4.0120],
+  loadedQuantityTM: 24.5,
+  capacityTM: 28.0,
+  distanceKm: 65.0,
+  estimatedDurationMin: 90,
+  startedAt: '15:30',
+  estimatedArrival: '17:00',
+  product: 'GPL Commercial Propane/Butane',
+  pressureBars: 12.2,
+  temperatureCelsius: 25.0,
+  path: [
+    [9.1950, 4.0120],
+    [9.2500, 4.0200],
+    [9.4000, 4.0300],
+    [9.5500, 4.0400],
+    [9.6890, 4.0430],
+  ],
+  checkpoints: [
+    {
+      id: 'cp-lmb-1',
+      name: 'SONARA Limbé — Remplissage Citerne',
+      type: 'loading',
+      coords: [9.1950, 4.0120],
+      status: 'PENDING',
+      plannedTime: '15:30',
+    },
+    {
+      id: 'cp-lmb-2',
+      name: 'Hôtel Sawa Bonanjo — Dépotage',
+      type: 'delivery',
+      coords: [9.6890, 4.0430],
+      status: 'PENDING',
+      plannedTime: '17:00',
+    },
+  ],
+}
+
 export function getAllVracRoutes(): VracTourRoute[] {
-  return [DOUALA_VRAC_ROUTE, YAOUNDE_VRAC_ROUTE]
+  return [DOUALA_VRAC_ROUTE, YAOUNDE_VRAC_ROUTE, SCTM_VRAC_ROUTE, CAMGAZ_VRAC_ROUTE]
 }
 
 export function getVracRouteByCode(code: string): VracTourRoute | undefined {

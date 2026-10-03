@@ -81,7 +81,7 @@ export function NationalMap({
   const viewRef = useRef<MapView | null>(null)
   const layersRef = useRef<Record<string, GraphicsLayer>>({})
   const [isReady, setIsReady] = useState(false)
-  const [loadFailed, setLoadFailed] = useState(!rawApiKey)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   const activeLayers = useMemo(
     () => externalLayers ?? getInitialLayers(),
@@ -133,7 +133,7 @@ export function NationalMap({
 
   // Initialisation ArcGIS
   useEffect(() => {
-    if (!rawApiKey || !mapContainerRef.current) {
+    if (!mapContainerRef.current) {
       setLoadFailed(true)
       return
     }
@@ -148,9 +148,16 @@ export function NationalMap({
     }
     layersRef.current = perLayer
 
+    const initialBasemap = rawApiKey ? getArcgisBasemap(mapTheme) : 'osm'
+
     const map = new ArcGISMap({
-      basemap: getArcgisBasemap(mapTheme),
+      basemap: initialBasemap,
       layers: Object.values(perLayer),
+    })
+
+    // Auto-fallback: si le fond de carte échoue à charger les tuiles, basculer sur OSM
+    map.basemap?.load?.().catch(() => {
+      map.basemap = 'osm'
     })
 
     const view = new MapView({
@@ -205,7 +212,11 @@ export function NationalMap({
     const map = mapRef.current
     const view = viewRef.current
     if (!isReady || !map || !view) return
-    map.basemap = getArcgisBasemap(mapTheme)
+    const targetBasemap = rawApiKey ? getArcgisBasemap(mapTheme) : 'osm'
+    map.basemap = targetBasemap
+    map.basemap?.load?.().catch(() => {
+      map.basemap = 'osm'
+    })
     view.theme = getArcgisViewTheme(mapTheme)
   }, [isReady, mapTheme])
 

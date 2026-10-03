@@ -12,6 +12,12 @@ export interface ClientView {
   id: string
   orgId: string
   name: string
+  registrationNumber?: string
+  taxId?: string
+  industrySector?: string
+  billingAddress?: string
+  paymentTerms?: number
+  creditLimit?: number
   contactName: string
   contactPhone: string
   contactEmail: string
@@ -26,8 +32,15 @@ export interface ClientSiteView {
   id: string
   name: string
   region: Region
+  address?: string
+  geo_point?: [number, number] | number[] | null
+  latitude?: number
+  longitude?: number
+  geo_confidence_score?: number
+  delivery_count?: number
   status: ClientStatus
   verified: boolean
+  verified_at?: string | null
 }
 
 export function getClients(
@@ -46,6 +59,12 @@ export function getClients(
       id: client.id,
       orgId: client.org_id,
       name: org?.name ?? '—',
+      registrationNumber: org?.registration_number ?? '—',
+      taxId: client.tax_id ?? org?.tax_id ?? '—',
+      industrySector: client.industry_sector ?? '—',
+      billingAddress: client.billing_address ?? '—',
+      paymentTerms: client.payment_terms ?? 30,
+      creditLimit: client.credit_limit ?? 0,
       contactName: client.primary_contact_name ?? '—',
       contactPhone: client.primary_contact_phone ?? '—',
       contactEmail: client.primary_contact_email ?? '—',
@@ -66,9 +85,27 @@ export function getClientSites(clientOrgId: string): ClientSiteView[] {
       id: site.id,
       name: site.name,
       region: site.region,
+      address: site.address,
+      geo_point: site.geo_point,
+      latitude: site.geo_point && site.geo_point.length >= 2 ? site.geo_point[1] : undefined,
+      longitude: site.geo_point && site.geo_point.length >= 2 ? site.geo_point[0] : undefined,
+      geo_confidence_score: site.geo_confidence_score,
+      delivery_count: site.delivery_count,
       status: site.is_active ? 'ACTIVE' : 'INACTIVE',
       verified: site.is_verified,
+      verified_at: site.verified_at,
     }))
+}
+
+export function getClientById(
+  clientId: string,
+  clientList?: CuratedClient[],
+): { client: ClientView; sites: ClientSiteView[] } | null {
+  const all = getClients(clientList)
+  const found = all.find((c) => c.id === clientId || c.orgId === clientId)
+  if (!found) return null
+  const sites = getClientSites(found.orgId)
+  return { client: found, sites }
 }
 
 export const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {

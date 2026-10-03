@@ -3,7 +3,8 @@ import lpgSphereIconUrl from '@/assets/lpg-sphere.png'
 
 export type MapTheme = 'light' | 'dark'
 
-export function getArcgisBasemap(mapTheme: MapTheme): string {
+export function getArcgisBasemap(mapTheme: MapTheme, forceOsm = false): string {
+  if (forceOsm) return 'osm'
   return mapTheme === 'dark' ? 'dark-gray' : 'streets'
 }
 

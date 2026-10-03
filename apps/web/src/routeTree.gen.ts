@@ -24,6 +24,8 @@ import { Route as AuthenticatedAuditLogsIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCertificatesIndexRouteImport } from './routes/_authenticated/certificates/index'
 import { Route as AuthenticatedClientSitesIndexRouteImport } from './routes/_authenticated/client-sites/index'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients/index'
+import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients/$clientId'
+import { Route as AuthenticatedClientsNewRouteImport } from './routes/_authenticated/clients/new'
 import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
 import { Route as AuthenticatedCustomRolesIndexRouteImport } from './routes/_authenticated/custom-roles/index'
 import { Route as AuthenticatedDashboardAdminIndexRouteImport } from './routes/_authenticated/dashboard-admin/index'
@@ -173,6 +175,17 @@ const AuthenticatedClientsIndexRoute =
     path: '/clients/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedClientsClientIdRoute =
+  AuthenticatedClientsClientIdRouteImport.update({
+    id: '/clients/$clientId',
+    path: '/clients/$clientId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientsNewRoute = AuthenticatedClientsNewRouteImport.update({
+  id: '/clients/new',
+  path: '/clients/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedContractsIndexRoute =
   AuthenticatedContractsIndexRouteImport.update({
     id: '/contracts/',
@@ -565,6 +578,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/anomalies/investigation': typeof AuthenticatedAnomaliesInvestigationRoute
   '/anomalies/technical': typeof AuthenticatedAnomaliesTechnicalRoute
+  '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
+  '/clients/new': typeof AuthenticatedClientsNewRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
@@ -644,6 +659,8 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/anomalies/investigation': typeof AuthenticatedAnomaliesInvestigationRoute
   '/anomalies/technical': typeof AuthenticatedAnomaliesTechnicalRoute
+  '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
+  '/clients/new': typeof AuthenticatedClientsNewRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
@@ -727,6 +744,8 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/anomalies/investigation': typeof AuthenticatedAnomaliesInvestigationRoute
   '/_authenticated/anomalies/technical': typeof AuthenticatedAnomaliesTechnicalRoute
+  '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
+  '/_authenticated/clients/new': typeof AuthenticatedClientsNewRoute
   '/_authenticated/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/_authenticated/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/_authenticated/settings/profile': typeof AuthenticatedSettingsProfileRoute
@@ -810,6 +829,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/anomalies/investigation'
     | '/anomalies/technical'
+    | '/clients/$clientId'
+    | '/clients/new'
     | '/marketers/$marketerId'
     | '/settings/notification-groups'
     | '/settings/profile'
@@ -889,6 +910,8 @@ export interface FileRouteTypes {
     | '/'
     | '/anomalies/investigation'
     | '/anomalies/technical'
+    | '/clients/$clientId'
+    | '/clients/new'
     | '/marketers/$marketerId'
     | '/settings/notification-groups'
     | '/settings/profile'
@@ -971,6 +994,8 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/anomalies/investigation'
     | '/_authenticated/anomalies/technical'
+    | '/_authenticated/clients/$clientId'
+    | '/_authenticated/clients/new'
     | '/_authenticated/marketers/$marketerId'
     | '/_authenticated/settings/notification-groups'
     | '/_authenticated/settings/profile'
@@ -1156,6 +1181,20 @@ declare module '@tanstack/react-router' {
       path: '/clients'
       fullPath: '/clients/'
       preLoaderRoute: typeof AuthenticatedClientsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clients/$clientId': {
+      id: '/_authenticated/clients/$clientId'
+      path: '/clients/$clientId'
+      fullPath: '/clients/$clientId'
+      preLoaderRoute: typeof AuthenticatedClientsClientIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clients/new': {
+      id: '/_authenticated/clients/new'
+      path: '/clients/new'
+      fullPath: '/clients/new'
+      preLoaderRoute: typeof AuthenticatedClientsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/contracts/': {
@@ -1659,6 +1698,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnomaliesRoute: typeof AuthenticatedAnomaliesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedClientsClientIdRoute: typeof AuthenticatedClientsClientIdRoute
+  AuthenticatedClientsNewRoute: typeof AuthenticatedClientsNewRoute
   AuthenticatedMarketersMarketerIdRoute: typeof AuthenticatedMarketersMarketerIdRoute
   AuthenticatedSettingsNotificationGroupsRoute: typeof AuthenticatedSettingsNotificationGroupsRoute
   AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute
@@ -1733,6 +1774,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnomaliesRoute: AuthenticatedAnomaliesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedClientsClientIdRoute: AuthenticatedClientsClientIdRoute,
+  AuthenticatedClientsNewRoute: AuthenticatedClientsNewRoute,
   AuthenticatedMarketersMarketerIdRoute: AuthenticatedMarketersMarketerIdRoute,
   AuthenticatedSettingsNotificationGroupsRoute:
     AuthenticatedSettingsNotificationGroupsRoute,
