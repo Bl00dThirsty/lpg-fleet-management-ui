@@ -1,8 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "pnpm turbo run build --filter @lpg/web",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install",
+  "build": {
+    "env": {
+      "VITE_API_MODE": "http",
+      "VITE_API_BASE_URL": "https://ppooruggjjmaezlpjxrv.supabase.co/functions/v1/gpl-dispatch"
+    }
+  },
+  "env": {
+    "VITE_API_MODE": "http",
+    "VITE_API_BASE_URL": "https://ppooruggjjmaezlpjxrv.supabase.co/functions/v1/gpl-dispatch"
+  },
   "rewrites": [
     {
       "source": "/(.*)",

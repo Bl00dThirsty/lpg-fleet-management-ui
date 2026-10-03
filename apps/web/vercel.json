@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "pnpm turbo run build --filter @lpg/web",
+  "outputDirectory": "dist",
+  "installCommand": "pnpm install",
+  "build": {
+    "env": {
+      "VITE_API_MODE": "fake"
+    }
+  },
+  "env": {
+    "VITE_API_MODE": "fake"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
