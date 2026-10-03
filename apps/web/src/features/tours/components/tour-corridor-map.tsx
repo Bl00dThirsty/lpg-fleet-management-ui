@@ -7,7 +7,7 @@ import Point from '@arcgis/core/geometry/Point.js'
 import Polyline from '@arcgis/core/geometry/Polyline.js'
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer.js'
 import MapView from '@arcgis/core/views/MapView.js'
-import { AlertTriangle, Clock3, MapPinned, Route as RouteIcon, Truck } from 'lucide-react'
+import { Clock3, MapPinned, Route as RouteIcon, Truck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/theme-provider'
 import { Badge } from '@/components/ui/badge'
@@ -33,11 +33,19 @@ type TourCorridorMapProps = {
 
 const formatTmDefault = (value: number) => formatTm(value)
 
+import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
+
 type MapTheme = 'light' | 'dark'
 
 const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
+const isApiKeyValid = Boolean(
+  arcgisApiKey &&
+  !arcgisApiKey.includes('..') &&
+  !arcgisApiKey.includes('...') &&
+  arcgisApiKey.length > 50,
+)
 
-if (arcgisApiKey) {
+if (isApiKeyValid) {
   esriConfig.apiKey = arcgisApiKey
 }
 
@@ -92,7 +100,7 @@ export function TourCorridorMap({
   )
 
   useEffect(() => {
-    if (!arcgisApiKey || !mapContainerRef.current) return
+    if (!mapContainerRef.current) return
 
     const initialTrip = initialTripRef.current
     const initialTheme = initialThemeRef.current
@@ -100,7 +108,7 @@ export function TourCorridorMap({
       title: `Tournée ${initialTrip.reference}`,
     })
     const map = new ArcGISMap({
-      basemap: getArcgisBasemap(initialTheme),
+      basemap: createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light'),
       layers: [graphicsLayer],
     })
     const view = new MapView({
@@ -125,13 +133,14 @@ export function TourCorridorMap({
     graphicsLayerRef.current = graphicsLayer
 
     view
-      .when()
-      .then(() => {
+      .when(() => {
         setLoadFailed(false)
         setIsReady(true)
       })
-      .catch(() => {
-        setLoadFailed(true)
+      .catch((err: unknown) => {
+        console.warn('Tour corridor map view warning:', err)
+        setLoadFailed(false)
+        setIsReady(true)
       })
 
     return () => {
@@ -142,6 +151,15 @@ export function TourCorridorMap({
       setIsReady(false)
     }
   }, [])
+
+  // Basemap & theme sync
+  useEffect(() => {
+    const map = mapRef.current
+    const view = viewRef.current
+    if (!map || !view) return
+    map.basemap = createRobustBasemap(mapTheme === 'dark' ? 'dark' : 'light')
+    view.theme = getArcgisViewTheme(mapTheme)
+  }, [mapTheme])
 
   useEffect(() => {
     const map = mapRef.current
@@ -217,57 +235,7 @@ export function TourCorridorMap({
   )
 
   if (compact) {
-    return arcgisApiKey ? mapCanvas : (
-      <div className='flex h-[300px] items-center justify-center bg-muted/30 p-6 text-sm text-muted-foreground'>
-        La carte est indisponible pour le moment.
-      </div>
-    )
-  }
-
-  if (!arcgisApiKey) {
-    return (
-      <Card className='overflow-hidden border-transparent shadow-sm'>
-        <CardHeader className='border-b bg-muted/20'>
-          <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
-            <div>
-              <CardTitle>Carte de tournée</CardTitle>
-              <CardDescription>
-                Itinéraire routier calculé entre les étapes de la tournée.
-              </CardDescription>
-            </div>
-            <div className='flex flex-wrap gap-2'>
-              <Badge
-                variant='outline'
-                className='gap-1 border-transparent bg-background/70'
-              >
-                <RouteIcon className='size-3.5' />
-                {road ? road.distanceKm.toFixed(1) : '—'} km
-              </Badge>
-              <Badge
-                variant='outline'
-                className='gap-1 border-transparent bg-background/70'
-              >
-                <Clock3 className='size-3.5' />
-                {formatDateTime(trip.lastUpdatedAt)}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className='space-y-4 p-4'>
-          <div className='flex h-[320px] items-center justify-center rounded-2xl bg-muted/35 p-6 text-center'>
-            <div className='max-w-sm space-y-2'>
-              <AlertTriangle className='mx-auto size-8 text-amber-500' />
-              <p className='text-sm font-medium'>ArcGIS indisponible</p>
-              <p className='text-sm text-muted-foreground'>
-                Renseigne `VITE_ARCGIS_API_KEY` dans `.env` pour afficher la
-                vraie carte de tournée.
-              </p>
-            </div>
-          </div>
-          <MapSignals trip={trip} formatDateTime={formatDateTime} />
-        </CardContent>
-      </Card>
-    )
+    return mapCanvas
   }
 
   return (

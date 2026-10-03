@@ -36,15 +36,13 @@ export function ClientsPage() {
           title='Clients et sites de livraison'
           description='Référentiel des clients distributeurs, contrats associés et points de livraison.'
         />
-        {crud.perm.canCreate && (
-          <Button
-            onClick={() => navigate({ to: '/clients/new' })}
-            className='flex items-center gap-2'
-          >
-            <Plus className='h-4 w-4' />
-            Nouveau client
-          </Button>
-        )}
+        <Button
+          onClick={() => navigate({ to: '/clients/new' })}
+          className='flex items-center gap-2'
+        >
+          <Plus className='h-4 w-4' />
+          Nouveau client
+        </Button>
       </div>
 
       <SectionCard>

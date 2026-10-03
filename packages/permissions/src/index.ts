@@ -355,7 +355,7 @@ const AGENT_GRANTS = [
   'sites.read', 'sites.verify', 'certificates.read',
   'reports.read', 'metrics.read',
   'deliveries.read', 'tours.read',
-  'markets.read', 'transporters.read', 'livreurs.read', 'quotas.read', 'clients.read', 'contracts.read',
+  'markets.read', 'transporters.read', 'livreurs.read', 'quotas.read', 'clients.read', 'clients.create', 'clients.write', 'contracts.read',
   'notification-groups.read', 'notification-rules.read',
   'overview.read',
 ] as const satisfies readonly PermissionCode[]
@@ -371,6 +371,7 @@ const MARKETEUR_GRANTS = [
   'pickups.read', 'pickups.write', 'pickups.create', 'pickups.manage',
   'quotas.read', 'quotas.write', 'quotas.manage', 'supply.manage',
   'contracts.read', 'contracts.write', 'contracts.create', 'contracts.delete', 'contracts.manage',
+  'clients.read', 'clients.write', 'clients.create', 'clients.manage',
   'declarations.read', 'declarations.write',
   'subsidies.read', 'invoices.read',
   'sites.read',

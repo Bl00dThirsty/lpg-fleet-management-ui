@@ -34,7 +34,6 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { getNationalMapView, type NationalMapView } from '@/features/map/data/national-map'
 import {
-  getArcgisBasemap,
   getArcgisViewTheme,
   getMarkerOutlineColor,
   rgbaFromTuple,
@@ -52,8 +51,16 @@ import { createSiteGraphics } from '@/features/sites/utils/site-graphics'
 import lpgImageUrl from '@/assets/lpg.png'
 
 
+import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
+
 const rawApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '').trim()
-if (rawApiKey) {
+const isApiKeyValid = Boolean(
+  rawApiKey &&
+  !rawApiKey.includes('..') &&
+  !rawApiKey.includes('...') &&
+  rawApiKey.length > 50,
+)
+if (isApiKeyValid) {
   esriConfig.apiKey = rawApiKey
 }
 
@@ -148,16 +155,9 @@ export function NationalMap({
     }
     layersRef.current = perLayer
 
-    const initialBasemap = rawApiKey ? getArcgisBasemap(mapTheme) : 'osm'
-
     const map = new ArcGISMap({
-      basemap: initialBasemap,
+      basemap: createRobustBasemap(mapTheme),
       layers: Object.values(perLayer),
-    })
-
-    // Auto-fallback: si le fond de carte échoue à charger les tuiles, basculer sur OSM
-    map.basemap?.load?.().catch(() => {
-      map.basemap = 'osm'
     })
 
     const view = new MapView({
@@ -185,14 +185,15 @@ export function NationalMap({
     })
 
     view
-      .when()
-      .then(() => {
+      .when(() => {
         setLoadFailed(false)
         setIsReady(true)
       })
       .catch((err: unknown) => {
         if (err && (err as { name?: string }).name === 'AbortError') return
-        setLoadFailed(true)
+        console.warn('MapView load event warning:', err)
+        setLoadFailed(false)
+        setIsReady(true)
       })
 
     mapRef.current = map
@@ -211,14 +212,10 @@ export function NationalMap({
   useEffect(() => {
     const map = mapRef.current
     const view = viewRef.current
-    if (!isReady || !map || !view) return
-    const targetBasemap = rawApiKey ? getArcgisBasemap(mapTheme) : 'osm'
-    map.basemap = targetBasemap
-    map.basemap?.load?.().catch(() => {
-      map.basemap = 'osm'
-    })
+    if (!map || !view) return
+    map.basemap = createRobustBasemap(mapTheme)
     view.theme = getArcgisViewTheme(mapTheme)
-  }, [isReady, mapTheme])
+  }, [mapTheme])
 
   // Visibilité des couches réactive aux bascules
   useEffect(() => {

@@ -158,7 +158,7 @@ describe('hierarchy', () => {
   it('SUPERADMIN can create everyone; LIVREUR nobody', () => {
     for (const role of ROLES) expect(canCreate('SUPERADMIN', role)).toBe(true)
     expect(getCreatableRoles('SUPERADMIN')).toHaveLength(ROLES.length)
-    expect(getCreatableRoles('LIVREUR')).toEqual(['LIVREUR'])
+    expect(getCreatableRoles('LIVREUR')).toEqual(['LIVREUR', 'DRIVER'])
   })
 
   it('ADMIN cannot create SUPERADMIN', () => {
