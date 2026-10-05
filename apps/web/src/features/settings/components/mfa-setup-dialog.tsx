@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { QRCodeSVG as QRCode } from 'qrcode.react'
 import { Copy, CheckCircle2, Loader2, AlertCircle, Key } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -23,37 +23,41 @@ interface MFASetupDialogProps {
   onSetupComplete: (secret: string) => void
 }
 
-export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetupDialogProps) {
+export function MFASetupDialog({
+  open,
+  onOpenChange,
+  onSetupComplete,
+}: MFASetupDialogProps) {
   const [secret, setSecret] = useState<string>('')
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('')
-  const [step, setStep] = useState<'generate' | 'verify' | 'complete'>('generate')
+  const [step, setStep] = useState<'generate' | 'verify' | 'complete'>(
+    'generate'
+  )
   const [verificationCode, setVerificationCode] = useState('')
   const [backupCodes, setBackupCodes] = useState<string[]>([])
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (open && step === 'generate') {
-      generateNewSecret()
-    }
-  }, [open])
-
-  const generateNewSecret = () => {
+  const generateNewSecret = useCallback(() => {
     try {
       const newSecret = generateSecret()
       setSecret(newSecret)
-      
+
       // Generate backup codes
-      const codes = Array.from({ length: 10 }, () => 
+      const codes = Array.from({ length: 10 }, () =>
         Math.random().toString(36).substring(2, 10).toUpperCase()
       )
       setBackupCodes(codes)
-      
+
       // Generate QR code URL
       const issuer = 'CSPH GPL Fleet'
       const accountName = 'user@csph-gpl.com' // Would be dynamic in real app
-      const otpauth = generateURI({ issuer, label: accountName, secret: newSecret })
+      const otpauth = generateURI({
+        issuer,
+        label: accountName,
+        secret: newSecret,
+      })
       setQrCodeDataUrl(otpauth)
       setStep('verify')
       setError(null)
@@ -61,7 +65,13 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
       setError('Erreur lors de la génération du secret')
       console.error(err)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!open || step !== 'generate') return
+    const frame = requestAnimationFrame(generateNewSecret)
+    return () => cancelAnimationFrame(frame)
+  }, [open, step, generateNewSecret])
 
   const handleVerify = async () => {
     if (!verificationCode || verificationCode.length !== 6) {
@@ -74,7 +84,7 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
 
     try {
       const isValid = verifySync({ token: verificationCode, secret })
-      
+
       if (isValid.valid) {
         setStep('complete')
         onSetupComplete(secret as string)
@@ -128,7 +138,8 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
             Configuration de l'authentification à deux facteurs (2FA)
           </DialogTitle>
           <DialogDescription>
-            Sécurisez votre compte avec une application d'authentification (Google Authenticator, Authy, Microsoft Authenticator, etc.)
+            Sécurisez votre compte avec une application d'authentification
+            (Google Authenticator, Authy, Microsoft Authenticator, etc.)
           </DialogDescription>
         </DialogHeader>
 
@@ -148,7 +159,8 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
             <Alert className='border-primary/20 bg-primary/5'>
               <AlertCircle className='h-4 w-4' />
               <AlertDescription className='text-sm'>
-                Scannez ce QR code avec votre application d'authentification, puis entrez le code à 6 chiffres affiché.
+                Scannez ce QR code avec votre application d'authentification,
+                puis entrez le code à 6 chiffres affiché.
               </AlertDescription>
             </Alert>
 
@@ -157,30 +169,40 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
                 <QRCode
                   value={qrCodeDataUrl}
                   size={200}
-                  level="M"
+                  level='M'
                   includeMargin={true}
                 />
               </div>
-              
+
               <div className='p-3 bg-muted rounded-lg font-mono text-sm text-center'>
-                <p className='text-xs text-muted-foreground mb-1'>Secret manuel (si le scan échoue) :</p>
-                <code className='text-base'>{secret.match(/.{1,4}/g)?.join(' ') || secret}</code>
+                <p className='text-xs text-muted-foreground mb-1'>
+                  Secret manuel (si le scan échoue) :
+                </p>
+                <code className='text-base'>
+                  {secret.match(/.{1,4}/g)?.join(' ') || secret}
+                </code>
               </div>
 
               <div className='space-y-2'>
-                <Label htmlFor='verification-code'>Code à 6 chiffres de votre application :</Label>
+                <Label htmlFor='verification-code'>
+                  Code à 6 chiffres de votre application :
+                </Label>
                 <Input
                   id='verification-code'
                   type='text'
                   maxLength={6}
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                  onChange={(e) =>
+                    setVerificationCode(
+                      e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')
+                    )
+                  }
                   placeholder='123456'
                   className='text-center text-2xl tracking-widest font-mono'
                   autoComplete='one-time-code'
                   disabled={isVerifying}
                 />
-                
+
                 {error && (
                   <Alert variant='destructive' className='text-sm'>
                     <AlertDescription>{error}</AlertDescription>
@@ -212,13 +234,19 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
                 Codes de secours (à conserver en lieu sûr)
               </p>
               <p className='text-xs text-muted-foreground'>
-                Ces codes ne peuvent être utilisés qu'une seule fois chacun. Conservez-les précieusement.
+                Ces codes ne peuvent être utilisés qu'une seule fois chacun.
+                Conservez-les précieusement.
               </p>
-              
+
               <div className='grid grid-cols-2 gap-2'>
                 {backupCodes.map((code, index) => (
-                  <div key={index} className='flex items-center gap-2 p-2 bg-muted rounded'>
-                    <code className='flex-1 font-mono text-sm text-center'>{code}</code>
+                  <div
+                    key={index}
+                    className='flex items-center gap-2 p-2 bg-muted rounded'
+                  >
+                    <code className='flex-1 font-mono text-sm text-center'>
+                      {code}
+                    </code>
                     <Button
                       variant='ghost'
                       size='icon'
@@ -235,8 +263,12 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
                   </div>
                 ))}
               </div>
-              
-              <Button variant='outline' onClick={handleCopyBackupCodes} className='w-full'>
+
+              <Button
+                variant='outline'
+                onClick={handleCopyBackupCodes}
+                className='w-full'
+              >
                 <Copy className='mr-2 h-4 w-4' />
                 Copier tous les codes
               </Button>
@@ -251,10 +283,13 @@ export function MFASetupDialog({ open, onOpenChange, onSetupComplete }: MFASetup
             </div>
             <h3 className='text-lg font-semibold'>2FA activée avec succès !</h3>
             <p className='text-sm text-muted-foreground'>
-              Votre compte est maintenant protégé par l'authentification à deux facteurs.
-              Conservez vos codes de secours en lieu sûr.
+              Votre compte est maintenant protégé par l'authentification à deux
+              facteurs. Conservez vos codes de secours en lieu sûr.
             </p>
-            <Button onClick={() => onOpenChange(false)} className='w-full max-w-xs mx-auto'>
+            <Button
+              onClick={() => onOpenChange(false)}
+              className='w-full max-w-xs mx-auto'
+            >
               Terminer
             </Button>
           </div>

@@ -8,12 +8,17 @@ import {
 import { AppTitle } from './app-title'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
+import { useAuthStore } from '@/store/auth-store'
 import { useRoleStore } from '@/store/role-store'
 import { getSidebarData } from '@/config/rbac/sidebar-by-role'
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const activeRole = useRoleStore((s) => s.activeRole)
-  const sidebarData = getSidebarData(activeRole)
+  const user = useAuthStore((s) => s.user)
+  const sidebarData = getSidebarData(
+    activeRole,
+    user?.system_role === activeRole ? user.custom_roles : undefined
+  )
 
   return (
     <Sidebar collapsible='icon' variant='inset' {...props}>

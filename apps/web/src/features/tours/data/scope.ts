@@ -30,13 +30,20 @@ function flaggedTourIds(): string[] {
 
 export function followUpFor(ctx: FollowUpContext): TourActivity[] {
   const storeTours = useToursStore.getState().tours
-  const tours = (import.meta.env.VITE_API_MODE === 'http' || (storeTours && storeTours.length > 0)) ? storeTours : (curated.delivery_tours as DeliveryTour[])
+  const missions =
+    import.meta.env.VITE_API_MODE === 'http' ||
+    (storeTours && storeTours.length > 0)
+      ? storeTours
+      : (curated.delivery_tours as DeliveryTour[])
+  const tours = missions.filter((t) => t.mission_kind !== 'PICKUP')
   if (ctx.role === 'SUPERADMIN') return toTourActivities(tours)
   if (ctx.role === 'AGENT') {
     const orgIds = agentScopedMarketeurOrgIds(ctx.userId)
     if (orgIds.length > 0) {
       return toTourActivities(
-        tours.filter((t) => t.marketeur_org_id && orgIds.includes(t.marketeur_org_id)),
+        tours.filter(
+          (t) => t.marketeur_org_id && orgIds.includes(t.marketeur_org_id)
+        )
       )
     }
     const flagged = tours.filter((t) => flaggedTourIds().includes(t.id))

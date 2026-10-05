@@ -5,9 +5,6 @@ import { PageHeader } from '@/components/layout/page-header'
 import { PageShell, SectionCard } from '@/components/layout/page'
 import { Button } from '@lpg/ui'
 import { useToursStore } from '@/store/tours-store'
-import { useAuthStore } from '@/store/auth-store'
-import { useRoleStore } from '@/store/role-store'
-import type { Role } from '@/config/rbac/roles'
 import { TourActiveHeader } from './components/tour-active-header'
 import { ToursTable } from './components/tours-table'
 import { TourCreateDialog } from './components/tour-create-dialog'
@@ -25,27 +22,21 @@ const SLICES: { value: TourSlice; label: string }[] = [
 
 export function ToursPage() {
   const navigate = useNavigate()
-  const user = useAuthStore((s) => s.user)
-  const activeRole = useRoleStore((s) => s.activeRole)
-  const role = activeRole || (user?.system_role as Role) || 'SUPERADMIN'
   const [slice, setSlice] = useState<TourSlice>('ALL')
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [pdaModalOpen, setPdaModalOpen] = useState(false)
   const storeTours = useToursStore((s) => s.tours)
   const storeCheckpoints = useToursStore((s) => s.checkpoints)
   const allTours = useMemo(
-    () => useToursStore.getState().views(slice),
+    () =>
+      useToursStore
+        .getState()
+        .views(slice)
+        .filter((t) => t.mission_kind !== 'PICKUP'),
     [slice, storeTours, storeCheckpoints]
   )
 
-  const tours = useMemo(() => {
-    if (role === 'MARKETEUR' && (user?.org_id || user?.org_name)) {
-      const orgKey = (user.org_name || user.org_id || '').toLowerCase()
-      const filtered = allTours.filter((t) => t.marketeur_name.toLowerCase().includes('sctm') || t.marketeur_name.toLowerCase().includes('gpl') || (orgKey && t.marketeur_name.toLowerCase().includes(orgKey)))
-      return filtered.length > 0 ? filtered : allTours
-    }
-    return allTours
-  }, [allTours, role, user?.org_id, user?.org_name])
+  const tours = allTours
 
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined)
   const selectedTrip = tours.find((t) => t.id === selectedId) ?? tours[0]
@@ -100,7 +91,10 @@ export function ToursPage() {
             <button
               key={s.value}
               type='button'
-              onClick={() => { setSlice(s.value); setSelectedId(undefined) }}
+              onClick={() => {
+                setSlice(s.value)
+                setSelectedId(undefined)
+              }}
               className={
                 slice === s.value
                   ? 'rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground'

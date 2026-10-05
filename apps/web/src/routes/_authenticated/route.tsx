@@ -30,8 +30,17 @@ export const Route = createFileRoute('/_authenticated')({
     // Store the denied-redirect target in the route context for the component
     // to render an alert dialog before navigating.
     const role = auth.user?.system_role as Role | undefined
-    if (role && !canAccessPath(role, location.pathname)) {
-      return { deniedTo: deniedPathRedirect(role, location.pathname) }
+    if (
+      role &&
+      !canAccessPath(role, location.pathname, auth.user?.custom_roles)
+    ) {
+      return {
+        deniedTo: deniedPathRedirect(
+          role,
+          location.pathname,
+          auth.user?.custom_roles
+        ),
+      }
     }
     return { deniedTo: null }
   },
@@ -54,9 +63,7 @@ function AuthenticatedRouteGuard() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => navigate({ to: deniedTo })}
-            >
+            <AlertDialogAction onClick={() => navigate({ to: deniedTo })}>
               Continuer
             </AlertDialogAction>
           </AlertDialogFooter>

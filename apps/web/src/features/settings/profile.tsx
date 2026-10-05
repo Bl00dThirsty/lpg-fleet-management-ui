@@ -1,16 +1,94 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Avatar, AvatarFallback, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Separator, Switch, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, cn } from '@lpg/ui'
-import { Bell, BookOpen, Building2, Camera, Languages, LifeBuoy, Lock, Mail, MailOpen, Moon, Pencil, Plus, Save, Send, Settings as SettingsIcon, Shield, Sun, Trash2, User as UserIcon, Volume2, Key, QrCode, CheckCircle2, ChevronDown, Copy } from 'lucide-react'
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Input,
+  Label,
+  Separator,
+  Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  cn,
+} from '@lpg/ui'
+import {
+  Bell,
+  BookOpen,
+  Building2,
+  Camera,
+  Languages,
+  LifeBuoy,
+  Lock,
+  Mail,
+  MailOpen,
+  Moon,
+  Pencil,
+  Plus,
+  Save,
+  Send,
+  Settings as SettingsIcon,
+  Shield,
+  Sun,
+  Trash2,
+  User as UserIcon,
+  Volume2,
+  Key,
+  QrCode,
+  CheckCircle2,
+  ChevronDown,
+  Copy,
+} from 'lucide-react'
 import { useAuthStore } from '@/store/auth-store'
 import { useRoleStore } from '@/store/role-store'
 import { ROLE_LABELS } from '@/config/rbac/roles'
 import { hasPermission } from '@lpg/permissions'
 import { getSettingNumber } from '@lpg/mock-data'
-import { usePreferencesStore, type ThemePreference, type LanguagePreference, type DigestFrequency } from '@/store/preferences-store'
+import {
+  usePreferencesStore,
+  type ThemePreference,
+  type LanguagePreference,
+  type DigestFrequency,
+} from '@/store/preferences-store'
 import { useTheme } from '@/context/theme-provider'
-import { useNotificationsStore, type NotificationLevel } from '@/features/notifications/notifications-store'
-import { useNotificationGroupsStore, type NotificationGroup } from '@/features/notifications/notification-groups-store'
-import { NotificationGroupForm, groupToFormValues } from '@/features/notifications/notification-group-form'
+import {
+  useNotificationsStore,
+  type NotificationLevel,
+} from '@/features/notifications/notifications-store'
+import {
+  useNotificationGroupsStore,
+  type NotificationGroup,
+} from '@/features/notifications/notification-groups-store'
+import {
+  NotificationGroupForm,
+  groupToFormValues,
+} from '@/features/notifications/notification-group-form'
 import type { NotificationGroupFormValues } from '@/features/notifications/notification-group-schema'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { PageHeader } from '@/components/layout/page-header'
@@ -163,7 +241,7 @@ function SupportDialog({
   onOpenChange: (v: boolean) => void
 }) {
   const [category, setCategory] = useState<'bug' | 'data' | 'access' | 'other'>(
-    'bug',
+    'bug'
   )
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
@@ -174,7 +252,7 @@ function SupportDialog({
     setSending(true)
     try {
       await new Promise((r) => setTimeout(r, 500))
-      toast.success('Votre rapport a été envoyé à l\'équipe support.')
+      toast.success("Votre rapport a été envoyé à l'équipe support.")
       setSubject('')
       setMessage('')
       setCategory('bug')
@@ -193,20 +271,26 @@ function SupportDialog({
             Contacter le support
           </DialogTitle>
           <DialogDescription>
-            Décrivez le problème ou la question. Notre équipe répondra par email.
+            Décrivez le problème ou la question. Notre équipe répondra par
+            email.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='support-cat'>Catégorie</Label>
-            <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
+            <Select
+              value={category}
+              onValueChange={(v) => setCategory(v as typeof category)}
+            >
               <SelectTrigger id='support-cat'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='bug'>Bug / anomalie technique</SelectItem>
                 <SelectItem value='data'>Données incorrectes</SelectItem>
-                <SelectItem value='access'>Problème d'accès / permission</SelectItem>
+                <SelectItem value='access'>
+                  Problème d'accès / permission
+                </SelectItem>
                 <SelectItem value='other'>Autre demande</SelectItem>
               </SelectContent>
             </Select>
@@ -242,10 +326,7 @@ function SupportDialog({
             >
               Annuler
             </Button>
-            <Button
-              type='submit'
-              disabled={!subject || !message || sending}
-            >
+            <Button type='submit' disabled={!subject || !message || sending}>
               <Send className='mr-2 h-4 w-4' />
               {sending ? 'Envoi…' : 'Envoyer le rapport'}
             </Button>
@@ -290,7 +371,10 @@ function NotificationsPanel() {
   }
 
   const getLevelBadge = (level: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+    const variants: Record<
+      string,
+      'default' | 'secondary' | 'destructive' | 'outline'
+    > = {
       info: 'outline',
       success: 'secondary',
       warning: 'destructive',
@@ -313,18 +397,24 @@ function NotificationsPanel() {
               Notifications
             </CardTitle>
             <CardDescription>
-              Centre de notifications. {items.length} notification(s) total, {unreadCount} non lue(s).
+              Centre de notifications. {items.length} notification(s) total,{' '}
+              {unreadCount} non lue(s).
             </CardDescription>
           </div>
           <div className='flex flex-wrap items-center gap-2'>
-            <Select value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+            <Select
+              value={filter}
+              onValueChange={(v) => setFilter(v as typeof filter)}
+            >
               <SelectTrigger className='w-[160px]'>
                 <SelectValue placeholder='Toutes' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='all'>Toutes ({items.length})</SelectItem>
                 <SelectItem value='unread'>Non lues ({unreadCount})</SelectItem>
-                <SelectItem value='read'>Lues ({items.length - unreadCount})</SelectItem>
+                <SelectItem value='read'>
+                  Lues ({items.length - unreadCount})
+                </SelectItem>
               </SelectContent>
             </Select>
             {unreadCount > 0 && (
@@ -344,8 +434,8 @@ function NotificationsPanel() {
               {filter === 'all'
                 ? 'Aucune notification pour le moment.'
                 : filter === 'unread'
-                ? 'Toutes les notifications ont été lues !'
-                : 'Aucune notification lue pour le moment.'}
+                  ? 'Toutes les notifications ont été lues !'
+                  : 'Aucune notification lue pour le moment.'}
             </p>
           </div>
         ) : (
@@ -364,10 +454,14 @@ function NotificationsPanel() {
                       variant='ghost'
                       size='icon'
                       className={`size-8 ${
-                        !n.read ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground/50'
+                        !n.read
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-muted-foreground/50'
                       }`}
                       onClick={() => handleMarkAsRead(n.id)}
-                      aria-label={n.read ? 'Marquer comme non lu' : 'Marquer comme lu'}
+                      aria-label={
+                        n.read ? 'Marquer comme non lu' : 'Marquer comme lu'
+                      }
                     >
                       {n.read ? (
                         <Mail className='h-4 w-4' />
@@ -386,7 +480,9 @@ function NotificationsPanel() {
                     <div className='flex items-start justify-between gap-3'>
                       <div className='flex-1 min-w-0'>
                         <div className='flex items-center gap-2 flex-wrap'>
-                          <h4 className={`font-medium leading-none ${!n.read ? 'font-semibold' : ''}`}>
+                          <h4
+                            className={`font-medium leading-none ${!n.read ? 'font-semibold' : ''}`}
+                          >
                             {n.title}
                           </h4>
                           {getLevelBadge(n.level)}
@@ -405,7 +501,9 @@ function NotificationsPanel() {
                         onClick={() => toggleExpanded(n.id)}
                         aria-label={isExpanded ? 'Réduire' : 'Développer'}
                       >
-                        <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        />
                       </Button>
                     </div>
                   </div>
@@ -429,7 +527,11 @@ function NotificationsPanel() {
                       )}
                       <div className='flex items-center gap-2'>
                         {!n.read && (
-                          <Button size='sm' variant='outline' onClick={() => handleMarkAsRead(n.id)}>
+                          <Button
+                            size='sm'
+                            variant='outline'
+                            onClick={() => handleMarkAsRead(n.id)}
+                          >
                             <CheckCircle2 className='mr-1.5 h-3.5 w-3.5' />
                             Marquer comme lu
                           </Button>
@@ -465,9 +567,16 @@ function NotificationGroupsPanel() {
   const deleteGroup = useNotificationGroupsStore((s) => s.deleteGroup)
   const user = useAuthStore((s) => s.user)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingGroup, setEditingGroup] = useState<NotificationGroup | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<NotificationGroup | null>(null)
-  const perm = hasPermission(useRoleStore.getState().activeRole, 'notification-groups.write')
+  const [editingGroup, setEditingGroup] = useState<NotificationGroup | null>(
+    null
+  )
+  const [deleteTarget, setDeleteTarget] = useState<NotificationGroup | null>(
+    null
+  )
+  const perm = hasPermission(
+    useRoleStore.getState().activeRole,
+    'notification-groups.write'
+  )
   const canWrite = perm
 
   const handleCreate = (values: NotificationGroupFormValues) => {
@@ -561,7 +670,11 @@ function NotificationGroupsPanel() {
                   <TableCell>
                     <div className='flex flex-wrap gap-1'>
                       {group.targetRoles.map((role) => (
-                        <Badge key={role} variant='outline' className='text-[10px]'>
+                        <Badge
+                          key={role}
+                          variant='outline'
+                          className='text-[10px]'
+                        >
                           {ROLE_LABELS[role]}
                         </Badge>
                       ))}
@@ -613,12 +726,16 @@ function NotificationGroupsPanel() {
         <DialogContent className='sm:max-w-lg'>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? 'Modifier le groupe' : 'Créer un groupe de notification'}
+              {isEditing
+                ? 'Modifier le groupe'
+                : 'Créer un groupe de notification'}
             </DialogTitle>
           </DialogHeader>
           <NotificationGroupForm
             defaultValues={
-              isEditing ? groupToFormValues(editingGroup! as NotificationGroup) : undefined
+              isEditing
+                ? groupToFormValues(editingGroup! as NotificationGroup)
+                : undefined
             }
             onSubmit={isEditing ? handleUpdate : handleCreate}
             onCancel={() => {
@@ -654,7 +771,11 @@ function PreferencesPanel() {
   const theme = useTheme()
   const prefs = usePreferencesStore()
 
-  const themeOptions: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
+  const themeOptions: {
+    value: ThemePreference
+    label: string
+    icon: typeof Sun
+  }[] = [
     { value: 'light', label: 'Clair', icon: Sun },
     { value: 'dark', label: 'Sombre', icon: Moon },
     { value: 'system', label: 'Système', icon: SettingsIcon },
@@ -680,9 +801,7 @@ function PreferencesPanel() {
             <Sun className='h-4 w-4' />
             Apparence
           </CardTitle>
-          <CardDescription>
-            Choisissez le thème de l'interface.
-          </CardDescription>
+          <CardDescription>Choisissez le thème de l'interface.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className='grid grid-cols-3 gap-2'>
@@ -696,7 +815,7 @@ function PreferencesPanel() {
                   onClick={() => prefs.setTheme(opt.value)}
                   className={cn(
                     'flex flex-col items-center gap-2 rounded-lg border p-3 text-sm transition-colors hover:bg-muted/40',
-                    active && 'border-primary bg-primary/5',
+                    active && 'border-primary bg-primary/5'
                   )}
                 >
                   <Icon className='size-4' />
@@ -854,12 +973,19 @@ function ToggleRow({
   )
 }
 
-function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
+function MFAPanel({
+  activeRole,
+  user,
+}: {
+  activeRole: Role
+  user: { id: string }
+}) {
   const mfaEnforced = useMemo(() => {
     const enforced = getSettingNumber('mfa.enforced_for_roles')
     if (!enforced) return false
     try {
-      const roles = typeof enforced === 'string' ? JSON.parse(enforced) : enforced
+      const roles =
+        typeof enforced === 'string' ? JSON.parse(enforced) : enforced
       return roles.includes(activeRole)
     } catch {
       return false
@@ -874,14 +1000,19 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
   // In a real app, these would come from the user object / API
   // For demo, we'll simulate with localStorage
   useEffect(() => {
-    const stored = localStorage.getItem(`mfa_${user.id}`)
-    if (stored) {
-      try {
-        const data = JSON.parse(stored)
-        setMfaEnabled(data.enabled)
-        setBackupCodes(data.backupCodes || [])
-      } catch {}
-    }
+    const frame = requestAnimationFrame(() => {
+      const stored = localStorage.getItem(`mfa_${user.id}`)
+      if (stored) {
+        try {
+          const data = JSON.parse(stored)
+          setMfaEnabled(data.enabled)
+          setBackupCodes(data.backupCodes || [])
+        } catch {
+          /* Ignore invalid local demo preferences. */
+        }
+      }
+    })
+    return () => cancelAnimationFrame(frame)
   }, [user.id])
 
   const handleSetupComplete = (secret: string) => {
@@ -891,11 +1022,14 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
       Math.random().toString(36).substring(2, 10).toUpperCase()
     )
     setBackupCodes(codes)
-    localStorage.setItem(`mfa_${user.id}`, JSON.stringify({
-      enabled: true,
-      secret,
-      backupCodes: codes,
-    }))
+    localStorage.setItem(
+      `mfa_${user.id}`,
+      JSON.stringify({
+        enabled: true,
+        secret,
+        backupCodes: codes,
+      })
+    )
     toast.success('2FA activée avec succès !')
   }
 
@@ -926,8 +1060,9 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
             Authentification à deux facteurs (2FA)
           </CardTitle>
           <CardDescription>
-            Ajoutez une couche de sécurité supplémentaire via une application d'authentification
-            (Google Authenticator, Authy, Microsoft Authenticator).
+            Ajoutez une couche de sécurité supplémentaire via une application
+            d'authentification (Google Authenticator, Authy, Microsoft
+            Authenticator).
           </CardDescription>
         </CardHeader>
         <CardContent className='space-y-4'>
@@ -943,7 +1078,9 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
             </div>
             <Switch
               checked={mfaEnabled}
-              onCheckedChange={mfaEnabled ? handleDisable : () => setShowSetup(true)}
+              onCheckedChange={
+                mfaEnabled ? handleDisable : () => setShowSetup(true)
+              }
               disabled={mfaEnforced && !mfaEnabled}
             />
           </div>
@@ -955,7 +1092,9 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
               disabled={mfaEnforced}
             >
               <QrCode className='mr-2 h-4 w-4' />
-              {mfaEnforced ? 'Configurer la 2FA (obligatoire)' : 'Configurer la 2FA'}
+              {mfaEnforced
+                ? 'Configurer la 2FA (obligatoire)'
+                : 'Configurer la 2FA'}
             </Button>
           )}
 
@@ -965,8 +1104,13 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
               <div className='space-y-1'>
                 <p className='text-sm font-medium'>2FA activée</p>
                 <p className='text-xs text-green-700 dark:text-green-300'>
-                  {backupCodes.length} code{backupCodes.length > 1 ? 's' : ''} de secours disponible{backupCodes.length > 1 ? 's' : ''}.{' '}
-                  <Button variant='ghost' size='sm' onClick={() => setShowRecovery(true)}>
+                  {backupCodes.length} code{backupCodes.length > 1 ? 's' : ''}{' '}
+                  de secours disponible{backupCodes.length > 1 ? 's' : ''}.{' '}
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => setShowRecovery(true)}
+                  >
                     Gérer les codes
                   </Button>
                 </p>
@@ -988,7 +1132,9 @@ function MFAPanel({ activeRole, user }: { activeRole: Role; user: any }) {
             </div>
             <Button
               variant='outline'
-              onClick={() => toast.info('Demande de changement de mot de passe — démo')}
+              onClick={() =>
+                toast.info('Demande de changement de mot de passe — démo')
+              }
             >
               <Lock className='mr-2 h-4 w-4' />
               Changer le mot de passe
@@ -1074,7 +1220,10 @@ function SendNotificationInline() {
       </div>
       <div className='space-y-2'>
         <Label htmlFor='send-level'>Niveau</Label>
-        <Select value={level} onValueChange={(v) => setLevel(v as NotificationLevel)}>
+        <Select
+          value={level}
+          onValueChange={(v) => setLevel(v as NotificationLevel)}
+        >
           <SelectTrigger id='send-level'>
             <SelectValue />
           </SelectTrigger>
@@ -1103,10 +1252,7 @@ function SendNotificationInline() {
         </Select>
       </div>
       <div className='md:col-span-2 flex justify-end'>
-        <Button
-          type='submit'
-          disabled={!title || !body || sending}
-        >
+        <Button type='submit' disabled={!title || !body || sending}>
           <Send className='mr-2 h-4 w-4' />
           {sending ? 'Envoi…' : 'Envoyer'}
         </Button>
@@ -1124,11 +1270,16 @@ export function ProfilePage({ tab }: { tab?: string }) {
 
   const canManageGroups = hasPermission(activeRole, 'notification-groups.write')
 
-  const allowedTabs = ['informations', 'notifications', 'preferences', 'security']
+  const allowedTabs = [
+    'informations',
+    'notifications',
+    'preferences',
+    'security',
+  ]
   if (canManageGroups) allowedTabs.push('groups')
 
   const initialTab = allowedTabs.includes(tabParam as never)
-    ? (tabParam as typeof allowedTabs[number])
+    ? (tabParam as (typeof allowedTabs)[number])
     : 'informations'
 
   const [activeTab, setActiveTab] = useState<string>(initialTab)
@@ -1182,9 +1333,7 @@ export function ProfilePage({ tab }: { tab?: string }) {
                   type='button'
                   className='absolute bottom-0 right-0 inline-flex h-7 w-7 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted'
                   aria-label='Changer la photo'
-                  onClick={() =>
-                    toast.info('Téléversement d\'avatar — démo')
-                  }
+                  onClick={() => toast.info("Téléversement d'avatar — démo")}
                 >
                   <Camera className='h-3.5 w-3.5' />
                 </button>
@@ -1212,7 +1361,8 @@ export function ProfilePage({ tab }: { tab?: string }) {
                 variant='outline'
                 onClick={() =>
                   toast.info('Documentation — bientôt disponible', {
-                    description: 'Le centre de documentation est en cours de rédaction.',
+                    description:
+                      'Le centre de documentation est en cours de rédaction.',
                   })
                 }
               >
@@ -1254,12 +1404,13 @@ export function ProfilePage({ tab }: { tab?: string }) {
         </CardContent>
       </Card>
 
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className='w-full'
-      >
-        <TabsList className={cn('grid w-full', `max-w-2xl grid-cols-${allowedTabs.length}`)}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
+        <TabsList
+          className={cn(
+            'grid w-full',
+            `max-w-2xl grid-cols-${allowedTabs.length}`
+          )}
+        >
           <TabsTrigger value='informations'>
             <UserIcon className='mr-2 h-4 w-4' />
             Informations
@@ -1290,9 +1441,12 @@ export function ProfilePage({ tab }: { tab?: string }) {
             <CardHeader className='pb-2'>
               <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
                 <div>
-                  <CardTitle className='text-lg'>Informations du profil</CardTitle>
+                  <CardTitle className='text-lg'>
+                    Informations du profil
+                  </CardTitle>
                   <CardDescription>
-                    Vos informations personnelles visibles par les membres de votre organisation.
+                    Vos informations personnelles visibles par les membres de
+                    votre organisation.
                   </CardDescription>
                 </div>
                 <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -1322,38 +1476,50 @@ export function ProfilePage({ tab }: { tab?: string }) {
             <CardContent className='space-y-6'>
               <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
                 <div className='space-y-1.5'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Prénom</Label>
-                  <p className='text-sm font-medium'>{user.first_name || '—'}</p>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Prénom
+                  </Label>
+                  <p className='text-sm font-medium'>
+                    {user.first_name || '—'}
+                  </p>
                 </div>
                 <div className='space-y-1.5'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Nom</Label>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Nom
+                  </Label>
                   <p className='text-sm font-medium'>{user.last_name || '—'}</p>
                 </div>
                 <div className='space-y-1.5'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Email</Label>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Email
+                  </Label>
                   <p className='text-sm font-medium truncate'>{user.email}</p>
                 </div>
                 <div className='space-y-1.5'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Téléphone</Label>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Téléphone
+                  </Label>
                   <p className='text-sm font-medium'>{phone || '—'}</p>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <div className='space-y-2'>
                 <Label className='text-sm font-medium'>Bio</Label>
                 <p className='text-sm text-muted-foreground'>
                   {bio || 'Aucune bio renseignée.'}
                 </p>
               </div>
-              
+
               <Separator />
-              
+
               {/* Organization & Role Info */}
               <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 <div className='space-y-1.5 p-4 rounded-lg border bg-muted/30'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Rôle actuel</Label>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Rôle actuel
+                  </Label>
                   <div className='flex items-center gap-2'>
                     <Badge variant='secondary'>{roleLabel}</Badge>
                     {activeRole === 'SUPERADMIN' && (
@@ -1364,14 +1530,18 @@ export function ProfilePage({ tab }: { tab?: string }) {
                   </div>
                 </div>
                 <div className='space-y-1.5 p-4 rounded-lg border bg-muted/30'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Organisation</Label>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Organisation
+                  </Label>
                   <p className='text-sm font-medium flex items-center gap-1.5'>
                     <Building2 className='h-4 w-4 shrink-0' />
                     <span className='truncate'>{user.org_name || '—'}</span>
                   </p>
                 </div>
                 <div className='space-y-1.5 p-4 rounded-lg border bg-muted/30'>
-                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>Statut du compte</Label>
+                  <Label className='text-xs uppercase tracking-wide text-muted-foreground'>
+                    Statut du compte
+                  </Label>
                   <div className='flex items-center gap-2'>
                     <Badge variant='default'>Actif</Badge>
                     <span className='text-xs text-muted-foreground'>
@@ -1380,9 +1550,9 @@ export function ProfilePage({ tab }: { tab?: string }) {
                   </div>
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               <MFAPanel activeRole={activeRole} user={user} />
             </CardContent>
           </Card>

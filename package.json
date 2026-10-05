@@ -9,7 +9,9 @@
     "dev:kill": "node scripts/dev-kill.js",
     "mock": "turbo run dev --filter @lpg/mock-api",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "npm run typecheck --prefix apps/web",
+    "test": "npm test --prefix apps/web"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

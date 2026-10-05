@@ -1,3 +1,4 @@
+import { MissionDocuments } from './mission-documents'
 import { useMemo, useState } from 'react'
 import { Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
@@ -42,7 +43,9 @@ type TourDetailViewProps = {
 }
 
 export function TourDetailView({ trip }: TourDetailViewProps) {
-  const checkpointsByTour = useToursStore((s) => s.checkpointsByTour[trip?.id ?? ''])
+  const checkpointsByTour = useToursStore(
+    (s) => s.checkpointsByTour[trip?.id ?? '']
+  )
   const allCheckpoints = useToursStore((s) => s.checkpoints)
   const tourCheckpoints: Checkpoint[] = useMemo(() => {
     if (!trip) return []
@@ -51,7 +54,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
   }, [trip, checkpointsByTour, allCheckpoints])
   const checkpointById = useMemo(
     () => new Map(tourCheckpoints.map((c) => [c.id, c])),
-    [tourCheckpoints],
+    [tourCheckpoints]
   )
   const [busyCheckpointId, setBusyCheckpointId] = useState<string | null>(null)
   const [skipTargetId, setSkipTargetId] = useState<string | null>(null)
@@ -77,9 +80,13 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
     status: trip.tourneeStatus,
     execution_mode: trip.execution_mode,
   }).includes('close')
-  const closeBlockedByCheckpoints = closeOfferedByMachine && !isCloseAllowed(tourCheckpoints)
+  const closeBlockedByCheckpoints =
+    closeOfferedByMachine && !isCloseAllowed(tourCheckpoints)
 
-  async function runCheckpointAction(checkpointId: string, kind: 'reach' | 'complete') {
+  async function runCheckpointAction(
+    checkpointId: string,
+    kind: 'reach' | 'complete'
+  ) {
     setBusyCheckpointId(checkpointId)
     try {
       if (kind === 'reach') {
@@ -89,15 +96,21 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
         await useToursStore.getState().completeCheckpoint(checkpointId)
         toast.success('Point de contrôle terminé')
         const updatedCheckpoints = trip
-          ? useToursStore.getState().checkpoints.filter(
-              (c) => (c.tournee_id ?? c.tour_id) === trip.id,
-            )
+          ? useToursStore
+              .getState()
+              .checkpoints.filter(
+                (c) => (c.tournee_id ?? c.tour_id) === trip.id
+              )
           : []
         const allDone =
           updatedCheckpoints.length > 0 &&
-          updatedCheckpoints.every((c) => c.status === 'COMPLETED' || c.status === 'SKIPPED')
+          updatedCheckpoints.every(
+            (c) => c.status === 'COMPLETED' || c.status === 'SKIPPED'
+          )
         if (allDone) {
-          toast.success('Tous les points sont livrés — Tournée terminée avec succès !')
+          toast.success(
+            'Tous les points sont livrés — Tournée terminée avec succès !'
+          )
         }
       }
     } catch (err) {
@@ -111,7 +124,9 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
     if (!skipTargetId || !skipReason.trim()) return
     setBusyCheckpointId(skipTargetId)
     try {
-      await useToursStore.getState().skipCheckpoint(skipTargetId, skipReason.trim())
+      await useToursStore
+        .getState()
+        .skipCheckpoint(skipTargetId, skipReason.trim())
       toast.success('Point de contrôle sauté')
       setSkipTargetId(null)
       setSkipReason('')
@@ -124,29 +139,37 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
 
   return (
     <div className='space-y-4'>
+      {import.meta.env.VITE_API_MODE === 'http' && (
+        <MissionDocuments key={trip.id} missionId={trip.id} />
+      )}
+      {trip.scheduled_at && (
+        <p className='text-sm text-muted-foreground'>
+          Enlèvement prévu le {formatDateTime(trip.scheduled_at)}
+        </p>
+      )}
       <Card className='overflow-hidden border border-border shadow-sm'>
         <div className='border-b border-border bg-card px-6 py-5 text-card-foreground'>
           <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
             <div className='space-y-3'>
               <div className='flex flex-wrap items-center gap-2'>
-                <Badge variant='outline'>
-                  {trip.reference}
-                </Badge>
+                <Badge variant='outline'>{trip.reference}</Badge>
                 <Badge variant='secondary'>
                   {routeStatusLabels[trip.status]}
                 </Badge>
                 <Badge variant='outline'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>
-                <Button
-                  size='sm'
-                  variant='outline'
-                  className='h-6 px-2.5 text-xs font-medium shadow-xs flex items-center gap-1.5 ml-1'
-                  onClick={() => setPdaModalOpen(true)}
-                >
-                  <Smartphone className='size-3.5' />
-                  Terminal PDA Livreur
-                </Button>
+                {import.meta.env.VITE_API_MODE !== 'http' && (
+                  <Button
+                    size='sm'
+                    variant='outline'
+                    className='h-6 px-2.5 text-xs font-medium shadow-xs flex items-center gap-1.5 ml-1'
+                    onClick={() => setPdaModalOpen(true)}
+                  >
+                    <Smartphone className='size-3.5' />
+                    Terminal PDA Livreur
+                  </Button>
+                )}
               </div>
 
               <div className='space-y-1'>
@@ -156,7 +179,9 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                   {trip.destinationSite.name}
                 </h2>
                 <p className='max-w-3xl text-xs text-muted-foreground'>
-                  Tournée {trip.reference} pour {trip.customerName}. Suivi logistique et étapes terrain.
+                  {trip.mission_kind === 'PICKUP' ? 'Enlèvement' : 'Tournée'}{' '}
+                  {trip.reference} pour {trip.customerName}. Suivi logistique et
+                  étapes terrain.
                 </p>
               </div>
             </div>
@@ -183,7 +208,11 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
             <div>
               <div className='flex items-center justify-between text-sm'>
                 <div>
-                  <p className='font-medium'>Progression de la tournée</p>
+                  <p className='font-medium'>
+                    {trip.mission_kind === 'PICKUP'
+                      ? 'Progression de l’enlèvement'
+                      : 'Progression de la tournée'}
+                  </p>
                   <p className='text-muted-foreground'>
                     {trip.progressPercent}% du corridor logistique couvert
                   </p>
@@ -214,7 +243,13 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
             <div className='grid gap-3 md:grid-cols-3'>
               <DetailSignal
                 label='Écart non justifié'
-                value={trip.unaccounted > 0 ? formatQuantity(trip.unaccounted, trip.tourneeType) : trip.tourneeType === 'VRAC' ? '0 TM' : '0 btl'}
+                value={
+                  trip.unaccounted > 0
+                    ? formatQuantity(trip.unaccounted, trip.tourneeType)
+                    : trip.tourneeType === 'VRAC'
+                      ? '0 TM'
+                      : '0 btl'
+                }
                 hint={
                   trip.unaccounted > 0
                     ? 'À expliquer avant clôture'
@@ -251,17 +286,11 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           <div className='rounded-lg border border-border bg-card p-4 shadow-xs'>
             <p className='text-sm font-semibold mb-3'>Équipe engagée</p>
             <div className='space-y-2 text-sm'>
-              <InfoRow
-                label='Camion'
-                value={`${trip.truck.id} - ${trip.truck.license_plate}`}
-              />
-              <InfoRow
-                label='Chauffeur'
-                value={trip.truck.assigned_driver ?? ''}
-              />
+              <InfoRow label='Camion' value={trip.vehicle_plate ?? '—'} />
+              <InfoRow label='Chauffeur' value={trip.driver_name ?? '—'} />
               <InfoRow
                 label='Responsable mission'
-                value={trip.missionLead}
+                value={trip.livreur_name ?? '—'}
               />
               <InfoRow
                 label='Position courante'
@@ -272,35 +301,43 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
-          <div>
-            <CardTitle>Actions de la tournée</CardTitle>
-            <CardDescription>
-              Transitions validées par le serveur — un refus est affiché sans modifier le suivi.
-            </CardDescription>
-          </div>
-          <Button
-            onClick={() => setPdaModalOpen(true)}
-            variant='outline'
-            className='font-medium shadow-xs shrink-0 flex items-center gap-2'
-          >
-            <Smartphone className='size-4' />
-            Simulateur PDA Livreur (Terrain)
-          </Button>
-        </CardHeader>
-        <CardContent className='space-y-3'>
-          <TourActions tour={trip} checkpoints={tourCheckpoints} />
-          {closeBlockedByCheckpoints && (
-            <p className='text-sm text-amber-700 dark:text-amber-300'>
-              Clôture impossible : tous les points de contrôle doivent être terminés ou sautés.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      {import.meta.env.VITE_API_MODE !== 'http' && (
+        <Card>
+          <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+            <div>
+              <CardTitle>Actions de la tournée</CardTitle>
+              <CardDescription>
+                Transitions validées par le serveur — un refus est affiché sans
+                modifier le suivi.
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setPdaModalOpen(true)}
+              variant='outline'
+              className='font-medium shadow-xs shrink-0 flex items-center gap-2'
+            >
+              <Smartphone className='size-4' />
+              Simulateur PDA Livreur (Terrain)
+            </Button>
+          </CardHeader>
+          <CardContent className='space-y-3'>
+            <TourActions tour={trip} checkpoints={tourCheckpoints} />
+            {closeBlockedByCheckpoints && (
+              <p className='text-sm text-amber-700 dark:text-amber-300'>
+                Clôture impossible : tous les points de contrôle doivent être
+                terminés ou sautés.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <section className='w-full'>
-        <TourCorridorMap trip={trip} formatDateTime={formatDateTime} formatQuantity={(v) => formatQuantity(v, trip.tourneeType)} />
+        <TourCorridorMap
+          trip={trip}
+          formatDateTime={formatDateTime}
+          formatQuantity={(v) => formatQuantity(v, trip.tourneeType)}
+        />
       </section>
 
       <section className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]'>
@@ -314,8 +351,12 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           <CardContent className='space-y-4'>
             {trip.stops.map((stop, index) => {
               const liveCp = checkpointById.get(stop.id)
-              const currentStatus = liveCp?.status ?? stop.checkpointStatus ?? (stop.completed ? 'COMPLETED' : 'PENDING')
-              const isCompleted = currentStatus === 'COMPLETED' || currentStatus === 'SKIPPED'
+              const currentStatus =
+                liveCp?.status ??
+                stop.checkpointStatus ??
+                (stop.completed ? 'COMPLETED' : 'PENDING')
+              const isCompleted =
+                currentStatus === 'COMPLETED' || currentStatus === 'SKIPPED'
               const isCurrent = !isCompleted && stop.id === trip.nextStop?.id
 
               return (
@@ -352,18 +393,38 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                         </div>
                         <p className='mt-1 text-sm text-muted-foreground'>
                           {stop.role === 'loading' ? (
-                            <span>Dépôt source : <strong className='font-medium text-foreground'>{stop.pointName || stop.site.name}</strong></span>
+                            <span>
+                              Dépôt source :{' '}
+                              <strong className='font-medium text-foreground'>
+                                {stop.pointName || stop.site.name}
+                              </strong>
+                            </span>
                           ) : (
                             <span>
-                              Client destinataire : <strong className='font-medium text-foreground'>{stop.clientName || stop.pointName || stop.site.name}</strong>
-                              {stop.pointName && stop.pointName !== stop.clientName ? ` (${stop.pointName})` : ''}
+                              Client destinataire :{' '}
+                              <strong className='font-medium text-foreground'>
+                                {stop.clientName ||
+                                  stop.pointName ||
+                                  stop.site.name}
+                              </strong>
+                              {stop.pointName &&
+                              stop.pointName !== stop.clientName
+                                ? ` (${stop.pointName})`
+                                : ''}
                             </span>
                           )}
                           {stop.contactName ? (
-                            <span className='ml-2 text-xs text-muted-foreground'>• Contact : {stop.contactName} {stop.contactPhone ? `(${stop.contactPhone})` : ''}</span>
+                            <span className='ml-2 text-xs text-muted-foreground'>
+                              • Contact : {stop.contactName}{' '}
+                              {stop.contactPhone
+                                ? `(${stop.contactPhone})`
+                                : ''}
+                            </span>
                           ) : null}
                           {stop.address ? (
-                            <span className='block text-xs text-muted-foreground mt-0.5'>{stop.address}</span>
+                            <span className='block text-xs text-muted-foreground mt-0.5'>
+                              {stop.address}
+                            </span>
                           ) : null}
                         </p>
                       </div>
@@ -380,7 +441,9 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                         )}
                       >
                         {isCompleted
-                          ? (currentStatus === 'SKIPPED' ? 'Sauté' : 'Terminé')
+                          ? currentStatus === 'SKIPPED'
+                            ? 'Sauté'
+                            : 'Terminé'
                           : currentStatus === 'REACHED'
                             ? 'Arrivé sur site'
                             : isCurrent
@@ -392,7 +455,9 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                     <div className='mt-3 grid gap-3 text-sm md:grid-cols-3'>
                       <TripListMetric
                         label='Client / Point de livraison'
-                        value={stop.clientName || stop.pointName || stop.site.name}
+                        value={
+                          stop.clientName || stop.pointName || stop.site.name
+                        }
                       />
                       <TripListMetric
                         label='Volume / Quantité'
@@ -422,16 +487,20 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                       {stop.note}
                     </p>
 
-                    <StopCheckpointControls
-                      status={currentStatus}
-                      disabled={busyCheckpointId === stop.id}
-                      onReach={() => runCheckpointAction(stop.id, 'reach')}
-                      onComplete={() => runCheckpointAction(stop.id, 'complete')}
-                      onSkip={() => {
-                        setSkipTargetId(stop.id)
-                        setSkipReason('')
-                      }}
-                    />
+                    {import.meta.env.VITE_API_MODE !== 'http' && (
+                      <StopCheckpointControls
+                        status={currentStatus}
+                        disabled={busyCheckpointId === stop.id}
+                        onReach={() => runCheckpointAction(stop.id, 'reach')}
+                        onComplete={() =>
+                          runCheckpointAction(stop.id, 'complete')
+                        }
+                        onSkip={() => {
+                          setSkipTargetId(stop.id)
+                          setSkipReason('')
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               )
@@ -464,11 +533,12 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                   Tournée non assignée trop longtemps (SLA &gt; 12 h)
                 </p>
               )}
-              {!trip.sla_transporter_no_ack && !trip.sla_unassigned_too_long && (
-                <p className='mt-2 text-sm text-muted-foreground'>
-                  Aucun signalement SLA actif sur cette tournée.
-                </p>
-              )}
+              {!trip.sla_transporter_no_ack &&
+                !trip.sla_unassigned_too_long && (
+                  <p className='mt-2 text-sm text-muted-foreground'>
+                    Aucun signalement SLA actif sur cette tournée.
+                  </p>
+                )}
             </div>
 
             <Separator />
@@ -569,7 +639,8 @@ function StopCheckpointControls({
   onComplete: () => void
   onSkip: () => void
 }) {
-  if (status === undefined || status === 'COMPLETED' || status === 'SKIPPED') return null
+  if (status === undefined || status === 'COMPLETED' || status === 'SKIPPED')
+    return null
   return (
     <div className='mt-3 flex flex-wrap items-center gap-2'>
       <Badge variant='outline' className='border-transparent bg-background/75'>
@@ -595,7 +666,9 @@ function StopCheckpointControls({
 function HeroMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className='min-w-[130px] rounded-lg border border-border bg-muted/40 px-4 py-2.5 shadow-xs'>
-      <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>{label}</p>
+      <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
+        {label}
+      </p>
       <p className='mt-1 text-lg font-bold text-foreground'>{value}</p>
     </div>
   )
@@ -615,23 +688,21 @@ function DetailSignal({
       <div className='text-xs font-medium uppercase tracking-wide text-muted-foreground'>
         {label}
       </div>
-      <p className='mt-2 text-xl font-bold tracking-tight text-foreground'>{value}</p>
+      <p className='mt-2 text-xl font-bold tracking-tight text-foreground'>
+        {value}
+      </p>
       <p className='mt-1 text-xs text-muted-foreground'>{hint}</p>
     </div>
   )
 }
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string
-  value: string
-}) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className='flex items-baseline justify-between gap-2 border-b border-border/40 pb-2.5 last:border-0 last:pb-0'>
       <span className='text-xs text-muted-foreground'>{label}</span>
-      <span className='text-xs font-semibold text-foreground text-right truncate max-w-[190px]'>{value || '—'}</span>
+      <span className='text-xs font-semibold text-foreground text-right truncate max-w-[190px]'>
+        {value || '—'}
+      </span>
     </div>
   )
 }
@@ -647,7 +718,10 @@ function TripListMetric({ label, value }: { label: string; value: string }) {
   )
 }
 
-function formatQuantity(value: number, type: TourActivity['tourneeType'] = 'VRAC'): string {
+function formatQuantity(
+  value: number,
+  type: TourActivity['tourneeType'] = 'VRAC'
+): string {
   if (type === 'VRAC') return formatTm(value)
   return formatBtl(value)
 }

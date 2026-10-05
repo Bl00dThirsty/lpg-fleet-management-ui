@@ -1,4 +1,4 @@
-import { type Role } from '@lpg/types'
+import { type Role, type CustomRole } from '@lpg/types'
 import {
   AbilityBuilder,
   createMongoAbility,
@@ -32,97 +32,97 @@ export const PERMISSION_CATEGORIES: readonly {
   id: PermissionCategory
   label: string
 }[] = [
-  { id: 'identity', label: 'Identité & accès' },
+  { id: 'identity', label: 'IdentitÃ© & accÃ¨s' },
   { id: 'governance', label: 'Gouvernance' },
   { id: 'sites', label: 'Sites' },
   { id: 'fleet', label: 'Flotte & dispositifs' },
   { id: 'supply', label: 'Approvisionnement' },
-  { id: 'tours', label: 'Tournées, scans & missions' },
-  { id: 'compliance', label: 'Conformité & finances' },
+  { id: 'tours', label: 'TournÃ©es, scans & missions' },
+  { id: 'compliance', label: 'ConformitÃ© & finances' },
   { id: 'risk', label: 'Risques & anomalies' },
-  { id: 'reporting', label: 'Reporting & système' },
+  { id: 'reporting', label: 'Reporting & systÃ¨me' },
 ] as const
 
 export const PERMISSION_CATALOG = [
   // ---- identity (16) -----------------------------------------------------
   { code: 'users.read', category: 'identity', label: 'Voir les utilisateurs' },
   { code: 'users.write', category: 'identity', label: 'Modifier les utilisateurs' },
-  { code: 'users.create', category: 'identity', label: 'Créer des utilisateurs' },
+  { code: 'users.create', category: 'identity', label: 'CrÃ©er des utilisateurs' },
   { code: 'users.invite', category: 'identity', label: 'Inviter des utilisateurs' },
   { code: 'users.delete', category: 'identity', label: 'Supprimer des utilisateurs' },
-  { code: 'users.reset', category: 'identity', label: 'Réinitialiser les mots de passe' },
-  { code: 'users.manage', category: 'identity', label: 'Gérer les utilisateurs' },
-  { code: 'roles.read', category: 'identity', label: 'Voir les rôles' },
-  { code: 'roles.write', category: 'identity', label: 'Modifier les rôles' },
-  { code: 'roles.create', category: 'identity', label: 'Créer des rôles' },
-  { code: 'roles.edit', category: 'identity', label: 'Éditer les rôles' },
-  { code: 'roles.delete', category: 'identity', label: 'Supprimer des rôles' },
+  { code: 'users.reset', category: 'identity', label: 'RÃ©initialiser les mots de passe' },
+  { code: 'users.manage', category: 'identity', label: 'GÃ©rer les utilisateurs' },
+  { code: 'roles.read', category: 'identity', label: 'Voir les rÃ´les' },
+  { code: 'roles.write', category: 'identity', label: 'Modifier les rÃ´les' },
+  { code: 'roles.create', category: 'identity', label: 'CrÃ©er des rÃ´les' },
+  { code: 'roles.edit', category: 'identity', label: 'Ã‰diter les rÃ´les' },
+  { code: 'roles.delete', category: 'identity', label: 'Supprimer des rÃ´les' },
   { code: 'permissions.read', category: 'identity', label: 'Voir la matrice de permissions' },
   { code: 'permissions.write', category: 'identity', label: 'Modifier les permissions' },
-  { code: 'permissions.manage', category: 'identity', label: 'Gérer les permissions' },
-  { code: 'custom-roles.manage', category: 'identity', label: 'Gérer les rôles personnalisés' },
+  { code: 'permissions.manage', category: 'identity', label: 'GÃ©rer les permissions' },
+  { code: 'custom-roles.manage', category: 'identity', label: 'GÃ©rer les rÃ´les personnalisÃ©s' },
   // ---- governance (26) ----------------------------------------------------
   { code: 'orgs.read', category: 'governance', label: 'Voir les organisations' },
   { code: 'orgs.write', category: 'governance', label: 'Modifier les organisations' },
-  { code: 'orgs.create', category: 'governance', label: 'Créer des organisations' },
+  { code: 'orgs.create', category: 'governance', label: 'CrÃ©er des organisations' },
   { code: 'orgs.delete', category: 'governance', label: 'Supprimer des organisations' },
-  { code: 'orgs.manage', category: 'governance', label: 'Gérer les organisations' },
+  { code: 'orgs.manage', category: 'governance', label: 'GÃ©rer les organisations' },
   { code: 'markets.read', category: 'governance', label: 'Voir les marketeurs' },
   { code: 'markets.write', category: 'governance', label: 'Modifier les marketeurs' },
-  { code: 'markets.manage', category: 'governance', label: 'Gérer les marketeurs' },
+  { code: 'markets.manage', category: 'governance', label: 'GÃ©rer les marketeurs' },
   { code: 'transporters.read', category: 'governance', label: 'Voir les transporteurs' },
   { code: 'transporters.write', category: 'governance', label: 'Modifier les transporteurs' },
-  { code: 'transporters.manage', category: 'governance', label: 'Gérer les transporteurs' },
-  { code: 'zones.read', category: 'governance', label: 'Voir les zones géographiques' },
+  { code: 'transporters.manage', category: 'governance', label: 'GÃ©rer les transporteurs' },
+  { code: 'zones.read', category: 'governance', label: 'Voir les zones gÃ©ographiques' },
   { code: 'zones.write', category: 'governance', label: 'Modifier les zones' },
-  { code: 'zones.manage', category: 'governance', label: 'Gérer les zones' },
+  { code: 'zones.manage', category: 'governance', label: 'GÃ©rer les zones' },
   { code: 'clients.read', category: 'governance', label: 'Voir les clients' },
   { code: 'clients.write', category: 'governance', label: 'Modifier les clients' },
-  { code: 'clients.create', category: 'governance', label: 'Créer des clients' },
+  { code: 'clients.create', category: 'governance', label: 'CrÃ©er des clients' },
   { code: 'clients.delete', category: 'governance', label: 'Supprimer des clients' },
-  { code: 'clients.manage', category: 'governance', label: 'Gérer les clients' },
+  { code: 'clients.manage', category: 'governance', label: 'GÃ©rer les clients' },
   { code: 'contracts.read', category: 'governance', label: 'Voir les contrats' },
   { code: 'contracts.write', category: 'governance', label: 'Modifier les contrats' },
-  { code: 'contracts.create', category: 'governance', label: 'Créer des contrats' },
+  { code: 'contracts.create', category: 'governance', label: 'CrÃ©er des contrats' },
   { code: 'contracts.delete', category: 'governance', label: 'Supprimer des contrats' },
-  { code: 'contracts.manage', category: 'governance', label: 'Gérer les contrats' },
+  { code: 'contracts.manage', category: 'governance', label: 'GÃ©rer les contrats' },
   { code: 'contracts.validate', category: 'governance', label: 'Valider les contrats' },
   { code: 'contracts.suspend', category: 'governance', label: 'Suspendre les contrats' },
   // ---- sites (13) ----------------------------------------------------------
   { code: 'sites.read', category: 'sites', label: 'Voir les sites' },
   { code: 'sites.write', category: 'sites', label: 'Modifier les sites' },
-  { code: 'sites.create', category: 'sites', label: 'Créer des sites' },
+  { code: 'sites.create', category: 'sites', label: 'CrÃ©er des sites' },
   { code: 'sites.delete', category: 'sites', label: 'Supprimer des sites' },
-  { code: 'sites.manage', category: 'sites', label: 'Gérer les sites' },
+  { code: 'sites.manage', category: 'sites', label: 'GÃ©rer les sites' },
   { code: 'sites.validate', category: 'sites', label: 'Valider les sites' },
-  { code: 'sites.verify', category: 'sites', label: 'Vérifier les sites terrain' },
+  { code: 'sites.verify', category: 'sites', label: 'VÃ©rifier les sites terrain' },
   { code: 'sites.affect', category: 'sites', label: 'Affecter les sites' },
   { code: 'certificates.read', category: 'sites', label: 'Voir les certificats' },
   { code: 'certificates.write', category: 'sites', label: 'Modifier les certificats' },
-  { code: 'certificates.manage', category: 'sites', label: 'Gérer les certificats' },
+  { code: 'certificates.manage', category: 'sites', label: 'GÃ©rer les certificats' },
   { code: 'site-types.read', category: 'sites', label: 'Voir les types de site' },
   { code: 'site-types.write', category: 'sites', label: 'Modifier les types de site' },
   // ---- fleet (21) ----------------------------------------------------------
   { code: 'trucks.read', category: 'fleet', label: 'Voir les camions' },
   { code: 'trucks.write', category: 'fleet', label: 'Modifier les camions' },
-  { code: 'trucks.create', category: 'fleet', label: 'Créer des camions' },
+  { code: 'trucks.create', category: 'fleet', label: 'CrÃ©er des camions' },
   { code: 'trucks.delete', category: 'fleet', label: 'Supprimer des camions' },
-  { code: 'trucks.manage', category: 'fleet', label: 'Gérer les camions' },
-  { code: 'vehicle-types.read', category: 'fleet', label: 'Voir les types de véhicule' },
-  { code: 'vehicle-types.write', category: 'fleet', label: 'Modifier les types de véhicule' },
+  { code: 'trucks.manage', category: 'fleet', label: 'GÃ©rer les camions' },
+  { code: 'vehicle-types.read', category: 'fleet', label: 'Voir les types de vÃ©hicule' },
+  { code: 'vehicle-types.write', category: 'fleet', label: 'Modifier les types de vÃ©hicule' },
   { code: 'drivers.read', category: 'fleet', label: 'Voir les chauffeurs' },
   { code: 'drivers.write', category: 'fleet', label: 'Modifier les chauffeurs' },
-  { code: 'drivers.create', category: 'fleet', label: 'Créer des chauffeurs' },
+  { code: 'drivers.create', category: 'fleet', label: 'CrÃ©er des chauffeurs' },
   { code: 'drivers.delete', category: 'fleet', label: 'Supprimer des chauffeurs' },
-  { code: 'drivers.manage', category: 'fleet', label: 'Gérer les chauffeurs' },
+  { code: 'drivers.manage', category: 'fleet', label: 'GÃ©rer les chauffeurs' },
   { code: 'livreurs.read', category: 'fleet', label: 'Voir les livreurs PDA' },
   { code: 'livreurs.write', category: 'fleet', label: 'Modifier les livreurs PDA' },
-  { code: 'livreurs.manage', category: 'fleet', label: 'Gérer les livreurs PDA' },
-  { code: 'devices.read', category: 'fleet', label: 'Voir les équipements IoT' },
-  { code: 'devices.write', category: 'fleet', label: 'Modifier les équipements IoT' },
-  { code: 'devices.create', category: 'fleet', label: 'Créer des équipements IoT' },
-  { code: 'devices.delete', category: 'fleet', label: 'Supprimer des équipements IoT' },
-  { code: 'devices.manage', category: 'fleet', label: 'Gérer les équipements IoT' },
+  { code: 'livreurs.manage', category: 'fleet', label: 'GÃ©rer les livreurs PDA' },
+  { code: 'devices.read', category: 'fleet', label: 'Voir les Ã©quipements IoT' },
+  { code: 'devices.write', category: 'fleet', label: 'Modifier les Ã©quipements IoT' },
+  { code: 'devices.create', category: 'fleet', label: 'CrÃ©er des Ã©quipements IoT' },
+  { code: 'devices.delete', category: 'fleet', label: 'Supprimer des Ã©quipements IoT' },
+  { code: 'devices.manage', category: 'fleet', label: 'GÃ©rer les Ã©quipements IoT' },
   { code: 'pda.read', category: 'fleet', label: 'Voir les PDA' },
   { code: 'pda.write', category: 'fleet', label: 'Modifier les PDA' },
   { code: 'pda.sync', category: 'fleet', label: 'Synchroniser les PDA' },
@@ -130,46 +130,46 @@ export const PERMISSION_CATALOG = [
   { code: 'rfid.write', category: 'fleet', label: 'Modifier les tags RFID' },
   { code: 'rfid.delete', category: 'fleet', label: 'Supprimer les tags RFID' },
   // ---- supply (9) ------------------------------------------------------------
-  { code: 'pickups.read', category: 'supply', label: 'Voir les enlèvements' },
-  { code: 'pickups.write', category: 'supply', label: 'Modifier les enlèvements' },
-  { code: 'pickups.create', category: 'supply', label: 'Créer des enlèvements' },
-  { code: 'pickups.validate', category: 'supply', label: 'Valider les enlèvements' },
-  { code: 'pickups.manage', category: 'supply', label: 'Gérer les enlèvements' },
+  { code: 'pickups.read', category: 'supply', label: 'Voir les enlÃ¨vements' },
+  { code: 'pickups.write', category: 'supply', label: 'Modifier les enlÃ¨vements' },
+  { code: 'pickups.create', category: 'supply', label: 'CrÃ©er des enlÃ¨vements' },
+  { code: 'pickups.validate', category: 'supply', label: 'Valider les enlÃ¨vements' },
+  { code: 'pickups.manage', category: 'supply', label: 'GÃ©rer les enlÃ¨vements' },
   { code: 'quotas.read', category: 'supply', label: 'Voir les quotas' },
   { code: 'quotas.write', category: 'supply', label: 'Modifier les quotas' },
-  { code: 'quotas.manage', category: 'supply', label: 'Gérer les quotas' },
-  { code: 'supply.manage', category: 'supply', label: 'Gérer l’approvisionnement' },
+  { code: 'quotas.manage', category: 'supply', label: 'GÃ©rer les quotas' },
+  { code: 'supply.manage', category: 'supply', label: 'GÃ©rer lâ€™approvisionnement' },
   // ---- tours, scans & missions (19) ------------------------------------------
-  { code: 'tours.read', category: 'tours', label: 'Voir les tournées' },
-  { code: 'tours.write', category: 'tours', label: 'Modifier les tournées' },
-  { code: 'tours.create', category: 'tours', label: 'Créer des tournées' },
-  { code: 'tours.validate', category: 'tours', label: 'Valider les tournées' },
-  { code: 'tours.assign', category: 'tours', label: 'Assigner les tournées' },
-  { code: 'tours.manage', category: 'tours', label: 'Gérer les tournées' },
+  { code: 'tours.read', category: 'tours', label: 'Voir les tournÃ©es' },
+  { code: 'tours.write', category: 'tours', label: 'Modifier les tournÃ©es' },
+  { code: 'tours.create', category: 'tours', label: 'CrÃ©er des tournÃ©es' },
+  { code: 'tours.validate', category: 'tours', label: 'Valider les tournÃ©es' },
+  { code: 'tours.assign', category: 'tours', label: 'Assigner les tournÃ©es' },
+  { code: 'tours.manage', category: 'tours', label: 'GÃ©rer les tournÃ©es' },
   { code: 'deliveries.read', category: 'tours', label: 'Voir les livraisons' },
   { code: 'deliveries.write', category: 'tours', label: 'Modifier les livraisons' },
-  { code: 'deliveries.manage', category: 'tours', label: 'Gérer les livraisons' },
-  { code: 'checkpoints.read', category: 'tours', label: 'Voir les points de contrôle' },
-  { code: 'checkpoints.write', category: 'tours', label: 'Modifier les points de contrôle' },
-  { code: 'checkpoints.manage', category: 'tours', label: 'Gérer les points de contrôle' },
+  { code: 'deliveries.manage', category: 'tours', label: 'GÃ©rer les livraisons' },
+  { code: 'checkpoints.read', category: 'tours', label: 'Voir les points de contrÃ´le' },
+  { code: 'checkpoints.write', category: 'tours', label: 'Modifier les points de contrÃ´le' },
+  { code: 'checkpoints.manage', category: 'tours', label: 'GÃ©rer les points de contrÃ´le' },
   { code: 'scans.read', category: 'tours', label: 'Voir les scans RFID' },
   { code: 'scans.write', category: 'tours', label: 'Enregistrer des scans' },
-  { code: 'scans.manage', category: 'tours', label: 'Gérer les scans' },
+  { code: 'scans.manage', category: 'tours', label: 'GÃ©rer les scans' },
   { code: 'missions.read', category: 'tours', label: 'Voir les missions' },
   { code: 'missions.write', category: 'tours', label: 'Modifier les missions' },
   { code: 'missions.assign', category: 'tours', label: 'Assigner les missions' },
-  { code: 'missions.manage', category: 'tours', label: 'Gérer les missions' },
+  { code: 'missions.manage', category: 'tours', label: 'GÃ©rer les missions' },
   // ---- compliance & finance (14) ----------------------------------------------
-  { code: 'declarations.read', category: 'compliance', label: 'Voir les déclarations' },
-  { code: 'declarations.write', category: 'compliance', label: 'Modifier les déclarations' },
-  { code: 'declarations.validate', category: 'compliance', label: 'Valider les déclarations' },
-  { code: 'declarations.manage', category: 'compliance', label: 'Gérer les déclarations' },
-  { code: 'reconciliations.read', category: 'compliance', label: 'Voir les réconciliations' },
-  { code: 'reconciliations.write', category: 'compliance', label: 'Modifier les réconciliations' },
-  { code: 'reconciliations.manage', category: 'compliance', label: 'Gérer les réconciliations' },
+  { code: 'declarations.read', category: 'compliance', label: 'Voir les dÃ©clarations' },
+  { code: 'declarations.write', category: 'compliance', label: 'Modifier les dÃ©clarations' },
+  { code: 'declarations.validate', category: 'compliance', label: 'Valider les dÃ©clarations' },
+  { code: 'declarations.manage', category: 'compliance', label: 'GÃ©rer les dÃ©clarations' },
+  { code: 'reconciliations.read', category: 'compliance', label: 'Voir les rÃ©conciliations' },
+  { code: 'reconciliations.write', category: 'compliance', label: 'Modifier les rÃ©conciliations' },
+  { code: 'reconciliations.manage', category: 'compliance', label: 'GÃ©rer les rÃ©conciliations' },
   { code: 'redressements.read', category: 'compliance', label: 'Voir les redressements' },
   { code: 'redressements.write', category: 'compliance', label: 'Modifier les redressements' },
-  { code: 'redressements.manage', category: 'compliance', label: 'Gérer les redressements' },
+  { code: 'redressements.manage', category: 'compliance', label: 'GÃ©rer les redressements' },
   { code: 'subsidies.read', category: 'compliance', label: 'Voir les subventions' },
   { code: 'subsidies.write', category: 'compliance', label: 'Modifier les subventions' },
   { code: 'invoices.read', category: 'compliance', label: 'Voir les factures' },
@@ -178,42 +178,42 @@ export const PERMISSION_CATALOG = [
   { code: 'anomalies.read', category: 'risk', label: 'Voir les anomalies' },
   { code: 'anomalies.write', category: 'risk', label: 'Modifier les anomalies' },
   { code: 'anomalies.investigate', category: 'risk', label: 'Investiguer les anomalies' },
-  { code: 'anomalies.manage', category: 'risk', label: 'Gérer les anomalies' },
+  { code: 'anomalies.manage', category: 'risk', label: 'GÃ©rer les anomalies' },
   { code: 'risks.read', category: 'risk', label: 'Voir les scores de risque' },
   { code: 'risks.write', category: 'risk', label: 'Modifier les scores de risque' },
-  { code: 'risks.manage', category: 'risk', label: 'Gérer les scores de risque' },
+  { code: 'risks.manage', category: 'risk', label: 'GÃ©rer les scores de risque' },
   { code: 'alerts.read', category: 'risk', label: 'Voir les alertes' },
   { code: 'alerts.write', category: 'risk', label: 'Modifier les alertes' },
-  { code: 'alerts.manage', category: 'risk', label: 'Gérer les alertes' },
+  { code: 'alerts.manage', category: 'risk', label: 'GÃ©rer les alertes' },
   { code: 'incidents.read', category: 'risk', label: 'Voir les incidents' },
   { code: 'incidents.write', category: 'risk', label: 'Modifier les incidents' },
-  { code: 'incidents.manage', category: 'risk', label: 'Gérer les incidents' },
+  { code: 'incidents.manage', category: 'risk', label: 'GÃ©rer les incidents' },
   { code: 'fraud.read', category: 'risk', label: 'Voir le suivi fraude' },
-  { code: 'fraud.manage', category: 'risk', label: 'Gérer le suivi fraude' },
+  { code: 'fraud.manage', category: 'risk', label: 'GÃ©rer le suivi fraude' },
   // ---- reporting & system (21) ----------------------------------------------------
   { code: 'reports.read', category: 'reporting', label: 'Voir les rapports' },
-  { code: 'reports.generate', category: 'reporting', label: 'Générer des rapports' },
+  { code: 'reports.generate', category: 'reporting', label: 'GÃ©nÃ©rer des rapports' },
   { code: 'reports.export', category: 'reporting', label: 'Exporter des rapports' },
-  { code: 'reports.manage', category: 'reporting', label: 'Gérer les rapports' },
-  { code: 'metrics.read', category: 'reporting', label: 'Voir les métriques' },
-  { code: 'metrics.write', category: 'reporting', label: 'Modifier les métriques' },
-  { code: 'audit-logs.read', category: 'reporting', label: 'Voir le journal d’audit' },
-  { code: 'audit-logs.write', category: 'reporting', label: 'Enregistrer des traces d’audit' },
-  { code: 'audit-logs.export', category: 'reporting', label: 'Exporter le journal d’audit' },
+  { code: 'reports.manage', category: 'reporting', label: 'GÃ©rer les rapports' },
+  { code: 'metrics.read', category: 'reporting', label: 'Voir les mÃ©triques' },
+  { code: 'metrics.write', category: 'reporting', label: 'Modifier les mÃ©triques' },
+  { code: 'audit-logs.read', category: 'reporting', label: 'Voir le journal dâ€™audit' },
+  { code: 'audit-logs.write', category: 'reporting', label: 'Enregistrer des traces dâ€™audit' },
+  { code: 'audit-logs.export', category: 'reporting', label: 'Exporter le journal dâ€™audit' },
   { code: 'notification-groups.read', category: 'reporting', label: 'Voir les groupes de notification' },
   { code: 'notification-groups.write', category: 'reporting', label: 'Modifier les groupes de notification' },
-  { code: 'notification-rules.read', category: 'reporting', label: 'Voir les règles de notification' },
-  { code: 'notification-rules.write', category: 'reporting', label: 'Modifier les règles de notification' },
-  { code: 'notification-rules.manage', category: 'reporting', label: 'Gérer les règles de notification' },
-  { code: 'settings.read', category: 'reporting', label: 'Voir les paramètres' },
-  { code: 'settings.write', category: 'reporting', label: 'Modifier les paramètres' },
-  { code: 'settings.manage', category: 'reporting', label: 'Gérer les paramètres' },
-  { code: 'system-health.read', category: 'reporting', label: 'Voir la santé du système' },
-  { code: 'integrations.read', category: 'reporting', label: 'Voir les intégrations' },
-  { code: 'integrations.write', category: 'reporting', label: 'Modifier les intégrations' },
+  { code: 'notification-rules.read', category: 'reporting', label: 'Voir les rÃ¨gles de notification' },
+  { code: 'notification-rules.write', category: 'reporting', label: 'Modifier les rÃ¨gles de notification' },
+  { code: 'notification-rules.manage', category: 'reporting', label: 'GÃ©rer les rÃ¨gles de notification' },
+  { code: 'settings.read', category: 'reporting', label: 'Voir les paramÃ¨tres' },
+  { code: 'settings.write', category: 'reporting', label: 'Modifier les paramÃ¨tres' },
+  { code: 'settings.manage', category: 'reporting', label: 'GÃ©rer les paramÃ¨tres' },
+  { code: 'system-health.read', category: 'reporting', label: 'Voir la santÃ© du systÃ¨me' },
+  { code: 'integrations.read', category: 'reporting', label: 'Voir les intÃ©grations' },
+  { code: 'integrations.write', category: 'reporting', label: 'Modifier les intÃ©grations' },
   { code: 'national-map.read', category: 'reporting', label: 'Voir la carte nationale (SUPERADMIN)' },
   { code: 'dashboard.read', category: 'reporting', label: 'Voir le tableau de bord national' },
-  { code: 'overview.read', category: 'reporting', label: 'Voir l\'aperçu' },
+  { code: 'overview.read', category: 'reporting', label: 'Voir l\'aperÃ§u' },
 ] as const satisfies readonly {
   code: string
   category: PermissionCategory
@@ -268,7 +268,7 @@ export function parseCode(code: string): { resource: Resource; action: Action } 
   return { resource, action }
 }
 
-/** Grants each action implies (what `can(action, …)` accepts). */
+/** Grants each action implies (what `can(action, â€¦)` accepts). */
 const ACTION_IMPLICATIONS: Record<Action, readonly Action[]> = {
   manage: ['manage', 'read', 'write', 'create', 'delete', 'invite', 'reset', 'validate', 'verify', 'affect', 'sync', 'assign', 'reconcile', 'investigate', 'generate', 'export', 'edit', 'suspend'],
   read: ['read'],
@@ -415,7 +415,7 @@ const LIVREUR_GRANTS = [
 const DRIVER_GRANTS: readonly PermissionCode[] = LIVREUR_GRANTS
 
 /**
- * Role → granted permission codes. Exhaustive over `Role`; the build enforces
+ * Role â†’ granted permission codes. Exhaustive over `Role`; the build enforces
  * every role is present and every code exists in the catalog.
  */
 export const ROLE_GRANTS: Record<Role, readonly PermissionCode[]> = {
@@ -488,6 +488,37 @@ export function hasPermission(role: Role, code: PermissionCode): boolean {
   return can(role, action, resource)
 }
 
+export type CustomPermissionRoles = readonly Pick<
+  CustomRole,
+  'permissions_json' | 'is_active' | 'deleted_at'
+>[]
+
+export function hasEffectivePermission(
+  role: Role,
+  code: PermissionCode,
+  customRoles: CustomPermissionRoles = [],
+): boolean {
+  if (hasPermission(role, code)) return true
+  const { resource, action } = parseCode(code)
+  return customRoles.some(
+    (custom) =>
+      custom.is_active &&
+      !custom.deleted_at &&
+      Object.entries(custom.permissions_json).some(([grant, enabled]) => {
+        if (
+          enabled !== true ||
+          !PERMISSION_CATALOG.some((entry) => entry.code === grant)
+        )
+          return false
+        const parsed = parseCode(grant)
+        return (
+          parsed.resource === resource &&
+          ACTION_IMPLICATIONS[parsed.action].includes(action)
+        )
+      }),
+  )
+}
+
 export function defineAbilityFor(role: Role): AppAbility {
   const { can: allow, build } = new AbilityBuilder<AppAbility>(createMongoAbility)
   for (const code of ROLE_GRANTS[role]) {
@@ -547,7 +578,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   SUPERADMIN: 'Super Admin',
   ADMIN: 'Administrateur',
   SUPERVISOR: 'Superviseur',
-  INTEGRATEUR: 'Intégrateur',
+  INTEGRATEUR: 'IntÃ©grateur',
   AGENT: 'Agent validateur',
   MARKETEUR: 'Marketeur',
   TRANSPORTEUR: 'Transporteur',
@@ -557,20 +588,20 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 /** Short descriptions of each role's mandate. */
 export const ROLE_DESCRIPTIONS: Record<Role, string> = {
-  SUPERADMIN: 'Supervision totale — carte ultra-détaillée, tous modules',
-  ADMIN: 'Staff CSPH / RH — gestion utilisateurs, agents, marketeurs, rapports',
-  SUPERVISOR: 'DevOps / monitoring — Prometheus, Grafana, alertes, scores de risque',
+  SUPERADMIN: 'Supervision totale â€” carte ultra-dÃ©taillÃ©e, tous modules',
+  ADMIN: 'Staff CSPH / RH â€” gestion utilisateurs, agents, marketeurs, rapports',
+  SUPERVISOR: 'DevOps / monitoring â€” Prometheus, Grafana, alertes, scores de risque',
   INTEGRATEUR:
-    'Spécialiste domaine — activation, authentification, maintenance matériel PDA+GPS+RFID',
-  AGENT: 'Validateur terrain — suivi marketeurs, reset passwords, validation déclarations',
+    'SpÃ©cialiste domaine â€” activation, authentification, maintenance matÃ©riel PDA+GPS+RFID',
+  AGENT: 'Validateur terrain â€” suivi marketeurs, reset passwords, validation dÃ©clarations',
   MARKETEUR:
-    'Société pétrolière — flotte, tournées, quotas, chauffeurs, règles personnalisées',
+    'SociÃ©tÃ© pÃ©troliÃ¨re â€” flotte, tournÃ©es, quotas, chauffeurs, rÃ¨gles personnalisÃ©es',
   TRANSPORTEUR:
-    'Transporteur — flotte, tournées, scans RFID/PDA, points de contrôle et chauffeurs',
+    'Transporteur â€” flotte, tournÃ©es, scans RFID/PDA, points de contrÃ´le et chauffeurs',
   LIVREUR:
-    'Application PDA mobile — missions, scans RFID et livraisons (sans interface web)',
+    'Application PDA mobile â€” missions, scans RFID et livraisons (sans interface web)',
   DRIVER:
-    'Chauffeur PDA mobile — missions, scans RFID et livraisons (sans interface web)',
+    'Chauffeur PDA mobile â€” missions, scans RFID et livraisons (sans interface web)',
 }
 
 export function roleLabel(role: Role): string {

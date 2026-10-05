@@ -52,3 +52,6 @@ out/
 .next/
 .nuxt/
 .parcel-cache/
+
+# Local verification reports
+*.local.txt

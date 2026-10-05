@@ -15,11 +15,7 @@ export type Role =
   | 'DRIVER'
 
 export type OrgType =
-  | 'REGULATEUR'
-  | 'DEPOT'
-  | 'MARKETEUR'
-  | 'TRANSPORTEUR'
-  | 'CLIENT'
+  'REGULATEUR' | 'DEPOT' | 'MARKETEUR' | 'TRANSPORTEUR' | 'CLIENT'
 
 export type Region =
   | 'ADAMAOUA'
@@ -40,17 +36,10 @@ export type Region =
  * origin. Do not confuse with `OrgType` (organisation taxonomy).
  */
 export type SiteFunction =
-  | 'CENTREEMPLISSEUR'
-  | 'ENTREPOT'
-  | 'POINTAPPROVISIONABLE'
+  'CENTREEMPLISSEUR' | 'ENTREPOT' | 'POINTAPPROVISIONABLE'
 
 export type SiteStatus =
-  | 'UNASSIGNED'
-  | 'ASSIGNED'
-  | 'ACTIVE'
-  | 'VERIFIED'
-  | 'SUSPENDED'
-  | 'REJECTED'
+  'UNASSIGNED' | 'ASSIGNED' | 'ACTIVE' | 'VERIFIED' | 'SUSPENDED' | 'REJECTED'
 
 export type VehicleType = 'VRAC' | 'BOUTEILLES50KG'
 export type TourneeType = 'VRAC' | 'BOUTEILLES50KG'
@@ -71,14 +60,12 @@ export type CheckpointStatus = 'PENDING' | 'REACHED' | 'COMPLETED' | 'SKIPPED'
 export type ScanDirection = 'IN' | 'OUT'
 
 export type PickupStatus =
-  | 'DRAFT'
-  | 'VALIDATED'
-  | 'INPROGRESS'
-  | 'COMPLETED'
-  | 'CANCELLED'
+  'DRAFT' | 'VALIDATED' | 'INPROGRESS' | 'COMPLETED' | 'CANCELLED'
 
-export type DeclarationStatus = 'DRAFT' | 'SUBMITTED' | 'RECONCILED' | 'DISPUTED'
-export type ReconciliationStatus = 'PENDING' | 'VERIFIED' | 'REDRESSEMENTAPPLIED'
+export type DeclarationStatus =
+  'DRAFT' | 'SUBMITTED' | 'RECONCILED' | 'DISPUTED'
+export type ReconciliationStatus =
+  'PENDING' | 'VERIFIED' | 'REDRESSEMENTAPPLIED'
 export type RedressementStatus = 'ISSUED' | 'PAID' | 'WAIVED'
 
 export type DeviceType = 'GPS' | 'PDA' | 'RFIDREADER'
@@ -105,7 +92,8 @@ export type RfidTagStatus =
   | 'LOST'
   | 'BLOCKED'
 
-export type RiskLevel = 'FAIBLE' | 'MODERE' | 'ELEVE' | 'CRITIQUE' | 'CRITIQUEEXTREME'
+export type RiskLevel =
+  'FAIBLE' | 'MODERE' | 'ELEVE' | 'CRITIQUE' | 'CRITIQUEEXTREME'
 
 export type RiskEntityType =
   | 'MARKETEUR'
@@ -143,11 +131,7 @@ export type AnomalyType =
 export type AnomalyStatus = 'NOUVEAU' | 'ENCOURS' | 'RESOLU' | 'FERME'
 
 export type NotificationGroupType =
-  | 'TECHNICAL'
-  | 'INVESTIGATION'
-  | 'ADMIN'
-  | 'MARKETING'
-  | 'TRANSPORT'
+  'TECHNICAL' | 'INVESTIGATION' | 'ADMIN' | 'MARKETING' | 'TRANSPORT'
 
 export type MfaType = 'TOTP' | 'SMS' | 'EMAIL'
 export type MfaStatus = 'DISABLED' | 'PENDINGSETUP' | 'ENABLED' | 'LOCKED'
@@ -185,7 +169,8 @@ export type AuditAction =
 
 export type ReportType = 'OPERATIONAL' | 'FINANCIAL' | 'COMPLIANCE'
 export type ReportFormat = 'PDF' | 'EXCEL' | 'CSV' | 'JSON'
-export type ReportStatus = 'PENDING' | 'GENERATING' | 'READY' | 'FAILED' | 'EXPIRED'
+export type ReportStatus =
+  'PENDING' | 'GENERATING' | 'READY' | 'FAILED' | 'EXPIRED'
 
 export interface BaseEntity {
   id: string
@@ -402,6 +387,18 @@ export interface PickupRequest extends BaseEntity {
 }
 
 export interface DeliveryTour extends BaseEntity {
+  /** Dispatch POC: pickup and delivery missions share the execution envelope. */
+  mission_kind?: 'DELIVERY' | 'PICKUP'
+  pickup_status?: PickupStatus
+  scheduled_at?: string | null
+  destination_site_id?: string | null
+  loading_validated?: boolean
+  loading?: {
+    order_image_path?: string | null
+    validated_at?: string
+    tags?: string[]
+  }
+
   id: string
   tour_code?: string
   marketeur_org_id: string
@@ -427,6 +424,8 @@ export interface DeliveryTour extends BaseEntity {
 }
 
 export interface Checkpoint extends BaseEntity {
+  delivered_quantity?: number | null
+  proof_image_path?: string | null
   id: string
   tournee_id: string
   tour_id?: string
@@ -704,4 +703,23 @@ export interface AggregationResult {
   buckets: AggregationBucket[]
   total_count: number
   total_volume?: number
+}
+
+/** Input for a planned pickup in the Supabase dispatch POC. */
+export interface PickupPlan {
+  marketeur_org_id: string
+  source_site_id: string
+  destination_site_id: string
+  scheduled_at: string
+  type: TourneeType
+  requested_quantity: number
+  vehicle_id: string
+  driver_id: string
+  livreur_user_id: string
+}
+export interface MissionDocument {
+  id: string
+  label: string
+  captured_at: string | null
+  url: string
 }

@@ -42,10 +42,12 @@ export function MFAChallengeDialog({
   const [isVerifying, setIsVerifying] = useState(false)
 
   useEffect(() => {
-    if (open) {
+    if (!open) return
+    const frame = requestAnimationFrame(() => {
       setCode('')
       setError(null)
-    }
+    })
+    return () => cancelAnimationFrame(frame)
   }, [open])
 
   const handleVerify = async () => {
@@ -60,10 +62,10 @@ export function MFAChallengeDialog({
     try {
       // First verify locally with the secret (for demo)
       const isValidLocal = verifySync({ token: code, secret })
-      
+
       // Then call the server verification
       const isValid = await onVerify(code)
-      
+
       if (isValid && isValidLocal.valid) {
         onOpenChange(false)
         toast.success('Authentification réussie')
@@ -95,7 +97,8 @@ export function MFAChallengeDialog({
             Authentification à deux facteurs
           </DialogTitle>
           <DialogDescription>
-            Entrez le code à 6 chiffres affiché dans votre application d'authentification.
+            Entrez le code à 6 chiffres affiché dans votre application
+            d'authentification.
           </DialogDescription>
         </DialogHeader>
 
@@ -109,7 +112,10 @@ export function MFAChallengeDialog({
                 onChange={(e) => onRememberDeviceChange(e.target.checked)}
                 className='h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary'
               />
-              <Label htmlFor='remember-device' className='text-sm cursor-pointer'>
+              <Label
+                htmlFor='remember-device'
+                className='text-sm cursor-pointer'
+              >
                 Se souvenir de cet appareil pendant 30 jours
               </Label>
             </div>
@@ -124,7 +130,9 @@ export function MFAChallengeDialog({
                 inputMode='numeric'
                 maxLength={6}
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+                onChange={(e) =>
+                  setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))
+                }
                 onKeyDown={handleKeyDown}
                 placeholder='123456'
                 className='text-center text-2xl tracking-widest font-mono py-3'
@@ -141,7 +149,11 @@ export function MFAChallengeDialog({
                 disabled={isVerifying || isLoading}
                 aria-label={showCode ? 'Masquer le code' : 'Afficher le code'}
               >
-                {showCode ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
+                {showCode ? (
+                  <EyeOff className='h-4 w-4' />
+                ) : (
+                  <Eye className='h-4 w-4' />
+                )}
               </Button>
             </div>
 

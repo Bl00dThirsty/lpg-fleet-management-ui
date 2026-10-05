@@ -31,14 +31,18 @@ const DASH = '\u2014'
 export function getToursColumns({
   onOpenDetails,
   selectedTripId,
+  missionKind,
 }: {
   onOpenDetails: (row: TourActivity) => void
   selectedTripId?: string | null
+  missionKind?: TourActivity['mission_kind']
 }): ColumnDef<TourActivity>[] {
-  return [
+  const columns: ColumnDef<TourActivity>[] = [
     {
       accessorKey: 'reference',
-      header: ({ column }) => <DataTableColumnHeader column={column} title='Reference' />,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Reference' />
+      ),
       cell: ({ row }) => (
         <button
           type='button'
@@ -126,4 +130,50 @@ export function getToursColumns({
       enableGrouping: true,
     },
   ]
+  if (missionKind === 'PICKUP') {
+    const specific: ColumnDef<TourActivity>[] = [
+      {
+        id: 'origin',
+        accessorFn: (row) => row.originSite.name,
+        header: 'Dépôt d’enlèvement',
+        meta: { label: 'Dépôt' },
+      },
+      {
+        id: 'destination',
+        accessorFn: (row) => row.destinationSite.name,
+        header: 'Destination',
+        meta: { label: 'Destination' },
+      },
+      {
+        accessorKey: 'scheduled_at',
+        header: 'Date prévue',
+        cell: ({ row }) =>
+          row.original.scheduled_at
+            ? new Date(row.original.scheduled_at).toLocaleString('fr-FR')
+            : DASH,
+        meta: { label: 'Date prévue' },
+      },
+      {
+        accessorKey: 'has_loading_proof',
+        header: 'Bon',
+        cell: ({ row }) => (
+          <Badge variant='outline'>
+            {row.original.has_loading_proof ? 'Disponible' : 'À scanner'}
+          </Badge>
+        ),
+        meta: { label: 'Bon' },
+      },
+    ]
+    return [
+      ...columns.filter(
+        (c) =>
+          !('accessorKey' in c) ||
+          !['transporter_name', 'execution_mode'].includes(
+            String(c.accessorKey)
+          )
+      ),
+      ...specific,
+    ]
+  }
+  return columns
 }

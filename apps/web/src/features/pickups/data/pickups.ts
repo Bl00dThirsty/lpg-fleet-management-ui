@@ -1,12 +1,19 @@
+import { useToursStore } from '@/store/tours-store'
+import { apiAdapter } from '@lpg/api-client'
+import type { Site, Organization, Vehicle, Driver, AppUser } from '@lpg/types'
 import { client_sites, organizations, sites } from '@lpg/mock-data'
 import type { PickupRequest, PickupStatus } from '@lpg/types'
 import type { UserScope } from '@/features/scope/scope'
-import { scopeBySiteOrCreator, scopeWithOrgId } from '@/features/scope/site-creator'
+import {
+  scopeBySiteOrCreator,
+  scopeWithOrgId,
+} from '@/features/scope/site-creator'
 import { usePickupsStore } from '@/store/pickups-store'
 
 export type { PickupStatus }
 
 export interface Pickup {
+  unit?: 'TM' | 'btl'
   id: string
   reference: string
   marketeur_org_id: string
@@ -32,9 +39,13 @@ export const pickupStatusLabels: Record<PickupStatus, string> = {
   CANCELLED: 'Annulée',
 }
 
-export const pickupStatusOptions: readonly { label: string; value: PickupStatus }[] = (
-  Object.keys(pickupStatusLabels) as PickupStatus[]
-).map((v) => ({ label: pickupStatusLabels[v], value: v }))
+export const pickupStatusOptions: readonly {
+  label: string
+  value: PickupStatus
+}[] = (Object.keys(pickupStatusLabels) as PickupStatus[]).map((v) => ({
+  label: pickupStatusLabels[v],
+  value: v,
+}))
 
 const allSites = [...sites, ...client_sites]
 
@@ -59,9 +70,10 @@ function pickupView(row: PickupRequest, index: number): Pickup {
     approved_quantity: row.approved_quantity ?? null,
     pickup_status: row.status,
     requested_at: row.created_at ?? '',
-    validated_at: row.approved_quantity != null ? row.created_at ?? null : null,
+    validated_at:
+      row.approved_quantity != null ? (row.created_at ?? null) : null,
     started_at: null,
-    completed_at: row.status === 'COMPLETED' ? row.updated_at ?? null : null,
+    completed_at: row.status === 'COMPLETED' ? (row.updated_at ?? null) : null,
     proof_url: null,
   }
 }
@@ -73,15 +85,40 @@ function pickupView(row: PickupRequest, index: number): Pickup {
  */
 export function getPickups(
   scope?: UserScope,
-  rows: PickupRequest[] = usePickupsStore.getState().pickups,
+  rows?: PickupRequest[]
 ): Pickup[] {
-  const views = rows.map((p, i) => pickupView(p, i))
+  if (!rows && import.meta.env.VITE_API_MODE === 'http') {
+    return useToursStore
+      .getState()
+      .tours.filter((t) => t.mission_kind === 'PICKUP' && !t.deleted_at)
+      .map((t) => ({
+        id: t.id,
+        reference: t.tour_code ?? t.id,
+        marketeur_org_id: t.marketeur_org_id,
+        created_by: t.created_by ?? null,
+        source_name: siteName(t.source_site_id ?? ''),
+        destination_name: siteName(t.destination_site_id ?? ''),
+        marketeur_name: orgName(t.marketeur_org_id),
+        requested_quantity: t.requested_quantity,
+        approved_quantity: t.requested_quantity,
+        pickup_status: t.pickup_status ?? 'VALIDATED',
+        requested_at: t.created_at ?? '',
+        validated_at: t.created_at ?? null,
+        started_at: t.started_at ?? null,
+        completed_at: t.closed_at ?? null,
+        proof_url: null,
+        unit: t.type === 'VRAC' ? ('TM' as const) : ('btl' as const),
+      }))
+  }
+  const views = (rows ?? usePickupsStore.getState().pickups)
+    .filter((p) => !p.deleted_at)
+    .map((p, i) => pickupView(p, i))
   if (!scope) return views
   return scopeBySiteOrCreator(
     views,
     scopeWithOrgId(scope),
     (row) => row.marketeur_org_id,
-    (row) => row.created_by ?? undefined,
+    (row) => row.created_by ?? undefined
   )
 }
 
@@ -94,4 +131,15 @@ export function getPickupSummary(rows: Pickup[]) {
     completed: rows.filter((r) => r.pickup_status === 'COMPLETED').length,
     cancelled: rows.filter((r) => r.pickup_status === 'CANCELLED').length,
   }
+}
+export interface PickupOptions {
+  sources: Site[]
+  destinations: Site[]
+  organizations: Organization[]
+  vehicles: Vehicle[]
+  drivers: Driver[]
+  users: AppUser[]
+}
+export function getPickupOptions(): Promise<PickupOptions> {
+  return apiAdapter.request<PickupOptions>('/pickup-options')
 }

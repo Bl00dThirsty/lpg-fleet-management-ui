@@ -5,6 +5,16 @@
   },
   "settings": [
     {
+      "id": "set-dispatch-proof-expiry",
+      "setting_key": "storage.proof_url_expiry_seconds",
+      "setting_value": "300",
+      "value_type": "NUMBER",
+      "category": "STORAGE",
+      "description": "Durée de validité des liens privés des justificatifs, en secondes",
+      "is_encrypted": false,
+      "requires_restart": false
+    },
+    {
       "id": "set-0001-geo-conf-auto",
       "setting_key": "geo.confidence_auto_verify_threshold",
       "setting_value": "80",

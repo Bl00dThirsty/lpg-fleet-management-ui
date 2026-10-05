@@ -1,133 +1,151 @@
-import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
-import { Plus } from 'lucide-react'
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@lpg/ui'
-import { vehicles as vehiclesData } from '@lpg/mock-data'
+import { useEffect, useMemo, useState } from 'react'
+import { hasEffectivePermission } from '@lpg/permissions'
+import { Plus, RefreshCw, ArrowLeft } from 'lucide-react'
+import { Button } from '@lpg/ui'
 import { PageHeader } from '@/components/layout/page-header'
 import { PageShell, SectionCard } from '@/components/layout/page'
-import { PickupsTable } from './components/pickups-table'
-import { PickupsCreateWizard } from './components/pickups-create-wizard'
-import { PickupsValidateDialog } from './components/pickups-validate-dialog'
-import { getPickups, getPickupSummary, type Pickup } from './data/pickups'
-import { getScope } from '@/features/scope/scope'
+import { useToursStore } from '@/store/tours-store'
 import { useAuthStore } from '@/store/auth-store'
-import { usePickupsStore } from '@/store/pickups-store'
-import { extractErrorMessage } from '@/hooks/use-toast-feedback'
-import { hasPermission } from '@lpg/permissions'
-import type { PickupRequest } from '@lpg/types'
+import { TourActiveHeader } from '@/features/tours/components/tour-active-header'
+import { TourDetailView } from '@/features/tours/components/tour-detail-view'
+import { ToursTable } from '@/features/tours/components/tours-table'
+import { PickupsCreateWizard } from './components/pickups-create-wizard'
 import type { Role } from '@/config/rbac/roles'
 
-export function PickupsPage({ role }: { role: Role }) {
-  // The store is the single source of truth (seeded fixtures + created /
-  // validated / cancelled requests); the page reads it reactively.
-  const storeRows = usePickupsStore((s) => s.pickups)
-  const user = useAuthStore((s) => s.user)
-  const scope = useMemo(() => getScope(user), [user])
-  const rows = useMemo(() => getPickups(scope, storeRows), [scope, storeRows])
+export function PickupsPage({
+  role,
+  marketerId,
+}: {
+  role: Role
+  marketerId?: string
+}) {
   const [createOpen, setCreateOpen] = useState(false)
-  const [assignedVehicles, setAssignedVehicles] = useState<Record<string, string[]>>({})
-  const [validateOpen, setValidateOpen] = useState<Pickup | null>(null)
-  const [detailOpen, setDetailOpen] = useState<Pickup | null>(null)
-
-  const canCreate = hasPermission(role, 'pickups.create')
-  const canValidate = hasPermission(role, 'pickups.validate')
-  const canWrite = hasPermission(role, 'pickups.write')
-
-  const summary = getPickupSummary(rows)
-
-  const handleCreated = (created: PickupRequest, vehicleIds: string[]) => {
-    setAssignedVehicles((prev) => ({ ...prev, [created.id]: vehicleIds }))
-  }
-
-  const handleValidate = (row: Pickup, qty: number) => {
-    try {
-      usePickupsStore.getState().validatePickup(row.id, qty)
-      toast.success(`${row.reference} validée pour ${qty.toLocaleString('fr-FR')} TM`)
-    } catch (err) {
-      toast.error(extractErrorMessage(err))
-    }
-  }
-
-  const handleCancel = (row: Pickup) => {
-    try {
-      usePickupsStore.getState().cancelPickup(row.id)
-      toast.warning(`${row.reference} annulée`)
-    } catch (err) {
-      toast.error(extractErrorMessage(err))
-    }
-  }
-
-  const detailVehicleIds = detailOpen ? assignedVehicles[detailOpen.id] ?? [] : []
-  const detailVehicles = detailVehicleIds
-    .map((vid) => vehiclesData.find((v) => v.id === vid)?.license_plate ?? vid)
-    .join(', ')
-
+  const [detailId, setDetailId] = useState<string>()
+  const [filter, setFilter] = useState('ALL')
+  const rows = useToursStore((s) => s.tours)
+  const checkpoints = useToursStore((s) => s.checkpoints)
+  const loading = useToursStore((s) => s.loading)
+  const error = useToursStore((s) => s.error)
+  const user = useAuthStore((s) => s.user)
+  const userId = user?.id
+  const trips = useMemo(
+    () =>
+      useToursStore
+        .getState()
+        .views('ALL', 'PICKUP')
+        .filter(
+          (t) =>
+            t.mission_kind === 'PICKUP' &&
+            (!marketerId ||
+              rows.find((r) => r.id === t.id)?.marketeur_org_id === marketerId)
+        ),
+    [rows, checkpoints, marketerId]
+  )
+  const filtered = trips.filter(
+    (t) => filter === 'ALL' || t.pickup_status === filter
+  )
+  const selected = trips.find((t) => t.id === detailId)
+  useEffect(() => {
+    void useToursStore.getState().fetchTours(true)
+  }, [userId])
   return (
     <PageShell>
       <PageHeader
-        title='Approvisionnements (Flux 1)'
-        description={`${summary.total} requêtes — ${summary.draft} brouillon(s), ${summary.validated} validée(s), ${summary.inProgress} en cours, ${summary.completed} terminée(s).`}
+        title={selected ? `Enlèvement ${selected.reference}` : 'Enlèvements'}
+        description='Flux 1 — planification, équipage, réception et bons d’enlèvement.'
         actions={
-          canCreate ? (
-            <Button className='gap-2' onClick={() => setCreateOpen(true)}>
-              <Plus className='size-4' /> Nouvelle requête
+          <div className='flex gap-2'>
+            <Button
+              variant='outline'
+              disabled={loading}
+              onClick={() => useToursStore.getState().fetchTours(true)}
+            >
+              <RefreshCw
+                className={`mr-2 size-4 ${loading ? 'animate-spin' : ''}`}
+              />
+              Actualiser
             </Button>
-          ) : null
+            {hasEffectivePermission(
+              role,
+              'pickups.create',
+              user?.custom_roles
+            ) && (
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className='mr-2 size-4' />
+                Planifier un enlèvement
+              </Button>
+            )}
+          </div>
         }
       />
-      <SectionCard>
-        <PickupsTable
-          rows={rows}
-          onOpenDetails={(row) => {
-            if (canValidate && row.pickup_status === 'DRAFT') {
-              setValidateOpen(row)
-            } else {
-              setDetailOpen(row)
-            }
-          }}
-        />
-      </SectionCard>
-
+      {error && (
+        <p role='alert' className='text-destructive'>
+          {error}
+        </p>
+      )}
+      {selected ? (
+        <>
+          <Button
+            variant='ghost'
+            className='w-fit'
+            onClick={() => setDetailId(undefined)}
+          >
+            <ArrowLeft className='mr-2 size-4' />
+            Tous les enlèvements
+          </Button>
+          <TourActiveHeader
+            trip={selected}
+            trips={trips}
+            onSelectTrip={setDetailId}
+          />
+          <TourDetailView trip={selected} />
+        </>
+      ) : (
+        <>
+          {filtered[0] && (
+            <TourActiveHeader
+              trip={filtered[0]}
+              trips={filtered}
+              onSelectTrip={setDetailId}
+            />
+          )}
+          <SectionCard>
+            <div className='mb-4 flex flex-wrap gap-2'>
+              {(
+                [
+                  ['ALL', 'Tous'],
+                  ['VALIDATED', 'Planifiés'],
+                  ['INPROGRESS', 'En cours'],
+                  ['COMPLETED', 'Terminés'],
+                  ['CANCELLED', 'Annulés'],
+                ] as const
+              ).map(([value, label]) => (
+                <Button
+                  key={value}
+                  variant={filter === value ? 'default' : 'outline'}
+                  onClick={() => setFilter(value)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+            {loading && !trips.length ? (
+              <p role='status'>Chargement des enlèvements…</p>
+            ) : (
+              <ToursTable
+                rows={filtered}
+                missionKind='PICKUP'
+                onOpenDetails={(row) => setDetailId(row.id)}
+              />
+            )}
+          </SectionCard>
+        </>
+      )}
       <PickupsCreateWizard
         open={createOpen}
         onOpenChange={setCreateOpen}
-        onCreated={handleCreated}
+        onCreated={setDetailId}
       />
-
-      <PickupsValidateDialog
-        pickup={validateOpen}
-        open={validateOpen !== null}
-        onOpenChange={(o) => { if (!o) setValidateOpen(null) }}
-        onValidate={(qty) => validateOpen && handleValidate(validateOpen, qty)}
-      />
-
-      <Dialog open={detailOpen !== null && validateOpen === null} onOpenChange={(o) => { if (!o) setDetailOpen(null) }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{detailOpen?.reference ?? '—'}</DialogTitle>
-          </DialogHeader>
-          {detailOpen && (
-            <div className='space-y-2 py-2 text-sm'>
-              <p>Marketeur: {detailOpen.marketeur_name}</p>
-              <p>Source: {detailOpen.source_name}</p>
-              <p>Destination: {detailOpen.destination_name}</p>
-              <p>Quantité demandée: {detailOpen.requested_quantity.toLocaleString('fr-FR')} TM</p>
-              <p>Quantité approuvée: {detailOpen.approved_quantity?.toLocaleString('fr-FR') ?? '—'}</p>
-              <p>Statut: {detailOpen.pickup_status}</p>
-              {detailVehicleIds.length > 0 && (
-                <p>Véhicules: {detailVehicles}</p>
-              )}
-            </div>
-          )}
-          {canWrite && detailOpen?.pickup_status !== 'CANCELLED' && detailOpen?.pickup_status !== 'COMPLETED' ? (
-            <DialogFooter>
-              <Button variant='destructive' onClick={() => { if (detailOpen) handleCancel(detailOpen); setDetailOpen(null) }}>
-                Annuler la requête
-              </Button>
-            </DialogFooter>
-          ) : null}
-        </DialogContent>
-      </Dialog>
     </PageShell>
   )
 }

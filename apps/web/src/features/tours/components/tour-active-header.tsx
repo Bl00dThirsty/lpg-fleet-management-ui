@@ -39,13 +39,18 @@ export function TourActiveHeader({
       <CardHeader className='border-b bg-muted/30'>
         <div className='flex flex-wrap items-center justify-between gap-2'>
           <div>
-            <CardTitle>Tournée active</CardTitle>
+            <CardTitle>
+              {trip.mission_kind === 'PICKUP'
+                ? 'Enlèvement sélectionné'
+                : 'Tournée active'}
+            </CardTitle>
             <CardDescription>
               Changez rapidement de mission sans revenir à la liste.
             </CardDescription>
           </div>
           <span className='text-xs text-muted-foreground'>
-            {executionModeLabels[trip.execution_mode]} · {trips.length} tournée{trips.length > 1 ? 's' : ''} dans la sélection
+            {executionModeLabels[trip.execution_mode]} · {trips.length} mission
+            {trips.length > 1 ? 's' : ''} dans la sélection
           </span>
         </div>
       </CardHeader>

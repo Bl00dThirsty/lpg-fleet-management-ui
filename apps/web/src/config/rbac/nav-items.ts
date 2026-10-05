@@ -19,7 +19,8 @@
  */
 
 import {
-  hasPermission,
+  hasEffectivePermission,
+  type CustomPermissionRoles,
   ROLES,
   ROLE_LABELS,
   type PermissionCode,
@@ -115,7 +116,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- Overview / piloting ----------- */
   {
     id: 'overview',
-    label: 'Vue d\'ensemble',
+    label: "Vue d'ensemble",
     icon: LayoutDashboard,
     path: 'overview',
     requires: ['overview.read'],
@@ -468,7 +469,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'supply',
-    label: 'Requête d\'enlèvement',
+    label: "Requête d'enlèvement",
     icon: PackageCheck,
     path: 'supply',
     requires: ['pickups.create'],
@@ -508,7 +509,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- ADMIN-specific ----------- */
   {
     id: 'alert-rules',
-    label: 'Règles d\'alerte',
+    label: "Règles d'alerte",
     icon: ShieldCheck,
     path: 'alert-rules',
     requires: ['alerts.write'],
@@ -550,7 +551,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'audit-logs',
-    label: 'Journal d\'audit',
+    label: "Journal d'audit",
     icon: ScrollText,
     path: 'audit-logs',
     requires: ['audit-logs.read'],
@@ -673,15 +674,26 @@ interface RoleDecl {
  * Web-facing roles only. LIVREUR is PDA-only — no web UI is rendered for it;
  * any appearance here is purely defensive (e.g. role switcher integrity).
  */
-export const WEB_ROLES = ['SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'INTEGRATEUR', 'AGENT', 'MARKETEUR', 'TRANSPORTEUR'] as const
+export const WEB_ROLES = [
+  'SUPERADMIN',
+  'ADMIN',
+  'SUPERVISOR',
+  'INTEGRATEUR',
+  'AGENT',
+  'MARKETEUR',
+  'TRANSPORTEUR',
+] as const
 
 const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   SUPERADMIN: {
     groups: [
-      { title: 'Pilotage national', items: ['overview', 'map', 'finance', 'risk-scores', 'dashboard'] },
+      {
+        title: 'Pilotage national',
+        items: ['overview', 'map', 'finance', 'risk-scores', 'dashboard'],
+      },
       {
         title: 'Entités',
-          items: [
+        items: [
           'organizations',
           'marketers',
           'transporters',
@@ -690,9 +702,9 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
           'clients',
           'client-sites',
           'zones',
-           'users',
-           'trucks',
-           'certificates',
+          'users',
+          'trucks',
+          'certificates',
           'devices',
         ],
       },
@@ -728,10 +740,25 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   },
   ADMIN: {
     groups: [
-      { title: 'Gestion', items: ['overview', 'users', 'marketers', 'transporters', 'clients', 'dashboard-admin'] },
+      {
+        title: 'Gestion',
+        items: [
+          'overview',
+          'users',
+          'marketers',
+          'transporters',
+          'clients',
+          'dashboard-admin',
+        ],
+      },
       {
         title: 'Validation & Contrôle',
-        items: ['site-verifications', 'pickups', 'declarations', 'reconciliations'],
+        items: [
+          'site-verifications',
+          'pickups',
+          'declarations',
+          'reconciliations',
+        ],
       },
       {
         title: 'Anomalies & Risques',
@@ -742,10 +769,24 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   },
   SUPERVISOR: {
     groups: [
-      { title: 'Monitoring technique', items: ['overview', 'infra', 'system-metrics', 'system-health', 'dashboard-supervisor'] },
+      {
+        title: 'Monitoring technique',
+        items: [
+          'overview',
+          'infra',
+          'system-metrics',
+          'system-health',
+          'dashboard-supervisor',
+        ],
+      },
       {
         title: 'Piste technique (Anomalies)',
-        items: ['device-health', 'gps-tracking', 'alerts', 'anomalies-technical'],
+        items: [
+          'device-health',
+          'gps-tracking',
+          'alerts',
+          'anomalies-technical',
+        ],
       },
       { title: 'Risque & Recompute', items: ['risk-scores', 'recompute'] },
       { title: 'Logs & Intégration', items: ['logs', 'integrations'] },
@@ -766,24 +807,42 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   },
   AGENT: {
     groups: [
-      { title: 'Suivi terrain', items: ['overview', 'marketers', 'clients', 'client-sites'] },
+      {
+        title: 'Suivi terrain',
+        items: ['overview', 'marketers', 'clients', 'client-sites'],
+      },
       {
         title: 'Investigation (Piste métier)',
-        items: ['declarations', 'anomalies-investigation', 'tours', 'tour-tracking', 'visits'],
+        items: [
+          'declarations',
+          'anomalies-investigation',
+          'tours',
+          'tour-tracking',
+          'visits',
+        ],
       },
       { title: 'Actions', items: ['reconciliations', 'passwords'] },
     ],
   },
   MARKETEUR: {
     groups: [
-       { title: 'Ma flotte', items: ['overview', 'vehicles', 'drivers', 'devices', 'dashboard-marketeur'] },
+      {
+        title: 'Ma flotte',
+        items: [
+          'overview',
+          'vehicles',
+          'drivers',
+          'devices',
+          'dashboard-marketeur',
+        ],
+      },
       {
         title: 'Flux 1 — Approvisionnement',
         items: ['pickups', 'pickup-tracking'],
       },
       {
         title: 'Flux 2 — Livraison',
-         items: ['tours', 'tour-tracking', 'transporter-contracts', 'clients'],
+        items: ['tours', 'tour-tracking', 'transporter-contracts', 'clients'],
       },
       {
         title: 'Déclarations & Performance',
@@ -791,13 +850,13 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
       },
     ],
   },
-TRANSPORTEUR: {
+  TRANSPORTEUR: {
     groups: [
       {
         title: 'Opérations',
-         items: ['overview', 'tours', 'tour-tracking', 'dashboard-transporteur'],
+        items: ['overview', 'tours', 'tour-tracking', 'dashboard-transporteur'],
       },
-       { title: 'Ma flotte', items: ['vehicles', 'drivers', 'livreurs'] },
+      { title: 'Ma flotte', items: ['vehicles', 'drivers', 'livreurs'] },
       { title: 'Contrats & Clients', items: ['contracts', 'performance'] },
     ],
   },
@@ -824,13 +883,23 @@ TRANSPORTEUR: {
 
 const ITEM_BY_ID = new Map(NAV_CATALOG.map((item) => [item.id, item]))
 
-function isVisibleTo(role: Role, item: NavItemDecl): boolean {
-  return item.requires.some((code) => hasPermission(role, code))
+function isVisibleTo(
+  role: Role,
+  item: NavItemDecl,
+  customRoles: CustomPermissionRoles = []
+): boolean {
+  return item.requires.some((code) =>
+    hasEffectivePermission(role, code, customRoles)
+  )
 }
 
-function visibleIdsFor(role: Role): Set<string> {
+function visibleIdsFor(
+  role: Role,
+  customRoles: CustomPermissionRoles
+): Set<string> {
   const visible = new Set<string>()
-  for (const item of NAV_CATALOG) if (isVisibleTo(role, item)) visible.add(item.id)
+  for (const item of NAV_CATALOG)
+    if (isVisibleTo(role, item, customRoles)) visible.add(item.id)
   return visible
 }
 
@@ -843,7 +912,7 @@ function visibleIdsFor(role: Role): Set<string> {
  * a link can never exist that the guard doesn't know how to authorize.
  */
 export function resolveFeaturePath(decl: NavItemDecl): string {
-  return decl.static ? decl.path ?? '/' : `/${decl.path ?? decl.id}`
+  return decl.static ? (decl.path ?? '/') : `/${decl.path ?? decl.id}`
 }
 
 function toSidebarItem(_role: Role, decl: NavItemDecl) {
@@ -859,9 +928,12 @@ function toSidebarItem(_role: Role, decl: NavItemDecl) {
 /**
  * Build the sidebar for a role. Pure — recompute on role change.
  */
-export function buildSidebarFor(role: Role): SidebarData {
+export function buildSidebarFor(
+  role: Role,
+  customRoles: CustomPermissionRoles = []
+): SidebarData {
   const decl = ROLE_NAV_DECL[role]
-  const visible = visibleIdsFor(role)
+  const visible = visibleIdsFor(role, customRoles)
   if (!decl) return { navGroups: [] }
 
   const navGroups = decl.groups
@@ -875,7 +947,14 @@ export function buildSidebarFor(role: Role): SidebarData {
         .map((item) => toSidebarItem(role, item))
       return items.length ? { title: group.title, items } : null
     })
-    .filter((group): group is { title: string; items: ReturnType<typeof toSidebarItem>[] } => group !== null)
+    .filter(
+      (
+        group
+      ): group is {
+        title: string
+        items: ReturnType<typeof toSidebarItem>[]
+      } => group !== null
+    )
 
   return { navGroups }
 }

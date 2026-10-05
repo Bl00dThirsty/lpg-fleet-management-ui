@@ -7,7 +7,7 @@
  *   • `LANDING_BY_ROLE` — the bare feature path each role lands on after
  *     login (single source of truth; used by `routes/_authenticated/index.tsx`
  *     and the route-access guard).
- *   • `getSidebarData(role)` — delegates to `buildSidebarFor(role)`.
+ *   • `getSidebarData(role)` — delegates to `buildSidebarFor(role, customRoles)`.
  *
  * Per AGENTS.md §5 there are **no role-prefixed URLs**: every nav item points
  * at a bare feature path (`/trucks`, `/marketers`, …) regardless of the
@@ -21,7 +21,7 @@
  * `/dashboard-transporteur` respectively, reachable from the sidebar.
  */
 
-import type { Role } from '@lpg/permissions'
+import type { Role, CustomPermissionRoles } from '@lpg/permissions'
 import type { SidebarData } from '@/components/layout/types'
 import { buildSidebarFor } from './nav-items'
 
@@ -42,8 +42,11 @@ export const LANDING_BY_ROLE: Record<Role, string> = {
 }
 
 /** Delegates entirely to the permission-driven projection. */
-export function getSidebarData(role: Role): SidebarData {
-  return buildSidebarFor(role)
+export function getSidebarData(
+  role: Role,
+  customRoles: CustomPermissionRoles = []
+): SidebarData {
+  return buildSidebarFor(role, customRoles)
 }
 
 /**

@@ -14,16 +14,27 @@ import {
 import { DataTablePagination, DataTableToolbar } from '@lpg/ui'
 import { cn } from '@/lib/utils'
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table'
 import { getToursColumns } from './tours-columns'
-import { tourStatusOptions, executionModeOptions, type TourActivity } from '../data/tour-activity'
+import {
+  tourStatusOptions,
+  executionModeOptions,
+  type TourActivity,
+} from '../data/tour-activity'
 
 export function ToursTable({
   rows,
+  missionKind,
   selectedTripId,
   onOpenDetails,
 }: {
+  missionKind?: TourActivity['mission_kind']
   rows: TourActivity[]
   selectedTripId?: string | null
   onOpenDetails: (row: TourActivity) => void
@@ -33,8 +44,8 @@ export function ToursTable({
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
 
   const columns = useMemo(
-    () => getToursColumns({ onOpenDetails, selectedTripId }),
-    [onOpenDetails, selectedTripId],
+    () => getToursColumns({ onOpenDetails, selectedTripId, missionKind }),
+    [onOpenDetails, selectedTripId, missionKind]
   )
 
   const table = useReactTable({
@@ -64,19 +75,36 @@ export function ToursTable({
           searchPlaceholder='Rechercher une reference, marketeur...'
           searchKey='reference'
           filters={[
-            { columnId: 'tourneeStatus', title: 'Statut', options: tourStatusOptions },
-            { columnId: 'execution_mode', title: 'Mode', options: executionModeOptions },
+            {
+              columnId: 'tourneeStatus',
+              title: 'Statut',
+              options: tourStatusOptions,
+            },
+            ...(missionKind === 'PICKUP'
+              ? []
+              : [
+                  {
+                    columnId: 'execution_mode',
+                    title: 'Mode',
+                    options: executionModeOptions,
+                  },
+                ]),
           ]}
         />
         <div className='flex items-center gap-2'>
           <span className='text-xs text-muted-foreground'>Grouper par</span>
           <select
+            aria-label='Grouper par'
             value={grouping[0] ?? ''}
-            onChange={(e) => setGrouping(e.target.value ? [e.target.value] : [])}
+            onChange={(e) =>
+              setGrouping(e.target.value ? [e.target.value] : [])
+            }
             className='h-8 rounded-md border bg-background px-2 text-sm'
           >
             <option value=''>--</option>
-            <option value='execution_mode'>Mode</option>
+            {missionKind !== 'PICKUP' && (
+              <option value='execution_mode'>Mode</option>
+            )}
             <option value='tourneeStatus'>Statut</option>
           </select>
         </div>
@@ -92,7 +120,12 @@ export function ToursTable({
                     colSpan={header.colSpan}
                     className={cn(header.column.columnDef.meta?.className)}
                   >
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -107,8 +140,9 @@ export function ToursTable({
                     row.original.id === selectedTripId ? 'selected' : undefined
                   }
                   className={cn(
-                    row.original.id === selectedTripId && 'bg-primary/5 hover:bg-primary/10',
-                    row.getIsGrouped() && 'bg-muted/40 font-medium',
+                    row.original.id === selectedTripId &&
+                      'bg-primary/5 hover:bg-primary/10',
+                    row.getIsGrouped() && 'bg-muted/40 font-medium'
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -122,10 +156,18 @@ export function ToursTable({
                           className='flex items-center gap-2 text-primary'
                           onClick={row.getToggleExpandedHandler()}
                         >
-                          {row.getIsExpanded() ? '▼' : '▶'} {flexRender(cell.column.columnDef.cell, cell.getContext())} ({row.subRows.length})
+                          {row.getIsExpanded() ? '▼' : '▶'}{' '}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}{' '}
+                          ({row.subRows.length})
                         </button>
                       ) : cell.getIsPlaceholder() ? null : (
-                        flexRender(cell.column.columnDef.cell, cell.getContext())
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )
                       )}
                     </TableCell>
                   ))}
@@ -133,8 +175,13 @@ export function ToursTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className='h-24 text-center'>
-                  Aucune tournée ne correspond aux filtres.
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  {missionKind === 'PICKUP'
+                    ? 'Aucun enlèvement ne correspond aux filtres.'
+                    : 'Aucune tournée ne correspond aux filtres.'}
                 </TableCell>
               </TableRow>
             )}

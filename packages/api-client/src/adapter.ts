@@ -1,4 +1,4 @@
-import type { OrgType, Role } from '@lpg/types'
+import type { OrgType, Role, CustomRole } from '@lpg/types'
 
 export interface AuthUser {
   id: string
@@ -9,6 +9,10 @@ export interface AuthUser {
   org_id?: string
   org_name?: string
   org_type?: OrgType
+  custom_roles?: Pick<
+    CustomRole,
+    'permissions_json' | 'is_active' | 'deleted_at'
+  >[]
   site_ids?: string[]
   mfa_status?: string
 }

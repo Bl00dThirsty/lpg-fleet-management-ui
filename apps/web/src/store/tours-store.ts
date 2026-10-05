@@ -1,16 +1,36 @@
 import { create } from 'zustand'
-import { api } from '@lpg/api-client'
+import { api, apiAdapter } from '@lpg/api-client'
 import { curated } from '@lpg/mock-data'
-import { assertPermission, PERMISSION_DENIED } from '@/lib/security/guards'
-import { canViewAllTourCrew, canUseTourCrewMember, isTourLivreur } from '@/features/tours/lib/tour-create-helpers'
+import {
+  assertPermission,
+  assertActorPermission,
+  PERMISSION_DENIED,
+} from '@/lib/security/guards'
+import {
+  canViewAllTourCrew,
+  canUseTourCrewMember,
+  isTourLivreur,
+} from '@/features/tours/lib/tour-create-helpers'
 import { useUsersStore } from '@/store/users-store'
 import { emitWs } from '@/lib/ws/mock-ws'
 import { useContractsStore } from '@/store/contracts-store'
 import { useAuthStore } from '@/store/auth-store'
 import type { Role } from '@lpg/permissions'
-import type { Checkpoint, DeliveryTour, DeliveryEvent, ScanEvent, ExecutionMode, TourneeType } from '@lpg/types'
+import type {
+  PickupPlan,
+  Checkpoint,
+  DeliveryTour,
+  DeliveryEvent,
+  ScanEvent,
+  ExecutionMode,
+  TourneeType,
+} from '@lpg/types'
 import { isHydrationFresh } from '@/lib/hydration'
-import { toTourActivities, type TourActivity, type TourSlice } from '@/features/tours/data/tour-activity'
+import {
+  toTourActivities,
+  type TourActivity,
+  type TourSlice,
+} from '@/features/tours/data/tour-activity'
 import {
   applyAction,
   tourActions,
@@ -40,7 +60,13 @@ export interface TourDraft {
   vehicle_id?: string | null
   driver_id?: string | null
   livreur_user_id?: string | null
-  checkpoints?: Array<TourDraftCheckpoint & Partial<Checkpoint> & { destination_site_id?: string; planned_quantity?: number }>
+  checkpoints?: Array<
+    TourDraftCheckpoint &
+      Partial<Checkpoint> & {
+        destination_site_id?: string
+        planned_quantity?: number
+      }
+  >
 }
 
 export interface ActionExtraParams {
@@ -74,22 +100,40 @@ interface ToursState {
   recordScanEvent: (event: ScanEvent) => void
   recordBulkScanEvents: (events: ScanEvent[]) => void
 
-  fetchTours: () => Promise<void>
+  fetchTours: (force?: boolean) => Promise<void>
+  createPickupAsync: (draft: PickupPlan) => Promise<DeliveryTour>
   fetchCheckpoints: (tourId: string) => Promise<Checkpoint[]>
   createTour: (draft: TourDraft) => TourActivity
   createTourAsync: (draft: TourDraft) => Promise<TourActivity>
-  performAction: (id: string, action: TourAction, patch?: TourCrewPatch | ActionExtraParams) => TourActivity
-  performActionAsync: (id: string, action: TourAction, extra?: ActionExtraParams) => Promise<TourActivity>
-  assignDriver: (id: string, driverId?: string, livreurPersonId?: string) => Promise<TourActivity>
+  performAction: (
+    id: string,
+    action: TourAction,
+    patch?: TourCrewPatch | ActionExtraParams
+  ) => TourActivity
+  performActionAsync: (
+    id: string,
+    action: TourAction,
+    extra?: ActionExtraParams
+  ) => Promise<TourActivity>
+  assignDriver: (
+    id: string,
+    driverId?: string,
+    livreurPersonId?: string
+  ) => Promise<TourActivity>
   assignVehicle: (id: string, vehicleId: string) => Promise<TourActivity>
   reachCheckpoint: (checkpointId: string) => Promise<Checkpoint>
   completeCheckpoint: (checkpointId: string) => Promise<Checkpoint>
   skipCheckpoint: (checkpointId: string, reason: string) => Promise<Checkpoint>
-  views: (slice: TourSlice) => TourActivity[]
+  views: (
+    slice: TourSlice,
+    missionKind?: 'DELIVERY' | 'PICKUP'
+  ) => TourActivity[]
   viewById: (id: string) => TourActivity | undefined
 }
 
-function checkpointTourId(checkpoint: Pick<Checkpoint, 'tournee_id' | 'tour_id'>): string | null {
+function checkpointTourId(
+  checkpoint: Pick<Checkpoint, 'tournee_id' | 'tour_id'>
+): string | null {
   return checkpoint.tournee_id ?? checkpoint.tour_id ?? null
 }
 
@@ -99,15 +143,23 @@ function normalizeCheckpointRow(row: unknown, tourId: string): Checkpoint {
   }
   const record = row as Record<string, unknown>
   if (typeof record.id !== 'string' || typeof record.status !== 'string') {
-    throw new Error('Réponse serveur invalide : point de contrôle sans identifiant ni statut')
+    throw new Error(
+      'Réponse serveur invalide : point de contrôle sans identifiant ni statut'
+    )
   }
   return {
     ...(record as object),
-    tournee_id: (record.tournee_id as string | undefined) ?? (record.tour_id as string | undefined) ?? tourId,
+    tournee_id:
+      (record.tournee_id as string | undefined) ??
+      (record.tour_id as string | undefined) ??
+      tourId,
   } as Checkpoint
 }
 
-function applyCheckpointUpdate(checkpoints: Checkpoint[], updated: Checkpoint): Checkpoint[] {
+function applyCheckpointUpdate(
+  checkpoints: Checkpoint[],
+  updated: Checkpoint
+): Checkpoint[] {
   const index = checkpoints.findIndex((c) => c.id === updated.id)
   if (index === -1) return [...checkpoints, updated]
   const next = [...checkpoints]
@@ -116,29 +168,49 @@ function applyCheckpointUpdate(checkpoints: Checkpoint[], updated: Checkpoint): 
 }
 
 function hasId(obj: unknown): obj is { id: string } {
-  return typeof obj === 'object' && obj !== null && typeof (obj as { id?: unknown }).id === 'string'
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    typeof (obj as { id?: unknown }).id === 'string'
+  )
 }
 
 function assertTourOrganization(draft: TourDraft) {
   const user = useAuthStore.getState().user
   if (!user) throw new Error(PERMISSION_DENIED)
   assertPermission(user.system_role, 'tours.create')
-  if (!canViewAllTourCrew(user) && (!user.org_id || draft.marketeur_org_id !== user.org_id)) {
+  if (
+    !canViewAllTourCrew(user) &&
+    (!user.org_id || draft.marketeur_org_id !== user.org_id)
+  ) {
     throw new Error(PERMISSION_DENIED)
   }
   return user
 }
 
-function assertTourCrew(draft: TourDraft, driver: Parameters<typeof canUseTourCrewMember>[1] | undefined, livreur: Parameters<typeof canUseTourCrewMember>[1] | undefined) {
+function assertTourCrew(
+  draft: TourDraft,
+  driver: Parameters<typeof canUseTourCrewMember>[1] | undefined,
+  livreur: Parameters<typeof canUseTourCrewMember>[1] | undefined
+) {
   const user = assertTourOrganization(draft)
   if (canViewAllTourCrew(user) || draft.execution_mode !== 'INTERNAL') return
-  if (!driver || !canUseTourCrewMember(user, driver) || !livreur ||
-      !canUseTourCrewMember(user, livreur) || !isTourLivreur(livreur)) {
-    throw new Error('Le chauffeur et le livreur doivent être actifs et appartenir à votre organisation.')
+  if (
+    !driver ||
+    !canUseTourCrewMember(user, driver) ||
+    !livreur ||
+    !canUseTourCrewMember(user, livreur) ||
+    !isTourLivreur(livreur)
+  ) {
+    throw new Error(
+      'Le chauffeur et le livreur doivent être actifs et appartenir à votre organisation.'
+    )
   }
 }
 
-const remoteMode = ['http', 'mock'].includes(import.meta.env.VITE_API_MODE ?? '')
+const remoteMode = ['http', 'mock'].includes(
+  import.meta.env.VITE_API_MODE ?? ''
+)
 
 export const useToursStore = create<ToursState>()((set, get) => ({
   tours: remoteMode ? [] : curated.delivery_tours.map((t) => ({ ...t })),
@@ -164,21 +236,80 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     set({ scanEvents: [...get().scanEvents, ...events] })
   },
 
-  async fetchTours() {
-    if (get().hasLoaded && isHydrationFresh(get().lastFetchedAt)) return
+  async fetchTours(force = false) {
+    if (!force && get().hasLoaded && isHydrationFresh(get().lastFetchedAt))
+      return
     set({ loading: true, error: null })
     try {
       const res = await api.tours.list(0, 100)
-      if (res && Array.isArray(res.data) && (remoteMode || res.data.length > 0)) {
-        const rows = res.data as (DeliveryTour & { checkpoints?: Checkpoint[] })[]
-        const checkpoints = remoteMode ? rows.flatMap((tour) => tour.checkpoints ?? []) : get().checkpoints
-        set({ tours: rows, checkpoints, loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
+      if (remoteMode && res?.pagination?.pages > 1) {
+        for (let page = 1; page < res.pagination.pages; page++) {
+          const next = await api.tours.list(page, 100)
+          res.data.push(...next.data)
+        }
+      }
+      if (
+        res &&
+        Array.isArray(res.data) &&
+        (remoteMode || res.data.length > 0)
+      ) {
+        const rows = res.data as (DeliveryTour & {
+          checkpoints?: Checkpoint[]
+        })[]
+        const checkpoints = remoteMode
+          ? rows.flatMap((tour) => tour.checkpoints ?? [])
+          : get().checkpoints
+        set({
+          tours: rows,
+          checkpoints,
+          checkpointsByTour: {},
+          loading: false,
+          hasLoaded: true,
+          lastFetchedAt: Date.now(),
+        })
       } else {
         set({ loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
       }
     } catch {
-      set({ loading: false, hasLoaded: !remoteMode, error: remoteMode ? "Impossible de charger les tournées du serveur." : null, lastFetchedAt: Date.now() })
+      set({
+        loading: false,
+        hasLoaded: !remoteMode,
+        error: remoteMode
+          ? 'Impossible de charger les tournées du serveur.'
+          : null,
+        lastFetchedAt: Date.now(),
+      })
     }
+  },
+
+  async createPickupAsync(draft: PickupPlan) {
+    const user = useAuthStore.getState().user
+    if (!user) throw new Error(PERMISSION_DENIED)
+    assertActorPermission(user, 'pickups.create')
+    if (
+      user.site_ids?.length &&
+      !canViewAllTourCrew(user) &&
+      !user.site_ids.includes(draft.destination_site_id)
+    )
+      throw new Error(PERMISSION_DENIED)
+    if (!canViewAllTourCrew(user) && draft.marketeur_org_id !== user.org_id)
+      throw new Error(PERMISSION_DENIED)
+    const saved = await apiAdapter.request<DeliveryTour>('/pickups', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...draft,
+        execution_mode: 'INTERNAL',
+        tour_code: `ENL-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+      }),
+    })
+    set({
+      tours: [saved, ...get().tours.filter((t) => t.id !== saved.id)],
+      checkpoints: [...get().checkpoints, ...(saved.checkpoints ?? [])],
+      lastFetchedAt: 0,
+    })
+    emitWs('pickup:update', { id: saved.id }, user.id)
+    return saved
   },
 
   async fetchCheckpoints(tourId: string) {
@@ -190,9 +321,13 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     let list: Checkpoint[]
     try {
       const rows = await api.tours.getCheckpoints(tourId)
-      list = (Array.isArray(rows) ? rows : []).map((row) => normalizeCheckpointRow(row, tourId))
+      list = (Array.isArray(rows) ? rows : []).map((row) =>
+        normalizeCheckpointRow(row, tourId)
+      )
     } catch {
-      list = get().checkpoints.filter((c) => (c.tournee_id ?? c.tour_id) === tourId)
+      list = get().checkpoints.filter(
+        (c) => (c.tournee_id ?? c.tour_id) === tourId
+      )
     }
     const kept = get().checkpoints.filter((c) => checkpointTourId(c) !== tourId)
     set({
@@ -206,13 +341,19 @@ export const useToursStore = create<ToursState>()((set, get) => ({
 
   createTour(draft: TourDraft) {
     const user = assertTourOrganization(draft)
-    assertTourCrew(draft,
+    assertTourCrew(
+      draft,
       curated.drivers.find((driver) => driver.id === draft.driver_id),
-      useUsersStore.getState().users.find((livreur) => livreur.id === draft.livreur_user_id),
+      useUsersStore
+        .getState()
+        .users.find((livreur) => livreur.id === draft.livreur_user_id)
     )
     const now = new Date().toISOString()
     const initialStatus: DeliveryTour['status'] =
-      draft.status ?? (draft.execution_mode === 'INTERNAL' ? 'PLANNED' : 'PENDINGTRANSPORTERACK')
+      draft.status ??
+      (draft.execution_mode === 'INTERNAL'
+        ? 'PLANNED'
+        : 'PENDINGTRANSPORTERACK')
     const tourId = draft.id || newTourId()
     const tour: DeliveryTour = {
       id: tourId,
@@ -241,27 +382,33 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       updated_by: null,
     }
 
-    const checkpointsToAdd: Checkpoint[] = (draft.checkpoints ?? []).map((cp, idx: number) => {
-      const siteId = cp.site_id ?? (cp.destination_site_id && !cp.client_site_id ? cp.destination_site_id : null)
-      const clientSiteId = cp.client_site_id ?? null
-      return {
-        id: cp.id ?? newCheckpointId(tour.id, cp.sequence ?? idx + 1),
-        tournee_id: tour.id,
-        site_id: siteId,
-        client_site_id: clientSiteId,
-        sequence: cp.sequence ?? idx + 1,
-        expected_quantity: cp.expected_quantity ?? cp.planned_quantity ?? 0,
-        expected_arrival: cp.expected_arrival ?? null,
-        actual_arrival: cp.actual_arrival ?? null,
-        status: cp.status ?? 'PENDING',
-        skip_reason: null,
-        created_at: now,
-        updated_at: now,
-        deleted_at: null,
-        created_by: null,
-        updated_by: null,
+    const checkpointsToAdd: Checkpoint[] = (draft.checkpoints ?? []).map(
+      (cp, idx: number) => {
+        const siteId =
+          cp.site_id ??
+          (cp.destination_site_id && !cp.client_site_id
+            ? cp.destination_site_id
+            : null)
+        const clientSiteId = cp.client_site_id ?? null
+        return {
+          id: cp.id ?? newCheckpointId(tour.id, cp.sequence ?? idx + 1),
+          tournee_id: tour.id,
+          site_id: siteId,
+          client_site_id: clientSiteId,
+          sequence: cp.sequence ?? idx + 1,
+          expected_quantity: cp.expected_quantity ?? cp.planned_quantity ?? 0,
+          expected_arrival: cp.expected_arrival ?? null,
+          actual_arrival: cp.actual_arrival ?? null,
+          status: cp.status ?? 'PENDING',
+          skip_reason: null,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null,
+          created_by: null,
+          updated_by: null,
+        }
       }
-    })
+    )
 
     const validation = validateTour(tour, {
       vehicles: curated.vehicles,
@@ -302,13 +449,17 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     if (!canViewAllTourCrew(user) && draft.execution_mode === 'INTERNAL') {
       const [driver, livreur] = await Promise.all([
         draft.driver_id ? api.drivers.getById(draft.driver_id) : undefined,
-        draft.livreur_user_id ? api.users.getById(draft.livreur_user_id) : undefined,
+        draft.livreur_user_id
+          ? api.users.getById(draft.livreur_user_id)
+          : undefined,
       ])
       assertTourCrew(draft, driver, livreur)
     }
     let saved: DeliveryTour | null = null
     try {
-      const res = await api.tours.create(draft as unknown as Parameters<typeof api.tours.create>[0])
+      const res = await api.tours.create(
+        draft as unknown as Parameters<typeof api.tours.create>[0]
+      )
       if (hasId(res)) {
         saved = res as unknown as DeliveryTour
       }
@@ -317,29 +468,36 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // In-memory fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       return get().createTour(draft)
     }
 
-    const serverCheckpoints = (saved as DeliveryTour & { checkpoints?: Checkpoint[] }).checkpoints
-    const newCheckpoints = serverCheckpoints ?? (draft.checkpoints ?? []).map((cp, idx) => ({
-      id: cp.id ?? `cp-${saved!.id}-${idx + 1}`,
-      tour_id: saved!.id,
-      tournee_id: saved!.id,
-      sequence: cp.sequence ?? idx + 1,
-      site_id: cp.site_id ?? cp.destination_site_id ?? '',
-      client_site_id: cp.client_site_id ?? null,
-      expected_quantity: cp.expected_quantity ?? cp.planned_quantity ?? 0,
-      status: cp.status ?? 'PENDING',
-      expected_arrival: cp.expected_arrival ?? null,
-      actual_arrival: cp.actual_arrival ?? null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      deleted_at: null,
-      created_by: null,
-      updated_by: null,
-    })) as Checkpoint[]
+    const serverCheckpoints = (
+      saved as DeliveryTour & { checkpoints?: Checkpoint[] }
+    ).checkpoints
+    const newCheckpoints =
+      serverCheckpoints ??
+      ((draft.checkpoints ?? []).map((cp, idx) => ({
+        id: cp.id ?? `cp-${saved!.id}-${idx + 1}`,
+        tour_id: saved!.id,
+        tournee_id: saved!.id,
+        sequence: cp.sequence ?? idx + 1,
+        site_id: cp.site_id ?? cp.destination_site_id ?? '',
+        client_site_id: cp.client_site_id ?? null,
+        expected_quantity: cp.expected_quantity ?? cp.planned_quantity ?? 0,
+        status: cp.status ?? 'PENDING',
+        expected_arrival: cp.expected_arrival ?? null,
+        actual_arrival: cp.actual_arrival ?? null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        created_by: null,
+        updated_by: null,
+      })) as Checkpoint[])
 
     set({
       tours: [saved, ...get().tours.filter((t) => t.id !== saved!.id)],
@@ -353,19 +511,34 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     return toTourActivities([saved], { checkpoints: get().checkpoints })[0]!
   },
 
-  performAction(id: string, action: TourAction, patch?: TourCrewPatch | ActionExtraParams) {
+  performAction(
+    id: string,
+    action: TourAction,
+    patch?: TourCrewPatch | ActionExtraParams
+  ) {
     const actor = useAuthStore.getState().user
     const role: Role = actor?.system_role ?? 'LIVREUR'
     assertPermission(role, ACTION_PERMISSION[action])
     const normalizedPatch: TourCrewPatch = {
       vehicle_id: patch?.vehicle_id ?? (patch as ActionExtraParams)?.vehicleId,
       driver_id: patch?.driver_id ?? (patch as ActionExtraParams)?.driverId,
-      livreur_user_id: patch?.livreur_user_id ?? (patch as ActionExtraParams)?.livreurUserId ?? (patch as ActionExtraParams)?.livreurPersonId,
-      assigned_by_transporter_user_id: patch?.assigned_by_transporter_user_id ?? undefined,
+      livreur_user_id:
+        patch?.livreur_user_id ??
+        (patch as ActionExtraParams)?.livreurUserId ??
+        (patch as ActionExtraParams)?.livreurPersonId,
+      assigned_by_transporter_user_id:
+        patch?.assigned_by_transporter_user_id ?? undefined,
     }
-    if (action === 'acknowledge' && !(normalizedPatch.vehicle_id && normalizedPatch.driver_id && normalizedPatch.livreur_user_id)) {
+    if (
+      action === 'acknowledge' &&
+      !(
+        normalizedPatch.vehicle_id &&
+        normalizedPatch.driver_id &&
+        normalizedPatch.livreur_user_id
+      )
+    ) {
       throw new Error(
-        "L'accusé de réception exige l'équipage du transporteur (véhicule, chauffeur, livreur).",
+        "L'accusé de réception exige l'équipage du transporteur (véhicule, chauffeur, livreur)."
       )
     }
     const tours = get().tours
@@ -407,7 +580,11 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     }
   },
 
-  async performActionAsync(id: string, action: TourAction, extra?: ActionExtraParams) {
+  async performActionAsync(
+    id: string,
+    action: TourAction,
+    extra?: ActionExtraParams
+  ) {
     let saved: DeliveryTour | null = null
     try {
       let updated: unknown
@@ -425,7 +602,11 @@ export const useToursStore = create<ToursState>()((set, get) => ({
           updated = await api.tours.start(id)
           break
         case 'close':
-          updated = await api.tours.close(id, extra?.loadedQuantity, extra?.deliveredQuantity)
+          updated = await api.tours.close(
+            id,
+            extra?.loadedQuantity,
+            extra?.deliveredQuantity
+          )
           break
         case 'cancel':
           updated = await api.tours.cancel(id, extra?.reason)
@@ -439,7 +620,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // In-memory fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       return get().performAction(id, action, extra)
     }
@@ -454,7 +638,11 @@ export const useToursStore = create<ToursState>()((set, get) => ({
   async assignDriver(id: string, driverId?: string, livreurPersonId?: string) {
     let saved: DeliveryTour | null = null
     try {
-      const updated = await api.tours.assignDriver(id, driverId, livreurPersonId)
+      const updated = await api.tours.assignDriver(
+        id,
+        driverId,
+        livreurPersonId
+      )
       if (hasId(updated)) {
         saved = updated as unknown as DeliveryTour
       }
@@ -463,7 +651,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // Fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       const current = get().tours.find((t) => t.id === id)
       if (current) {
@@ -496,7 +687,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // Fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       const current = get().tours.find((t) => t.id === id)
       if (current) {
@@ -528,7 +722,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // Fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       const existing = get().checkpoints.find((c) => c.id === checkpointId)
       if (existing) {
@@ -541,16 +738,23 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       }
     }
 
-    if (!saved) throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
+    if (!saved)
+      throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
 
-    const tourId = checkpointTourId(saved) ?? get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ?? null
+    const tourId =
+      checkpointTourId(saved) ??
+      get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ??
+      null
     set({
       checkpoints: applyCheckpointUpdate(get().checkpoints, saved),
       checkpointsByTour:
         tourId != null
           ? {
               ...get().checkpointsByTour,
-              [tourId]: applyCheckpointUpdate(get().checkpointsByTour[tourId] ?? [], saved),
+              [tourId]: applyCheckpointUpdate(
+                get().checkpointsByTour[tourId] ?? [],
+                saved
+              ),
             }
           : get().checkpointsByTour,
       error: null,
@@ -570,7 +774,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // Fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       const existing = get().checkpoints.find((c) => c.id === checkpointId)
       if (existing) {
@@ -582,24 +789,35 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       }
     }
 
-    if (!saved) throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
+    if (!saved)
+      throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
 
-    const tourId = checkpointTourId(saved) ?? get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ?? null
+    const tourId =
+      checkpointTourId(saved) ??
+      get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ??
+      null
     const nextCheckpoints = applyCheckpointUpdate(get().checkpoints, saved)
     let nextTours = get().tours
 
     if (tourId) {
       const tourCheckpoints = nextCheckpoints.filter(
-        (c) => (checkpointTourId(c) ?? c.tournee_id ?? c.tour_id) === tourId,
+        (c) => (checkpointTourId(c) ?? c.tournee_id ?? c.tour_id) === tourId
       )
       const allTerminal =
         tourCheckpoints.length > 0 &&
-        tourCheckpoints.every((c) => c.status === 'COMPLETED' || c.status === 'SKIPPED')
+        tourCheckpoints.every(
+          (c) => c.status === 'COMPLETED' || c.status === 'SKIPPED'
+        )
 
       const currentTour = nextTours.find((t) => t.id === tourId)
-      if (currentTour && currentTour.status !== 'CLOSED' && currentTour.status !== 'CANCELLED') {
+      if (
+        currentTour &&
+        currentTour.status !== 'CLOSED' &&
+        currentTour.status !== 'CANCELLED'
+      ) {
         if (allTerminal) {
-          const loadedQty = currentTour.loaded_quantity ?? currentTour.requested_quantity ?? 0
+          const loadedQty =
+            currentTour.loaded_quantity ?? currentTour.requested_quantity ?? 0
           const updatedTour: DeliveryTour = {
             ...currentTour,
             status: 'CLOSED',
@@ -610,12 +828,22 @@ export const useToursStore = create<ToursState>()((set, get) => ({
           nextTours = nextTours.map((t) => (t.id === tourId ? updatedTour : t))
           if (remoteMode) {
             try {
-              api.tours.close(tourId, updatedTour.loaded_quantity ?? undefined, updatedTour.delivered_quantity ?? undefined).catch(() => {})
+              api.tours
+                .close(
+                  tourId,
+                  updatedTour.loaded_quantity ?? undefined,
+                  updatedTour.delivered_quantity ?? undefined
+                )
+                .catch(() => {})
             } catch {
               // Remote fallback ignored
             }
           }
-          emitWs('tour:update', { id: tourId }, useAuthStore.getState().user?.id)
+          emitWs(
+            'tour:update',
+            { id: tourId },
+            useAuthStore.getState().user?.id
+          )
         }
       }
     }
@@ -627,7 +855,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
         tourId != null
           ? {
               ...get().checkpointsByTour,
-              [tourId]: applyCheckpointUpdate(get().checkpointsByTour[tourId] ?? [], saved),
+              [tourId]: applyCheckpointUpdate(
+                get().checkpointsByTour[tourId] ?? [],
+                saved
+              ),
             }
           : get().checkpointsByTour,
       error: null,
@@ -641,7 +872,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     }
     let saved: Checkpoint | null = null
     try {
-      const updated = await api.tours.skipCheckpoint(checkpointId, reason.trim())
+      const updated = await api.tours.skipCheckpoint(
+        checkpointId,
+        reason.trim()
+      )
       if (hasId(updated)) {
         saved = updated as unknown as Checkpoint
       }
@@ -650,7 +884,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       // Fallback
     }
 
-    if (!saved && remoteMode) throw new Error('Réponse du serveur invalide. Aucune modification locale effectuée.')
+    if (!saved && remoteMode)
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
     if (!saved) {
       const existing = get().checkpoints.find((c) => c.id === checkpointId)
       if (existing) {
@@ -663,24 +900,35 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       }
     }
 
-    if (!saved) throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
+    if (!saved)
+      throw new Error(`Point de contrôle introuvable : ${checkpointId}`)
 
-    const tourId = checkpointTourId(saved) ?? get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ?? null
+    const tourId =
+      checkpointTourId(saved) ??
+      get().checkpoints.find((c) => c.id === checkpointId)?.tournee_id ??
+      null
     const nextCheckpoints = applyCheckpointUpdate(get().checkpoints, saved)
     let nextTours = get().tours
 
     if (tourId) {
       const tourCheckpoints = nextCheckpoints.filter(
-        (c) => (checkpointTourId(c) ?? c.tournee_id ?? c.tour_id) === tourId,
+        (c) => (checkpointTourId(c) ?? c.tournee_id ?? c.tour_id) === tourId
       )
       const allTerminal =
         tourCheckpoints.length > 0 &&
-        tourCheckpoints.every((c) => c.status === 'COMPLETED' || c.status === 'SKIPPED')
+        tourCheckpoints.every(
+          (c) => c.status === 'COMPLETED' || c.status === 'SKIPPED'
+        )
 
       const currentTour = nextTours.find((t) => t.id === tourId)
-      if (currentTour && currentTour.status !== 'CLOSED' && currentTour.status !== 'CANCELLED') {
+      if (
+        currentTour &&
+        currentTour.status !== 'CLOSED' &&
+        currentTour.status !== 'CANCELLED'
+      ) {
         if (allTerminal) {
-          const loadedQty = currentTour.loaded_quantity ?? currentTour.requested_quantity ?? 0
+          const loadedQty =
+            currentTour.loaded_quantity ?? currentTour.requested_quantity ?? 0
           const updatedTour: DeliveryTour = {
             ...currentTour,
             status: 'CLOSED',
@@ -691,12 +939,22 @@ export const useToursStore = create<ToursState>()((set, get) => ({
           nextTours = nextTours.map((t) => (t.id === tourId ? updatedTour : t))
           if (remoteMode) {
             try {
-              api.tours.close(tourId, updatedTour.loaded_quantity ?? undefined, updatedTour.delivered_quantity ?? undefined).catch(() => {})
+              api.tours
+                .close(
+                  tourId,
+                  updatedTour.loaded_quantity ?? undefined,
+                  updatedTour.delivered_quantity ?? undefined
+                )
+                .catch(() => {})
             } catch {
               // Remote fallback ignored
             }
           }
-          emitWs('tour:update', { id: tourId }, useAuthStore.getState().user?.id)
+          emitWs(
+            'tour:update',
+            { id: tourId },
+            useAuthStore.getState().user?.id
+          )
         }
       }
     }
@@ -708,7 +966,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
         tourId != null
           ? {
               ...get().checkpointsByTour,
-              [tourId]: applyCheckpointUpdate(get().checkpointsByTour[tourId] ?? [], saved),
+              [tourId]: applyCheckpointUpdate(
+                get().checkpointsByTour[tourId] ?? [],
+                saved
+              ),
             }
           : get().checkpointsByTour,
       error: null,
@@ -716,8 +977,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     return saved
   },
 
-  views(slice: TourSlice) {
-    const tours = get().tours
+  views(slice: TourSlice, missionKind = 'DELIVERY') {
+    const tours = get().tours.filter(
+      (t) => !t.deleted_at && (t.mission_kind ?? 'DELIVERY') === missionKind
+    )
     const filtered =
       slice === 'ALL'
         ? tours
@@ -730,7 +993,9 @@ export const useToursStore = create<ToursState>()((set, get) => ({
               case 'PENDING':
                 return t.status === 'PENDINGTRANSPORTERACK'
               case 'ACTIVE':
-                return t.status === 'INPROGRESS' || t.status === 'CHECKPOINTACTIVE'
+                return (
+                  t.status === 'INPROGRESS' || t.status === 'CHECKPOINTACTIVE'
+                )
               case 'HISTORY':
                 return t.status === 'CLOSED' || t.status === 'CANCELLED'
               default:
@@ -738,15 +1003,19 @@ export const useToursStore = create<ToursState>()((set, get) => ({
             }
           })
     return toTourActivities(
-      [...filtered].sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? '')),
-      { checkpoints: get().checkpoints },
+      [...filtered].sort((a, b) =>
+        (b.created_at ?? '').localeCompare(a.created_at ?? '')
+      ),
+      { checkpoints: get().checkpoints }
     )
   },
 
   viewById(id: string) {
     const index = get().tours.findIndex((t) => t.id === id)
     if (index === -1) return undefined
-    return toTourActivities([get().tours[index]!], { checkpoints: get().checkpoints })[0]
+    return toTourActivities([get().tours[index]!], {
+      checkpoints: get().checkpoints,
+    })[0]
   },
 }))
 
@@ -761,6 +1030,16 @@ export function newCheckpointId(tourId: string, sequence: number): string {
 // A change of account must never reuse the previous user's hydrated tours.
 useAuthStore.subscribe((state, previous) => {
   if (remoteMode && state.user?.id !== previous.user?.id) {
-    useToursStore.setState({ tours: [], checkpoints: [], checkpointsByTour: {}, checkpointsLoading: {}, deliveryEvents: [], scanEvents: [], hasLoaded: false, lastFetchedAt: 0, error: null })
+    useToursStore.setState({
+      tours: [],
+      checkpoints: [],
+      checkpointsByTour: {},
+      checkpointsLoading: {},
+      deliveryEvents: [],
+      scanEvents: [],
+      hasLoaded: false,
+      lastFetchedAt: 0,
+      error: null,
+    })
   }
 })

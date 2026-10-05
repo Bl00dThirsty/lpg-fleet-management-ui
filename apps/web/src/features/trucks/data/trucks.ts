@@ -80,8 +80,14 @@ export const riskClasses: Record<RiskLevel, string> = {
 }
 
 const REGIONS: readonly Region[] = [
-  'CENTRE', 'LITTORAL', 'NORD', 'EXTREMENORD', 'OUEST',
-  'SUDOUEST', 'EST', 'ADAMAOUA',
+  'CENTRE',
+  'LITTORAL',
+  'NORD',
+  'EXTREMENORD',
+  'OUEST',
+  'SUDOUEST',
+  'EST',
+  'ADAMAOUA',
 ]
 
 function seededIndex(key: string, modulus: number): number {
@@ -102,13 +108,14 @@ function driverName(driver: CuratedDriver | undefined): string | undefined {
  */
 export function getTrucks(
   vehicles: CuratedVehicle[] = [],
-  orgs: CuratedOrganization[] = [],
+  orgs: CuratedOrganization[] = []
 ): Truck[] {
   const activeOrgs = orgs.filter((o) => o.is_active)
   const drivers = useUsersStore
     .getState()
-    .users
-    .filter((u) => (u as any).system_role === 'DRIVER') as unknown as CuratedDriver[]
+    .users.filter(
+      (u) => String(u.system_role) === 'DRIVER'
+    ) as unknown as CuratedDriver[]
   const tours = useToursStore.getState().tours
 
   const toursByVehicle = new Map<string, DeliveryTour>()
@@ -158,7 +165,11 @@ export function getTruckById(id: string): Truck | undefined {
 export function getTruckTelemetry(truckId: string): TruckTelemetry {
   const tour = useToursStore
     .getState()
-    .tours.find((t) => t.id === truckId || (t.vehicle_id && t.vehicle_id.toString() === truckId))
+    .tours.find(
+      (t) =>
+        t.id === truckId ||
+        (t.vehicle_id && t.vehicle_id.toString() === truckId)
+    )
   const checkpoint = useToursStore
     .getState()
     .checkpoints.find((c) => c.tournee_id === tour?.id)

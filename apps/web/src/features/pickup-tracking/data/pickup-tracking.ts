@@ -1,4 +1,9 @@
-import { getPickups, pickupStatusLabels, type Pickup, type PickupStatus } from '@/features/pickups/data/pickups'
+import {
+  getPickups,
+  pickupStatusLabels,
+  type Pickup,
+  type PickupStatus,
+} from '@/features/pickups/data/pickups'
 import { getScope } from '@/features/scope/scope'
 import { useAuthStore } from '@/store/auth-store'
 
@@ -32,7 +37,7 @@ export const PICKUP_STAGES = STAGE_LABELS
 
 export function pickupStageLabel(status: PickupStatus): string {
   const stage = STAGE_BY_STATUS[status]
-  return stage === -1 ? 'Annulée' : STAGE_LABELS[stage] ?? status
+  return stage === -1 ? 'Annulée' : (STAGE_LABELS[stage] ?? status)
 }
 
 function toView(p: Pickup): PickupTrackView {
@@ -42,7 +47,7 @@ function toView(p: Pickup): PickupTrackView {
     source_name: p.source_name,
     destination_name: p.destination_name,
     marketeur_name: p.marketeur_name,
-    quantity_label: `${p.requested_quantity.toLocaleString('fr-FR')} TM`,
+    quantity_label: `${p.requested_quantity.toLocaleString('fr-FR')} ${p.unit ?? 'TM'}`,
     status: p.pickup_status,
     status_label: pickupStatusLabels[p.pickup_status],
     requested_at: p.requested_at,
@@ -54,16 +59,18 @@ function toView(p: Pickup): PickupTrackView {
 }
 
 export function getLivePickupTrack(
-  rows: Pickup[] = getPickups(getScope(useAuthStore.getState().user)),
+  rows: Pickup[] = getPickups(getScope(useAuthStore.getState().user))
 ): PickupTrackView[] {
   return rows
-    .filter((p) => p.pickup_status === 'VALIDATED' || p.pickup_status === 'INPROGRESS')
+    .filter(
+      (p) => p.pickup_status === 'VALIDATED' || p.pickup_status === 'INPROGRESS'
+    )
     .map(toView)
 }
 
 export function getRecentPickupTrack(
   limit = 6,
-  rows: Pickup[] = getPickups(getScope(useAuthStore.getState().user)),
+  rows: Pickup[] = getPickups(getScope(useAuthStore.getState().user))
 ): PickupTrackView[] {
   return rows
     .filter((p) => p.pickup_status !== 'DRAFT')
@@ -80,7 +87,7 @@ export interface SitePickupLoad {
 }
 
 export function getSitePickupLoad(
-  rows: Pickup[] = getPickups(getScope(useAuthStore.getState().user)),
+  rows: Pickup[] = getPickups(getScope(useAuthStore.getState().user))
 ): SitePickupLoad[] {
   const counts = new Map<string, { inbound: number; outbound: number }>()
   const touch = (id: string) => {

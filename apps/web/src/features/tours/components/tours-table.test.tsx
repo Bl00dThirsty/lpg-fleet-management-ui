@@ -7,7 +7,7 @@ import type { TourActivity } from '../data/tour-activity'
 function row(
   reference: string,
   tourneeStatus: TourActivity['tourneeStatus'],
-  execution_mode: TourActivity['execution_mode'],
+  execution_mode: TourActivity['execution_mode']
 ): TourActivity {
   return {
     id: reference,
@@ -41,29 +41,41 @@ const ROWS = [
 
 describe('ToursTable filters and group-by', () => {
   it('search narrows rows by reference', async () => {
-    const { getByPlaceholder, getByText, queryByText } = (await render(
-      <ToursTable rows={ROWS} onOpenDetails={vi.fn()} />,
-    )) as any
-    await userEvent.fill(getByPlaceholder('Rechercher une reference, marketeur...'), 'TRP-EXT')
+    const { getByPlaceholder, getByText } = await render(
+      <ToursTable rows={ROWS} onOpenDetails={vi.fn()} />
+    )
+    await userEvent.fill(
+      getByPlaceholder('Rechercher une reference, marketeur...'),
+      'TRP-EXT'
+    )
     await expect.element(getByText('TRP-EXT-009')).toBeInTheDocument()
-    expect(queryByText('TOT-MVAN-001')).toBeNull()
+    await expect.element(getByText('TOT-MVAN-001')).not.toBeInTheDocument()
   })
 
   it('status facet keeps only matching rows', async () => {
-    const { getByRole, getByText, queryByText } = (await render(
-      <ToursTable rows={ROWS} onOpenDetails={vi.fn()} />,
-    )) as any
+    const { getByRole, getByText } = await render(
+      <ToursTable rows={ROWS} onOpenDetails={vi.fn()} />
+    )
     await userEvent.click(getByRole('button', { name: /Statut/ }))
     await userEvent.click(getByRole('option', { name: 'En transit' }))
     await expect.element(getByText('TOT-MVAN-002')).toBeInTheDocument()
-    expect(queryByText('TOT-MVAN-001')).toBeNull()
-    expect(queryByText('TRP-EXT-009')).toBeNull()
+    await expect.element(getByText('TOT-MVAN-001')).not.toBeInTheDocument()
+    await expect.element(getByText('TRP-EXT-009')).not.toBeInTheDocument()
   })
 
   it('group-by mode renders one group header per mode', async () => {
-    const screen = await render(<ToursTable rows={ROWS} onOpenDetails={vi.fn()} />)
-    await userEvent.selectOptions(screen.getByRole('combobox'), 'execution_mode')
-    await expect.element(screen.getByText(/INTERNAL \(2\)/)).toBeInTheDocument()
-    await expect.element(screen.getByText(/EXTERNAL \(1\)/)).toBeInTheDocument()
+    const screen = await render(
+      <ToursTable rows={ROWS} onOpenDetails={vi.fn()} />
+    )
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Grouper par' }),
+      'execution_mode'
+    )
+    await expect
+      .element(screen.getByRole('button', { name: /Interne.*\(2\)/ }))
+      .toBeInTheDocument()
+    await expect
+      .element(screen.getByRole('button', { name: /Externalis.*\(1\)/ }))
+      .toBeInTheDocument()
   })
 })

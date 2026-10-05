@@ -1,8 +1,20 @@
-import { useMemo, useState } from 'react'
-import { Activity, CheckCircle2, Circle, PackagePlus, Truck } from 'lucide-react'
+import { useToursStore } from '@/store/tours-store'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Activity,
+  CheckCircle2,
+  Circle,
+  PackagePlus,
+  Truck,
+} from 'lucide-react'
 import { Badge, Button } from '@lpg/ui'
 import { PageHeader } from '@/components/layout/page-header'
-import { EmptyState, KpiTile, PageShell, SectionCard } from '@/components/layout/page'
+import {
+  EmptyState,
+  KpiTile,
+  PageShell,
+  SectionCard,
+} from '@/components/layout/page'
 import {
   getLivePickupTrack,
   getSitePickupLoad,
@@ -39,12 +51,16 @@ function StageStepper({ stage }: { stage: number }) {
               ) : (
                 <Circle className='size-4 text-muted-foreground/40' />
               )}
-              <span className={`text-[10px] ${done || current ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+              <span
+                className={`text-[10px] ${done || current ? 'text-foreground' : 'text-muted-foreground/50'}`}
+              >
                 {label}
               </span>
             </div>
             {i < PICKUP_STAGES.length - 1 && (
-              <div className={`mb-4 h-0.5 flex-1 rounded ${i < stage ? 'bg-emerald-500/60' : 'bg-muted'}`} />
+              <div
+                className={`mb-4 h-0.5 flex-1 rounded ${i < stage ? 'bg-emerald-500/60' : 'bg-muted'}`}
+              />
             )}
           </div>
         )
@@ -67,11 +83,15 @@ function LivePickupCard({ pickup }: { pickup: PickupTrackView }) {
             {pickup.stage === 2 && (
               <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75' />
             )}
-            <span className={`relative inline-flex size-2.5 rounded-full ${pickup.stage === 2 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+            <span
+              className={`relative inline-flex size-2.5 rounded-full ${pickup.stage === 2 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+            />
           </span>
           {pickup.reference}
         </button>
-        <Badge className={STATUS_CLASS[pickup.status]}>{pickup.status_label}</Badge>
+        <Badge className={STATUS_CLASS[pickup.status]}>
+          {pickup.status_label}
+        </Badge>
       </div>
 
       <div className='mt-3 grid grid-cols-2 gap-2 text-sm'>
@@ -100,8 +120,15 @@ function LivePickupCard({ pickup }: { pickup: PickupTrackView }) {
 
       {expanded && pickup.started_at && (
         <div className='mt-3 space-y-1 border-t pt-2 text-xs text-muted-foreground'>
-          <p>Demandée : {new Date(pickup.requested_at).toLocaleString('fr-FR')}</p>
-          <p>Validée : {pickup.validated_at ? new Date(pickup.validated_at).toLocaleString('fr-FR') : '—'}</p>
+          <p>
+            Demandée : {new Date(pickup.requested_at).toLocaleString('fr-FR')}
+          </p>
+          <p>
+            Validée :{' '}
+            {pickup.validated_at
+              ? new Date(pickup.validated_at).toLocaleString('fr-FR')
+              : '—'}
+          </p>
           <p>Départ : {new Date(pickup.started_at).toLocaleString('fr-FR')}</p>
         </div>
       )}
@@ -112,8 +139,19 @@ function LivePickupCard({ pickup }: { pickup: PickupTrackView }) {
 export function PickupTrackingPage() {
   const user = useAuthStore((s) => s.user)
   const storeRows = usePickupsStore((s) => s.pickups)
+  const missions = useToursStore((s) => s.tours)
+  useEffect(() => {
+    void useToursStore.getState().fetchTours()
+  }, [])
   const scope = useMemo(() => getScope(user), [user])
-  const pickupRows = useMemo(() => getPickups(scope, storeRows), [scope, storeRows])
+  const pickupRows = useMemo(
+    () =>
+      getPickups(
+        scope,
+        import.meta.env.VITE_API_MODE === 'http' ? undefined : storeRows
+      ),
+    [scope, storeRows, missions]
+  )
   const live = useMemo(() => getLivePickupTrack(pickupRows), [pickupRows])
   const summary = useMemo(() => getPickupTrackSummary(live), [live])
   const loads = useMemo(() => getSitePickupLoad(pickupRows), [pickupRows])
@@ -151,9 +189,15 @@ export function PickupTrackingPage() {
       </div>
 
       <div className='grid gap-4 lg:grid-cols-[1fr_360px]'>
-        <SectionCard title='Enlèvements actifs' description='Validés ou en cours de chargement.' >
+        <SectionCard
+          title='Enlèvements actifs'
+          description='Validés ou en cours de chargement.'
+        >
           {live.length === 0 ? (
-            <EmptyState title='Aucun enlèvement actif' description='Aucune requête validée ou en cours pour le moment.' />
+            <EmptyState
+              title='Aucun enlèvement actif'
+              description='Aucune requête validée ou en cours pour le moment.'
+            />
           ) : (
             <div className='grid gap-3 md:grid-cols-2'>
               {live.map((p) => (
@@ -163,13 +207,19 @@ export function PickupTrackingPage() {
           )}
         </SectionCard>
 
-        <SectionCard title='Volumes par site' description='Sommes chargées / déchargées sur les sites.'>
+        <SectionCard
+          title='Volumes par site'
+          description='Sommes chargées / déchargées sur les sites.'
+        >
           <div className='space-y-3'>
             {loads.length === 0 ? (
               <p className='text-sm text-muted-foreground'>Aucune donnée.</p>
             ) : (
               loads.map((site) => (
-                <div key={site.site_id} className='rounded-lg border p-3 text-sm'>
+                <div
+                  key={site.site_id}
+                  className='rounded-lg border p-3 text-sm'
+                >
                   <div className='flex items-center justify-between'>
                     <span className='font-medium'>{site.site_name}</span>
                     <span className='text-xs text-muted-foreground'>
@@ -177,7 +227,9 @@ export function PickupTrackingPage() {
                     </span>
                   </div>
                   <div className='mt-1 flex items-center justify-between text-xs text-muted-foreground'>
-                    <span>{site.inbound.toLocaleString('fr-FR')} TM entrée</span>
+                    <span>
+                      {site.inbound.toLocaleString('fr-FR')} TM entrée
+                    </span>
                   </div>
                 </div>
               ))

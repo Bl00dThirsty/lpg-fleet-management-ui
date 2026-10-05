@@ -1,4 +1,4 @@
-# Pilote de transmission des tournées
+# Pilote de transmission des tournées et enlèvements
 
 Projet dédié : [gpl-tour-dispatch](https://supabase.com/dashboard/project/ppooruggjjmaezlpjxrv), organisation existante, région Paris. Aucun changement sur yolo-delivery.
 
@@ -20,16 +20,26 @@ Une tournée interne est enregistrée avec ses étapes et son équipage en une s
 
 Seul le livreur affecté reçoit la tournée. Le marketeur reste dans son organisation ; le régulateur peut consulter les tournées. Une réaffectation retire l'accès distant à l'ancien livreur, et retire la tournée de sa liste locale après actualisation réussie. Les preuves hors ligne non synchronisées sont préservées. Aucune notification push lorsque l'application est fermée n'est implémentée. Une session expirée nécessite de se reconnecter.
 
-Le pilote couvre la création et l'affectation internes, la consultation des étapes et le démarrage. L'accusé de réception par un transporteur externe, les scans RFID, les bons de livraison et la clôture sur ce nouveau backend ne sont pas implémentés. Ces opérations renvoient une erreur explicite ; ne pas utiliser ce projet comme backend complet de production.
+Le pilote couvre les tournées internes et les enlèvements SNH/SCDP : planification, affectation de l’équipage du marketeur, réception sur le mobile, validation du chargement, scans des bouteilles, livraison et clôture. Le bon photographié est obligatoire au départ d’un enlèvement, y compris pour les bouteilles. Les justificatifs sont conservés dans le bucket privé Supabase `dispatch-proofs` ; la base ne stocke que leur chemin. Le détail web des tournées et enlèvements permet de consulter les justificatifs.
 
-## Vérifications
+L’enlèvement est transmis dans la même liste de missions que les tournées, avec `mission_kind=PICKUP`, `scheduled_at` et `pickup_status`. Il possède deux étapes (dépôt fournisseur et destination du marketeur). Le web distingue les deux types dans ses listes. La clôture reste réservée au livreur affecté après la réception. Le workflow transporteur externe n’est pas couvert par la planification d’enlèvement de ce pilote.
 
-- 599 références et six comptes de démonstration importés avec autorisation explicite.
-- `python supabase/test_dispatch.py` : onze contrôles réels de création, réception, réaffectation, visibilité régulateur et refus inter-organisations. Les identifiants de la tournée conservée sont dans `test-results.json`. Une nouvelle exécution crée une nouvelle tournée `TEST-DISPATCH-*`.
-- Web : 551 tests existants et trois tests ciblés du mode distant validés ; compilation effectuée. Le lint global signale 22 erreurs existantes (types `any`, hooks), sans nouveau diagnostic introduit par ces changements.
-- Android : huit tests de parsing/mapping et compilation de l'APK validés.
-- Navigateur : connexion, affichage et création réelle de TRP-3690 (50 bouteilles, trois étapes) validés. La même tournée est ensuite reçue via API avec le compte du livreur affecté. Cette tournée est un test à conserver uniquement pour validation.
-- PDA MBA5 connecté : APK installé en conservant les données existantes, connexion réelle du livreur SCTM validée. TRP-3690 et TEST-PDA-1790870394 affichées. Réaffectation vers le second livreur : disparition automatique ; retour au premier : réapparition automatique, sans navigation ni rafraîchissement. Les deux contrôles ont été effectués après sept secondes de délai.
+Les sites affectés, lorsqu’ils sont renseignés dans le profil du POC, limitent la destination sélectionnable et sont contrôlés côté serveur. Les comptes de démonstration sans affectation restent au périmètre de leur organisation. Les liens privés des justificatifs expirent selon `storage.proof_url_expiry_seconds` dans les ressources `settings`.
+
+## Vérifications du parcours d’enlèvement (5 octobre 2026)
+
+- Web : `npm run typecheck`, `npm run lint`, `npm test` ; tests du formulaire, de ses validations, des permissions et de l’ouverture des justificatifs.
+- Passerelle : `node --experimental-transform-types --test supabase/functions/gpl-dispatch/execution.test.ts supabase/functions/gpl-dispatch/index.test.ts` ; dix tests couvrant les preuves obligatoires, quantités, cycles d’exécution, planification, accès et expiration des liens. Les tests HTTP emploient un référentiel simulé.
+- Android : `gradlew.bat :app:testDebugUnitTest :app:assembleDebug` ; migration Room additive version 10 pour le type de mission et la date planifiée.
+- Intégration réelle : `python supabase/test_dispatch.py` requiert le fichier local des comptes ci-dessus. Le script crée des missions de test, contrôle l’isolation entre livreurs/organisations, transmet un justificatif de test et vérifie son téléchargement privé. Il conserve une mission `TEST-PDA-ENL-*` pour le PDA et écrit ses identifiants dans `test-results.json`.
+- Cette dernière vérification d’enlèvement avec les comptes réels reste à exécuter : le fichier local des comptes manque dans ce checkout, la session Chrome n’est pas accessible par l’outil et aucun PDA n’était connecté lors de la vérification. Les anciens résultats de `test-results.json` ne prouvent pas ce nouveau parcours.
+
+### Essai manuel SCTM
+
+1. Sur le web, ouvrir **Enlèvements → Planifier un enlèvement** et choisir un dépôt SNH/SCDP, le site SCTM destinataire, la date, le produit, la quantité et l’équipage SCTM.
+2. Sur Android, se connecter avec le livreur affecté et ouvrir la mission. Photographier le bon au dépôt ; pour des bouteilles, scanner le nombre exact attendu. Valider le chargement.
+3. Confirmer la réception à destination et terminer la mission.
+4. Sur le web, actualiser les enlèvements et ouvrir le détail : le bon doit être consultable dans **Documents scannés**. La même section est disponible dans les détails des tournées.
 
 ## Sécurité du projet
 

@@ -2,7 +2,13 @@ import { useState } from 'react'
 import { Ellipsis } from 'lucide-react'
 import { Bar, BarChart, type BarShapeProps, XAxis, YAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   type ChartConfig,
   ChartContainer,
@@ -64,70 +70,80 @@ export const regionalMonthlyVolumeStats = [
     name: 'Littoral',
     volumeTM: 642.8,
     share: '29.9%',
-    colorClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+    colorClass:
+      'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
   },
   {
     code: 'CE',
     name: 'Centre',
     volumeTM: 485.2,
     share: '22.6%',
-    colorClass: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
+    colorClass:
+      'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
   },
   {
     code: 'OU',
     name: 'Ouest',
     volumeTM: 218.4,
     share: '10.2%',
-    colorClass: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    colorClass:
+      'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
   },
   {
     code: 'SU',
     name: 'Sud',
     volumeTM: 185.0,
     share: '8.6%',
-    colorClass: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
+    colorClass:
+      'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
   },
   {
     code: 'EN',
     name: 'Extrême-Nord',
     volumeTM: 142.1,
     share: '6.6%',
-    colorClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
+    colorClass:
+      'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
   },
   {
     code: 'SW',
     name: 'Sud-Ouest',
     volumeTM: 124.6,
     share: '5.8%',
-    colorClass: 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30',
+    colorClass:
+      'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30',
   },
   {
     code: 'NO',
     name: 'Nord',
     volumeTM: 112.3,
     share: '5.2%',
-    colorClass: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+    colorClass:
+      'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
   },
   {
     code: 'AD',
     name: 'Adamaoua',
     volumeTM: 98.5,
     share: '4.6%',
-    colorClass: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
+    colorClass:
+      'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
   },
   {
     code: 'ES',
     name: 'Est',
     volumeTM: 74.0,
     share: '3.4%',
-    colorClass: 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
+    colorClass:
+      'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
   },
   {
     code: 'NW',
     name: 'Nord-Ouest',
     volumeTM: 68.2,
     share: '3.1%',
-    colorClass: 'bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30',
+    colorClass:
+      'bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30',
   },
 ]
 
@@ -185,7 +201,10 @@ function DeliveryCadenceBarShape(props: BarShapeProps) {
 
 export function RegionalVolumeCadence() {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const totalMonthVolumeTM = regionalMonthlyVolumeStats.reduce((sum, r) => sum + r.volumeTM, 0)
+  const totalMonthVolumeTM = regionalMonthlyVolumeStats.reduce(
+    (sum, r) => sum + r.volumeTM,
+    0
+  )
 
   return (
     <Card className='h-full'>
@@ -195,7 +214,8 @@ export function RegionalVolumeCadence() {
             Fréquence & Volumes Livrés par Région (1 Mois)
           </CardTitle>
           <p className='text-xs text-muted-foreground'>
-            Cadence de rotation en temps réel et répartition mensuelle (10 régions).
+            Cadence de rotation en temps réel et répartition mensuelle (10
+            régions).
           </p>
         </div>
         <CardAction>
@@ -205,7 +225,10 @@ export function RegionalVolumeCadence() {
               <span className='sr-only'>Actions</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' className='w-48'>
-              <DropdownMenuItem className='text-xs' onClick={() => setDialogOpen(true)}>
+              <DropdownMenuItem
+                className='text-xs'
+                onClick={() => setDialogOpen(true)}
+              >
                 Voir les 10 régions
               </DropdownMenuItem>
               <DropdownMenuItem className='text-xs'>
@@ -251,12 +274,16 @@ export function RegionalVolumeCadence() {
                   hideLabel
                   formatter={(val, _name, item) => [
                     `${val} TM livrées`,
-                    `Jour ${(item.payload as any).day}`,
+                    `Jour ${(item.payload as { day: string | number }).day}`,
                   ]}
                 />
               }
             />
-            <Bar dataKey='volume' fill='var(--color-volume)' shape={DeliveryCadenceBarShape} />
+            <Bar
+              dataKey='volume'
+              fill='var(--color-volume)'
+              shape={DeliveryCadenceBarShape}
+            />
           </BarChart>
         </ChartContainer>
 
@@ -278,8 +305,12 @@ export function RegionalVolumeCadence() {
                   {region.code}
                 </span>
                 <div className='min-w-0 flex-1 truncate'>
-                  <p className='truncate text-xs font-medium text-foreground'>{region.name}</p>
-                  <p className='text-[10px] text-muted-foreground'>{region.share} du volume</p>
+                  <p className='truncate text-xs font-medium text-foreground'>
+                    {region.name}
+                  </p>
+                  <p className='text-[10px] text-muted-foreground'>
+                    {region.share} du volume
+                  </p>
                 </div>
                 <span className='font-manrope text-xs font-semibold tabular-nums text-foreground'>
                   {region.volumeTM.toLocaleString('fr-FR')} TM
@@ -292,11 +323,18 @@ export function RegionalVolumeCadence() {
         {/* Accès modal aux 10 régions du Cameroun */}
         <div className='flex items-center justify-between pt-1'>
           <span className='text-xs text-muted-foreground'>
-            Total 10 régions : <strong className='text-foreground'>{totalMonthVolumeTM.toLocaleString('fr-FR')} TM</strong>
+            Total 10 régions :{' '}
+            <strong className='text-foreground'>
+              {totalMonthVolumeTM.toLocaleString('fr-FR')} TM
+            </strong>
           </span>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant='ghost' size='sm' className='h-7 text-xs font-medium text-primary hover:bg-primary/10'>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='h-7 text-xs font-medium text-primary hover:bg-primary/10'
+              >
                 Voir les 10 régions →
               </Button>
             </DialogTrigger>
@@ -319,8 +357,12 @@ export function RegionalVolumeCadence() {
                         {region.code}
                       </span>
                       <div>
-                        <p className='font-medium text-foreground'>{region.name}</p>
-                        <p className='text-[10px] text-muted-foreground'>Part : {region.share}</p>
+                        <p className='font-medium text-foreground'>
+                          {region.name}
+                        </p>
+                        <p className='text-[10px] text-muted-foreground'>
+                          Part : {region.share}
+                        </p>
                       </div>
                     </div>
                     <div className='text-right'>

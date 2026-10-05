@@ -1,5 +1,10 @@
 import { delivery_tours, getSettingNumber } from '@lpg/mock-data'
-import type { Declaration, Reconciliation } from '@lpg/types'
+import type {
+  Declaration,
+  Reconciliation,
+  DeliveryTour,
+  DeliveryEvent,
+} from '@lpg/types'
 import { useToursStore } from '@/store/tours-store'
 
 export interface ReconciliationComputation {
@@ -41,8 +46,8 @@ export function getTrackedTotals(): {
   tracked_bottles_out: number
   tracked_bottles_in: number
 } {
-  let storeTours: any[] = []
-  let storeDeliveryEvents: any[] = []
+  let storeTours: DeliveryTour[] = []
+  let storeDeliveryEvents: DeliveryEvent[] = []
 
   try {
     const toursState = useToursStore?.getState?.()
@@ -55,14 +60,22 @@ export function getTrackedTotals(): {
   }
 
   // Delivery events recorded during PDA stops (client delivery & consignes)
-  const eventsOut = storeDeliveryEvents.reduce((acc: number, e: any) => acc + (e.delivered ?? 0), 0)
-  const eventsIn = storeDeliveryEvents.reduce((acc: number, e: any) => acc + (e.returned ?? 0), 0)
+  const eventsOut = storeDeliveryEvents.reduce(
+    (acc: number, e: DeliveryEvent) => acc + (e.delivered ?? 0),
+    0
+  )
+  const eventsIn = storeDeliveryEvents.reduce(
+    (acc: number, e: DeliveryEvent) => acc + (e.returned ?? 0),
+    0
+  )
 
   // Tour delivered quantity
-  const toursDelivered = (storeTours.length > 0 ? storeTours : delivery_tours).reduce(
-    (acc: number, t: any) => acc + (t.delivered_quantity ?? 0),
-    0,
-  )
+  const toursDelivered = (storeTours.length > 0 ? storeTours : delivery_tours)
+    .filter((t) => t.mission_kind !== 'PICKUP')
+    .reduce(
+      (acc: number, t: DeliveryTour) => acc + (t.delivered_quantity ?? 0),
+      0
+    )
 
   const tracked_bottles_out = eventsOut > 0 ? eventsOut : toursDelivered
   const tracked_bottles_in = eventsIn
@@ -83,7 +96,7 @@ export function computeReconciliation(
   declaration: Declaration,
   trackedVolume?: number,
   toleranceOverride?: number,
-  subsidyRateOverride?: number,
+  subsidyRateOverride?: number
 ): ReconciliationComputation {
   const tolerance = toleranceOverride ?? resolveTolerance()
   const subsidyRate = subsidyRateOverride ?? resolveSubsidyRate()
@@ -112,7 +125,7 @@ export function computeReconciliation(
 
 export function reconciliationFromDeclaration(
   decl: Declaration,
-  existing?: Reconciliation,
+  existing?: Reconciliation
 ): Reconciliation {
   const comp = computeReconciliation(decl)
   const now = new Date().toISOString()

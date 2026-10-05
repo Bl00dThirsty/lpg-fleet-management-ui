@@ -24,7 +24,12 @@
  *      `/dashboard`) are reachable only via app chrome (header, landing) and
  *      are left open — declare a nav item to start gating one.
  */
-import { hasPermission, type PermissionCode, type Role } from '@lpg/permissions'
+import {
+  hasEffectivePermission,
+  type CustomPermissionRoles,
+  type PermissionCode,
+  type Role,
+} from '@lpg/permissions'
 import { NAV_CATALOG, resolveFeaturePath } from './nav-items'
 import { landingPathFor } from './sidebar-by-role'
 
@@ -48,10 +53,7 @@ const PATH_ENTRIES: NavPathEntry[] = NAV_CATALOG.map((item) => ({
  * full CRUD editor and is gated by `notification-groups.write` via its nav
  * declaration (see `nav-items.ts`).
  */
-const CHROME_PATHS: readonly string[] = [
-  '/settings',
-  '/settings/profile',
-]
+const CHROME_PATHS: readonly string[] = ['/settings', '/settings/profile']
 
 function normalizePath(pathname: string): string {
   const withoutQuery = pathname.split('?')[0] ?? ''
@@ -63,7 +65,11 @@ function normalizePath(pathname: string): string {
  * True when the active role may navigate to `pathname`.
  * Pure && data-driven — never reason about grants by hand in components.
  */
-export function canAccessPath(role: Role, pathname: string): boolean {
+export function canAccessPath(
+  role: Role,
+  pathname: string,
+  customRoles: CustomPermissionRoles = []
+): boolean {
   const path = normalizePath(pathname)
 
   // 1. Landing is always reachable for the role (prevents redirect loops).
@@ -75,11 +81,13 @@ export function canAccessPath(role: Role, pathname: string): boolean {
 
   // 3. Declared feature paths: authorize against their required codes.
   const declared = PATH_ENTRIES.filter(
-    (entry) => path === entry.path || path.startsWith(`${entry.path}/`),
+    (entry) => path === entry.path || path.startsWith(`${entry.path}/`)
   )
   if (declared.length > 0) {
     return declared.some((entry) =>
-      entry.requires.some((code) => hasPermission(role, code)),
+      entry.requires.some((code) =>
+        hasEffectivePermission(role, code, customRoles)
+      )
     )
   }
 
@@ -91,6 +99,12 @@ export function canAccessPath(role: Role, pathname: string): boolean {
  * Landing to redirect to when a route is denied. Never returns a path that
  * would loop (it returns the role's own landing, which rule 1 always allows).
  */
-export function deniedPathRedirect(role: Role, pathname: string): string | null {
-  return canAccessPath(role, pathname) ? null : landingPathFor(role)
+export function deniedPathRedirect(
+  role: Role,
+  pathname: string,
+  customRoles: CustomPermissionRoles = []
+): string | null {
+  return canAccessPath(role, pathname, customRoles)
+    ? null
+    : landingPathFor(role)
 }

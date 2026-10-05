@@ -8,9 +8,13 @@ import {
   PICKUP_STAGES,
 } from './pickup-tracking'
 
+import { getPickups } from '@/features/pickups/data/pickups'
+import { curated } from '@lpg/mock-data'
+const rows = getPickups({ view: 'org', siteIds: [] }, curated.pickup_requests)
+
 describe('pickup-tracking view-model', () => {
   it('only surfaces live (validated/in-progress) pickups', () => {
-    const live = getLivePickupTrack()
+    const live = getLivePickupTrack(rows)
     for (const row of live) {
       expect(['VALIDATED', 'INPROGRESS']).toContain(row.status)
       expect(row.stage).toBeGreaterThanOrEqual(1)
@@ -18,7 +22,7 @@ describe('pickup-tracking view-model', () => {
   })
 
   it('returns recent non-draft pickups in date order', () => {
-    const recent = getRecentPickupTrack()
+    const recent = getRecentPickupTrack(6, rows)
     expect(recent.length).toBeGreaterThanOrEqual(1)
     for (let i = 1; i < recent.length; i++) {
       expect(recent[i - 1]!.requested_at >= recent[i]!.requested_at).toBe(true)
@@ -32,13 +36,15 @@ describe('pickup-tracking view-model', () => {
   })
 
   it('aggregates site inbound/outbound loads', () => {
-    const loads = getSitePickupLoad()
+    const loads = getSitePickupLoad(rows)
     const total = loads.reduce((acc, l) => acc + l.outbound + l.inbound, 0)
     expect(total).toBeGreaterThan(0)
   })
 
   it('summarizes live buckets', () => {
-    const summary = getPickupTrackSummary(getLivePickupTrack())
-    expect(summary.inProgress + summary.validated).toBe(getLivePickupTrack().length)
+    const summary = getPickupTrackSummary(getLivePickupTrack(rows))
+    expect(summary.inProgress + summary.validated).toBe(
+      getLivePickupTrack(rows).length
+    )
   })
 })

@@ -1,11 +1,7 @@
 import type { Site as CuratedSite, ClientSite } from '@lpg/types'
 
 export type SiteType =
-  | 'depot'
-  | 'scdp'
-  | 'filling-center'
-  | 'marketer'
-  | 'delivery-point'
+  'depot' | 'scdp' | 'filling-center' | 'marketer' | 'delivery-point'
 
 export type SiteStatus = 'active' | 'planned' | 'inactive'
 
@@ -60,7 +56,7 @@ const REGION_LABELS: Record<string, string> = {
 
 function viewTypeFromSeed(
   site: CuratedSite | ClientSite,
-  orgName: string,
+  orgName: string
 ): SiteType {
   const functions = 'functions' in site ? (site.functions ?? []) : []
   if (orgName.includes('SCDP')) return 'scdp'
@@ -72,7 +68,7 @@ function viewTypeFromSeed(
 
 function viewStatusFromSeed(
   status: string | undefined,
-  isActive: boolean,
+  isActive: boolean
 ): SiteStatus {
   if (status === 'ACTIVE' || status === 'VERIFIED') return 'active'
   if (status === 'SUSPENDED' || status === 'REJECTED') return 'inactive'
@@ -81,7 +77,10 @@ function viewStatusFromSeed(
 
 export function cityFromAddress(address: string | undefined): string {
   if (!address) return '—'
-  const parts = address.split(',').map((p) => p.trim()).filter(Boolean)
+  const parts = address
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean)
   const beforeCam = parts.filter((p) => !/cameroun/i.test(p))
   if (beforeCam.length === 0) return '—'
   const last = beforeCam[beforeCam.length - 1]!
@@ -92,14 +91,16 @@ export function cityFromAddress(address: string | undefined): string {
 function descriptionFor(
   orgName: string,
   type: SiteType,
-  region: string,
+  region: string
 ): string {
   const typeLabel = siteTypeLabels[type]
   return `${orgName} — ${typeLabel}, région ${REGION_LABELS[region] ?? region}.`
 }
 
 function orgId(site: CuratedSite | ClientSite): string {
-  return 'org_id' in site ? (site as CuratedSite).org_id : (site as ClientSite).client_org_id
+  return 'org_id' in site
+    ? (site as CuratedSite).org_id
+    : (site as ClientSite).client_org_id
 }
 
 /**
@@ -110,7 +111,7 @@ function orgId(site: CuratedSite | ClientSite): string {
  */
 export function getSites(
   raw: (CuratedSite | ClientSite)[] = [],
-  orgsById: Record<string, string> = {},
+  orgsById: Record<string, string> = {}
 ): Site[] {
   return raw.map((site) => {
     const orgId_ = orgId(site)
@@ -118,15 +119,15 @@ export function getSites(
     const type = viewTypeFromSeed(site, orgName)
     const status = viewStatusFromSeed(
       'status' in site ? (site as CuratedSite).status : undefined,
-      'is_active' in site ? (site as ClientSite).is_active : true,
+      'is_active' in site ? (site as ClientSite).is_active : true
     )
-    const region = (site as any).region
-    const geo = (site as any).geo_point as [number, number] | undefined
+    const region = site.region ?? ''
+    const geo = site.geo_point
     return {
       id: site.id,
       name: site.name,
       type,
-      city: cityFromAddress((site as any).address),
+      city: cityFromAddress(site.address),
       region: REGION_LABELS[region] ?? region,
       operator: orgName,
       latitude: geo?.[1] ?? 0,
@@ -145,6 +146,9 @@ export function getSites(
  */
 export const sites: Site[] = []
 
-export function getKeySites(raw?: (CuratedSite | ClientSite)[], orgsById?: Record<string, string>): Site[] {
+export function getKeySites(
+  raw?: (CuratedSite | ClientSite)[],
+  orgsById?: Record<string, string>
+): Site[] {
   return getSites(raw, orgsById).filter((site) => site.isKeySite)
 }

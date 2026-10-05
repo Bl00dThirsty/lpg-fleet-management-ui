@@ -14,13 +14,22 @@ async function stores() {
 }
 
 describe('remote tour persistence', () => {
-  beforeEach(() => { vi.resetModules(); vi.stubEnv('VITE_API_MODE', 'http') })
-  afterEach(() => { vi.unstubAllEnvs(); vi.clearAllMocks() })
+  beforeEach(() => {
+    vi.resetModules()
+    vi.stubEnv('VITE_API_MODE', 'http')
+  })
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.clearAllMocks()
+  })
 
   it('starts without mock tours and accepts an empty server list', async () => {
     const { useToursStore, api } = await stores()
     expect(useToursStore.getState().tours).toEqual([])
-    vi.mocked(api.tours.list).mockResolvedValue({ data: [], pagination: { page: 0, limit: 100, total: 0, pages: 0 } })
+    vi.mocked(api.tours.list).mockResolvedValue({
+      data: [],
+      pagination: { page: 0, limit: 100, total: 0, pages: 0 },
+    })
     await useToursStore.getState().fetchTours()
     expect(useToursStore.getState().tours).toEqual([])
     expect(useToursStore.getState().hasLoaded).toBe(true)
@@ -29,12 +38,15 @@ describe('remote tour persistence', () => {
   it('does not turn a rejected assignment into a local success', async () => {
     const { useToursStore, api } = await stores()
     vi.mocked(api.tours.assignDriver).mockRejectedValue(new Error('Forbidden'))
-    await expect(useToursStore.getState().assignDriver('test', 'foreign-driver')).rejects.toThrow('Forbidden')
+    await expect(
+      useToursStore.getState().assignDriver('test', 'foreign-driver')
+    ).rejects.toThrow('Forbidden')
     expect(useToursStore.getState().tours).toEqual([])
   })
 
   it('reports loading failures and allows retry', async () => {
     const { useToursStore, api } = await stores()
+    useToursStore.setState({ hasLoaded: false, lastFetchedAt: 0, error: null })
     vi.mocked(api.tours.list).mockRejectedValue(new Error('Offline'))
     await useToursStore.getState().fetchTours()
     expect(useToursStore.getState().hasLoaded).toBe(false)
