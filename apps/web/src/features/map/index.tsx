@@ -57,14 +57,21 @@ export function NationalMapPage() {
   const allRoadRoutes = useVracRoadRoutes()
 
   const routes = useMemo(() => {
-    if (isRegulator || !myOrgName) return allRoadRoutes
-    const lowerOrg = myOrgName.toLowerCase()
-    return allRoadRoutes.filter(
-      (r) =>
-        r.marketerName.toLowerCase().includes(lowerOrg) ||
-        lowerOrg.includes(r.marketerName.toLowerCase()),
-    )
-  }, [allRoadRoutes, isRegulator, myOrgName])
+    if (isRegulator || !authUser?.org_id) return allRoadRoutes
+    return allRoadRoutes.filter((r) => {
+      if (r.marketerOrgId && authUser.org_id) {
+        return r.marketerOrgId === authUser.org_id
+      }
+      if (myOrgName) {
+        const lowerOrg = myOrgName.toLowerCase()
+        return (
+          r.marketerName.toLowerCase().includes(lowerOrg) ||
+          lowerOrg.includes(r.marketerName.toLowerCase())
+        )
+      }
+      return false
+    })
+  }, [allRoadRoutes, isRegulator, authUser?.org_id, myOrgName])
 
   const allMarketerNames = useMemo(() => {
     return Array.from(new Set(routes.map((r) => r.marketerName))).filter(Boolean)

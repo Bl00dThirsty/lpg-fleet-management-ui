@@ -16,6 +16,7 @@ export interface VracTourRoute {
   executionMode: 'INTERNAL' | 'EXTERNAL'
   status: 'INPROGRESS' | 'PLANNED' | 'COMPLETED'
   statusLabel: string
+  marketerOrgId?: string
   marketerName: string
   transporterName: string
   vehiclePlate: string
@@ -53,6 +54,7 @@ export const DOUALA_VRAC_ROUTE: VracTourRoute = {
   executionMode: 'EXTERNAL',
   status: 'INPROGRESS',
   statusLabel: 'En transit — Traversée Pont du Wouri',
+  marketerOrgId: 'org-0003-total-0000-000000000001',
   marketerName: 'TotalEnergies Marketing Cameroun',
   transporterName: 'CAMTRANS GPL Logistique',
   vehiclePlate: 'LT-982-AA',
@@ -136,6 +138,7 @@ export const YAOUNDE_VRAC_ROUTE: VracTourRoute = {
   executionMode: 'EXTERNAL',
   status: 'PLANNED',
   statusLabel: 'Planifiée — Départ prévu 14:00',
+  marketerOrgId: 'org-0006-tradex-000-000000000001',
   marketerName: 'Tradex Cameroun',
   transporterName: 'Express Gaz Transport',
   vehiclePlate: 'CE-415-BX',
@@ -195,6 +198,7 @@ export const SCTM_VRAC_ROUTE: VracTourRoute = {
   executionMode: 'INTERNAL',
   status: 'INPROGRESS',
   statusLabel: 'En cours — Livraison zone industrielle',
+  marketerOrgId: 'org-0002-sctm-0000-000000000001',
   marketerName: 'SCTM — Société Camerounaise de Transformations Métalliques',
   transporterName: 'Flotte Interne SCTM',
   vehiclePlate: 'OU-512-AA',
@@ -253,6 +257,7 @@ export const CAMGAZ_VRAC_ROUTE: VracTourRoute = {
   executionMode: 'EXTERNAL',
   status: 'PLANNED',
   statusLabel: 'Planifiée — Convoi inter-urbain',
+  marketerOrgId: 'org-0005-camg-0000-000000000001',
   marketerName: 'Camgaz — Société Camerounaise de Gaz',
   transporterName: 'Express Gaz Transport',
   vehiclePlate: 'SW-834-BB',
