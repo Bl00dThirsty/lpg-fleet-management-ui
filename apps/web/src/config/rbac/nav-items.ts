@@ -328,7 +328,6 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- Operations: pickups + tours ----------- */
   {
     id: 'pickups',
-    comingSoon: true,
     label: 'Approvisionnements (Flux 1)',
     icon: PackageCheck,
     path: 'pickups',
@@ -336,6 +335,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'pickup-tracking',
+    comingSoon: true,
     label: 'Suivi enlèvements',
     icon: MapIcon,
     path: 'pickup-tracking',
@@ -343,7 +343,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'tours',
-    label: 'Tournées de livraison',
+    label: 'Suivi des tournées',
     icon: Route,
     path: 'tours',
     requires: ['tours.read'],
@@ -712,8 +712,8 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
         title: 'Opérations & Contrôle',
         items: [
           'pickups',
+          'pickup-tracking',
           'tours',
-          'tour-tracking',
           'declarations',
           'reconciliations',
           'redressements',
@@ -817,7 +817,6 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
           'declarations',
           'anomalies-investigation',
           'tours',
-          'tour-tracking',
           'visits',
         ],
       },
@@ -842,7 +841,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
       },
       {
         title: 'Flux 2 — Livraison',
-        items: ['tours', 'tour-tracking', 'transporter-contracts', 'clients'],
+        items: ['tours', 'transporter-contracts', 'clients'],
       },
       {
         title: 'Déclarations & Performance',
@@ -854,7 +853,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
     groups: [
       {
         title: 'Opérations',
-        items: ['overview', 'tours', 'tour-tracking', 'dashboard-transporteur'],
+        items: ['overview', 'tours', 'dashboard-transporteur'],
       },
       { title: 'Ma flotte', items: ['vehicles', 'drivers', 'livreurs'] },
       { title: 'Contrats & Clients', items: ['contracts', 'performance'] },

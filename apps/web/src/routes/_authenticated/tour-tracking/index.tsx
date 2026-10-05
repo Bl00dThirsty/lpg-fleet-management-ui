@@ -1,22 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-
-import { FollowUpPage } from '@/features/tours/follow-up'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { RouteSkeleton } from '@/components/layout/route-skeleton'
 import { GeneralError } from '@/features/errors/general-error'
-
-
-
-
+import { ToursPage } from '@/features/tours'
 
 export const Route = createFileRoute('/_authenticated/tour-tracking/')({
-
-
-    pendingComponent: RouteSkeleton,
+  beforeLoad: () => {
+    throw redirect({ to: '/tours' })
+  },
+  pendingComponent: RouteSkeleton,
   errorComponent: GeneralError,
-component: FollowUpPage,
-
-
+  component: ToursPage,
 })
 
 

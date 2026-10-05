@@ -222,15 +222,25 @@ export function TourCreateDialog({
         setDrivers(drvData as DriverOption[])
 
         // Sites (with fallback)
-        const siteData = (siteRes.status === 'fulfilled' && Array.isArray(siteRes.value?.data) && siteRes.value.data.length > 0)
+        let siteData = (siteRes.status === 'fulfilled' && Array.isArray(siteRes.value?.data) && siteRes.value.data.length > 0)
           ? siteRes.value.data
           : defaultSites
+        if (!isRegulator && authUser?.org_id) {
+          siteData = (siteData as RawSite[]).filter(
+            (s) => s.org_id === authUser.org_id || s.organization_id === authUser.org_id,
+          )
+        }
         setRawSites(siteData as RawSite[])
 
         // Client Sites (with fallback)
-        const csData = (csRes.status === 'fulfilled' && Array.isArray(csRes.value?.data) && csRes.value.data.length > 0)
+        let csData = (csRes.status === 'fulfilled' && Array.isArray(csRes.value?.data) && csRes.value.data.length > 0)
           ? csRes.value.data
           : defaultClientSites
+        if (!isRegulator && authUser?.org_id) {
+          csData = (csData as RawClientSite[]).filter(
+            (s) => s.current_marketeur_org_id === authUser.org_id || s.client_org_id === authUser.org_id,
+          )
+        }
         setRawClientSites(csData as RawClientSite[])
 
         // Keep marketers in their own organization; regulators may choose any marketer.
@@ -333,27 +343,27 @@ export function TourCreateDialog({
     )
     const primaryRegion = orgSites[0]?.region || 'LITTORAL'
 
-    // Depots / filling centres across the network
-    const allDepots = rawSites.filter((s) => {
-      const isDepotType = s.functions?.some((f) =>
-        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f),
-      ) || ['depot', 'filling-center', 'scdp'].includes(String(s.type).toLowerCase())
-      return isDepotType || s.org_id === marketerId || s.organization_id === marketerId
-    })
+    // Strict isolation: non-regulators only see sites of their own marketer organisation.
+    // Regulators who pick a marketer see that marketer's sites (or rawSites if none configured).
+    const candidateSites = (!isRegulator || orgSites.length > 0) ? orgSites : rawSites
 
-    // Sort: Marketer org sites in primary region first, then marketer sites, then other depots
-    return [...allDepots].sort((a, b) => {
-      const aIsMyOrg = (a.org_id === marketerId || a.organization_id === marketerId) ? 1 : 0
-      const bIsMyOrg = (b.org_id === marketerId || b.organization_id === marketerId) ? 1 : 0
-      if (aIsMyOrg !== bIsMyOrg) return bIsMyOrg - aIsMyOrg
-
+    // Sort: sites in primary region first, then depots / filling centres, then alphabetical
+    return [...candidateSites].sort((a, b) => {
       const aInRegion = a.region === primaryRegion ? 1 : 0
       const bInRegion = b.region === primaryRegion ? 1 : 0
       if (aInRegion !== bInRegion) return bInRegion - aInRegion
 
+      const aIsDepot = a.functions?.some((f) =>
+        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f),
+      ) ? 1 : 0
+      const bIsDepot = b.functions?.some((f) =>
+        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f),
+      ) ? 1 : 0
+      if (aIsDepot !== bIsDepot) return bIsDepot - aIsDepot
+
       return a.name.localeCompare(b.name)
     })
-  }, [marketerId, rawSites])
+  }, [marketerId, rawSites, isRegulator])
 
   // Auto-select first depot
   useEffect(() => {
@@ -373,11 +383,18 @@ export function TourCreateDialog({
     const clientOrgs = orgs.filter((o) => o.type === 'CLIENT')
     const orgMap = new Map(clientOrgs.map((o) => [o.id, o.name]))
 
+    // Restrict client sites to this marketer's clients
+    const targetMkt = !isRegulator ? authUser?.org_id : marketerId
+    const relevantClientSites = targetMkt
+      ? rawClientSites.filter((s) => s.current_marketeur_org_id === targetMkt || s.client_org_id === targetMkt)
+      : rawClientSites
+    const sitesToUse = relevantClientSites.length > 0 ? relevantClientSites : rawClientSites
+
     // Group client sites
     const groups: Array<{ clientOrgId: string; clientName: string; sites: RawClientSite[] }> = []
 
     // Sort sites: matching depot's region first!
-    const sortedSites = [...rawClientSites].sort((a, b) => {
+    const sortedSites = [...sitesToUse].sort((a, b) => {
       const aSameRegion = a.region === currentRegion ? 1 : 0
       const bSameRegion = b.region === currentRegion ? 1 : 0
       if (aSameRegion !== bSameRegion) return bSameRegion - aSameRegion

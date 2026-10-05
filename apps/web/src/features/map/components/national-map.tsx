@@ -14,6 +14,7 @@ import { useClientSitesStore } from '@/store/client-sites-store'
 import { useVehiclesStore } from '@/store/vehicles-store'
 import { useRegionsStore } from '@/store/regions-store'
 import { useAnomaliesStore } from '@/store/anomalies-store'
+import { useAuthStore } from '@/store/auth-store'
 
 import { getSites } from '@/features/sites/data/sites'
 import { getClientSitesView } from '@/features/map/data/client-sites'
@@ -106,6 +107,8 @@ export function NationalMap({
     fetchAnomalies()
   }, [])
 
+  const authUser = useAuthStore((s) => s.user)
+
   // Hydratation réactive : données d'API si reçues, sinon graine réaliste Cameroun
   const data = useMemo<NationalMapView>(() => {
     const liveSites = sitesEntities.length > 0 ? getSites(sitesEntities) : DEFAULT_MAP_SITES
@@ -124,16 +127,23 @@ export function NationalMap({
         ? getGeoAnomalies(anomalies, sitesEntities, clientSitesEntities)
         : DEFAULT_MAP_ANOMALIES
 
+    const isRegulator = !authUser || ['SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'INTEGRATEUR'].includes(authUser.system_role)
+    const scopedSites = (!isRegulator && authUser?.org_id)
+      ? liveSites.filter((s) => s.orgId === authUser.org_id)
+      : liveSites
+    const scopedClients = (!isRegulator && authUser?.org_id)
+      ? liveClients.filter((cs) => cs.current_marketeur_org_id === authUser.org_id || cs.client_org_id === authUser.org_id)
+      : liveClients
 
     return getNationalMapView({
-      sites: liveSites,
-      clientSites: liveClients,
+      sites: scopedSites,
+      clientSites: scopedClients,
       vrac: liveVrac,
       regions: liveRegions,
       anomalies: liveAnomalies,
       routes,
     })
-  }, [sitesEntities, clientSitesEntities, vehicles, regions, anomalies, routes])
+  }, [sitesEntities, clientSitesEntities, vehicles, regions, anomalies, routes, authUser])
 
   // Initialisation ArcGIS
   useEffect(() => {

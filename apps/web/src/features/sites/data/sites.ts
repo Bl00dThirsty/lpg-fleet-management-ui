@@ -17,6 +17,7 @@ export type Site = {
   description: string
   status: SiteStatus
   isKeySite?: boolean
+  orgId?: string
 }
 
 export const siteTypeLabels: Record<SiteType, string> = {
@@ -135,6 +136,7 @@ export function getSites(
       description: descriptionFor(orgName, type, region),
       status,
       isKeySite: type === 'filling-center' || type === 'scdp',
+      orgId: orgId_,
     }
   })
 }

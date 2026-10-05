@@ -26,6 +26,9 @@ export interface SiteRow {
   delivery_count: number
   geo_confidence_score: number
   is_client_site: boolean
+  org_id?: string
+  client_org_id?: string
+  current_marketeur_org_id?: string | null
 }
 
 export type TransitionRequest =

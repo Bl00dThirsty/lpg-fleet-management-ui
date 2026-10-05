@@ -53,7 +53,7 @@ export function ToursPage() {
     <PageShell>
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <PageHeader
-          title='Tournées de livraison'
+          title='Suivi des tournées'
           description='Flux 2 — livraisons créées par les marketeurs et exécutées en interne ou par un transporteur.'
         />
         <div className='flex items-center gap-2'>

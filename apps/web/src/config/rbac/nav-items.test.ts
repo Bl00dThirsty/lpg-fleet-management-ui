@@ -11,7 +11,7 @@ const deferredIds = [
   'finance',
   'certificates',
   'devices',
-  'pickups',
+  'pickup-tracking',
   'declarations',
   'reconciliations',
   'redressements',

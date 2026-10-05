@@ -43,7 +43,6 @@ import {
   vehicles,
 } from '@lpg/mock-data'
 import type { ExecutionMode, TourneeType } from '@lpg/types'
-import { getScope } from '@/features/scope/scope'
 import { contractsEligibleForExternal } from '@/features/transporter-contracts/lib/contract-status'
 import { useAuthStore } from '@/store/auth-store'
 import { useContractsStore } from '@/store/contracts-store'
@@ -196,14 +195,26 @@ export function TourCreateWizard({
   const tourneeType = form.watch('type')
   const contracts = useContractsStore((state) => state.contracts)
 
+  const authUser = useAuthStore((s) => s.user)
+  const isRegulator = useMemo(() => {
+    if (!authUser) return false
+    return ['SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'INTEGRATEUR'].includes(authUser.system_role)
+  }, [authUser])
+  const canChooseOrg = isRegulator
+
   useEffect(() => {
     if (!open) return
-    form.reset(buildDefaults())
+    const defaults = buildDefaults()
+    if (!canChooseOrg && authUser?.org_id) {
+      defaults.marketeur_org_id = authUser.org_id
+      defaults.sourceSiteId = defaultSourceSiteId(authUser.org_id)
+    }
+    form.reset(defaults)
     setStep(1)
     setRowKinds(['client_site'])
     setSubmitting(false)
     setSubmitError(null)
-  }, [open, form])
+  }, [open, form, canChooseOrg, authUser?.org_id])
 
   const org = useMemo(
     () => organizations.find((o) => o.id === marketeurOrgId),
@@ -255,9 +266,6 @@ export function TourCreateWizard({
     }
     return options
   }, [contracts, marketeurOrgId])
-
-  const scopeView = useMemo(() => getScope(useAuthStore.getState().user).view, [])
-  const canChooseOrg = scopeView === 'org'
 
   function handleExecutionModeChange(mode: ExecutionMode) {
     form.setValue('execution_mode', mode)
@@ -510,7 +518,7 @@ export function TourCreateWizard({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {MARKET_EUR_ORGS.map((o) => (
+                          {MARKET_EUR_ORGS.filter((o) => canChooseOrg || o.id === authUser?.org_id).map((o) => (
                             <SelectItem key={o.id} value={o.id}>
                               {o.name}
                             </SelectItem>

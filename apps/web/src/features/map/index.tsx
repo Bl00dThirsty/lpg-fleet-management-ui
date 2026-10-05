@@ -37,6 +37,7 @@ import { type VracTourRoute } from './data/itineraries'
 import { useVracRoadRoutes } from './data/road-routes'
 import type { MapTheme } from './utils/map-theme'
 import { formatTm } from './utils/format'
+import { organizations } from '@/lib/entity-data'
 
 export function NationalMapPage() {
   const [layers, setLayers] = useState<Record<MapLayerKey, boolean>>(getInitialLayers())
@@ -44,9 +45,26 @@ export function NationalMapPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [showTourDrawer, setShowTourDrawer] = useState(true)
   const [selectedRouteCode, setSelectedRouteCode] = useState<string>('TR-VRAC-DLA-001')
-  const userRole = useAuthStore((s) => s.user?.system_role) ?? 'CSPH'
+  const authUser = useAuthStore((s) => s.user)
+  const userRole = authUser?.system_role ?? 'CSPH'
+  const isRegulator = !authUser || ['SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'INTEGRATEUR'].includes(authUser.system_role)
 
-  const routes = useVracRoadRoutes()
+  const myOrgName = useMemo(() => {
+    if (!authUser?.org_id) return null
+    return organizations.find((o) => o.id === authUser.org_id)?.name ?? null
+  }, [authUser?.org_id])
+
+  const allRoadRoutes = useVracRoadRoutes()
+
+  const routes = useMemo(() => {
+    if (isRegulator || !myOrgName) return allRoadRoutes
+    const lowerOrg = myOrgName.toLowerCase()
+    return allRoadRoutes.filter(
+      (r) =>
+        r.marketerName.toLowerCase().includes(lowerOrg) ||
+        lowerOrg.includes(r.marketerName.toLowerCase()),
+    )
+  }, [allRoadRoutes, isRegulator, myOrgName])
 
   const allMarketerNames = useMemo(() => {
     return Array.from(new Set(routes.map((r) => r.marketerName))).filter(Boolean)

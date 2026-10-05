@@ -50,8 +50,15 @@ export const REGIONS: readonly string[] = Array.from(
   new Set([...curatedSites, ...curatedClientSites].map((site) => site.region)),
 ).sort()
 
-export function getSiteRows(): SiteRow[] {
-  return curatedSites.map((site) => ({
+const REGULATEUR_ROLES = ['SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'INTEGRATEUR']
+
+export function getSiteRows(user?: { org_id?: string; system_role?: string } | null): SiteRow[] {
+  const isRegulator = !user || REGULATEUR_ROLES.includes(user.system_role ?? '')
+  let filtered = curatedSites
+  if (!isRegulator && user?.org_id) {
+    filtered = filtered.filter((s) => s.org_id === user.org_id)
+  }
+  return filtered.map((site) => ({
     id: site.id,
     name: site.name,
     status: site.status,
@@ -60,11 +67,17 @@ export function getSiteRows(): SiteRow[] {
     delivery_count: site.delivery_count ?? 0,
     geo_confidence_score: site.geo_confidence_score ?? 0,
     is_client_site: false,
+    org_id: site.org_id,
   }))
 }
 
-export function getClientSiteRows(): SiteRow[] {
-  return curatedClientSites.map((site) => ({
+export function getClientSiteRows(user?: { org_id?: string; system_role?: string } | null): SiteRow[] {
+  const isRegulator = !user || REGULATEUR_ROLES.includes(user.system_role ?? '')
+  let filtered = curatedClientSites
+  if (!isRegulator && user?.org_id) {
+    filtered = filtered.filter((s) => s.current_marketeur_org_id === user.org_id || s.client_org_id === user.org_id)
+  }
+  return filtered.map((site) => ({
     id: site.id,
     name: site.name,
     status: clientSiteStatus(site),
@@ -73,11 +86,13 @@ export function getClientSiteRows(): SiteRow[] {
     delivery_count: site.delivery_count ?? 0,
     geo_confidence_score: site.geo_confidence_score ?? 0,
     is_client_site: true,
+    client_org_id: site.client_org_id,
+    current_marketeur_org_id: site.current_marketeur_org_id,
   }))
 }
 
-export function getVerificationInbox(): SiteRow[] {
-  return [...getSiteRows(), ...getClientSiteRows()]
+export function getVerificationInbox(user?: { org_id?: string; system_role?: string } | null): SiteRow[] {
+  return [...getSiteRows(user), ...getClientSiteRows(user)]
     .filter((s) => s.status === 'ASSIGNED' || s.status === 'ACTIVE')
     .sort((a, b) => (a.delivery_count < b.delivery_count ? -1 : 1))
 }

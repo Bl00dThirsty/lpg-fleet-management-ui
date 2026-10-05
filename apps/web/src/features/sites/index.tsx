@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@lpg/api-client'
 import { useNavigate } from '@tanstack/react-router'
@@ -21,14 +21,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { assertPermission } from '@/lib/security/guards'
+import { useAuthStore } from '@/store/auth-store'
 
 export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role: SiteRole }) {
   const perm = useEntityPermission('sites')
   const navigate = useNavigate()
+  const authUser = useAuthStore((s) => s.user)
   const [rows, setRows] = useState<SiteRow[]>(() =>
-    kind === 'site' ? getSiteRows() : getClientSiteRows(),
+    kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser),
   )
   const [creating, setCreating] = useState(false)
+
+  useEffect(() => {
+    setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
+  }, [kind, authUser])
 
   const openOnMap = useCallback(
     (row: SiteRow) => {
@@ -64,12 +70,12 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
         if (kind === 'site') await api.sites.remove(row.id)
         else await api.clientSites.remove(row.id)
         toast.success(`Site ${row.name} supprimé.`)
-        setRows(kind === 'site' ? getSiteRows() : getClientSiteRows())
+        setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
       } catch {
         toast.error('Échec de la suppression.')
       }
     },
-    [kind],
+    [kind, authUser],
   )
 
   const handleCreate = useCallback(
@@ -79,12 +85,12 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
         else await api.clientSites.create(clientSiteFromForm(values) as never)
         toast.success(kind === 'site' ? 'Site créé.' : 'Site client créé.')
         setCreating(false)
-        setRows(kind === 'site' ? getSiteRows() : getClientSiteRows())
+        setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
       } catch {
         toast.error('Échec de la création.')
       }
     },
-    [kind],
+    [kind, authUser],
   )
 
   const regionCount = new Set(rows.map((r) => r.region)).size
@@ -137,7 +143,8 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
 export function SiteVerificationsScreen({ role }: { role: SiteRole }) {
   const navigate = useNavigate()
   const [openRow, setOpenRow] = useState<SiteRow | null>(null)
-  const [inbox, setInbox] = useState<SiteRow[]>(() => getVerificationInbox())
+  const authUser = useAuthStore((s) => s.user)
+  const [inbox, setInbox] = useState<SiteRow[]>(() => getVerificationInbox(authUser))
   const handleAction = (row: SiteRow, request: TransitionRequest) => {
     if (request.kind === 'verify') { setInbox((prev) => prev.filter((r) => r.id !== row.id)); toast.success(`${row.name} vérifié`) }
     else if (request.kind === 'suspend' || request.kind === 'reject') { setInbox((prev) => prev.filter((r) => r.id !== row.id)); toast.info(`${row.name} retiré de la file`) }
