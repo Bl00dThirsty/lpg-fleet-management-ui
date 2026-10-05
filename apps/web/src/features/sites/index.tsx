@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@lpg/api-client'
 import { useNavigate } from '@tanstack/react-router'
@@ -32,9 +32,11 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
   )
   const [creating, setCreating] = useState(false)
 
-  useEffect(() => {
+  const [prevDeps, setPrevDeps] = useState({ kind, authUser })
+  if (prevDeps.kind !== kind || prevDeps.authUser !== authUser) {
+    setPrevDeps({ kind, authUser })
     setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
-  }, [kind, authUser])
+  }
 
   const openOnMap = useCallback(
     (row: SiteRow) => {

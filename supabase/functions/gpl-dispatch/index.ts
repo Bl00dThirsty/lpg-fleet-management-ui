@@ -209,8 +209,13 @@ async function uploadOrderImage(tourId: string, encoded: string) {
   const png = [137, 80, 78, 71, 13, 10, 26, 10].every(
     (value, index) => bytes![index] === value,
   )
-  if ((!jpeg && !png) || bytes!.length < 100 || bytes!.length > 5_242_880)
-    fail(400, 'Image JPEG ou PNG requise (5 Mo maximum).')
+  const pdf =
+    bytes![0] === 0x25 &&
+    bytes![1] === 0x50 &&
+    bytes![2] === 0x44 &&
+    bytes![3] === 0x46
+  if ((!jpeg && !png && !pdf) || bytes!.length < 100 || bytes!.length > 5_242_880)
+    fail(400, 'Document JPEG, PNG ou PDF requis (5 Mo maximum).')
   const bucket = await fetch(`${base}/storage/v1/bucket/dispatch-proofs`, {
     headers: { Authorization: `Bearer ${adminKey}`, apikey: adminKey },
   })
@@ -227,18 +232,20 @@ async function uploadOrderImage(tourId: string, encoded: string) {
         name: 'dispatch-proofs',
         public: false,
         file_size_limit: 5242880,
-        allowed_mime_types: ['image/jpeg', 'image/png'],
+        allowed_mime_types: ['image/jpeg', 'image/png', 'application/pdf'],
       }),
     })
     if (!created.ok && created.status !== 409)
       fail(502, 'Stockage privé indisponible.')
   }
-  const path = `${tourId}/${crypto.randomUUID()}.${jpeg ? 'jpg' : 'png'}`
+  const ext = pdf ? 'pdf' : jpeg ? 'jpg' : 'png'
+  const mime = pdf ? 'application/pdf' : jpeg ? 'image/jpeg' : 'image/png'
+  const path = `${tourId}/${crypto.randomUUID()}.${ext}`
   await storage(
     `object/dispatch-proofs/${path}`,
     'POST',
     bytes!,
-    jpeg ? 'image/jpeg' : 'image/png',
+    mime,
   )
   return path
 }
@@ -538,6 +545,14 @@ Deno.serve(async (req) => {
               captured_at: cp.completed_at,
               path: cp.proof_image_path,
             })
+        for (const doc of tour.extra_documents ?? [])
+          if (doc.path)
+            documents.push({
+              id: doc.id,
+              label: doc.label,
+              captured_at: doc.captured_at,
+              path: doc.path,
+            })
         const signed = await Promise.all(
           documents.map(async ({ path, ...document }) => {
             if (!path.startsWith(`${tour.id}/`))
@@ -551,6 +566,58 @@ Deno.serve(async (req) => {
           }),
         )
         return reply(signed)
+      }
+      if (req.method === 'POST' && action === 'documents') {
+        const body = await req.json().catch(() => ({}))
+        const rawBase64 =
+          body.file_base64 ||
+          body.document_base64 ||
+          body.proof_base64 ||
+          body.order_image_base64
+        if (!rawBase64 || typeof rawBase64 !== 'string')
+          fail(400, 'Fichier base64 manquant.')
+        const path = await uploadOrderImage(
+          tour.id,
+          rawBase64.replace(/^data:[^;]+;base64,/, ''),
+        )
+        const label =
+          body.label ||
+          (tour.mission_kind === 'PICKUP'
+            ? 'Bon d’enlèvement (PDF)'
+            : 'Bon de livraison (PDF)')
+        const docId = body.checkpoint_id || crypto.randomUUID()
+        if (body.checkpoint_id) {
+          const cp = (tour.checkpoints ?? []).find(
+            (c: any) => c.id === body.checkpoint_id,
+          )
+          if (cp) cp.proof_image_path = path
+        } else if (!tour.loading?.order_image_path) {
+          if (!tour.loading) tour.loading = {}
+          tour.loading.order_image_path = path
+          tour.loading.validated_at =
+            tour.loading.validated_at || new Date().toISOString()
+        } else {
+          if (!tour.extra_documents) tour.extra_documents = []
+          tour.extra_documents.push({
+            id: docId,
+            label,
+            path,
+            captured_at: new Date().toISOString(),
+          })
+        }
+        await save(tour, revision)
+        const result = await storage(
+          `object/sign/dispatch-proofs/${path}`,
+          'POST',
+          JSON.stringify({ expiresIn: await proofExpiry() }),
+        )
+        return reply({
+          id: docId,
+          label,
+          captured_at: new Date().toISOString(),
+          path,
+          url: `${base}/storage/v1${result.signedURL}`,
+        })
       }
       if (req.method === 'GET' && action === 'loading-proof') {
         const path = tour.loading?.order_image_path

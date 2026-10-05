@@ -139,9 +139,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
 
   return (
     <div className='space-y-4'>
-      {import.meta.env.VITE_API_MODE === 'http' && (
-        <MissionDocuments key={trip.id} missionId={trip.id} />
-      )}
+      <MissionDocuments key={trip.id} missionId={trip.id} stops={trip.stops} />
       {trip.scheduled_at && (
         <p className='text-sm text-muted-foreground'>
           Enlèvement prévu le {formatDateTime(trip.scheduled_at)}

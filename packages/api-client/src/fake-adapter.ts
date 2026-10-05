@@ -71,10 +71,41 @@ const COLLECTIONS: Record<string, unknown[]> = {
   settings: [],
 }
 
+const TOUR_DOCUMENTS: Record<string, any[]> = {}
+
 export function createFakeAdapter(): ApiAdapter {
   return {
     async request<T>(path: string, init?: import('./adapter.ts').RequestOptions): Promise<T> {
       const method = (init?.method ?? 'GET').toUpperCase()
+
+      const docMatch = path.match(/^\/tours\/([^/]+)\/documents(?:\/.*)?$/i)
+      if (docMatch && docMatch[1]) {
+        const tourId = decodeURIComponent(docMatch[1])
+        if (method === 'POST') {
+          const body = init?.body ? JSON.parse(String(init.body)) : {}
+          const newDoc = {
+            id: body.id || `doc-${Date.now()}`,
+            label: body.label || 'Bon de livraison (PDF)',
+            captured_at: new Date().toISOString(),
+            url: body.url || (body.file_base64 ? (body.file_base64.startsWith('data:') ? body.file_base64 : `data:application/pdf;base64,${body.file_base64}`) : `https://minio.lpg.cm/proofs/bl-${tourId}.pdf`),
+          }
+          if (!TOUR_DOCUMENTS[tourId]) {
+            TOUR_DOCUMENTS[tourId] = []
+          }
+          TOUR_DOCUMENTS[tourId].push(newDoc)
+          return delay(newDoc as unknown as T)
+        }
+        const existing = TOUR_DOCUMENTS[tourId] ?? [
+          {
+            id: `doc-${tourId}-default`,
+            label: `Bon de livraison — ${tourId} (PDF)`,
+            captured_at: new Date().toISOString(),
+            url: `https://minio.lpg.cm/proofs/bl-${tourId}.pdf`,
+          },
+        ]
+        return delay(existing as unknown as T)
+      }
+
       const match = path.match(/^\/([a-z-]+)(?:\/([^?]+))?/i)
       const name = match?.[1]
       const id = match?.[2]

@@ -52,7 +52,7 @@ export function NationalMapPage() {
   const myOrgName = useMemo(() => {
     if (!authUser?.org_id) return null
     return organizations.find((o) => o.id === authUser.org_id)?.name ?? null
-  }, [authUser?.org_id])
+  }, [authUser])
 
   const allRoadRoutes = useVracRoadRoutes()
 
@@ -71,7 +71,7 @@ export function NationalMapPage() {
       }
       return false
     })
-  }, [allRoadRoutes, isRegulator, authUser?.org_id, myOrgName])
+  }, [allRoadRoutes, isRegulator, authUser, myOrgName])
 
   const allMarketerNames = useMemo(() => {
     return Array.from(new Set(routes.map((r) => r.marketerName))).filter(Boolean)
