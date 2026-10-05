@@ -351,8 +351,8 @@ export function NationalMap({
             geometry: line,
             symbol: {
               type: 'simple-line',
-              color: [245, 158, 11, 0.35],
-              width: 8,
+              color: mapTheme === 'dark' ? [56, 189, 248, 0.35] : [37, 99, 235, 0.3],
+              width: 9,
               cap: 'round',
               join: 'round',
             },
@@ -365,8 +365,8 @@ export function NationalMap({
             geometry: line,
             symbol: {
               type: 'simple-line',
-              color: [245, 158, 11, 0.95],
-              width: 3.5,
+              color: mapTheme === 'dark' ? [56, 189, 248, 0.98] : [37, 99, 235, 0.98],
+              width: 4.5,
               style: 'solid',
               cap: 'round',
               join: 'round',

@@ -136,7 +136,7 @@ export function buildLayerSpecs(
       key: 'routes',
       label: LAYER_LABELS.routes,
       enabled: true,
-      marker: { icon: 'routes', color: '#F97316', size: 18 },
+      marker: { icon: 'routes', color: '#2563EB', size: 18 },
       content: () => 'Itinéraire VRAC sous surveillance temps réel',
     })
   }

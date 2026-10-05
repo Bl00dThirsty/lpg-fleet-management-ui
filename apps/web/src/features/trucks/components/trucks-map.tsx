@@ -560,8 +560,8 @@ function createRouteGraphic(truck: Truck, road: RoadRoute) {
     }),
     symbol: {
       type: 'simple-line',
-      color: [250, 204, 21, 0.9],
-      width: 3,
+      color: [37, 99, 235, 0.95],
+      width: 4,
       style: 'solid',
     },
     attributes: {

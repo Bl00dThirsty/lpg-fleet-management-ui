@@ -55,9 +55,9 @@ export function GisCanvasFallback({
           </linearGradient>
 
           <linearGradient id="routeGlow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#fbbf24" stopOpacity="1" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.95" />
+            <stop offset="50%" stopColor="#3b82f6" stopOpacity="1" />
+            <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.95" />
           </linearGradient>
 
           <filter id="glow">
@@ -107,9 +107,9 @@ export function GisCanvasFallback({
             <path
               d="M 180 395 C 240 390 280 380 330 375 L 510 345 C 570 340 640 370 700 375"
               fill="none"
-              stroke="#f59e0b"
-              strokeWidth="8"
-              strokeOpacity="0.35"
+              stroke="#2563eb"
+              strokeWidth="9"
+              strokeOpacity="0.3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -118,13 +118,13 @@ export function GisCanvasFallback({
               d="M 180 395 C 240 390 280 380 330 375 L 510 345 C 570 340 640 370 700 375"
               fill="none"
               stroke="url(#routeGlow)"
-              strokeWidth="4"
+              strokeWidth="4.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               filter="url(#glow)"
             />
             {/* Moving pulse indicator */}
-            <circle cx="420" cy="358" r="8" fill="#f59e0b" fillOpacity="0.4">
+            <circle cx="420" cy="358" r="8" fill="#3b82f6" fillOpacity="0.5">
               <animate attributeName="r" values="6;16;6" dur="2s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.8;0.1;0.8" dur="2s" repeatCount="indefinite" />
             </circle>
