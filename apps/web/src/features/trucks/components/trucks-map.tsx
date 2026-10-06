@@ -12,18 +12,15 @@ import { AlertTriangle, Wifi } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
-  siteStatusLabels,
   siteTypeLabels,
   type Site,
   type SiteType,
 } from '@/features/sites/data/sites'
-import { siteMarkerTokens } from '@/features/sites/utils/site-graphics'
+import { createSiteGraphics } from '@/features/sites/utils/site-graphics'
 import {
   getArcgisBasemap,
   getArcgisViewTheme,
   getMarkerOutlineColor,
-  getSiteOutlineColor,
-  getSiteIconUrl,
 } from '@/features/map/utils/map-theme'
 import type { MapTheme } from '@/features/map/utils/map-theme'
 import { LegendSiteIcon } from '@/features/map/utils/legend'
@@ -39,6 +36,7 @@ import { useToursStore } from '@/store/tours-store'
 import { useRoadRoutes } from '@/features/map/data/road-routes'
 import { projectOnRoad, type RoadCoordinate, type RoadRoute } from '@/features/map/lib/road-routing'
 import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
+import lpgTruckIconUrl from '@/assets/lpg-truck-icon.png'
 
 const arcgisApiKey = String(import.meta.env.VITE_ARCGIS_API_KEY ?? '')
   .trim()
@@ -235,7 +233,7 @@ export function TrucksMap({
     const siteGraphics = sites.flatMap((site) =>
       createSiteGraphics(site, mapTheme)
     )
-    const truckGraphics = trucks.map((truck) =>
+    const truckGraphics = trucks.flatMap((truck) =>
       createTruckGraphic(
         (import.meta.env.VITE_API_MODE ?? 'fake') === 'fake' && roads.get(truck.id)
           ? { ...truck, lng: projectOnRoad([truck.lng, truck.lat], roads.get(truck.id)!.paths)[0],
@@ -366,91 +364,35 @@ function createTruckGraphic(
   truck: Truck,
   isSelected: boolean,
   mapTheme: MapTheme
-) {
+): Graphic[] {
   const telemetry = getTruckTelemetry(truck.id)
   const color = statusColors[truck.tournee_status]
   const outlineColor = getMarkerOutlineColor(mapTheme, isSelected)
-
-  return new Graphic({
-    geometry: new Point({
-      longitude: truck.lng,
-      latitude: truck.lat,
-      spatialReference: { wkid: 4326 },
-    }),
-    symbol: {
-      type: 'simple-marker',
-      style: 'circle',
-      color,
-      size: isSelected ? 15 : 11,
-      outline: {
-        color: outlineColor,
-        width: isSelected ? 3 : 1.5,
-      },
-    },
-    attributes: {
-      kind: 'truck',
-      truckId: truck.id,
-      status: truck.tournee_status,
-    },
-    popupTemplate: {
-      title: `${truck.id} - ${truck.license_plate}`,
-      content: createTruckPopupContent(truck, telemetry, mapTheme),
-    },
-  })
-}
-
-function createSiteGraphics(site: Site, mapTheme: MapTheme) {
-  const outlineColor = getSiteOutlineColor(mapTheme)
-  const marker = siteMarkerTokens[site.type]
-  const popupTemplate = {
-    title: site.name,
-    content: createSitePopupContent(site, mapTheme),
-  }
   const baseAttributes = {
-    kind: 'site',
-    siteId: site.id,
-    siteType: site.type,
+    kind: 'truck',
+    truckId: truck.id,
+    status: truck.tournee_status,
   }
-
-  if (marker.iconKind === 'marker') {
-    return [
-      new Graphic({
-        geometry: new Point({
-          longitude: site.longitude,
-          latitude: site.latitude,
-          spatialReference: { wkid: 4326 },
-        }),
-        symbol: {
-          type: 'simple-marker',
-          style: marker.style,
-          color: marker.color,
-          size: marker.size,
-          outline: {
-            color: outlineColor,
-            width: 1.5,
-          },
-        },
-        attributes: baseAttributes,
-        popupTemplate,
-      }),
-    ]
+  const popupTemplate = {
+    title: `${truck.id} - ${truck.license_plate}`,
+    content: createTruckPopupContent(truck, telemetry, mapTheme),
   }
 
   return [
     new Graphic({
       geometry: new Point({
-        longitude: site.longitude,
-        latitude: site.latitude,
+        longitude: truck.lng,
+        latitude: truck.lat,
         spatialReference: { wkid: 4326 },
       }),
       symbol: {
         type: 'simple-marker',
         style: 'circle',
-        color: marker.haloColor,
-        size: marker.haloSize ?? marker.size + 10,
+        color,
+        size: isSelected ? 38 : 30,
         outline: {
           color: outlineColor,
-          width: 1.5,
+          width: isSelected ? 2.5 : 1.5,
         },
       },
       attributes: baseAttributes,
@@ -458,15 +400,15 @@ function createSiteGraphics(site: Site, mapTheme: MapTheme) {
     }),
     new Graphic({
       geometry: new Point({
-        longitude: site.longitude,
-        latitude: site.latitude,
+        longitude: truck.lng,
+        latitude: truck.lat,
         spatialReference: { wkid: 4326 },
       }),
       symbol: {
         type: 'picture-marker',
-        url: getSiteIconUrl(site.type, mapTheme),
-        width: marker.iconWidth ?? marker.size,
-        height: marker.iconHeight ?? marker.size,
+        url: lpgTruckIconUrl,
+        width: isSelected ? 32 : 24,
+        height: isSelected ? 32 : 24,
       },
       attributes: baseAttributes,
       popupTemplate,
@@ -516,18 +458,7 @@ function createTruckPopupContent(
   `
 }
 
-function createSitePopupContent(site: Site, mapTheme: MapTheme) {
-  return `
-    <div class="fleet-truck-popup" data-popup-theme="${mapTheme}">
-      ${popupLine('Type', siteTypeLabels[site.type])}
-      ${popupLine('Operateur', site.operator)}
-      ${popupLine('Ville', site.city)}
-      ${popupLine('Region', site.region)}
-      ${popupLine('Statut', siteStatusLabels[site.status])}
-      ${popupLine('Role', site.description)}
-    </div>
-  `
-}
+
 
 function popupLine(label: string, value: string | undefined) {
   return `

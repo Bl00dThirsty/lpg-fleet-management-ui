@@ -1,5 +1,6 @@
-import lpgCenterSvgRaw from '@/assets/lpg.svg?raw'
-import lpgSphereIconUrl from '@/assets/lpg-sphere.png'
+import depotIconUrl from '@/assets/depot-icon.png'
+import fillingCenterMarketerIconUrl from '@/assets/filling-center-marketer-icon.png'
+import clientIconUrl from '@/assets/client-icon.png'
 
 export type MapTheme = 'light' | 'dark'
 
@@ -39,15 +40,11 @@ export function rgbaFromTuple(value: [number, number, number, number]): string {
   return `rgba(${value[0]}, ${value[1]}, ${value[2]}, ${value[3]})`
 }
 
-export function getLpgMarkerIcon(mapTheme: MapTheme): string {
-  const fillColor = mapTheme === 'dark' ? '#f8fafc' : '#0f172a'
-  return svgToDataUri(lpgCenterSvgRaw.replace(/#000000/g, fillColor))
-}
-
 export function getSiteIconUrl(
   siteType: 'depot' | 'scdp' | 'filling-center' | 'marketer' | 'delivery-point',
-  mapTheme: MapTheme,
+  _mapTheme?: MapTheme,
 ): string {
-  if (siteType === 'filling-center') return getLpgMarkerIcon(mapTheme)
-  return lpgSphereIconUrl
+  if (siteType === 'depot' || siteType === 'scdp') return depotIconUrl
+  if (siteType === 'filling-center' || siteType === 'marketer') return fillingCenterMarketerIconUrl
+  return clientIconUrl
 }

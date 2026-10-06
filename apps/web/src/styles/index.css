@@ -89,7 +89,7 @@
   }
 }
 
-/* ArcGIS map theme bridge using Calcite variables */
+/* ArcGIS map theme bridge using Calcite variables and widget styles */
 .fleet-arcgis-map .esri-popup__main-container,
 .national-arcgis-map .esri-popup__main-container {
   border: 1px solid var(--border);
@@ -98,31 +98,156 @@
   overflow: hidden;
 }
 
-.dark {
-  --calcite-color-foreground-1: var(--background);
-  --calcite-color-foreground-2: var(--muted);
-  --calcite-color-foreground-3: var(--muted);
-  --calcite-color-text-1: var(--foreground);
-  --calcite-color-text-2: var(--muted-foreground);
-  --calcite-color-text-3: var(--muted-foreground);
-  --calcite-color-border-1: var(--border);
-  --calcite-color-border-2: var(--border);
-  --calcite-color-border-3: var(--border);
-  --calcite-color-background: var(--background);
-  
-  --esri-popup-background: var(--background);
-  --esri-widget-background: var(--background);
-  --esri-widget-color: var(--foreground);
+/* Calcite variables for dark theme */
+.dark,
+.calcite-mode-dark,
+[data-map-theme='dark'] {
+  --calcite-color-foreground-1: #1e293b;
+  --calcite-color-foreground-2: #334155;
+  --calcite-color-foreground-3: #475569;
+  --calcite-color-text-1: #f8fafc;
+  --calcite-color-text-2: #cbd5e1;
+  --calcite-color-text-3: #94a3b8;
+  --calcite-color-border-1: #334155;
+  --calcite-color-border-2: #475569;
+  --calcite-color-border-3: #64748b;
+  --calcite-color-background: #0f172a;
+
+  --esri-popup-background: #1e293b;
+  --esri-widget-background: #1e293b;
+  --esri-widget-color: #f8fafc;
 }
 
+/* ArcGIS Widgets (Zoom buttons, etc.) — Dark Mode */
+.dark .esri-widget,
+.calcite-mode-dark .esri-widget,
+[data-map-theme='dark'] .esri-widget {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .esri-widget--button,
+.calcite-mode-dark .esri-widget--button,
+[data-map-theme='dark'] .esri-widget--button {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 1px solid #334155 !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dark .esri-widget--button:hover,
+.dark .esri-widget--button:focus,
+.calcite-mode-dark .esri-widget--button:hover,
+.calcite-mode-dark .esri-widget--button:focus,
+[data-map-theme='dark'] .esri-widget--button:hover,
+[data-map-theme='dark'] .esri-widget--button:focus {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.dark .esri-widget--button:active,
+.calcite-mode-dark .esri-widget--button:active,
+[data-map-theme='dark'] .esri-widget--button:active {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.dark .esri-zoom .esri-widget--button:last-child,
+.calcite-mode-dark .esri-zoom .esri-widget--button:last-child,
+[data-map-theme='dark'] .esri-zoom .esri-widget--button:last-child {
+  border-top: 1px solid #334155 !important;
+}
+
+/* ArcGIS Popups — Dark Mode */
 .dark .esri-popup__main-container,
-.dark .esri-widget {
-  background-color: var(--background) !important;
-  color: var(--foreground) !important;
+.calcite-mode-dark .esri-popup__main-container,
+[data-map-theme='dark'] .esri-popup__main-container {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
 }
 
-.dark .esri-popup__pointer-direction {
-  background-color: var(--background) !important;
+.dark .esri-popup__header,
+.dark .esri-popup__header-container,
+.dark .esri-popup__header-title,
+.dark .esri-popup__content,
+.dark .esri-popup__footer,
+.calcite-mode-dark .esri-popup__header,
+.calcite-mode-dark .esri-popup__header-container,
+.calcite-mode-dark .esri-popup__header-title,
+.calcite-mode-dark .esri-popup__content,
+.calcite-mode-dark .esri-popup__footer,
+[data-map-theme='dark'] .esri-popup__header,
+[data-map-theme='dark'] .esri-popup__header-container,
+[data-map-theme='dark'] .esri-popup__header-title,
+[data-map-theme='dark'] .esri-popup__content,
+[data-map-theme='dark'] .esri-popup__footer {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .esri-popup__header-title,
+.calcite-mode-dark .esri-popup__header-title,
+[data-map-theme='dark'] .esri-popup__header-title {
+  font-weight: 600 !important;
+}
+
+.dark .esri-popup__pointer-direction,
+.calcite-mode-dark .esri-popup__pointer-direction,
+[data-map-theme='dark'] .esri-popup__pointer-direction {
+  background-color: #1e293b !important;
+}
+
+.dark .esri-popup__button,
+.dark .esri-popup__header-button,
+.calcite-mode-dark .esri-popup__button,
+.calcite-mode-dark .esri-popup__header-button,
+[data-map-theme='dark'] .esri-popup__button,
+[data-map-theme='dark'] .esri-popup__header-button {
+  color: #94a3b8 !important;
+}
+
+.dark .esri-popup__button:hover,
+.dark .esri-popup__header-button:hover,
+.calcite-mode-dark .esri-popup__button:hover,
+.calcite-mode-dark .esri-popup__header-button:hover,
+[data-map-theme='dark'] .esri-popup__button:hover,
+[data-map-theme='dark'] .esri-popup__header-button:hover {
+  color: #f8fafc !important;
+  background-color: #334155 !important;
+}
+
+.dark .esri-popup__action,
+.dark .esri-popup__action-text,
+.calcite-mode-dark .esri-popup__action,
+.calcite-mode-dark .esri-popup__action-text,
+[data-map-theme='dark'] .esri-popup__action,
+[data-map-theme='dark'] .esri-popup__action-text {
+  color: #38bdf8 !important;
+}
+
+.dark .esri-popup__action:hover,
+.calcite-mode-dark .esri-popup__action:hover,
+[data-map-theme='dark'] .esri-popup__action:hover {
+  color: #7dd3fc !important;
+}
+
+/* ArcGIS Attribution bar — Dark Mode */
+.dark .esri-attribution,
+.calcite-mode-dark .esri-attribution,
+[data-map-theme='dark'] .esri-attribution {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  color: #94a3b8 !important;
+}
+
+.dark .esri-attribution__sources,
+.dark .esri-attribution__link,
+.calcite-mode-dark .esri-attribution__sources,
+.calcite-mode-dark .esri-attribution__link,
+[data-map-theme='dark'] .esri-attribution__sources,
+[data-map-theme='dark'] .esri-attribution__link {
+  color: #94a3b8 !important;
 }
 
 .fleet-arcgis-map .esri-popup__button:hover,

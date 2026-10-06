@@ -50,7 +50,8 @@ import {
   buildRoutePopupContent,
 } from '@/features/map/utils/popup'
 import { createSiteGraphics } from '@/features/sites/utils/site-graphics'
-import lpgImageUrl from '@/assets/lpg.png'
+import clientIconUrl from '@/assets/client-icon.png'
+import lpgTruckIconUrl from '@/assets/lpg-truck-icon.png'
 
 
 import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
@@ -267,9 +268,9 @@ export function NationalMap({
         geometry: pt,
         symbol: {
           type: 'picture-marker',
-          url: lpgImageUrl,
-          width: 24,
-          height: 24,
+          url: clientIconUrl,
+          width: 26,
+          height: 26,
         },
         attributes: { kind: 'client-site', clientSiteId: cs.id },
         popupTemplate: {
@@ -345,28 +346,28 @@ export function NationalMap({
       })
 
       if (resolvedPaths.length > 0) {
-        // Gaine lumineuse externe
+        // Gaine lumineuse externe (Halo protecteur / corridor)
         routeGraphics.push(
           new Graphic({
             geometry: line,
             symbol: {
               type: 'simple-line',
-              color: mapTheme === 'dark' ? [56, 189, 248, 0.35] : [37, 99, 235, 0.3],
-              width: 9,
+              color: mapTheme === 'dark' ? [59, 130, 246, 0.42] : [37, 99, 235, 0.35],
+              width: 10,
               cap: 'round',
               join: 'round',
             },
           }),
         )
 
-        // Trait de route principal
+        // Trait de route principal (Bleu royal / électrique vif)
         routeGraphics.push(
           new Graphic({
             geometry: line,
             symbol: {
               type: 'simple-line',
-              color: mapTheme === 'dark' ? [56, 189, 248, 0.98] : [37, 99, 235, 0.98],
-              width: 4.5,
+              color: mapTheme === 'dark' ? [59, 130, 246, 1] : [37, 99, 235, 1],
+              width: 5,
               style: 'solid',
               cap: 'round',
               join: 'round',
@@ -379,6 +380,20 @@ export function NationalMap({
           }),
         )
 
+        // Ligne de cœur lumineuse (Contraste maximal visible sur tout fond)
+        routeGraphics.push(
+          new Graphic({
+            geometry: line,
+            symbol: {
+              type: 'simple-line',
+              color: mapTheme === 'dark' ? [147, 197, 253, 0.95] : [191, 219, 254, 0.85],
+              width: 2,
+              style: 'solid',
+              cap: 'round',
+              join: 'round',
+            },
+          }),
+        )
       }
 
       // Point départ
@@ -436,11 +451,10 @@ export function NationalMap({
             spatialReference: { wkid: 4326 },
           }),
           symbol: {
-            type: 'simple-marker',
-            style: 'diamond',
-            color: [245, 158, 11],
-            size: 16,
-            outline: { color: [255, 255, 255], width: 2.5 },
+            type: 'picture-marker',
+            url: lpgTruckIconUrl,
+            width: 32,
+            height: 32,
           },
           attributes: { kind: 'active-truck', plate: route.vehiclePlate },
           popupTemplate: {

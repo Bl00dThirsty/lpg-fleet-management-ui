@@ -34,6 +34,7 @@ type TourCorridorMapProps = {
 const formatTmDefault = (value: number) => formatTm(value)
 
 import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
+import lpgTruckIconUrl from '@/assets/lpg-truck-icon.png'
 
 type MapTheme = 'light' | 'dark'
 
@@ -364,8 +365,8 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
     }),
     symbol: {
       type: 'simple-line',
-      color: mapTheme === 'dark' ? [56, 189, 248, 0.95] : [2, 132, 199, 0.9],
-      width: 4,
+      color: mapTheme === 'dark' ? [59, 130, 246, 1] : [37, 99, 235, 1],
+      width: 4.5,
       style: 'solid',
     },
     popupTemplate: {
@@ -432,14 +433,10 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
       spatialReference: { wkid: 4326 },
     }),
     symbol: {
-      type: 'simple-marker',
-      style: 'circle',
-      color: [14, 165, 233, 0.98],
-      size: 16,
-      outline: {
-        color: mapTheme === 'dark' ? [248, 250, 252, 1] : [255, 255, 255, 1],
-        width: 3,
-      },
+      type: 'picture-marker',
+      url: lpgTruckIconUrl,
+      width: 32,
+      height: 32,
     },
     popupTemplate: {
       title: `${trip.truck.id} - position courante`,
