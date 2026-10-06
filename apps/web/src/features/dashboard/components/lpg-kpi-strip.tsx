@@ -15,63 +15,69 @@ export interface LpgKpiStripProps {
   activeTrips?: number
   activeTrucks?: number
   totalTrucks?: number
+  scdpReserveTM?: number
+  scdpCapacityTM?: number
+  snhReserveTM?: number
+  snhCapacityTM?: number
 }
 
 export function LpgKpiStrip({
   totalDeliveredTM = 2338.5,
   totalTransportedTM = 2480.0,
-  activeTrips = 14,
-  activeTrucks = 38,
-  totalTrucks = 42,
+  scdpReserveTM = 70.6,
+  scdpCapacityTM = 110.0,
+  snhReserveTM = 48.0,
+  snhCapacityTM = 60.0,
 }: LpgKpiStripProps) {
   // Gaz hors réseau : Vrac (~65%) et Bouteilles de 50 kg (~35%)
   const vracVolumeTM = totalDeliveredTM > 0 ? totalDeliveredTM * 0.65 : 1428.5
   const bottlesVolumeTM = totalDeliveredTM > 0 ? totalDeliveredTM * 0.35 : 785.0
-  // Conversion exacte : 1 TM = 1000 kg = 20 bouteilles de 50 kg
+  // Conversion physique stricte : 1 TM = 1000 kg = 20 bouteilles de 50 kg
   const bottles50kgCount = Math.round(bottlesVolumeTM * 20)
-  const truckOnlineRate = totalTrucks > 0 ? Math.round((activeTrucks / totalTrucks) * 100) : 94.2
-  const totalTours = activeTrips + 128
+
+  const scdpFillRate = Math.round((scdpReserveTM / Math.max(scdpCapacityTM, 1)) * 100)
+  const snhFillRate = Math.round((snhReserveTM / Math.max(snhCapacityTM, 1)) * 100)
 
   const kpis = [
     {
       id: 'vrac',
-      title: 'Volume GPL Vrac',
+      title: 'Volume GPL Vrac Suivi',
       value: formatTm(vracVolumeTM),
       delta: '4.8%',
       isPositive: true,
-      baseline: '1 362.8 TM',
-      period: totalTransportedTM > 0 ? `${formatTm(totalTransportedTM)} chargés` : '30 derniers jours',
-      note: 'Cuves industrielles & entreprises',
+      baseline: '1 362,8 TM',
+      period: totalTransportedTM > 0 ? `${formatTm(vracVolumeTM)} livrés / ${formatTm(totalTransportedTM * 0.65)}` : '30 derniers jours',
+      note: 'Cuves industrielles & gros consommateurs',
     },
     {
       id: 'bouteilles50kg',
-      title: 'Bouteilles 50 kg Livrées',
+      title: 'Bouteilles 50 kg Traçables',
       value: `${(bottles50kgCount / 1000).toFixed(1)}k btl`,
       delta: '3.2%',
       isPositive: true,
-      baseline: '24.1k btl',
-      period: '30 derniers jours',
-      note: `${bottles50kgCount.toLocaleString('fr-FR')} unités vérifiées`,
+      baseline: '24,1k btl',
+      period: `${formatTm(bottlesVolumeTM)} équiv. (1 TM = 20 btl)`,
+      note: `${bottles50kgCount.toLocaleString('fr-FR')} unités sous scellés`,
     },
     {
-      id: 'tournees',
-      title: 'Tournées Hors Réseau',
-      value: `${totalTours}`,
-      delta: '5.1%',
-      isPositive: true,
-      baseline: '135',
-      period: `${activeTrips} actives • ${totalTours - activeTrips} closes`,
-      note: 'Livraisons directes entreprises',
+      id: 'scdp',
+      title: 'Réserves GPL SCDP',
+      value: formatTm(scdpReserveTM),
+      delta: `${scdpFillRate}%`,
+      isPositive: scdpFillRate >= 40,
+      baseline: `${formatTm(scdpCapacityTM)} nominal`,
+      period: 'Dépôts Bonabéri, Kribi, Yaoundé',
+      note: 'Stock relais & sécurité d’approvisionnement',
     },
     {
-      id: 'tracking',
-      title: 'Camions Tracés en Ligne',
-      value: `${truckOnlineRate}%`,
-      delta: '1.8%',
-      isPositive: true,
-      baseline: '92.4%',
-      period: `${activeTrucks}/${totalTrucks} camions actifs`,
-      note: 'Citernes & plateaux sous balise GPS',
+      id: 'snh',
+      title: 'Disponibilité GPL SNH',
+      value: formatTm(snhReserveTM),
+      delta: `${snhFillRate}%`,
+      isPositive: snhFillRate >= 40,
+      baseline: `${formatTm(snhCapacityTM)} nominal`,
+      period: 'Terminal amont Bipaga (Kribi)',
+      note: 'Extraction gazière & chargement direct',
     },
     {
       id: 'conformite',

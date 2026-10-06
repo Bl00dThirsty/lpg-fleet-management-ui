@@ -18,6 +18,7 @@ import {
   Search,
   Filter,
   X,
+  Factory,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -78,6 +79,9 @@ export function NationalMapPage() {
   }, [routes])
 
   const [selectedMarketer, setSelectedMarketer] = useState<string>('ALL')
+  const [selectedTruckFilter, setSelectedTruckFilter] = useState<'ALL' | 'ACTIVE_ONLY' | 'VRAC_ONLY' | 'B50_ONLY'>('ALL')
+  const [selectedStatus, setSelectedStatus] = useState<'ALL' | 'INPROGRESS' | 'PLANNED' | 'ALERT'>('ALL')
+  const [selectedOrigin, setSelectedOrigin] = useState<'ALL' | 'SCDP' | 'SNH' | 'MARKETER'>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isSearchFocused, setIsSearchFocused] = useState(false)
 
@@ -88,18 +92,99 @@ export function NationalMapPage() {
   }, [allMarketerNames, searchQuery])
 
   const filteredRoutes = useMemo(() => {
-    if (selectedMarketer === 'ALL') {
-      if (!searchQuery.trim()) return routes
-      const q = searchQuery.toLowerCase().trim()
-      return routes.filter(
-        (r) =>
+    return routes.filter((r) => {
+      // 1. Marketeur
+      if (selectedMarketer !== 'ALL' && r.marketerName !== selectedMarketer) {
+        return false
+      }
+      // 2. Recherche textuelle
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim()
+        const matchesQuery =
           r.marketerName.toLowerCase().includes(q) ||
           r.title.toLowerCase().includes(q) ||
-          r.tourCode.toLowerCase().includes(q)
-      )
-    }
-    return routes.filter((r) => r.marketerName === selectedMarketer)
-  }, [routes, selectedMarketer, searchQuery])
+          r.tourCode.toLowerCase().includes(q) ||
+          r.vehiclePlate.toLowerCase().includes(q) ||
+          r.driverName.toLowerCase().includes(q) ||
+          r.destinationName.toLowerCase().includes(q) ||
+          r.departureName.toLowerCase().includes(q)
+        if (!matchesQuery) return false
+      }
+      // 3. Type de camion / Activité
+      if (selectedTruckFilter === 'ACTIVE_ONLY' && r.status !== 'INPROGRESS') {
+        return false
+      }
+      if (
+        selectedTruckFilter === 'VRAC_ONLY' &&
+        !r.vehicleType.toLowerCase().includes('citerne') &&
+        !r.vehicleType.toLowerCase().includes('vrac')
+      ) {
+        return false
+      }
+      if (
+        selectedTruckFilter === 'B50_ONLY' &&
+        !r.vehicleType.toLowerCase().includes('plateau') &&
+        !r.vehicleType.toLowerCase().includes('50')
+      ) {
+        return false
+      }
+      // 4. Statut de la tournée
+      if (selectedStatus === 'INPROGRESS' && r.status !== 'INPROGRESS') {
+        return false
+      }
+      if (selectedStatus === 'PLANNED' && r.status !== 'PLANNED') {
+        return false
+      }
+      if (selectedStatus === 'ALERT') {
+        if (r.id !== 'tour-vrac-dla-001') return false
+      }
+      // 5. Origine / Dépôt source
+      if (selectedOrigin === 'SCDP' && !r.departureName.toLowerCase().includes('scdp')) {
+        return false
+      }
+      if (
+        selectedOrigin === 'SNH' &&
+        !r.departureName.toLowerCase().includes('snh') &&
+        !r.departureName.toLowerCase().includes('sonara')
+      ) {
+        return false
+      }
+      if (
+        selectedOrigin === 'MARKETER' &&
+        (r.departureName.toLowerCase().includes('scdp') ||
+          r.departureName.toLowerCase().includes('snh') ||
+          r.departureName.toLowerCase().includes('sonara'))
+      ) {
+        return false
+      }
+
+      return true
+    })
+  }, [routes, selectedMarketer, searchQuery, selectedTruckFilter, selectedStatus, selectedOrigin])
+
+  // Métriques consolidées pour les cards exécutives
+  const totalFilteredVolumeTM = useMemo(() => {
+    return filteredRoutes.reduce((sum, r) => sum + r.loadedQuantityTM, 0)
+  }, [filteredRoutes])
+
+  const totalFilteredBottles50kg = useMemo(() => {
+    return Math.round(totalFilteredVolumeTM * 20)
+  }, [totalFilteredVolumeTM])
+
+  const activeFilteredTrucksCount = useMemo(() => {
+    return filteredRoutes.filter((r) => r.status === 'INPROGRESS').length
+  }, [filteredRoutes])
+
+  const alertRoutesCount = useMemo(() => {
+    return filteredRoutes.filter((r) => r.id === 'tour-vrac-dla-001').length
+  }, [filteredRoutes])
+
+  const isAnyFilterActive =
+    selectedMarketer !== 'ALL' ||
+    selectedTruckFilter !== 'ALL' ||
+    selectedStatus !== 'ALL' ||
+    selectedOrigin !== 'ALL' ||
+    Boolean(searchQuery.trim())
 
   const currentRoute = useMemo(
     () =>
@@ -128,7 +213,6 @@ export function NationalMapPage() {
   const handleSelectMarketer = (marketer: string) => {
     setSelectedMarketer(marketer)
     if (marketer !== 'ALL') {
-      setSearchQuery('')
       const match = routes.find((r) => r.marketerName === marketer)
       if (match) {
         setSelectedRouteCode(match.tourCode)
@@ -140,6 +224,9 @@ export function NationalMapPage() {
 
   const handleResetFilter = () => {
     setSelectedMarketer('ALL')
+    setSelectedTruckFilter('ALL')
+    setSelectedStatus('ALL')
+    setSelectedOrigin('ALL')
     setSearchQuery('')
     if (routes[0]) {
       setSelectedRouteCode(routes[0].tourCode)
@@ -190,136 +277,155 @@ export function NationalMapPage() {
           </div>
         </div>
 
-        {/* ── Top Executive KPI Strip ───────────────────────────────── */}
+        {/* ── Top Executive KPI Strip (Strict separation: SCDP/SNH vs Marketers vs Clients) ── */}
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 border-t border-border pt-4">
+          {/* Card 1 : Dépôts Stratégiques Amont (SCDP & SNH uniquement) */}
           <div className="rounded-(--radius) border border-border bg-card/60 p-3">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs font-medium">Centres & Dépôts</span>
+              <span className="text-xs font-medium">Dépôts Stratégiques Amont</span>
               <Building2 className="size-4 text-emerald-500" />
             </div>
-            <p className="mt-1 text-xl font-bold text-foreground">4 <span className="text-xs font-normal text-muted-foreground">sites</span></p>
-            <p className="text-[11px] text-muted-foreground">SCDP & Total Bonabéri</p>
+            <p className="mt-1 text-xl font-bold text-foreground">
+              2 <span className="text-xs font-normal text-muted-foreground">dépôts sources</span>
+            </p>
+            <p className="text-[11px] text-muted-foreground">SCDP Bonabéri & SNH Bipaga</p>
           </div>
 
+          {/* Card 2 : Centres Emplisseurs Marketeurs (Privés uniquement) */}
           <div className="rounded-(--radius) border border-border bg-card/60 p-3">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs font-medium">Points Clients VRAC</span>
-              <MapPin className="size-4 text-blue-500" />
+              <span className="text-xs font-medium">Centres Emplisseurs Marketeurs</span>
+              <Factory className="size-4 text-blue-500" />
             </div>
-            <p className="mt-1 text-xl font-bold text-foreground">4 <span className="text-xs font-normal text-muted-foreground">cuves</span></p>
-            <p className="text-[11px] text-muted-foreground">Akwa Palace, Sawa, SABC</p>
+            <p className="mt-1 text-xl font-bold text-foreground">
+              {allMarketerNames.length} <span className="text-xs font-normal text-muted-foreground">marketeurs</span>
+            </p>
+            <p className="text-[11px] text-muted-foreground">Total, Tradex, SCTM, Camgaz...</p>
           </div>
 
+          {/* Card 3 : Points Clients Finaux (Industries & Hôtellerie hors réseau) */}
           <div className="rounded-(--radius) border border-border bg-card/60 p-3">
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs font-medium">Volume VRAC Suivi</span>
+              <span className="text-xs font-medium">Points Clients (VRAC & B50)</span>
+              <MapPin className="size-4 text-indigo-500" />
+            </div>
+            <p className="mt-1 text-xl font-bold text-foreground">
+              4 <span className="text-xs font-normal text-muted-foreground">cuves & sites</span>
+            </p>
+            <p className="text-[11px] text-muted-foreground">Akwa Palace, Sawa, SABC...</p>
+          </div>
+
+          {/* Card 4 : Volumétrie en Transit Suivie (Cohérence TM vs B50) */}
+          <div className="rounded-(--radius) border border-border bg-card/60 p-3">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="text-xs font-medium">Volumétrie Suivie en Transit</span>
               <Truck className="size-4 text-amber-500" />
             </div>
             <p className="mt-1 text-xl font-bold text-amber-600 dark:text-amber-400">
-              {formatTm(33.5)}
+              {formatTm(totalFilteredVolumeTM)}
             </p>
-            <p className="text-[11px] text-muted-foreground">Citerne LT-982-AA & CE-415</p>
-          </div>
-
-          <div className="rounded-(--radius) border border-border bg-card/60 p-3">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-xs font-medium">Tournée en Transit</span>
-              <Navigation className="size-4 text-primary" />
-            </div>
-            <p className="mt-1 text-xl font-bold text-foreground">1 <span className="text-xs font-normal text-muted-foreground">active</span></p>
-            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-              Pont du Wouri (RN3)
+            <p className="text-[11px] text-muted-foreground">
+              {activeFilteredTrucksCount} camion{activeFilteredTrucksCount > 1 ? 's' : ''} actif{activeFilteredTrucksCount > 1 ? 's' : ''} • {totalFilteredBottles50kg.toLocaleString('fr-FR')} btl (50kg)
             </p>
           </div>
 
+          {/* Card 5 : Alertes & Écarts de Pesée */}
           <div className="col-span-2 sm:col-span-1 rounded-(--radius) border border-border bg-card/60 p-3">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-xs font-medium">Alertes & Écarts</span>
               <AlertTriangle className="size-4 text-red-500" />
             </div>
-            <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">1 <span className="text-xs font-normal text-muted-foreground">pesée</span></p>
-            <p className="text-[11px] text-muted-foreground">Écart -0,8 TM Bonabéri</p>
+            <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
+              {alertRoutesCount} <span className="text-xs font-normal text-muted-foreground">pesée</span>
+            </p>
+            <p className="text-[11px] text-muted-foreground">Écart -0,8 TM Bonabéri (RN3)</p>
           </div>
         </div>
       </section>
 
-      {/* ── Marketer Filter & Search Bar ──────────────────────────────── */}
+      {/* ── Multi-criteria Filtering Panel (Formulaire de filtrage complet) ── */}
       <section className="rounded-(--radius) border border-border bg-background/95 p-3.5 shadow-sm backdrop-blur-md">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-1 flex-col gap-2.5 sm:flex-row sm:items-center">
-            {/* Search Input with Autocomplete Suggestions */}
-            <div className="relative flex-1 max-w-md">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Rechercher un marketeur (TotalEnergies, Tradex, SCTM...)"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    if (selectedMarketer !== 'ALL') setSelectedMarketer('ALL')
-                  }}
-                  onFocus={() => setIsSearchFocused(true)}
-                  className="pl-9 pr-8 h-9 text-xs"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery('')
-                      handleSelectMarketer('ALL')
-                    }}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    <X className="size-3.5" />
-                  </button>
-                )}
-              </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between border-b border-border/60 pb-2">
+            <div className="flex items-center gap-2">
+              <Filter className="size-3.5 text-primary" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                Filtres & Sélection Opérationnelle
+              </span>
+            </div>
+            {isAnyFilterActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleResetFilter}
+                className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="size-3" />
+                Réinitialiser
+              </Button>
+            )}
+          </div>
 
-              {/* Suggestions Dropdown list */}
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            {/* 1. Recherche Texte */}
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Recherche (tournée, plaque...)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                className="pl-8 pr-7 h-9 text-xs"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="size-3" />
+                </button>
+              )}
+
+              {/* Suggestions */}
               {isSearchFocused && suggestions.length > 0 && (
                 <div
                   className="absolute top-full left-0 z-50 mt-1 w-full rounded-md border border-border bg-popover p-1 shadow-lg backdrop-blur-md"
                   onMouseLeave={() => setIsSearchFocused(false)}
                 >
-                  <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    Marketeurs proposés
+                  <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase">
+                    Marketeurs suggérés
                   </div>
-                  {suggestions.map((marketer) => {
-                    const count = routes.filter((r) => r.marketerName === marketer).length
-                    return (
-                      <button
-                        key={marketer}
-                        type="button"
-                        onMouseDown={() => handleSelectMarketer(marketer)}
-                        className="flex w-full items-center justify-between rounded px-2.5 py-1.5 text-xs text-left text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
-                      >
-                        <span className="font-medium truncate pr-2">{marketer}</span>
-                        <Badge variant="outline" className="text-[10px] shrink-0 border-primary/30 text-primary">
-                          {count} tournée{count > 1 ? 's' : ''}
-                        </Badge>
-                      </button>
-                    )
-                  })}
+                  {suggestions.map((marketer) => (
+                    <button
+                      key={marketer}
+                      type="button"
+                      onMouseDown={() => {
+                        handleSelectMarketer(marketer)
+                        setIsSearchFocused(false)
+                      }}
+                      className="flex w-full items-center justify-between rounded px-2 py-1 text-xs text-popover-foreground hover:bg-accent cursor-pointer"
+                    >
+                      <span className="font-medium truncate">{marketer}</span>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
-            {/* Quick Select Marketer Dropdown */}
-            <div className="w-full sm:w-64">
+            {/* 2. Filtre Marketeur */}
+            <div>
               <Select
                 value={selectedMarketer}
                 onValueChange={(val) => handleSelectMarketer(val)}
               >
                 <SelectTrigger className="h-9 text-xs">
-                  <div className="flex items-center gap-2 truncate">
-                    <Filter className="size-3.5 text-muted-foreground shrink-0" />
-                    <SelectValue placeholder="Tous les marketeurs" />
-                  </div>
+                  <SelectValue placeholder="Marketeur" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL" className="text-xs">
-                    Tous les marketeurs ({routes.length} tournées)
+                    Tous les marketeurs
                   </SelectItem>
                   {allMarketerNames.map((name) => (
                     <SelectItem key={name} value={name} className="text-xs">
@@ -330,33 +436,105 @@ export function NationalMapPage() {
               </Select>
             </div>
 
-            {/* Reset Button */}
-            {(selectedMarketer !== 'ALL' || searchQuery) && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleResetFilter}
-                className="h-9 gap-1.5 text-xs text-muted-foreground hover:text-foreground shrink-0"
+            {/* 3. Filtre Camions / Véhicules */}
+            <div>
+              <Select
+                value={selectedTruckFilter}
+                onValueChange={(val: 'ALL' | 'ACTIVE_ONLY' | 'VRAC_ONLY' | 'B50_ONLY') => setSelectedTruckFilter(val)}
               >
-                <X className="size-3.5" />
-                Réinitialiser
-              </Button>
-            )}
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Flotte camions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-xs">
+                    Tous les camions ({routes.length})
+                  </SelectItem>
+                  <SelectItem value="ACTIVE_ONLY" className="text-xs">
+                    ⚡ Camions actifs en transit ({routes.filter((r) => r.status === 'INPROGRESS').length})
+                  </SelectItem>
+                  <SelectItem value="VRAC_ONLY" className="text-xs">
+                    🚛 Citernes VRAC uniquement
+                  </SelectItem>
+                  <SelectItem value="B50_ONLY" className="text-xs">
+                    📦 Plateaux Bouteilles 50 kg
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 4. Filtre Statut de tournée */}
+            <div>
+              <Select
+                value={selectedStatus}
+                onValueChange={(val: 'ALL' | 'INPROGRESS' | 'PLANNED' | 'ALERT') => setSelectedStatus(val)}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Statut tournée" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-xs">
+                    Tous les statuts
+                  </SelectItem>
+                  <SelectItem value="INPROGRESS" className="text-xs">
+                    🟢 En cours / En transit
+                  </SelectItem>
+                  <SelectItem value="PLANNED" className="text-xs">
+                    🔵 Planifiée
+                  </SelectItem>
+                  <SelectItem value="ALERT" className="text-xs">
+                    🔴 Écart de pesée / Alerte
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 5. Filtre Dépôt Source / Origine */}
+            <div>
+              <Select
+                value={selectedOrigin}
+                onValueChange={(val: 'ALL' | 'SCDP' | 'SNH' | 'MARKETER') => setSelectedOrigin(val)}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Origine départ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL" className="text-xs">
+                    Toutes origines
+                  </SelectItem>
+                  <SelectItem value="SCDP" className="text-xs">
+                    🏛️ Dépôts SCDP (Bonabéri, Nsam...)
+                  </SelectItem>
+                  <SelectItem value="SNH" className="text-xs">
+                    ⚓ Terminal SNH / SONARA
+                  </SelectItem>
+                  <SelectItem value="MARKETER" className="text-xs">
+                    🏭 Centres Emplisseurs Privés
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {/* Active Filter status */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
-            <span>Affichage :</span>
-            <Badge variant="secondary" className="font-semibold text-xs py-0.5">
-              {selectedMarketer === 'ALL'
-                ? searchQuery
-                  ? `Recherche: "${searchQuery}"`
-                  : 'Toutes les tournées'
-                : selectedMarketer}
-            </Badge>
-            <span className="text-[11px]">
-              ({filteredRoutes.length} tournée{filteredRoutes.length > 1 ? 's' : ''} visible{filteredRoutes.length > 1 ? 's' : ''})
-            </span>
+          {/* Bandeau d'état et résumé des filtres */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/40 pt-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span>Résultats filtrés :</span>
+              <Badge variant="secondary" className="font-semibold text-xs py-0.5">
+                {filteredRoutes.length} tournée{filteredRoutes.length > 1 ? 's' : ''}
+              </Badge>
+              <span>•</span>
+              <span className="font-medium text-foreground">
+                {formatTm(totalFilteredVolumeTM)}
+              </span>
+              <span>suivis ({totalFilteredBottles50kg.toLocaleString('fr-FR')} btl équiv. 50 kg)</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                {activeFilteredTrucksCount} camion{activeFilteredTrucksCount > 1 ? 's' : ''} actif{activeFilteredTrucksCount > 1 ? 's' : ''} sur le réseau routier
+              </span>
+            </div>
           </div>
         </div>
       </section>

@@ -82,7 +82,7 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
         </div>
       </section>
 
-      {/* Bloc 1 : Bandeau KPI Exécutif (Vrac, 50kg, Tournées, Camions tracés, Conformité) */}
+      {/* Bloc 1 : Bandeau KPI Exécutif (Vrac, 50kg, Réserves SCDP & SNH, Conformité) */}
       <section>
         <LpgKpiStrip
           totalDeliveredTM={dashboard.overview.totalDeliveredTM}
@@ -90,6 +90,10 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
           activeTrips={dashboard.overview.activeTrips}
           activeTrucks={dashboard.overview.activeTrucks}
           totalTrucks={dashboard.overview.totalTrucks}
+          scdpReserveTM={dashboard.overview.scdpReserveTM}
+          scdpCapacityTM={dashboard.overview.scdpCapacityTM}
+          snhReserveTM={dashboard.overview.snhReserveTM}
+          snhCapacityTM={dashboard.overview.snhCapacityTM}
         />
       </section>
 

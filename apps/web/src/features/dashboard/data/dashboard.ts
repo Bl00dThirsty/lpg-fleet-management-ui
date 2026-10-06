@@ -148,6 +148,10 @@ export type DashboardOverview = {
   reserveCapacityTM: number
   reserveFillPercent: number
   reserveCoverageDays: number
+  scdpReserveTM: number
+  scdpCapacityTM: number
+  snhReserveTM: number
+  snhCapacityTM: number
   activeTrips: number
   plannedTrips: number
   incidentTrips: number
@@ -1004,6 +1008,16 @@ export function buildDashboardView(role?: string, _orgId?: string, orgName?: str
   const dailyCurrent = trendByPeriod.daily[trendByPeriod.daily.length - 1]!
   const dailyPrevious = trendByPeriod.daily[trendByPeriod.daily.length - 2]!
 
+  const scdpReserveSites = reserveSites.filter((site) => site.siteId.includes('scdp'))
+  const scdpReserveTM = roundToOne(
+    scdpReserveSites.reduce((sum, site) => sum + site.reserveTM, 0)
+  )
+  const scdpCapacityTM = roundToOne(
+    scdpReserveSites.reduce((sum, site) => sum + site.capacityTM, 0)
+  )
+  const snhReserveTM = 48.0
+  const snhCapacityTM = 60.0
+
   return {
     overview: {
       dateRangeLabel: '01 avr 2026 - 28 avr 2026',
@@ -1014,6 +1028,10 @@ export function buildDashboardView(role?: string, _orgId?: string, orgName?: str
       reserveCapacityTM,
       reserveFillPercent: round((totalReserveTM / reserveCapacityTM) * 100),
       reserveCoverageDays,
+      scdpReserveTM,
+      scdpCapacityTM,
+      snhReserveTM,
+      snhCapacityTM,
       activeTrips: routeSummary.activeTrips,
       plannedTrips: routeSummary.plannedTrips,
       incidentTrips: routeSummary.incidentTrips,
