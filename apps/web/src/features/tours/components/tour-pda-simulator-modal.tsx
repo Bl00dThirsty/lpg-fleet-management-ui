@@ -38,10 +38,15 @@ export function TourPdaSimulatorModal({
   trip,
 }: TourPdaSimulatorModalProps) {
   const navigate = useNavigate()
+  const storeTours = useToursStore((s) => s.tours)
   const storeCheckpoints = useToursStore((s) => s.checkpoints)
   const checkpointsByTour = useToursStore((s) => s.checkpointsByTour[trip.id])
   const recordDeliveryEvent = useToursStore((s) => s.recordDeliveryEvent)
   const recordBulkScanEvents = useToursStore((s) => s.recordBulkScanEvents)
+
+  const activeTrip = useMemo(() => {
+    return useToursStore.getState().viewById(trip.id) ?? trip
+  }, [trip, storeTours, storeCheckpoints])
 
   const tourCheckpoints = useMemo(() => {
     if (checkpointsByTour && checkpointsByTour.length > 0) return checkpointsByTour
@@ -62,17 +67,19 @@ export function TourPdaSimulatorModal({
   // Identify current phase
   const isDepotCompleted = depotCheckpoint?.status === 'COMPLETED'
   const isDepotReached = depotCheckpoint?.status === 'REACHED'
-  const isTourStarted = trip.tourneeStatus === 'INPROGRESS' || trip.tourneeStatus === 'CHECKPOINTACTIVE'
-  const isTourClosed = trip.tourneeStatus === 'CLOSED'
+  const isTourStarted =
+    activeTrip.tourneeStatus === 'INPROGRESS' ||
+    activeTrip.tourneeStatus === 'CHECKPOINTACTIVE'
+  const isTourClosed = activeTrip.tourneeStatus === 'CLOSED'
 
   const activeClientCp = clientCheckpoints[activeClientIndex] || clientCheckpoints[0]
   const allClientsCompleted = clientCheckpoints.length > 0 && clientCheckpoints.every(
     (c) => c.status === 'COMPLETED' || c.status === 'SKIPPED',
   )
 
-  const isVrac = trip.tourneeType === 'VRAC'
+  const isVrac = activeTrip.tourneeType === 'VRAC'
   const unit = isVrac ? 'TM' : 'btl'
-  const targetQuantity = trip.requested_quantity || 50
+  const targetQuantity = activeTrip.requested_quantity || 50
 
   // 1. ARRIVEE DEPOT
   async function handleReachDepot() {
@@ -267,18 +274,18 @@ export function TourPdaSimulatorModal({
                 Mission en cours
               </span>
               <h3 className='text-base font-bold font-mono text-white flex items-center gap-2'>
-                {trip.reference}
+                {activeTrip.reference}
                 <Badge
                   variant='outline'
                   className='text-[10px] font-mono border-sky-500/40 text-sky-300 bg-sky-500/10'
                 >
-                  {trip.tourneeStatus}
+                  {activeTrip.tourneeStatus}
                 </Badge>
               </h3>
             </div>
             <div className='text-right text-xs'>
-              <p className='font-medium text-slate-300'>{trip.driver_name || 'Chauffeur titulaire'}</p>
-              <p className='text-[11px] text-slate-400'>{trip.vehicle_plate || 'Immatriculation'}</p>
+              <p className='font-medium text-slate-300'>{activeTrip.driver_name || 'Chauffeur titulaire'}</p>
+              <p className='text-[11px] text-slate-400'>{activeTrip.vehicle_plate || 'Immatriculation'}</p>
             </div>
           </div>
 

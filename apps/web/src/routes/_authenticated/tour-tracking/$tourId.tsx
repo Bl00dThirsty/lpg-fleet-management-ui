@@ -10,6 +10,7 @@ import { getTourActivityById } from '@/features/tours/data/tour-activity'
 import { TourActiveHeader } from '@/features/tours/components/tour-active-header'
 import { TourDetailView } from '@/features/tours/components/tour-detail-view'
 import { useToursStore } from '@/store/tours-store'
+import { useTourLiveRefresh } from '@/features/tours/lib/use-tour-live-refresh'
 
 function TourTrackingDetailPage() {
   const { tourId } = Route.useParams()
@@ -29,6 +30,8 @@ function TourTrackingDetailPage() {
         toast.error(err instanceof Error ? err.message : 'Points de contrôle indisponibles')
       })
   }, [tourId])
+
+  useTourLiveRefresh(tourId)
 
   const trip = useMemo(
     () => getTourActivityById(tourId, { checkpoints: storeCheckpoints }),

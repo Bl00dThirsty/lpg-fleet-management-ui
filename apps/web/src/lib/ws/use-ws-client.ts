@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { invalidateResource } from '@/lib/api/invalidation'
+import { useToursStore } from '@/store/tours-store'
 
 const EVENT_TO_RESOURCES: Record<string, string[]> = {
   'tour:update': ['tours'],
@@ -26,6 +27,9 @@ export function useWsClient(enabled = false): void {
       if (!detail?.event) return
       for (const resource of mapWsEventToInvalidation(detail.event)) {
         invalidateResource(qc, resource)
+      }
+      if (detail.event === 'tour:update' || detail.event === 'pickup:update') {
+        void useToursStore.getState().fetchTours(true, true)
       }
       // Notify the notification center with a DISTINCT event type so this
       // handler does not re-enter itself (plan-mandated code re-dispatched

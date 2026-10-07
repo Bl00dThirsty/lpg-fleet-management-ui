@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle } from '@lpg/ui'
 import { PageShell } from '@/components/layout/page'
 import { PageHeader } from '@/components/layout/page-header'
-import { formatTm } from '@/features/map/utils/format'
+import { formatNumberFr, formatPercentFr, formatTm } from '@/features/map/utils/format'
 import { buildDashboardView } from './data/dashboard'
 
 export function FleetDetailPage() {
@@ -94,8 +94,8 @@ export function ReserveSiteDetailPage() {
           <div className='grid gap-3 sm:grid-cols-2'>
             <MiniStat label='Réserve' value={formatTm(site.reserveTM)} />
             <MiniStat label='Capacité' value={formatTm(site.capacityTM)} />
-            <MiniStat label='Remplissage' value={`${site.fillPercent}%`} />
-            <MiniStat label='Couverture' value={`${site.daysOfCover.toFixed(1)} jours`} />
+            <MiniStat label='Remplissage' value={formatPercentFr(site.fillPercent)} />
+            <MiniStat label='Couverture' value={`${formatNumberFr(site.daysOfCover)} jours`} />
             <MiniStat label='Inbound prévu' value={formatTm(site.scheduledInboundTM)} />
             <MiniStat label='Sorties' value={formatTm(site.outboundTM)} />
           </div>
@@ -105,7 +105,7 @@ export function ReserveSiteDetailPage() {
             </CardHeader>
             <CardContent>
               <p className='text-sm text-muted-foreground'>
-                Objectif de remplissage minimal : {site.targetMinPercent}%.
+                Objectif de remplissage minimal : {formatPercentFr(site.targetMinPercent)}.
               </p>
             </CardContent>
           </Card>

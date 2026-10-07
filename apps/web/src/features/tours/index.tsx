@@ -10,6 +10,7 @@ import { ToursTable } from './components/tours-table'
 import { TourCreateDialog } from './components/tour-create-dialog'
 import { TourPdaSimulatorModal } from './components/tour-pda-simulator-modal'
 import { type TourSlice } from './data/tour-activity'
+import { useTourLiveRefresh } from './lib/use-tour-live-refresh'
 
 const SLICES: { value: TourSlice; label: string }[] = [
   { value: 'ALL', label: 'Toutes' },
@@ -44,6 +45,8 @@ export function ToursPage() {
   useEffect(() => {
     useToursStore.getState().fetchTours()
   }, [])
+
+  useTourLiveRefresh()
 
   function openDetail(id: string) {
     navigate({ to: '/tour-tracking/$tourId', params: { tourId: id } })

@@ -26,6 +26,7 @@ import { getPickups } from '@/features/pickups/data/pickups'
 import { getScope } from '@/features/scope/scope'
 import { useAuthStore } from '@/store/auth-store'
 import { usePickupsStore } from '@/store/pickups-store'
+import { useTourLiveRefresh } from '@/features/tours/lib/use-tour-live-refresh'
 
 const STATUS_CLASS: Record<PickupTrackView['status'], string> = {
   DRAFT: 'bg-slate-200 text-slate-800',
@@ -143,6 +144,7 @@ export function PickupTrackingPage() {
   useEffect(() => {
     void useToursStore.getState().fetchTours()
   }, [])
+  useTourLiveRefresh()
   const scope = useMemo(() => getScope(user), [user])
   const pickupRows = useMemo(
     () =>

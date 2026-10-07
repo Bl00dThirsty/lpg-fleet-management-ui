@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Ellipsis } from 'lucide-react'
 import { Bar, BarChart, type BarShapeProps, XAxis, YAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
@@ -28,126 +28,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-// 30 jours de rotations et flux de livraison (fréquence sur 1 mois)
-const deliveryCadenceData = [
-  { day: 1, volume: 42 },
-  { day: 2, volume: 55 },
-  { day: 3, volume: 68 },
-  { day: 4, volume: 74 },
-  { day: 5, volume: 62 },
-  { day: 6, volume: 20 },
-  { day: 7, volume: 15 },
-  { day: 8, volume: 58 },
-  { day: 9, volume: 65 },
-  { day: 10, volume: 70 },
-  { day: 11, volume: 82 },
-  { day: 12, volume: 78 },
-  { day: 13, volume: 25 },
-  { day: 14, volume: 18 },
-  { day: 15, volume: 64 },
-  { day: 16, volume: 72 },
-  { day: 17, volume: 85 },
-  { day: 18, volume: 90 },
-  { day: 19, volume: 68 },
-  { day: 20, volume: 22 },
-  { day: 21, volume: 16 },
-  { day: 22, volume: 60 },
-  { day: 23, volume: 75 },
-  { day: 24, volume: 88 },
-  { day: 25, volume: 92 },
-  { day: 26, volume: 80 },
-  { day: 27, volume: 24 },
-  { day: 28, volume: 19 },
-  { day: 29, volume: 76 },
-  { day: 30, volume: 84 },
-]
-
-// Les 10 régions du Cameroun avec volume livré mensuel (TM)
-export const regionalMonthlyVolumeStats = [
-  {
-    code: 'LT',
-    name: 'Littoral',
-    volumeTM: 642.8,
-    share: '29.9%',
-    colorClass:
-      'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
-  },
-  {
-    code: 'CE',
-    name: 'Centre',
-    volumeTM: 485.2,
-    share: '22.6%',
-    colorClass:
-      'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
-  },
-  {
-    code: 'OU',
-    name: 'Ouest',
-    volumeTM: 218.4,
-    share: '10.2%',
-    colorClass:
-      'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
-  },
-  {
-    code: 'SU',
-    name: 'Sud',
-    volumeTM: 185.0,
-    share: '8.6%',
-    colorClass:
-      'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
-  },
-  {
-    code: 'EN',
-    name: 'Extrême-Nord',
-    volumeTM: 142.1,
-    share: '6.6%',
-    colorClass:
-      'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
-  },
-  {
-    code: 'SW',
-    name: 'Sud-Ouest',
-    volumeTM: 124.6,
-    share: '5.8%',
-    colorClass:
-      'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30',
-  },
-  {
-    code: 'NO',
-    name: 'Nord',
-    volumeTM: 112.3,
-    share: '5.2%',
-    colorClass:
-      'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
-  },
-  {
-    code: 'AD',
-    name: 'Adamaoua',
-    volumeTM: 98.5,
-    share: '4.6%',
-    colorClass:
-      'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
-  },
-  {
-    code: 'ES',
-    name: 'Est',
-    volumeTM: 74.0,
-    share: '3.4%',
-    colorClass:
-      'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
-  },
-  {
-    code: 'NW',
-    name: 'Nord-Ouest',
-    volumeTM: 68.2,
-    share: '3.1%',
-    colorClass:
-      'bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30',
-  },
-]
-
-const topRegionsMonthly = regionalMonthlyVolumeStats.slice(0, 4)
+import {
+  DELIVERY_CADENCE_DATA,
+  buildCadenceRegions,
+} from '../data/regional-stats'
 
 const cadenceChartConfig = {
   volume: {
@@ -158,7 +42,7 @@ const cadenceChartConfig = {
 
 function DeliveryCadenceBarShape(props: BarShapeProps) {
   const { height, payload, width, x, y } = props
-  const barPayload = payload as (typeof deliveryCadenceData)[number] | undefined
+  const barPayload = payload as (typeof DELIVERY_CADENCE_DATA)[number] | undefined
   const barHeightValue = Number(height)
   const barWidthValue = Number(width)
   const xValue = Number(x)
@@ -201,10 +85,12 @@ function DeliveryCadenceBarShape(props: BarShapeProps) {
 
 export function RegionalVolumeCadence() {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const totalMonthVolumeTM = regionalMonthlyVolumeStats.reduce(
-    (sum, r) => sum + r.volumeTM,
-    0
-  )
+  const {
+    formattedTotalMonthVolume,
+    rotatingActiveVolumeFormatted,
+    topRegions,
+    allRegions,
+  } = useMemo(() => buildCadenceRegions(), [])
 
   return (
     <Card className='h-full'>
@@ -243,7 +129,7 @@ export function RegionalVolumeCadence() {
         <div className='flex items-end justify-between'>
           <div className='flex items-baseline gap-1.5'>
             <span className='font-manrope text-3xl font-semibold tabular-nums leading-none tracking-tight'>
-              58.4
+              {rotatingActiveVolumeFormatted}
             </span>
             <span className='text-xs text-muted-foreground'>
               TM en rotation active aujourd'hui
@@ -261,7 +147,7 @@ export function RegionalVolumeCadence() {
         {/* Histogramme de cadence de livraison en temps réel */}
         <ChartContainer config={cadenceChartConfig} className='h-36 w-full'>
           <BarChart
-            data={deliveryCadenceData}
+            data={DELIVERY_CADENCE_DATA}
             margin={{ bottom: 0, left: 0, right: 0, top: 0 }}
             barCategoryGap={2}
           >
@@ -289,7 +175,7 @@ export function RegionalVolumeCadence() {
 
         {/* Grille 2x2 des volumes régionaux avec badges d'identifiants (CE, LT, OU, EN) */}
         <div className='grid grid-cols-2 rounded-lg border border-border/50 bg-muted/10'>
-          {topRegionsMonthly.map((region, idx) => {
+          {topRegions.map((region, idx) => {
             const isLeft = idx % 2 === 0
             const isTop = idx < 2
             return (
@@ -313,7 +199,7 @@ export function RegionalVolumeCadence() {
                   </p>
                 </div>
                 <span className='font-manrope text-xs font-semibold tabular-nums text-foreground'>
-                  {region.volumeTM.toLocaleString('fr-FR')} TM
+                  {region.formattedVolume}
                 </span>
               </div>
             )
@@ -325,7 +211,7 @@ export function RegionalVolumeCadence() {
           <span className='text-xs text-muted-foreground'>
             Total 10 régions :{' '}
             <strong className='text-foreground'>
-              {totalMonthVolumeTM.toLocaleString('fr-FR')} TM
+              {formattedTotalMonthVolume}
             </strong>
           </span>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -345,7 +231,7 @@ export function RegionalVolumeCadence() {
                 </DialogTitle>
               </DialogHeader>
               <div className='space-y-2 max-h-[60vh] overflow-y-auto pr-1'>
-                {regionalMonthlyVolumeStats.map((region) => (
+                {allRegions.map((region) => (
                   <div
                     key={region.code}
                     className='flex items-center justify-between rounded-lg border border-border/60 bg-card p-2.5 text-xs'
@@ -367,7 +253,7 @@ export function RegionalVolumeCadence() {
                     </div>
                     <div className='text-right'>
                       <span className='font-semibold text-foreground tabular-nums'>
-                        {region.volumeTM.toLocaleString('fr-FR')} TM
+                        {region.formattedVolume}
                       </span>
                     </div>
                   </div>

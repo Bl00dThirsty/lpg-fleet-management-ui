@@ -34,7 +34,7 @@ function LoginPage() {
   const navigate = useNavigate()
   const [profiles, setProfiles] = useState<FakeProfile[]>(fakeProfiles)
   const [selectedUserId, setSelectedUserId] = useState<string>(fakeProfiles[0]!.id)
-  const [password, setPassword] = useState(remoteMode ? '' : 'password')
+  const [password, setPassword] = useState('password')
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -146,7 +146,9 @@ function LoginPage() {
                   required
                 />
                 <p className='text-xs text-muted-foreground'>
-                  {remoteMode ? 'Utilisez le mot de passe du compte de test Supabase.' : "Mode démo — n'importe quel mot de passe est accepté."}
+                  {remoteMode
+                    ? 'Mot de passe des comptes de test : password'
+                    : "Mode démo — n'importe quel mot de passe est accepté (défaut : password)."}
                 </p>
               </div>
 

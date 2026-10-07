@@ -102,9 +102,13 @@ interface ToursState {
   recordScanEvent: (event: ScanEvent) => void
   recordBulkScanEvents: (events: ScanEvent[]) => void
 
-  fetchTours: (force?: boolean) => Promise<void>
+  fetchTours: (force?: boolean, silent?: boolean) => Promise<void>
   createPickupAsync: (draft: PickupPlan) => Promise<DeliveryTour>
-  fetchCheckpoints: (tourId: string) => Promise<Checkpoint[]>
+  fetchCheckpoints: (
+    tourId: string,
+    force?: boolean,
+    silent?: boolean
+  ) => Promise<Checkpoint[]>
   createTour: (draft: TourDraft) => TourActivity
   createTourAsync: (draft: TourDraft) => Promise<TourActivity>
   updateTourAsync: (
@@ -242,10 +246,10 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     set({ scanEvents: [...get().scanEvents, ...events] })
   },
 
-  async fetchTours(force = false) {
+  async fetchTours(force = false, silent = false) {
     if (!force && get().hasLoaded && isHydrationFresh(get().lastFetchedAt))
       return
-    set({ loading: true, error: null })
+    if (!silent) set({ loading: true, error: null })
     try {
       const res = await api.tours.list(0, 100)
       if (remoteMode && res?.pagination?.pages > 1) {
@@ -277,14 +281,16 @@ export const useToursStore = create<ToursState>()((set, get) => ({
         set({ loading: false, hasLoaded: true, lastFetchedAt: Date.now() })
       }
     } catch {
-      set({
-        loading: false,
-        hasLoaded: !remoteMode,
-        error: remoteMode
-          ? 'Impossible de charger les tournées du serveur.'
-          : null,
-        lastFetchedAt: Date.now(),
-      })
+      if (!silent) {
+        set({
+          loading: false,
+          hasLoaded: !remoteMode,
+          error: remoteMode
+            ? 'Impossible de charger les tournées du serveur.'
+            : null,
+          lastFetchedAt: Date.now(),
+        })
+      }
     }
   },
 
@@ -318,12 +324,16 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     return saved
   },
 
-  async fetchCheckpoints(tourId: string) {
+  async fetchCheckpoints(tourId: string, force = false, silent = false) {
     if (!tourId) {
       throw new Error('Identifiant de tournée manquant')
     }
-    if (get().checkpointsByTour[tourId]) return get().checkpointsByTour[tourId]!
-    set({ checkpointsLoading: { ...get().checkpointsLoading, [tourId]: true } })
+    if (!force && get().checkpointsByTour[tourId])
+      return get().checkpointsByTour[tourId]!
+    if (!silent)
+      set({
+        checkpointsLoading: { ...get().checkpointsLoading, [tourId]: true },
+      })
     let list: Checkpoint[]
     try {
       const rows = await api.tours.getCheckpoints(tourId)

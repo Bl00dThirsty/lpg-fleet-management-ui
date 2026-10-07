@@ -10,6 +10,7 @@ import { TourActiveHeader } from '@/features/tours/components/tour-active-header
 import { TourDetailView } from '@/features/tours/components/tour-detail-view'
 import { ToursTable } from '@/features/tours/components/tours-table'
 import { PickupsCreateWizard } from './components/pickups-create-wizard'
+import { useTourLiveRefresh } from '@/features/tours/lib/use-tour-live-refresh'
 import type { Role } from '@/config/rbac/roles'
 
 export function PickupsPage({
@@ -48,6 +49,8 @@ export function PickupsPage({
   useEffect(() => {
     void useToursStore.getState().fetchTours(true)
   }, [userId])
+
+  useTourLiveRefresh()
   return (
     <PageShell>
       <PageHeader
