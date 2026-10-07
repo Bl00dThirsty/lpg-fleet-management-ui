@@ -1,14 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { Badge, DataTableColumnHeader } from '@lpg/ui'
-import { type Pickup, type PickupStatus, pickupStatusLabels } from '../data/pickups'
-
-const STATUS_CLASS: Record<PickupStatus, string> = {
-  DRAFT: 'bg-slate-200 text-slate-800',
-  VALIDATED: 'bg-sky-100 text-sky-800',
-  INPROGRESS: 'bg-amber-100 text-amber-900',
-  COMPLETED: 'bg-emerald-600 text-white',
-  CANCELLED: 'bg-rose-100 text-rose-900',
-}
+import { DataTableColumnHeader } from '@lpg/ui'
+import { StatusBadge } from '@/components/data-table'
+import { type Pickup } from '../data/pickups'
 
 export function getPickupsColumns({
   onOpenDetails,
@@ -63,9 +56,11 @@ export function getPickupsColumns({
       accessorKey: 'pickup_status',
       header: 'Statut',
       cell: ({ row }) => (
-        <Badge className={STATUS_CLASS[row.original.pickup_status]}>
-          {pickupStatusLabels[row.original.pickup_status]}
-        </Badge>
+        <StatusBadge
+          activity='PICKUP'
+          value={row.original.pickup_status}
+          showCode
+        />
       ),
       meta: { label: 'Statut' },
       enableHiding: false,

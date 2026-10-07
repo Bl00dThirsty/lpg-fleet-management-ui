@@ -613,3 +613,34 @@ describe('marketer crew assignment guards', () => {
     expect(save).not.toHaveBeenCalled()
   })
 })
+
+describe('updateTourAsync', () => {
+  beforeEach(() => {
+    useToursStore.setState(freshSeed())
+    useAuthStore.setState({ user: SUPERADMIN_USER })
+  })
+  afterEach(() => vi.restoreAllMocks())
+
+  it('updates an editable tour quantity and checkpoints', async () => {
+    const tour = useToursStore.getState().tours.find((t) => t.status === 'PLANNED')!
+    vi.spyOn(api.tours, 'update').mockResolvedValueOnce({
+      ...tour,
+      requested_quantity: 42,
+    })
+
+    const updated = await useToursStore.getState().updateTourAsync(tour.id, {
+      requested_quantity: 42,
+    })
+    expect(updated.requested_quantity).toBe(42)
+    const stored = useToursStore.getState().tours.find((t) => t.id === tour.id)
+    expect(stored?.requested_quantity).toBe(42)
+  })
+
+  it('rejects editing a tour that is not in an editable status', async () => {
+    const closed = useToursStore.getState().tours.find((t) => t.status === 'CLOSED')!
+    await expect(
+      useToursStore.getState().updateTourAsync(closed.id, { requested_quantity: 99 })
+    ).rejects.toThrow(/ne peut plus être modifiée/)
+  })
+})
+

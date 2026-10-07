@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { StatusBadge } from '@/components/data-table'
 import {
   Dialog,
   DialogContent,
@@ -26,7 +27,6 @@ import {
   checkpointStatusLabels,
   routeSeverityClasses,
   routeSeverityLabels,
-  routeStatusLabels,
   type CheckpointStatus,
   type TourActivity,
 } from '../data/tour-activity'
@@ -151,9 +151,11 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
             <div className='space-y-3'>
               <div className='flex flex-wrap items-center gap-2'>
                 <Badge variant='outline'>{trip.reference}</Badge>
-                <Badge variant='secondary'>
-                  {routeStatusLabels[trip.status]}
-                </Badge>
+                <StatusBadge
+                  activity={trip.mission_kind === 'PICKUP' ? 'PICKUP' : 'TOUR'}
+                  value={trip.tourneeStatus}
+                  showCode
+                />
                 <Badge variant='outline'>
                   {routeSeverityLabels[trip.attentionLevel]}
                 </Badge>

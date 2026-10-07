@@ -56,7 +56,14 @@ export function TransportersPage() {
             {transporters.length}
           </Badge>
           {crud.perm.canCreate && (
-            <Button onClick={crud.openCreate}>
+            <Button
+              onClick={() =>
+                navigate({
+                  to: '/organizations/new',
+                  search: { type: 'TRANSPORTEUR' },
+                })
+              }
+            >
               <Plus className='mr-1 h-4 w-4' /> Nouveau transporteur
             </Button>
           )}

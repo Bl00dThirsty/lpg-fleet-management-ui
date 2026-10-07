@@ -62,10 +62,57 @@ async function resource(kind: string, id: string) {
   )
   return rows[0]?.payload
 }
+const ORG_TYPES = ['REGULATEUR', 'DEPOT', 'MARKETEUR', 'TRANSPORTEUR', 'CLIENT']
+const HIERARCHY: Record<string, number> = {
+  SUPERADMIN: 100,
+  ADMIN: 80,
+  SUPERVISOR: 60,
+  INTEGRATEUR: 60,
+  AGENT: 60,
+  MARKETEUR: 40,
+  TRANSPORTEUR: 40,
+  LIVREUR: 20,
+  DRIVER: 20,
+}
+function isCspHStaff(profile: any) {
+  return profile.org_type === 'REGULATEUR'
+}
+function isCspHAdmin(profile: any) {
+  return (
+    isCspHStaff(profile) && ['SUPERADMIN', 'ADMIN'].includes(profile.system_role)
+  )
+}
+function textOr(value: unknown, fallback: string | null = null): string | null {
+  const text = typeof value === 'string' ? value.trim() : ''
+  return text || fallback
+}
+function numOr(value: unknown, fallback: number): number {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
+function pickFields(source: any, keys: readonly string[]) {
+  const picked: Record<string, unknown> = {}
+  for (const key of keys) {
+    const value = source?.[key]
+    if (value !== undefined && value !== null && value !== '')
+      picked[key] = value
+  }
+  return picked
+}
+function geoPoint(value: unknown): [number, number] | null {
+  if (!Array.isArray(value) || value.length !== 2) return null
+  const [lng, lat] = value.map((v: unknown) => Number(v))
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null
+  return [lng, lat]
+}
+function generatePassword(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz213456789'
+  const bytes = crypto.getRandomValues(new Uint8Array(18))
+  return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join('')
+}
 function writable(profile: any, tour: any) {
   return (
-    (profile.org_type === 'REGULATEUR' &&
-      ['SUPERADMIN', 'ADMIN'].includes(profile.system_role)) ||
+    isCspHAdmin(profile) ||
     (profile.system_role === 'MARKETEUR' &&
       profile.org_id === tour.marketeur_org_id)
   )
@@ -294,6 +341,36 @@ Deno.serve(async (req) => {
         },
       })
     }
+    if (path === '/auth/accounts' && req.method === 'GET') {
+      const [authUsersRes, profileRows, orgRows] = await Promise.all([
+        fetch(`${base}/auth/v1/admin/users?page=0&per_page=1000`, {
+          headers: { apikey: adminKey, Authorization: `Bearer ${adminKey}` },
+        }),
+        rest('dispatch_profiles'),
+        rest('dispatch_resources?kind=eq.organizations'),
+      ])
+      if (!authUsersRes.ok) fail(502, 'Annuaire des comptes indisponible.')
+      const authUsers: any[] = (await authUsersRes.json()).users ?? []
+      const emailByAuthId = new Map(
+        authUsers.map((u: any) => [u.id, u.email as string | undefined]),
+      )
+      const orgNames = new Map(
+        orgRows.map((r: any) => [r.payload?.id, r.payload?.name]),
+      )
+      const accounts = profileRows
+        .map((p: any) => ({
+          id: p.account_id,
+          email: emailByAuthId.get(p.auth_id) ?? p.details?.email ?? null,
+          first_name: p.details?.first_name ?? '',
+          last_name: p.details?.last_name ?? '',
+          system_role: p.system_role,
+          org_id: p.org_id,
+          org_type: p.org_type,
+          org_name: orgNames.get(p.org_id) ?? p.details?.org_name ?? '',
+        }))
+        .filter((account: any) => account.email)
+      return reply(accounts)
+    }
     const authorization = req.headers.get('Authorization') ?? ''
     if (!authorization.startsWith('Bearer '))
       fail(401, 'Authentification requise.')
@@ -313,6 +390,17 @@ Deno.serve(async (req) => {
         headers: { apikey: anonKey, Authorization: authorization },
       })
       return reply(null)
+    }
+    if (path === '/activity-statuses' && req.method === 'GET') {
+      const rows = await rest(
+        'activity_statuses?order=activity.asc,sort_order.asc',
+      )
+      return reply(rows, 200, {
+        page: 0,
+        limit: rows.length,
+        total: rows.length,
+        pages: 1,
+      })
     }
     if (
       (path === '/tours' || path === '/delivery-tours') &&
@@ -349,9 +437,7 @@ Deno.serve(async (req) => {
         .filter((r: any) => r.kind === 'organizations')
         .map((r: any) => r.payload)
       const suppliers = orgs.filter((o: any) => isPickupSupplier(o))
-      const all =
-        profile.org_type === 'REGULATEUR' &&
-        ['SUPERADMIN', 'ADMIN'].includes(profile.system_role)
+      const all = isCspHAdmin(profile)
       return reply({
         sources: active
           .filter(
@@ -395,6 +481,306 @@ Deno.serve(async (req) => {
           )
           .map((r: any) => r.payload),
       })
+    }
+    if (path === '/organizations' && req.method === 'POST') {
+      const name = String(body.name ?? '').trim()
+      const type = String(body.type ?? '').trim().toUpperCase()
+      if (name.length < 2) fail(400, 'Nom d’organisation requis.')
+      if (!ORG_TYPES.includes(type)) fail(400, 'Type d’organisation invalide.')
+      if (
+        !(isCspHAdmin(profile) ||
+          (profile.system_role === 'MARKETEUR' && type === 'CLIENT'))
+      )
+        fail(403, 'Création d’organisation non autorisée.')
+      const existing = await rest(
+        `dispatch_resources?kind=eq.organizations&payload->>name=eq.${encodeURIComponent(name)}`,
+      )
+      if (existing[0]) fail(409, 'Une organisation porte déjà ce nom.')
+      const now = new Date().toISOString()
+      const id = `org-${crypto.randomUUID()}`
+      const payload = {
+        id,
+        name,
+        type,
+        registration_number: textOr(body.registration_number),
+        tax_id: textOr(body.tax_id),
+        is_active: body.is_active ?? true,
+        operational_site_count: 0,
+        client_site_count: 0,
+        vehicle_count: 0,
+        driver_count: 0,
+        user_count: 0,
+        created_at: now,
+        created_by: profile.account_id,
+        updated_at: now,
+        deleted_at: null,
+        ...pickFields(body, [
+          'primary_contact_name',
+          'primary_contact_phone',
+          'primary_contact_email',
+          'billing_address',
+          'industry_sector',
+          'payment_terms',
+          'credit_limit',
+        ]),
+      }
+      const result = await rest('dispatch_resources', 'POST', {
+        kind: 'organizations',
+        id,
+        payload,
+      })
+      if (!result?.[0]) fail(502, 'Organisation non enregistrée.')
+      return reply(result[0].payload, 201)
+    }
+    if (path === '/clients' && req.method === 'POST') {
+      const orgId = String(body.org_id ?? '').trim()
+      if (!orgId) fail(400, 'Organisation client requise.')
+      if (!(isCspHStaff(profile) || profile.system_role === 'MARKETEUR'))
+        fail(403, 'Création de profil client non autorisée.')
+      const org = await resource('organizations', orgId)
+      if (!org || org.deleted_at) fail(400, 'Organisation introuvable.')
+      if (org.type !== 'CLIENT')
+        fail(400, 'Le profil client exige une organisation de type CLIENT.')
+      const existing = await rest(
+        `dispatch_resources?kind=eq.clients&payload->>org_id=eq.${encodeURIComponent(orgId)}`,
+      )
+      if (existing[0])
+        fail(409, 'Un profil client existe déjà pour cette organisation.')
+      const now = new Date().toISOString()
+      const id = crypto.randomUUID()
+      const payload = {
+        id,
+        org_id: orgId,
+        primary_contact_name: textOr(body.primary_contact_name),
+        primary_contact_phone: textOr(body.primary_contact_phone),
+        primary_contact_email: textOr(body.primary_contact_email),
+        billing_address: textOr(body.billing_address),
+        payment_terms: numOr(body.payment_terms, 30),
+        credit_limit: numOr(body.credit_limit, 0),
+        tax_id: textOr(body.tax_id),
+        industry_sector: textOr(body.industry_sector),
+        is_active: body.is_active ?? true,
+        created_at: now,
+        created_by: profile.account_id,
+        updated_at: now,
+        deleted_at: null,
+      }
+      const result = await rest('dispatch_resources', 'POST', {
+        kind: 'clients',
+        id,
+        payload,
+      })
+      if (!result?.[0]) fail(502, 'Profil client non enregistré.')
+      return reply(result[0].payload, 201)
+    }
+    if (path === '/sites' && req.method === 'POST') {
+      const orgId = String(body.org_id ?? '').trim()
+      const name = String(body.name ?? '').trim()
+      const region = String(body.region ?? '').trim()
+      if (!orgId || !name || !region)
+        fail(400, 'Organisation, nom et région du site obligatoires.')
+      if (!(isCspHStaff(profile) || orgId === profile.org_id))
+        fail(403, 'Organisation non autorisée.')
+      const existing = await rest(
+        `dispatch_resources?kind=eq.sites&payload->>org_id=eq.${encodeURIComponent(orgId)}&payload->>name=eq.${encodeURIComponent(name)}`,
+      )
+      if (existing[0])
+        fail(409, 'Ce nom de site existe déjà pour cette organisation.')
+      const now = new Date().toISOString()
+      const id = crypto.randomUUID()
+      const functions = (Array.isArray(body.functions) ? body.functions : [])
+        .filter((fn: unknown) => typeof fn === 'string' && fn.trim())
+      const payload = {
+        id,
+        org_id: orgId,
+        name,
+        region,
+        functions: functions.length ? functions : ['ENTREPOT'],
+        address: textOr(body.address),
+        geo_point: geoPoint(body.geo_point),
+        geo_confidence_score: numOr(body.geo_confidence_score, 0),
+        delivery_count: numOr(body.delivery_count, 0),
+        status: textOr(body.status, 'UNASSIGNED'),
+        is_verified: body.is_verified ?? false,
+        ...pickFields(body, [
+          'verified_at',
+          'verified_by',
+          'reason',
+          'site_contact_name',
+          'site_contact_phone',
+          'capacity_info',
+        ]),
+        is_active: body.is_active ?? true,
+        created_at: now,
+        created_by: profile.account_id,
+        updated_at: now,
+        deleted_at: null,
+      }
+      const result = await rest('dispatch_resources', 'POST', {
+        kind: 'sites',
+        id,
+        payload,
+      })
+      if (!result?.[0]) fail(502, 'Site non enregistré.')
+      return reply(result[0].payload, 201)
+    }
+    if (path === '/client-sites' && req.method === 'POST') {
+      const clientOrgId = String(body.client_org_id ?? '').trim()
+      const name = String(body.name ?? '').trim()
+      const region = String(body.region ?? '').trim()
+      if (!clientOrgId || !name || !region)
+        fail(400, 'Client, nom et région du site obligatoires.')
+      if (!(isCspHStaff(profile) || profile.system_role === 'MARKETEUR'))
+        fail(403, 'Création de site client non autorisée.')
+      const org = await resource('organizations', clientOrgId)
+      if (!org || org.deleted_at) fail(400, 'Organisation client introuvable.')
+      if (org.type !== 'CLIENT') fail(400, 'Ce site appartient à un client.')
+      const existing = await rest(
+        `dispatch_resources?kind=eq.client-sites&payload->>client_org_id=eq.${encodeURIComponent(clientOrgId)}&payload->>name=eq.${encodeURIComponent(name)}`,
+      )
+      if (existing[0]) fail(409, 'Ce nom de site existe déjà pour ce client.')
+      const now = new Date().toISOString()
+      const id = crypto.randomUUID()
+      const payload = {
+        id,
+        client_org_id: clientOrgId,
+        name,
+        region,
+        address: textOr(body.address),
+        geo_point: geoPoint(body.geo_point),
+        geo_confidence_score: numOr(body.geo_confidence_score, 0),
+        delivery_count: numOr(body.delivery_count, 0),
+        status: textOr(body.status, 'UNASSIGNED'),
+        current_marketeur_org_id: isCspHStaff(profile)
+          ? textOr(body.current_marketeur_org_id)
+          : profile.org_id,
+        ...pickFields(body, [
+          'site_contact_name',
+          'site_contact_phone',
+          'capacity_info',
+        ]),
+        is_verified: body.is_verified ?? false,
+        is_active: body.is_active ?? true,
+        created_at: now,
+        created_by: profile.account_id,
+        updated_at: now,
+        deleted_at: null,
+      }
+      const result = await rest('dispatch_resources', 'POST', {
+        kind: 'client-sites',
+        id,
+        payload,
+      })
+      if (!result?.[0]) fail(502, 'Site client non enregistré.')
+      return reply(result[0].payload, 201)
+    }
+    if (path === '/users/with-auth' && req.method === 'POST') {
+      if (!isCspHAdmin(profile))
+        fail(403, 'Création de compte réservée à l’administration CSPH.')
+      const email = String(body.email ?? '').trim().toLowerCase()
+      const firstName = String(body.first_name ?? '').trim()
+      const lastName = String(body.last_name ?? '').trim()
+      const systemRole = String(body.system_role ?? '').trim().toUpperCase()
+      const orgId = String(body.org_id ?? '').trim()
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+        fail(400, 'Adresse e-mail invalide.')
+      if (!firstName || !lastName) fail(400, 'Prénom et nom obligatoires.')
+      if (!HIERARCHY[systemRole]) fail(400, 'Rôle système invalide.')
+      if (HIERARCHY[systemRole] >= HIERARCHY[profile.system_role])
+        fail(403, 'Vous ne pouvez créer qu’un rôle inférieur au vôtre.')
+      if (!orgId) fail(400, 'Organisation obligatoire.')
+      const org = await resource('organizations', orgId)
+      if (!org || org.deleted_at) fail(400, 'Organisation introuvable.')
+      const slug =
+        `${firstName}.${lastName}`
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9.]+/g, '')
+          .replace(/^\.+|\.+$/g, '') || 'compte'
+      const requestedId = textOr(body.username)
+        ?.toLowerCase()
+        .replace(/[^a-z0-9._-]+/g, '')
+      const accountId =
+        requestedId ?? `user.${slug}.${crypto.randomUUID().slice(0, 6)}`
+      const duplicate = await rest(
+        `dispatch_profiles?account_id=eq.${encodeURIComponent(accountId)}`,
+      )
+      if (duplicate[0]) fail(409, 'Identifiant de compte déjà utilisé.')
+      const password = textOr(body.password) ?? generatePassword()
+      const created = await fetch(`${base}/auth/v1/admin/users`, {
+        method: 'POST',
+        headers: {
+          apikey: adminKey,
+          Authorization: `Bearer ${adminKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, email_confirm: true }),
+      })
+      if (!created.ok) {
+        const error = await created.json().catch(() => ({}))
+        if (
+          created.status === 409 ||
+          /already/i.test(String(error?.msg ?? ''))
+        )
+          fail(409, 'Un compte existe déjà pour cet e-mail.')
+        fail(502, 'Création du compte impossible.')
+      }
+      const authUser = await created.json()
+      const now = new Date().toISOString()
+      const details = {
+        id: accountId,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        system_role: systemRole,
+        org_id: orgId,
+        org_name: org.name ?? '',
+        org_type: org.type,
+        site_ids: Array.isArray(body.site_ids)
+          ? body.site_ids.filter((site: unknown) => typeof site === 'string')
+          : [],
+        custom_roles: [],
+        mfa_status: 'DISABLED',
+      }
+      const person = {
+        id: accountId,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        system_role: systemRole,
+        org_id: orgId,
+        is_active: true,
+        mfa_status: 'DISABLED',
+        must_change_password: true,
+        created_at: now,
+        created_by: profile.account_id,
+        updated_at: now,
+        deleted_at: null,
+        ...pickFields(body, ['phone', 'avatar_url']),
+      }
+      try {
+        await rest('dispatch_profiles', 'POST', {
+          auth_id: authUser.id,
+          account_id: accountId,
+          org_id: orgId,
+          system_role: systemRole,
+          org_type: org.type,
+          details,
+        })
+        await rest('dispatch_resources', 'POST', {
+          kind: 'users',
+          id: accountId,
+          payload: person,
+        })
+      } catch (error) {
+        await fetch(`${base}/auth/v1/admin/users/${authUser.id}`, {
+          method: 'DELETE',
+          headers: { apikey: adminKey, Authorization: `Bearer ${adminKey}` },
+        }).catch(() => undefined)
+        throw error
+      }
+      return reply({ ...person, password }, 201)
     }
     if ((path === '/tours' || path === '/pickups') && req.method === 'POST') {
       const tour = {
@@ -631,6 +1017,75 @@ Deno.serve(async (req) => {
       }
       if (req.method === 'GET')
         return reply(action === 'checkpoints' ? tour.checkpoints : tour)
+      if (req.method === 'PUT' && !action) {
+        if (!writable(profile, tour)) fail(403, 'Modification non autorisée.')
+        const editableStatuses = [
+          'DRAFT',
+          'PLANNED',
+          'PENDINGTRANSPORTERACK',
+          'ACKNOWLEDGED',
+        ]
+        if (!editableStatuses.includes(tour.status) || tour.loading_validated) {
+          fail(
+            409,
+            'Cette tournée n’est plus modifiable car elle est en cours ou clôturée.',
+          )
+        }
+        if (body.type) {
+          if (!['VRAC', 'BOUTEILLES50KG'].includes(body.type))
+            fail(400, 'Type de cargaison invalide.')
+          tour.type = body.type
+        }
+        if (body.execution_mode) {
+          if (!['INTERNAL', 'EXTERNAL'].includes(body.execution_mode))
+            fail(400, 'Mode d’exécution invalide.')
+          tour.execution_mode = body.execution_mode
+        }
+        if (body.requested_quantity !== undefined) {
+          const qty = Number(body.requested_quantity)
+          if (!Number.isFinite(qty) || qty <= 0)
+            fail(400, 'Quantité demandée positive requise.')
+          if (tour.type === 'BOUTEILLES50KG' && !Number.isSafeInteger(qty))
+            fail(400, 'Le nombre de bouteilles doit être entier.')
+          tour.requested_quantity = qty
+        }
+        if (body.transporter_org_id !== undefined) {
+          tour.transporter_org_id = body.transporter_org_id || null
+        }
+        if (body.vehicle_id !== undefined) tour.vehicle_id = body.vehicle_id || null
+        if (body.driver_id !== undefined) tour.driver_id = body.driver_id || null
+        if (body.livreur_user_id !== undefined)
+          tour.livreur_user_id = body.livreur_user_id || null
+        if (body.scheduled_at) {
+          if (!Number.isFinite(Date.parse(body.scheduled_at)))
+            fail(400, 'Date de planification invalide.')
+          tour.scheduled_at = new Date(body.scheduled_at).toISOString()
+        }
+        if (Array.isArray(body.checkpoints) && body.checkpoints.length >= 2) {
+          tour.checkpoints = await Promise.all(
+            body.checkpoints.map((cp: any, i: number) =>
+              checkpoint(cp, tour, i),
+            ),
+          )
+          if (
+            new Set(tour.checkpoints.map((cp: any) => cp.sequence)).size !==
+            tour.checkpoints.length
+          ) {
+            fail(400, 'Séquences d’étapes dupliquées.')
+          }
+          tour.checkpoints.sort((a: any, b: any) => a.sequence - b.sequence)
+        }
+        if (
+          tour.execution_mode === 'INTERNAL' &&
+          tour.status !== 'DRAFT' &&
+          tour.vehicle_id &&
+          tour.driver_id &&
+          tour.livreur_user_id
+        ) {
+          await validateCrew(tour)
+        }
+        return reply(await save(tour, revision))
+      }
       if (req.method !== 'POST') fail(405, 'Opération non prise en charge.')
       if (action === 'loading' || action === 'deliveries') {
         if (
@@ -707,13 +1162,48 @@ Deno.serve(async (req) => {
         tour.checkpoints.push(
           await checkpoint(body, tour, tour.checkpoints.length),
         )
+      } else if (action === 'send-to-transporter') {
+        if (tour.status === 'PENDINGTRANSPORTERACK') return reply(tour)
+        if (!writable(profile, tour)) fail(403, 'Transmission non autorisée.')
+        if (tour.execution_mode !== 'EXTERNAL')
+          fail(400, 'Cette tournée n’est pas externalisée.')
+        if (!tour.transporter_org_id)
+          fail(400, 'Transporteur externe obligatoire.')
+        tour.status = 'PENDINGTRANSPORTERACK'
+        tour.sent_to_transporter_at = new Date().toISOString()
+      } else if (action === 'acknowledge') {
+        const isTransporter =
+          profile.org_id === tour.transporter_org_id ||
+          (isCspHAdmin(profile) && tour.transporter_org_id)
+        if (!isTransporter)
+          fail(
+            403,
+            'Seul le transporteur désigné peut accuser réception de cette tournée.',
+          )
+        if (tour.status === 'ACKNOWLEDGED') return reply(tour)
+        if (!['PLANNED', 'PENDINGTRANSPORTERACK'].includes(tour.status)) {
+          fail(409, 'Statut incompatible pour accusé de réception.')
+        }
+        if (body.vehicle_id) tour.vehicle_id = body.vehicle_id
+        if (body.driver_id) tour.driver_id = body.driver_id
+        if (body.livreur_user_id) tour.livreur_user_id = body.livreur_user_id
+        await validateCrew(tour)
+        tour.status = 'ACKNOWLEDGED'
+        tour.transporter_assigned_at = new Date().toISOString()
       } else if (
         action === 'plan' &&
         tour.status === 'PLANNED' &&
         writable(profile, tour)
       )
         return reply(tour)
-      else if (action === 'start') {
+      else if (action === 'plan') {
+        if (!writable(profile, tour)) fail(403, 'Planification non autorisée.')
+        if (tour.execution_mode === 'INTERNAL') await validateCrew(tour)
+        tour.status =
+          tour.execution_mode === 'EXTERNAL'
+            ? 'PENDINGTRANSPORTERACK'
+            : 'PLANNED'
+      } else if (action === 'start') {
         fail(
           409,
           'Validez le chargement. La tournée démarre à la première livraison confirmée.',

@@ -72,7 +72,7 @@ export function OrganizationsPage() {
             {orgs.length}
           </Badge>
           {crud.perm.canCreate && (
-            <Button onClick={crud.openCreate}>
+            <Button onClick={() => navigate({ to: '/organizations/new' })}>
               <Plus className='mr-1 h-4 w-4' /> Nouvelle organisation
             </Button>
           )}

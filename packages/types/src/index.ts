@@ -16,6 +16,7 @@ export type Role =
 
 export type OrgType =
   'REGULATEUR' | 'DEPOT' | 'MARKETEUR' | 'TRANSPORTEUR' | 'CLIENT'
+export type OrganizationType = OrgType
 
 export type Region =
   | 'ADAMAOUA'
@@ -722,4 +723,17 @@ export interface MissionDocument {
   label: string
   captured_at: string | null
   url: string
+}
+
+export type ActivityKind = 'TOUR' | 'PICKUP' | 'CHECKPOINT' | 'CONTRACT'
+
+export interface ActivityStatus {
+  activity: ActivityKind
+  status_value: string
+  code: string
+  label: string
+  description: string
+  tone: 'slate' | 'sky' | 'blue' | 'amber' | 'emerald' | 'rose'
+  sort_order: number
+  is_active: boolean
 }

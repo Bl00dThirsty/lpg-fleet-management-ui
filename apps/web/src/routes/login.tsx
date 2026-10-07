@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/auth-store'
 import { useRoleStore } from '@/store/role-store'
 import { Button, Card, CardContent, Label } from '@lpg/ui'
 import { fakeProfiles, type FakeProfile } from '@lpg/mock-data'
+import { apiAdapter } from '@lpg/api-client'
 import { UserPicker } from '@/components/login/user-picker'
 import { PasswordInput } from '@/components/password-input'
 import csphLogo from '@/assets/logo-csph-small.png'
@@ -16,16 +17,59 @@ export const Route = createFileRoute('/login')({
 
 const remoteMode = import.meta.env.VITE_API_MODE === 'http'
 
+interface DirectoryAccount {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  system_role: string
+  org_id: string
+  org_type: string
+  org_name: string
+}
+
 function LoginPage() {
   const login = useAuthStore((s) => s.login)
   const setActiveRole = useRoleStore((s) => s.setActiveRole)
   const navigate = useNavigate()
+  const [profiles, setProfiles] = useState<FakeProfile[]>(fakeProfiles)
   const [selectedUserId, setSelectedUserId] = useState<string>(fakeProfiles[0]!.id)
   const [password, setPassword] = useState(remoteMode ? '' : 'password')
   const [submitting, setSubmitting] = useState(false)
 
+  useEffect(() => {
+    if (!remoteMode) return
+    let cancelled = false
+    apiAdapter
+      .request<DirectoryAccount[]>('/auth/accounts')
+      .then((accounts) => {
+        if (cancelled || accounts.length === 0) return
+        const directory: FakeProfile[] = accounts.map((account) => ({
+          id: account.id,
+          email: account.email,
+          first_name: account.first_name,
+          last_name: account.last_name,
+          system_role: account.system_role,
+          org_id: account.org_id,
+          org_name: account.org_name,
+          org_type: account.org_type,
+          site_ids: [],
+        }))
+        setProfiles(directory)
+        setSelectedUserId((current) =>
+          directory.some((account) => account.id === current)
+            ? current
+            : directory[0]!.id,
+        )
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const selectedUser: FakeProfile =
-    fakeProfiles.find((u) => u.id === selectedUserId) ?? fakeProfiles[0]!
+    profiles.find((u) => u.id === selectedUserId) ?? profiles[0]!
 
   // Keep the active role in sync with the chosen user so nav visibility matches
   // the persona being simulated.
@@ -77,7 +121,9 @@ function LoginPage() {
             <div className='space-y-1 mb-6'>
               <h1 className='text-2xl font-bold tracking-tight'>Connexion</h1>
               <p className='text-sm text-muted-foreground'>
-                Sélectionnez un compte de démonstration pour vous connecter
+                {remoteMode
+                  ? 'Sélectionnez un compte pour vous connecter'
+                  : 'Sélectionnez un compte de démonstration pour vous connecter'}
               </p>
             </div>
 
@@ -85,7 +131,7 @@ function LoginPage() {
               <div className='space-y-2'>
                 <Label htmlFor='user'>Utilisateur</Label>
                 <UserPicker
-                  users={fakeProfiles}
+                  users={profiles}
                   value={selectedUserId}
                   onChange={setSelectedUserId}
                 />

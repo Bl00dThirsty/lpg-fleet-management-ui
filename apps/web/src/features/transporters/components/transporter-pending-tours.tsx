@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, Filter, X, ClipboardList } from 'lucide-react'
+import { Search, Filter, X, ClipboardList, Clock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -214,7 +214,7 @@ export function TransporterPendingTours({ transporter }: { transporter: { id: st
     setAckTour(tour)
   }
 
-  function submitAcknowledge(values: CrewAssignmentValues) {
+  async function submitAcknowledge(values: CrewAssignmentValues) {
     if (!ackTour) return
     const user = useAuthStore.getState().user
     if (!user?.id) {
@@ -223,7 +223,7 @@ export function TransporterPendingTours({ transporter }: { transporter: { id: st
     }
     setSubmitting(true)
     try {
-      useToursStore.getState().performAction(ackTour.id, 'acknowledge', {
+      await useToursStore.getState().performActionAsync(ackTour.id, 'acknowledge', {
         vehicle_id: values.vehicle_id,
         driver_id: values.driver_id,
         livreur_user_id: values.livreur_user_id,
@@ -249,7 +249,7 @@ export function TransporterPendingTours({ transporter }: { transporter: { id: st
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div className='flex items-center gap-3'>
           <div className='p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg'>
-            <span className='text-amber-600 dark:text-amber-400 text-lg'>⏳</span>
+            <Clock className='size-5 text-amber-600 dark:text-amber-400' />
           </div>
           <div>
             <h2 className='text-xl font-bold'>En attente d'accusé</h2>

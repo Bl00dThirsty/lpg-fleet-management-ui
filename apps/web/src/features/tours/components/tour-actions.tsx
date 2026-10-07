@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { Link } from '@tanstack/react-router'
+import { Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@lpg/ui'
 import { hasPermission, type PermissionCode } from '@lpg/permissions'
@@ -13,6 +15,7 @@ import {
 import {
   tourActions,
   TOUR_ACTION_LABELS,
+  canEditTour,
   type TourAction,
 } from '../data/tour-machine'
 
@@ -109,10 +112,22 @@ export function TourActions({
     }
   }
 
-  if (actions.length === 0) return null
+  const canEdit =
+    hasPermission(activeRole, 'tours.write') &&
+    canEditTour({ status: tour.tourneeStatus })
+
+  if (actions.length === 0 && !canEdit) return null
 
   return (
     <div className='flex flex-wrap justify-end gap-2 border-t pt-3'>
+      {canEdit && (
+        <Button asChild variant='outline'>
+          <Link to='/tours/$tourId/edit' params={{ tourId: tour.id }}>
+            <Pencil className='size-4 mr-1.5' />
+            Modifier
+          </Link>
+        </Button>
+      )}
       {actions.map((action) => (
         <Button
           key={action}

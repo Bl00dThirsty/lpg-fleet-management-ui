@@ -50,6 +50,7 @@ const COLLECTIONS: Record<string, unknown[]> = {
   transporter_contracts: curated.transporter_contracts,
   pickup_requests: curated.pickup_requests,
   delivery_tours: curated.delivery_tours,
+  tours: curated.delivery_tours,
   checkpoints: curated.checkpoints,
   scan_events: curated.scan_events,
   declarations: curated.declarations,
@@ -69,6 +70,7 @@ const COLLECTIONS: Record<string, unknown[]> = {
   reports: [],
   audit_logs: [],
   settings: [],
+  activity_statuses: [],
 }
 
 const TOUR_DOCUMENTS: Record<string, any[]> = {}
@@ -106,6 +108,33 @@ export function createFakeAdapter(): ApiAdapter {
         return delay(existing as unknown as T)
       }
 
+      const tourActionMatch = path.match(
+        /^\/tours\/([^/]+)\/(send-to-transporter|acknowledge|plan|cancel|start|close)/i,
+      )
+      if (tourActionMatch) {
+        const tourId = decodeURIComponent(tourActionMatch[1]!)
+        const action = tourActionMatch[2]!.toLowerCase()
+        const tours = (COLLECTIONS.delivery_tours as any[]) || []
+        const tour = tours.find((t) => t.id === tourId)
+        if (!tour) throw new Error('Tournée introuvable')
+        const body = init?.body ? JSON.parse(String(init.body)) : {}
+        if (action === 'send-to-transporter') {
+          tour.status = 'PENDINGTRANSPORTERACK'
+          tour.sent_to_transporter_at = new Date().toISOString()
+        } else if (action === 'acknowledge') {
+          tour.status = 'ACKNOWLEDGED'
+          if (body.vehicle_id) tour.vehicle_id = body.vehicle_id
+          if (body.driver_id) tour.driver_id = body.driver_id
+          if (body.livreur_user_id) tour.livreur_user_id = body.livreur_user_id
+          tour.transporter_assigned_at = new Date().toISOString()
+        } else if (action === 'plan') {
+          tour.status = 'PLANNED'
+        } else if (action === 'cancel') {
+          tour.status = 'CANCELLED'
+        }
+        return delay(tour as unknown as T)
+      }
+
       const match = path.match(/^\/([a-z-]+)(?:\/([^?]+))?/i)
       const name = match?.[1]
       const id = match?.[2]
@@ -114,6 +143,27 @@ export function createFakeAdapter(): ApiAdapter {
       const collection = name?.replace(/-/g, '_') ?? ''
 
       if (name === 'me') return delay(null as unknown as T)
+      if (path === '/auth/accounts') {
+        const users = (COLLECTIONS.users as any[]) || []
+        const orgs = (COLLECTIONS.organizations as any[]) || []
+        const orgMap = new Map(orgs.map((o) => [o.id, o]))
+        const accounts = users
+          .filter((u) => u.email && !u.deleted_at)
+          .map((u) => {
+            const org = orgMap.get(u.org_id)
+            return {
+              id: u.id,
+              email: u.email,
+              first_name: u.first_name || '',
+              last_name: u.last_name || '',
+              system_role: u.system_role || 'LIVREUR',
+              org_id: u.org_id || '',
+              org_type: org?.type || 'REGULATEUR',
+              org_name: org?.name || '',
+            }
+          })
+        return delay(accounts as unknown as T)
+      }
       if (!name || !COLLECTIONS[collection]) {
         throw new Error(`Fake adapter: unsupported resource ${name ?? path}`)
       }
@@ -124,6 +174,9 @@ export function createFakeAdapter(): ApiAdapter {
         const item = { id: genId(name), ...body }
         if (collection === 'delivery_tours' && !item.status) {
           item.status = 'DRAFT'
+        }
+        if (path.startsWith('/users/with-auth')) {
+          item.password = item.password || 'Temp#2026!'
         }
         ;(COLLECTIONS[collection] as unknown as any[]).push(item)
         return delay(item as unknown as T)

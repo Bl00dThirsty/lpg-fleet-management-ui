@@ -36,6 +36,7 @@ import {
   tourActions,
   validateTour,
   ACTION_PERMISSION,
+  canEditTour,
   type TourAction,
   type TourCrewPatch,
   type TourDraftCheckpoint,
@@ -56,6 +57,7 @@ export interface TourDraft {
   type: TourneeType
   requested_quantity: number
   sourceSiteId?: string | null
+  source_site_id?: string | null
   transporter_org_id?: string | null
   vehicle_id?: string | null
   driver_id?: string | null
@@ -105,6 +107,10 @@ interface ToursState {
   fetchCheckpoints: (tourId: string) => Promise<Checkpoint[]>
   createTour: (draft: TourDraft) => TourActivity
   createTourAsync: (draft: TourDraft) => Promise<TourActivity>
+  updateTourAsync: (
+    id: string,
+    patch: Partial<TourDraft>
+  ) => Promise<TourActivity>
   performAction: (
     id: string,
     action: TourAction,
@@ -511,6 +517,146 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     return toTourActivities([saved], { checkpoints: get().checkpoints })[0]!
   },
 
+  async updateTourAsync(id: string, patch: Partial<TourDraft>) {
+    const user = useAuthStore.getState().user
+    if (!user) throw new Error(PERMISSION_DENIED)
+    assertPermission(user.system_role, 'tours.write')
+
+    const current = get().tours.find((t) => t.id === id)
+    if (!current) {
+      throw new Error(`Tournée introuvable : ${id}`)
+    }
+
+    if (!canEditTour(current)) {
+      throw new Error(
+        `Cette tournée ne peut plus être modifiée (statut actuel: ${current.status}).`
+      )
+    }
+
+    if (
+      !canViewAllTourCrew(user) &&
+      (!user.org_id || current.marketeur_org_id !== user.org_id)
+    ) {
+      throw new Error(PERMISSION_DENIED)
+    }
+
+    const mergedMode = patch.execution_mode ?? current.execution_mode
+    if (!canViewAllTourCrew(user) && mergedMode === 'INTERNAL') {
+      const driverId =
+        patch.driver_id !== undefined ? patch.driver_id : current.driver_id
+      const livreurUserId =
+        patch.livreur_user_id !== undefined
+          ? patch.livreur_user_id
+          : current.livreur_user_id
+      if (driverId || livreurUserId) {
+        const [driver, livreur] = await Promise.all([
+          driverId ? api.drivers.getById(driverId) : undefined,
+          livreurUserId ? api.users.getById(livreurUserId) : undefined,
+        ])
+        assertTourCrew(
+          {
+            id: current.id,
+            marketeur_org_id: current.marketeur_org_id,
+            execution_mode: mergedMode,
+            type: patch.type ?? current.type,
+            requested_quantity:
+              patch.requested_quantity ?? current.requested_quantity,
+            driver_id: driverId,
+            livreur_user_id: livreurUserId,
+          },
+          driver,
+          livreur
+        )
+      }
+    }
+
+    let saved: DeliveryTour | null = null
+    try {
+      const res = await api.tours.update(id, patch)
+      if (hasId(res)) {
+        saved = res as unknown as DeliveryTour
+      }
+    } catch (error) {
+      if (remoteMode) throw error
+    }
+
+    if (!saved && remoteMode) {
+      throw new Error(
+        'Réponse du serveur invalide. Aucune modification locale effectuée.'
+      )
+    }
+
+    const now = new Date().toISOString()
+    const updatedTour: DeliveryTour = saved ?? {
+      ...current,
+      ...(patch.execution_mode ? { execution_mode: patch.execution_mode } : {}),
+      ...(patch.type ? { type: patch.type } : {}),
+      ...(patch.requested_quantity !== undefined
+        ? { requested_quantity: patch.requested_quantity }
+        : {}),
+      ...(patch.transporter_org_id !== undefined
+        ? { transporter_org_id: patch.transporter_org_id }
+        : {}),
+      ...(patch.vehicle_id !== undefined
+        ? { vehicle_id: patch.vehicle_id }
+        : {}),
+      ...(patch.driver_id !== undefined ? { driver_id: patch.driver_id } : {}),
+      ...(patch.livreur_user_id !== undefined
+        ? { livreur_user_id: patch.livreur_user_id }
+        : {}),
+      ...(patch.status ? { status: patch.status } : {}),
+      updated_at: now,
+      updated_by: user.id,
+    }
+
+    let updatedCheckpoints =
+      get().checkpointsByTour[id] ??
+      get().checkpoints.filter((c) => checkpointTourId(c) === id)
+
+    if (patch.checkpoints && patch.checkpoints.length > 0) {
+      const nextCps: Checkpoint[] = patch.checkpoints.map((cp, idx) => ({
+        id: cp.id ?? newCheckpointId(id, cp.sequence ?? idx + 1),
+        tournee_id: id,
+        site_id:
+          cp.site_id ??
+          (cp.destination_site_id && !cp.client_site_id
+            ? cp.destination_site_id
+            : null),
+        client_site_id: cp.client_site_id ?? null,
+        sequence: cp.sequence ?? idx + 1,
+        expected_quantity: cp.expected_quantity ?? cp.planned_quantity ?? 0,
+        expected_arrival: cp.expected_arrival ?? null,
+        actual_arrival: cp.actual_arrival ?? null,
+        status: cp.status ?? 'PENDING',
+        skip_reason: null,
+        created_at: now,
+        updated_at: now,
+        deleted_at: null,
+        created_by: null,
+        updated_by: null,
+      }))
+      updatedCheckpoints = nextCps
+    }
+
+    const otherCheckpoints = get().checkpoints.filter(
+      (c) => checkpointTourId(c) !== id
+    )
+    const allCheckpoints = [...otherCheckpoints, ...updatedCheckpoints]
+
+    set({
+      tours: get().tours.map((t) => (t.id === id ? updatedTour : t)),
+      checkpoints: allCheckpoints,
+      checkpointsByTour: {
+        ...get().checkpointsByTour,
+        [id]: updatedCheckpoints,
+      },
+      error: null,
+    })
+
+    emitWs('tour:update', { id }, user.id)
+    return toTourActivities([updatedTour], { checkpoints: allCheckpoints })[0]!
+  },
+
   performAction(
     id: string,
     action: TourAction,
@@ -595,9 +741,20 @@ export const useToursStore = create<ToursState>()((set, get) => ({
         case 'send-to-transporter':
           updated = await api.tours.sendToTransporter(id)
           break
-        case 'acknowledge':
-          updated = await api.tours.acknowledge(id)
+        case 'acknowledge': {
+          const ackBody = extra
+            ? {
+                vehicle_id: extra.vehicle_id ?? extra.vehicleId,
+                driver_id: extra.driver_id ?? extra.driverId,
+                livreur_user_id:
+                  extra.livreur_user_id ??
+                  extra.livreurUserId ??
+                  extra.livreurPersonId,
+              }
+            : undefined
+          updated = await api.tours.acknowledge(id, ackBody)
           break
+        }
         case 'start':
           updated = await api.tours.start(id)
           break

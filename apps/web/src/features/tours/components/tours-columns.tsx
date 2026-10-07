@@ -1,25 +1,28 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { Badge, DataTableColumnHeader } from '@lpg/ui'
+import { Link } from '@tanstack/react-router'
+import { MoreHorizontal, Eye, Pencil } from 'lucide-react'
+import {
+  Badge,
+  Button,
+  DataTableColumnHeader,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@lpg/ui'
+import { hasPermission } from '@lpg/permissions'
+import { StatusBadge } from '@/components/data-table'
+import { useRoleStore } from '@/store/role-store'
+import { canEditTour } from '../data/tour-machine'
 import {
   type TourActivity,
-  type TourneeStatus,
   type ExecutionMode,
-  tourStatusLabels,
   executionModeLabels,
   getTourCargo,
   getTourVolume,
 } from '../data/tour-activity'
-
-const STATUS_CLASS: Record<TourneeStatus, string> = {
-  DRAFT: 'bg-slate-200 text-slate-800',
-  PLANNED: 'bg-sky-100 text-sky-800',
-  PENDINGTRANSPORTERACK: 'bg-amber-100 text-amber-900',
-  ACKNOWLEDGED: 'bg-violet-100 text-violet-900',
-  INPROGRESS: 'bg-blue-500 text-white',
-  CHECKPOINTACTIVE: 'bg-orange-500 text-white',
-  CLOSED: 'bg-emerald-600 text-white',
-  CANCELLED: 'bg-rose-100 text-rose-900',
-}
 
 const MODE_CLASS: Record<ExecutionMode, string> = {
   INTERNAL: 'bg-slate-100 text-slate-700',
@@ -121,13 +124,23 @@ export function getToursColumns({
       accessorKey: 'tourneeStatus',
       header: 'Statut',
       cell: ({ row }) => (
-        <Badge className={STATUS_CLASS[row.original.tourneeStatus]}>
-          {tourStatusLabels[row.original.tourneeStatus]}
-        </Badge>
+        <StatusBadge
+          activity={missionKind === 'PICKUP' ? 'PICKUP' : 'TOUR'}
+          value={row.original.tourneeStatus}
+          showCode
+        />
       ),
       enableHiding: false,
       meta: { label: 'Statut' },
       enableGrouping: true,
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <TourRowActions tour={row.original} onOpenDetails={onOpenDetails} />
+      ),
+      enableHiding: false,
     },
   ]
   if (missionKind === 'PICKUP') {
@@ -177,3 +190,48 @@ export function getToursColumns({
   }
   return columns
 }
+
+function TourRowActions({
+  tour,
+  onOpenDetails,
+}: {
+  tour: TourActivity
+  onOpenDetails: (row: TourActivity) => void
+}) {
+  const activeRole = useRoleStore((s) => s.activeRole)
+  const canEdit =
+    hasPermission(activeRole, 'tours.write') &&
+    canEditTour({ status: tour.tourneeStatus })
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant='ghost'
+          size='icon'
+          className='size-8 p-0'
+          aria-label={`Actions pour ${tour.reference}`}
+        >
+          <MoreHorizontal className='size-4' />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align='end' className='w-40'>
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => onOpenDetails(tour)}>
+          <Eye className='size-4 mr-2' />
+          Détails
+        </DropdownMenuItem>
+        {canEdit && (
+          <DropdownMenuItem asChild>
+            <Link to='/tours/$tourId/edit' params={{ tourId: tour.id }}>
+              <Pencil className='size-4 mr-2' />
+              Modifier
+            </Link>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+

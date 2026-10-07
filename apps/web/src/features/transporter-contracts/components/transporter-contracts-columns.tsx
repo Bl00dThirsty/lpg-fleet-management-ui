@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { Badge, DataTableColumnHeader } from '@lpg/ui'
-import { CONTRACT_STATUS_CLASSES, CONTRACT_STATUS_LABELS } from '../lib/contract-status'
+import { StatusBadge } from '@/components/data-table'
 import { type TransporterContractView } from '../data/transporter-contracts'
 import type { ReactNode } from 'react'
 
@@ -54,9 +54,11 @@ export function getTransporterContractColumns(actions?: (row: TransporterContrac
       accessorKey: 'is_active',
       header: 'Statut',
       cell: ({ row }) => (
-         <Badge className={CONTRACT_STATUS_CLASSES[row.original.status]}>
-           {CONTRACT_STATUS_LABELS[row.original.status]}
-        </Badge>
+        <StatusBadge
+          activity='CONTRACT'
+          value={row.original.status}
+          showCode
+        />
       ),
       enableHiding: false,
       meta: { label: 'Statut' },

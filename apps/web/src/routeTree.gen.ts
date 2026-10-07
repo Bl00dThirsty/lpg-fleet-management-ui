@@ -53,6 +53,7 @@ import { Route as AuthenticatedMarketersMarketerIdRouteImport } from './routes/_
 import { Route as AuthenticatedNotificationGroupsIndexRouteImport } from './routes/_authenticated/notification-groups/index'
 import { Route as AuthenticatedNotificationRulesIndexRouteImport } from './routes/_authenticated/notification-rules/index'
 import { Route as AuthenticatedOrganizationsIndexRouteImport } from './routes/_authenticated/organizations/index'
+import { Route as AuthenticatedOrganizationsNewRouteImport } from './routes/_authenticated/organizations/new'
 import { Route as AuthenticatedOverviewIndexRouteImport } from './routes/_authenticated/overview/index'
 import { Route as AuthenticatedPasswordsIndexRouteImport } from './routes/_authenticated/passwords/index'
 import { Route as AuthenticatedPerformanceIndexRouteImport } from './routes/_authenticated/performance/index'
@@ -91,6 +92,7 @@ import { Route as AuthenticatedZonesIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDashboardFleetsFleetNameRouteImport } from './routes/_authenticated/dashboard/fleets/$fleetName'
 import { Route as AuthenticatedDashboardSitesSiteIdRouteImport } from './routes/_authenticated/dashboard/sites/$siteId'
 import { Route as AuthenticatedSuperAdminToursIndexRouteImport } from './routes/_authenticated/super-admin/tours/index'
+import { Route as AuthenticatedToursTourIdEditRouteImport } from './routes/_authenticated/tours/$tourId/edit'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -346,6 +348,12 @@ const AuthenticatedOrganizationsIndexRoute =
     path: '/organizations/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOrganizationsNewRoute =
+  AuthenticatedOrganizationsNewRouteImport.update({
+    id: '/organizations/new',
+    path: '/organizations/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOverviewIndexRoute =
   AuthenticatedOverviewIndexRouteImport.update({
     id: '/overview/',
@@ -569,6 +577,12 @@ const AuthenticatedSuperAdminToursIndexRoute =
     path: '/super-admin/tours/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedToursTourIdEditRoute =
+  AuthenticatedToursTourIdEditRouteImport.update({
+    id: '/tours/$tourId/edit',
+    path: '/tours/$tourId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -581,6 +595,7 @@ export interface FileRoutesByFullPath {
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/new': typeof AuthenticatedClientsNewRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
+  '/organizations/new': typeof AuthenticatedOrganizationsNewRoute
   '/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
   '/settings/system': typeof AuthenticatedSettingsSystemRoute
@@ -651,6 +666,7 @@ export interface FileRoutesByFullPath {
   '/zones/': typeof AuthenticatedZonesIndexRoute
   '/dashboard/fleets/$fleetName': typeof AuthenticatedDashboardFleetsFleetNameRoute
   '/dashboard/sites/$siteId': typeof AuthenticatedDashboardSitesSiteIdRoute
+  '/tours/$tourId/edit': typeof AuthenticatedToursTourIdEditRoute
   '/super-admin/tours/': typeof AuthenticatedSuperAdminToursIndexRoute
 }
 export interface FileRoutesByTo {
@@ -662,6 +678,7 @@ export interface FileRoutesByTo {
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/new': typeof AuthenticatedClientsNewRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
+  '/organizations/new': typeof AuthenticatedOrganizationsNewRoute
   '/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
   '/settings/system': typeof AuthenticatedSettingsSystemRoute
@@ -732,6 +749,7 @@ export interface FileRoutesByTo {
   '/zones': typeof AuthenticatedZonesIndexRoute
   '/dashboard/fleets/$fleetName': typeof AuthenticatedDashboardFleetsFleetNameRoute
   '/dashboard/sites/$siteId': typeof AuthenticatedDashboardSitesSiteIdRoute
+  '/tours/$tourId/edit': typeof AuthenticatedToursTourIdEditRoute
   '/super-admin/tours': typeof AuthenticatedSuperAdminToursIndexRoute
 }
 export interface FileRoutesById {
@@ -747,6 +765,7 @@ export interface FileRoutesById {
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/_authenticated/clients/new': typeof AuthenticatedClientsNewRoute
   '/_authenticated/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
+  '/_authenticated/organizations/new': typeof AuthenticatedOrganizationsNewRoute
   '/_authenticated/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/_authenticated/settings/profile': typeof AuthenticatedSettingsProfileRoute
   '/_authenticated/settings/system': typeof AuthenticatedSettingsSystemRoute
@@ -817,6 +836,7 @@ export interface FileRoutesById {
   '/_authenticated/zones/': typeof AuthenticatedZonesIndexRoute
   '/_authenticated/dashboard/fleets/$fleetName': typeof AuthenticatedDashboardFleetsFleetNameRoute
   '/_authenticated/dashboard/sites/$siteId': typeof AuthenticatedDashboardSitesSiteIdRoute
+  '/_authenticated/tours/$tourId/edit': typeof AuthenticatedToursTourIdEditRoute
   '/_authenticated/super-admin/tours/': typeof AuthenticatedSuperAdminToursIndexRoute
 }
 export interface FileRouteTypes {
@@ -832,6 +852,7 @@ export interface FileRouteTypes {
     | '/clients/$clientId'
     | '/clients/new'
     | '/marketers/$marketerId'
+    | '/organizations/new'
     | '/settings/notification-groups'
     | '/settings/profile'
     | '/settings/system'
@@ -902,6 +923,7 @@ export interface FileRouteTypes {
     | '/zones/'
     | '/dashboard/fleets/$fleetName'
     | '/dashboard/sites/$siteId'
+    | '/tours/$tourId/edit'
     | '/super-admin/tours/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -913,6 +935,7 @@ export interface FileRouteTypes {
     | '/clients/$clientId'
     | '/clients/new'
     | '/marketers/$marketerId'
+    | '/organizations/new'
     | '/settings/notification-groups'
     | '/settings/profile'
     | '/settings/system'
@@ -983,6 +1006,7 @@ export interface FileRouteTypes {
     | '/zones'
     | '/dashboard/fleets/$fleetName'
     | '/dashboard/sites/$siteId'
+    | '/tours/$tourId/edit'
     | '/super-admin/tours'
   id:
     | '__root__'
@@ -997,6 +1021,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clients/$clientId'
     | '/_authenticated/clients/new'
     | '/_authenticated/marketers/$marketerId'
+    | '/_authenticated/organizations/new'
     | '/_authenticated/settings/notification-groups'
     | '/_authenticated/settings/profile'
     | '/_authenticated/settings/system'
@@ -1067,6 +1092,7 @@ export interface FileRouteTypes {
     | '/_authenticated/zones/'
     | '/_authenticated/dashboard/fleets/$fleetName'
     | '/_authenticated/dashboard/sites/$siteId'
+    | '/_authenticated/tours/$tourId/edit'
     | '/_authenticated/super-admin/tours/'
   fileRoutesById: FileRoutesById
 }
@@ -1386,6 +1412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrganizationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/organizations/new': {
+      id: '/_authenticated/organizations/new'
+      path: '/organizations/new'
+      fullPath: '/organizations/new'
+      preLoaderRoute: typeof AuthenticatedOrganizationsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/overview/': {
       id: '/_authenticated/overview/'
       path: '/overview'
@@ -1652,6 +1685,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSuperAdminToursIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tours/$tourId/edit': {
+      id: '/_authenticated/tours/$tourId/edit'
+      path: '/tours/$tourId/edit'
+      fullPath: '/tours/$tourId/edit'
+      preLoaderRoute: typeof AuthenticatedToursTourIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -1701,6 +1741,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientsClientIdRoute: typeof AuthenticatedClientsClientIdRoute
   AuthenticatedClientsNewRoute: typeof AuthenticatedClientsNewRoute
   AuthenticatedMarketersMarketerIdRoute: typeof AuthenticatedMarketersMarketerIdRoute
+  AuthenticatedOrganizationsNewRoute: typeof AuthenticatedOrganizationsNewRoute
   AuthenticatedSettingsNotificationGroupsRoute: typeof AuthenticatedSettingsNotificationGroupsRoute
   AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute
   AuthenticatedSettingsSystemRoute: typeof AuthenticatedSettingsSystemRoute
@@ -1767,6 +1808,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedVehiclesIndexRoute: typeof AuthenticatedVehiclesIndexRoute
   AuthenticatedVisitsIndexRoute: typeof AuthenticatedVisitsIndexRoute
   AuthenticatedZonesIndexRoute: typeof AuthenticatedZonesIndexRoute
+  AuthenticatedToursTourIdEditRoute: typeof AuthenticatedToursTourIdEditRoute
   AuthenticatedSuperAdminToursIndexRoute: typeof AuthenticatedSuperAdminToursIndexRoute
 }
 
@@ -1777,6 +1819,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientsClientIdRoute: AuthenticatedClientsClientIdRoute,
   AuthenticatedClientsNewRoute: AuthenticatedClientsNewRoute,
   AuthenticatedMarketersMarketerIdRoute: AuthenticatedMarketersMarketerIdRoute,
+  AuthenticatedOrganizationsNewRoute: AuthenticatedOrganizationsNewRoute,
   AuthenticatedSettingsNotificationGroupsRoute:
     AuthenticatedSettingsNotificationGroupsRoute,
   AuthenticatedSettingsProfileRoute: AuthenticatedSettingsProfileRoute,
@@ -1854,6 +1897,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedVehiclesIndexRoute: AuthenticatedVehiclesIndexRoute,
   AuthenticatedVisitsIndexRoute: AuthenticatedVisitsIndexRoute,
   AuthenticatedZonesIndexRoute: AuthenticatedZonesIndexRoute,
+  AuthenticatedToursTourIdEditRoute: AuthenticatedToursTourIdEditRoute,
   AuthenticatedSuperAdminToursIndexRoute:
     AuthenticatedSuperAdminToursIndexRoute,
 }

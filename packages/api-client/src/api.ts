@@ -98,6 +98,7 @@ export function createApi(adapter: ApiAdapter) {
     userCustomRoles: createResourceService<any>(adapter, 'user-custom-roles'),
     permissions: createResourceService<any>(adapter, 'permissions'),
     regions: createResourceService<any>(adapter, 'regions'),
+    activityStatuses: createResourceService<any>(adapter, 'activity-statuses'),
     systemRoles: createResourceService<any>(adapter, 'system-roles'),
     settings: createResourceService<any>(adapter, 'settings'),
     auditLogs: createResourceService<any>(adapter, 'audit-logs'),
@@ -212,9 +213,10 @@ export function createApi(adapter: ApiAdapter) {
           headers: { 'Content-Type': 'application/json' },
         })
       },
-      acknowledge(id: string) {
+      acknowledge(id: string, body?: any) {
         return request<any>(`/tours/${id}/acknowledge`, {
           method: 'POST',
+          body: body ? JSON.stringify(body) : undefined,
           headers: { 'Content-Type': 'application/json' },
         })
       },

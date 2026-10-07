@@ -393,3 +393,46 @@ describe('tour-machine applyAction', () => {
     expect(() => applyAction(external, 'plan', now)).toThrow(/Transition interdite/)
   })
 })
+
+describe('canEditTour & EDITABLE_STATUSES', () => {
+  it('allows editing tours in pre-execution statuses', async () => {
+    const { canEditTour, EDITABLE_STATUSES } = await import('./tour-machine')
+    expect(EDITABLE_STATUSES).toEqual([
+      'DRAFT',
+      'PLANNED',
+      'PENDINGTRANSPORTERACK',
+      'ACKNOWLEDGED',
+    ])
+    expect(canEditTour({ status: 'DRAFT' })).toBe(true)
+    expect(canEditTour({ status: 'PLANNED' })).toBe(true)
+    expect(canEditTour({ status: 'PENDINGTRANSPORTERACK' })).toBe(true)
+    expect(canEditTour({ status: 'ACKNOWLEDGED' })).toBe(true)
+  })
+
+  it('forbids editing tours once underway, closed, or cancelled', async () => {
+    const { canEditTour } = await import('./tour-machine')
+    expect(canEditTour({ status: 'INPROGRESS' })).toBe(false)
+    expect(canEditTour({ status: 'CHECKPOINTACTIVE' })).toBe(false)
+    expect(canEditTour({ status: 'CLOSED' })).toBe(false)
+    expect(canEditTour({ status: 'CANCELLED' })).toBe(false)
+    expect(canEditTour({ status: 'PLANNED', started_at: '2026-10-07T10:00:00Z' })).toBe(false)
+  })
+
+  it('enforces organization ownership for non-admin roles', async () => {
+    const { canEditTour } = await import('./tour-machine')
+    const tour = {
+      status: 'PLANNED' as const,
+      marketeur_org_id: 'org-m1',
+      transporter_org_id: 'org-t1',
+    }
+    // Admins can edit any tour
+    expect(canEditTour(tour, 'SUPERADMIN', 'org-csph')).toBe(true)
+    expect(canEditTour(tour, 'ADMIN', 'org-csph')).toBe(true)
+    // Marketeur owns their tour
+    expect(canEditTour(tour, 'MARKETEUR', 'org-m1')).toBe(true)
+    expect(canEditTour(tour, 'MARKETEUR', 'org-m2')).toBe(false)
+    // Transporter owns their assigned tour
+    expect(canEditTour(tour, 'TRANSPORTEUR', 'org-t1')).toBe(true)
+    expect(canEditTour(tour, 'TRANSPORTEUR', 'org-t2')).toBe(false)
+  })
+})

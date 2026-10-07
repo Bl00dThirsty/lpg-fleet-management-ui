@@ -408,3 +408,33 @@ export function applyAction(
   }
   return next as ApplyActionResult
 }
+
+export const EDITABLE_STATUSES: readonly TourneeStatus[] = [
+  'DRAFT',
+  'PLANNED',
+  'PENDINGTRANSPORTERACK',
+  'ACKNOWLEDGED',
+] as const
+
+export function canEditTour(
+  tour: Pick<DeliveryTour, 'status'> & Partial<Pick<DeliveryTour, 'started_at' | 'marketeur_org_id' | 'transporter_org_id'>>,
+  userRole?: string,
+  userOrgId?: string,
+): boolean {
+  if (!EDITABLE_STATUSES.includes(tour.status as TourneeStatus)) {
+    return false
+  }
+  if (tour.started_at) {
+    return false
+  }
+  if (userRole && !['SUPERADMIN', 'ADMIN'].includes(userRole)) {
+    if (userRole === 'MARKETEUR' && tour.marketeur_org_id && userOrgId !== tour.marketeur_org_id) {
+      return false
+    }
+    if (userRole === 'TRANSPORTEUR' && tour.transporter_org_id && userOrgId !== tour.transporter_org_id) {
+      return false
+    }
+  }
+  return true
+}
+

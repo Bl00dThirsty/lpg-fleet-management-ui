@@ -39,6 +39,8 @@ dist-ssr
 /.turbo
 
 # Tooling/cache artifacts
+.playwright-cli/
+artifacts/
 .superpowers/
 docs/superpowers/
 tmp/
