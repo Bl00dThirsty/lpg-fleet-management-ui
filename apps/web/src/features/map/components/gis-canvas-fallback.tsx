@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Radio } from 'lucide-react'
+import { Radio, X, Info } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { formatTm } from '../utils/format'
 import type { NationalMapView } from '../data/national-map'
@@ -346,10 +346,11 @@ export function GisCanvasFallback({
             </div>
             <button
               type="button"
-              className="text-slate-400 hover:text-white"
+              className="text-slate-400 hover:text-white p-0.5"
               onClick={() => setSelectedEntity(null)}
+              title="Fermer"
             >
-              ✕
+              <X className="size-3.5" />
             </button>
           </div>
 
@@ -365,8 +366,9 @@ export function GisCanvasFallback({
       )}
 
       {/* Bottom Hint */}
-      <div className="pointer-events-none absolute bottom-4 left-4 text-[11px] text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur">
-        💡 Cliquez sur les repères ou le camion pour inspecter les données de traçabilité en temps réel.
+      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-1.5 text-[11px] text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg backdrop-blur">
+        <Info className="size-3.5 text-sky-400 shrink-0" />
+        <span>Cliquez sur les repères ou le camion pour inspecter les données de traçabilité en temps réel.</span>
       </div>
     </div>
   )

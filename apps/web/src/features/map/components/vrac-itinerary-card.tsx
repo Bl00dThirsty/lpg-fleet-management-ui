@@ -7,6 +7,7 @@ import {
   CircleDot,
   Radio,
   X,
+  Check,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -181,7 +182,13 @@ export function VracItineraryCard({
                           : 'bg-muted-foreground/30 text-background'
                       }`}
                     >
-                      {isDone ? '✓' : isCurrent ? '●' : '○'}
+                      {isDone ? (
+                        <Check className="size-2.5 stroke-[3]" />
+                      ) : isCurrent ? (
+                        <span className="size-1.5 rounded-full bg-white" />
+                      ) : (
+                        <span className="size-1.5 rounded-full border border-background" />
+                      )}
                     </span>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">

@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@lpg/ui'
+import { Plus, X, Check, AlertTriangle } from 'lucide-react'
 import { useToursStore, type TourDraft } from '@/store/tours-store'
 import { useAuthStore } from '@/store/auth-store'
 import {
@@ -838,8 +839,9 @@ export function TourCreateDialog({
                   Séquences de Livraison Client (Région {currentRegion} d'abord)
                 </span>
               </div>
-              <Button type='button' variant='outline' size='sm' onClick={addClientStop} className='text-xs h-7'>
-                + Ajouter un arrêt client
+              <Button type='button' variant='outline' size='sm' onClick={addClientStop} className='text-xs h-7 gap-1'>
+                <Plus className='size-3.5' />
+                Ajouter un arrêt client
               </Button>
             </div>
 
@@ -863,7 +865,7 @@ export function TourCreateDialog({
                       className='w-full rounded border bg-background px-2 py-1 text-xs'
                     >
                       {clientOrgGroups.map((grp) => (
-                        <optgroup key={grp.clientOrgId} label={`🏢 ${grp.clientName}`}>
+                        <optgroup key={grp.clientOrgId} label={grp.clientName}>
                           {grp.sites.map((s) => (
                             <option key={s.id} value={s.id}>
                               {s.region === currentRegion ? '' : ''}{s.name} ({s.region})
@@ -892,10 +894,10 @@ export function TourCreateDialog({
                     <button
                       type='button'
                       onClick={() => removeClientStop(i)}
-                      className='text-muted-foreground hover:text-rose-600 transition-colors'
+                      className='text-muted-foreground hover:text-rose-600 transition-colors p-1'
                       title='Supprimer cet arrêt'
                     >
-                      ✕
+                      <X className='size-3.5' />
                     </button>
                   </div>
                 </div>
@@ -909,8 +911,18 @@ export function TourCreateDialog({
                   {clientPlannedTotal} / {quantity} {quantityUnit}
                 </strong>
               </span>
-              <span className='italic text-[11px]'>
-                {clientPlannedTotal === quantity ? '✓ Répartition exacte' : '⚠️ L\'écart sera ajusté lors du chargement'}
+              <span className='italic text-[11px] inline-flex items-center gap-1.5'>
+                {clientPlannedTotal === quantity ? (
+                  <>
+                    <Check className='size-3.5 text-emerald-600' />
+                    <span>Répartition exacte</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className='size-3.5 text-amber-600' />
+                    <span>L'écart sera ajusté lors du chargement</span>
+                  </>
+                )}
               </span>
             </div>
           </div>

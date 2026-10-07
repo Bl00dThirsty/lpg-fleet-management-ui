@@ -19,6 +19,10 @@ import {
   Filter,
   X,
   Factory,
+  Fuel,
+  Package,
+  Clock,
+  Anchor,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -450,13 +454,22 @@ export function NationalMapPage() {
                     Tous les camions ({routes.length})
                   </SelectItem>
                   <SelectItem value="ACTIVE_ONLY" className="text-xs">
-                    ⚡ Camions actifs en transit ({routes.filter((r) => r.status === 'INPROGRESS').length})
+                    <span className="flex items-center gap-1.5">
+                      <Truck className="size-3.5 text-emerald-500" />
+                      <span>Camions actifs en transit ({routes.filter((r) => r.status === 'INPROGRESS').length})</span>
+                    </span>
                   </SelectItem>
                   <SelectItem value="VRAC_ONLY" className="text-xs">
-                    🚛 Citernes VRAC uniquement
+                    <span className="flex items-center gap-1.5">
+                      <Fuel className="size-3.5 text-amber-500" />
+                      <span>Citernes VRAC uniquement</span>
+                    </span>
                   </SelectItem>
                   <SelectItem value="B50_ONLY" className="text-xs">
-                    📦 Plateaux Bouteilles 50 kg
+                    <span className="flex items-center gap-1.5">
+                      <Package className="size-3.5 text-sky-500" />
+                      <span>Plateaux Bouteilles 50 kg</span>
+                    </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -476,13 +489,22 @@ export function NationalMapPage() {
                     Tous les statuts
                   </SelectItem>
                   <SelectItem value="INPROGRESS" className="text-xs">
-                    🟢 En cours / En transit
+                    <span className="flex items-center gap-1.5">
+                      <Radio className="size-3.5 text-emerald-500" />
+                      <span>En cours / En transit</span>
+                    </span>
                   </SelectItem>
                   <SelectItem value="PLANNED" className="text-xs">
-                    🔵 Planifiée
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="size-3.5 text-sky-500" />
+                      <span>Planifiée</span>
+                    </span>
                   </SelectItem>
                   <SelectItem value="ALERT" className="text-xs">
-                    🔴 Écart de pesée / Alerte
+                    <span className="flex items-center gap-1.5">
+                      <AlertTriangle className="size-3.5 text-rose-500" />
+                      <span>Écart de pesée / Alerte</span>
+                    </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -502,13 +524,22 @@ export function NationalMapPage() {
                     Toutes origines
                   </SelectItem>
                   <SelectItem value="SCDP" className="text-xs">
-                    🏛️ Dépôts SCDP (Bonabéri, Nsam...)
+                    <span className="flex items-center gap-1.5">
+                      <Building2 className="size-3.5 text-emerald-500" />
+                      <span>Dépôts SCDP (Bonabéri, Nsam...)</span>
+                    </span>
                   </SelectItem>
                   <SelectItem value="SNH" className="text-xs">
-                    ⚓ Terminal SNH / SONARA
+                    <span className="flex items-center gap-1.5">
+                      <Anchor className="size-3.5 text-blue-500" />
+                      <span>Terminal SNH / SONARA</span>
+                    </span>
                   </SelectItem>
                   <SelectItem value="MARKETER" className="text-xs">
-                    🏭 Centres Emplisseurs Privés
+                    <span className="flex items-center gap-1.5">
+                      <Factory className="size-3.5 text-amber-500" />
+                      <span>Centres Emplisseurs Privés</span>
+                    </span>
                   </SelectItem>
                 </SelectContent>
               </Select>

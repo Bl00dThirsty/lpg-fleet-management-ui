@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, Filter, X, ClipboardList } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -306,7 +306,7 @@ export function TransporterPendingTours({ transporter }: { transporter: { id: st
 
         {filteredTours.length === 0 && (
           <div className='flex flex-col items-center justify-center py-12 text-center'>
-            <div className='text-4xl mb-3'>📋</div>
+            <ClipboardList className='size-12 text-muted-foreground/50 mb-3' />
             <h3 className='text-lg font-medium'>Aucune tournée trouvée</h3>
             <p className='text-muted-foreground'>
               {search ? 'Aucun résultat pour votre recherche' : 'Aucune tournée en attente d\'accusé pour ce transporteur'}

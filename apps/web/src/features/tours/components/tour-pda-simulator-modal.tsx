@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   FileText,
   Radio,
+  Battery,
+  Check,
 } from 'lucide-react'
 import {
   Dialog,
@@ -251,7 +253,9 @@ export function TourPdaSimulatorModal({
             <span className='flex items-center gap-1 text-slate-300'>
               <Radio className='size-3 text-emerald-400 animate-pulse' /> GPS OK
             </span>
-            <span className='text-slate-300'>🔋 98%</span>
+            <span className='flex items-center gap-1 text-slate-300'>
+              <Battery className='size-3.5 text-emerald-400' /> 98%
+            </span>
           </div>
         </div>
 
@@ -381,7 +385,7 @@ export function TourPdaSimulatorModal({
             <div className='rounded-2xl border border-blue-500/40 bg-blue-950/20 p-4 space-y-3'>
               <div className='flex items-center gap-2'>
                 <span className='flex size-6 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-bold text-xs'>
-                  ✓
+                  <Check className='size-3.5 stroke-[3]' />
                 </span>
                 <div>
                   <h4 className='text-sm font-bold text-white'>Chargement Dépôt Validé</h4>
@@ -490,7 +494,7 @@ export function TourPdaSimulatorModal({
             <div className='rounded-2xl border border-emerald-500/40 bg-emerald-950/20 p-4 space-y-3'>
               <div className='flex items-center gap-2'>
                 <span className='flex size-6 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-bold text-xs'>
-                  ✓
+                  <Check className='size-3.5 stroke-[3]' />
                 </span>
                 <div>
                   <h4 className='text-sm font-bold text-white'>Tous les arrêts sont complétés !</h4>
