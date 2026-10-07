@@ -33,6 +33,18 @@ type TourCorridorMapProps = {
 
 const formatTmDefault = (value: number) => formatTm(value)
 
+function safeFormatDateTime(value: string | undefined | null): string {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return new Intl.DateTimeFormat('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: '2-digit',
+    month: 'short',
+  }).format(date)
+}
+
 import { createRobustBasemap } from '@/features/map/utils/robust-basemap'
 import lpgTruckIconUrl from '@/assets/lpg-truck-icon.png'
 
@@ -80,11 +92,21 @@ export function TourCorridorMap({
   const initialThemeRef = useRef(mapTheme)
   const [isReady, setIsReady] = useState(false)
   const [loadFailed, setLoadFailed] = useState(false)
-  const [roadQuery] = useRoadRoutes([{ stops: [
-    [trip.originSite.longitude, trip.originSite.latitude],
-    ...trip.stops.map((stop): RoadCoordinate => [stop.site.longitude, stop.site.latitude]),
-    [trip.destinationSite.longitude, trip.destinationSite.latitude],
-  ] }])
+  const validStops = useMemo(() => {
+    const raw: RoadCoordinate[] = [
+      [trip.originSite.longitude, trip.originSite.latitude],
+      ...trip.stops.map((stop): RoadCoordinate => [stop.site.longitude, stop.site.latitude]),
+      [trip.destinationSite.longitude, trip.destinationSite.latitude],
+    ]
+    return raw.filter(
+      ([lng, lat]) => (lng !== 0 || lat !== 0) && Number.isFinite(lng) && Number.isFinite(lat)
+    )
+  }, [trip.originSite, trip.stops, trip.destinationSite])
+
+  const [roadQuery] = useRoadRoutes(
+    [{ stops: validStops }],
+    validStops.length >= 2
+  )
   const road = roadQuery?.data
   const stopTotals = useMemo(
     () => ({
@@ -203,11 +225,10 @@ export function TourCorridorMap({
             ref={mapContainerRef}
             className='absolute inset-0 h-full w-full'
           />
-
           <div className='pointer-events-none absolute top-4 right-4 flex flex-wrap gap-2'>
             <Badge className='gap-1 bg-background/90 text-foreground shadow-sm backdrop-blur'>
               <Truck className='size-3.5 text-sky-500' />
-              {trip.truck.id}
+              {trip.truck?.license_plate || trip.truck?.id || 'Véhicule en attente'}
             </Badge>
             <Badge
               variant='outline'
@@ -336,7 +357,7 @@ function MapSignals({
     <div className='grid gap-3 sm:grid-cols-3'>
       <SignalTile
         label='Position courante'
-        value={trip.truck.current_location ?? ''}
+        value={trip.truck?.current_location ?? 'En attente d’affectation'}
         icon={MapPinned}
       />
       <SignalTile
@@ -346,7 +367,7 @@ function MapSignals({
       />
       <SignalTile
         label='Dernière maj'
-        value={formatDateTime(trip.latestTelemetry.recordedAt)}
+        value={formatDateTime(trip.latestTelemetry?.recordedAt ?? '')}
         icon={Clock3}
       />
     </div>
@@ -439,8 +460,8 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
       height: 32,
     },
     popupTemplate: {
-      title: `${trip.truck.id} - position courante`,
-        content: createCurrentTruckPopupContent(trip, formatQuantity ?? formatTmDefault),
+      title: `${trip.truck?.license_plate || trip.truck?.id || 'Véhicule'} - position courante`,
+      content: createCurrentTruckPopupContent(trip, formatQuantity ?? formatTmDefault),
     },
   })
 
@@ -477,19 +498,16 @@ function createStopPopupContent(
 }
 
 function createCurrentTruckPopupContent(trip: RouteTripView, formatQuantity: (value: number) => string) {
+  const truckPlate = trip.truck?.license_plate || trip.truck?.id || 'Non assigné'
+  const location = trip.truck?.current_location ?? 'En attente d’affectation'
   return `
     <div class="fleet-truck-popup">
-      ${popupLine('Camion', trip.truck.license_plate)}
-      ${popupLine('Position', trip.truck.current_location ?? '')}
-      ${popupLine('GPL', `${trip.latestTelemetry.lpgLevelPercent}%`)}
-      ${popupLine('Volume estime', formatQuantity(trip.latestTelemetry.estimatedVolume))}
+      ${popupLine('Camion', truckPlate)}
+      ${popupLine('Position', location)}
+      ${popupLine('GPL', `${trip.latestTelemetry?.lpgLevelPercent ?? 0}%`)}
+      ${popupLine('Volume estime', formatQuantity(trip.latestTelemetry?.estimatedVolume ?? 0))}
       ${popupLine('Écart', trip.unaccounted > 0 ? formatQuantity(trip.unaccounted) : formatQuantity(0))}
-      ${popupLine('Dernier releve', new Intl.DateTimeFormat('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        day: '2-digit',
-        month: 'short',
-      }).format(new Date(trip.latestTelemetry.recordedAt)))}
+      ${popupLine('Dernier releve', safeFormatDateTime(trip.latestTelemetry?.recordedAt))}
     </div>
   `
 }
@@ -504,12 +522,7 @@ function createTelemetryPopupContent(
   return `
     <div class="fleet-truck-popup">
       ${popupLine('Tournée', trip.reference)}
-      ${popupLine('Releve', new Intl.DateTimeFormat('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        day: '2-digit',
-        month: 'short',
-      }).format(new Date(recordedAt)))}
+      ${popupLine('Releve', safeFormatDateTime(recordedAt))}
       ${popupLine('GPL', `${lpgLevelPercent}%`)}
       ${popupLine('Volume estime', formatQuantity(estimatedVolume))}
     </div>

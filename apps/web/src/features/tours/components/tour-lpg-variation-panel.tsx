@@ -62,14 +62,14 @@ export function TourLpgVariationPanel({
               className='gap-1 border-transparent bg-background/70'
             >
               <Truck className='size-3.5' />
-              {trip.truck.id}
+              {trip.truck?.license_plate || trip.truck?.id || 'Véhicule en attente'}
             </Badge>
             <Badge
               variant='outline'
               className='gap-1 border-transparent bg-background/70'
             >
               <MapPinned className='size-3.5' />
-              {trip.originSite.city} - {trip.destinationSite.city}
+              {trip.originSite?.city || '—'} - {trip.destinationSite?.city || '—'}
             </Badge>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function TourLpgVariationPanel({
         <div className='flex flex-col gap-3 xl:flex-row xl:items-stretch'>
           <StageCard
             stage={loadingStage}
-            hint={`Depart ${trip.originSite.name}`}
+            hint={`Depart ${trip.originSite?.name || '—'}`}
             formatQuantity={formatQuantity}
           />
 
@@ -90,7 +90,7 @@ export function TourLpgVariationPanel({
 
           <StageCard
             stage={liveStage!}
-            hint={`Dernier ping ${trip.truck.current_location}`}
+            hint={`Dernier ping ${trip.truck?.current_location ?? 'En attente'}`}
             formatQuantity={formatQuantity}
           />
 

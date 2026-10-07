@@ -294,7 +294,7 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
               />
               <InfoRow
                 label='Position courante'
-                value={trip.truck.current_location ?? ''}
+                value={trip.truck?.current_location ?? 'En attente d’affectation'}
               />
             </div>
           </div>

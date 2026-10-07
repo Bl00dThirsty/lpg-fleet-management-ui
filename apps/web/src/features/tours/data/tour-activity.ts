@@ -286,24 +286,30 @@ function placeholderSite(): Site {
   }
 }
 
-function requireTruck(truckId: string): Truck {
-  if (!truckId) return trucks[0]!
+function placeholderTruck(truckId: string = 'truck-unassigned'): Truck {
+  return {
+    id: truckId || 'truck-unassigned',
+    license_plate: 'Non assigné',
+    tenant_name: 'En attente transporteur',
+    org_id: '',
+    region: 'LITTORAL',
+    type: 'VRAC',
+    tournee_status: 'PENDINGTRANSPORTERACK',
+    requested_quantity: 0,
+    current_location: 'En attente d’affectation',
+    lat: 4.0511,
+    lng: 9.7679,
+    risk_level: 'FAIBLE',
+  }
+}
+
+function requireTruck(truckId: string | null | undefined): Truck {
+  if (!truckId) return trucks[0] ?? placeholderTruck()
   const truck = truckById().get(truckId)
   if (truck) return truck
   return (
-    trucks[0] ?? {
-      id: truckId,
-      license_plate: 'LT-0000-XX',
-      tenant_name: 'SCTM Interne',
-      org_id: 'org-0002-sctm-0000-000000000001',
-      region: 'LITTORAL' as const,
-      type: 'VRAC' as const,
-      tournee_status: 'INPROGRESS' as const,
-      requested_quantity: 20,
-      lat: 4.0511,
-      lng: 9.7679,
-      risk_level: 'FAIBLE' as const,
-    }
+    trucks[0] ??
+    placeholderTruck(truckId)
   )
 }
 
@@ -1001,7 +1007,7 @@ function buildView(
   const latestTelemetry = telemetry[telemetry.length - 1] ?? {
     id: `${tour.id}-fallback`,
     routeTripId: tour.id,
-    recordedAt: tour.updated_at ?? '',
+    recordedAt: tour.updated_at || tour.created_at || new Date().toISOString(),
     latitude: truck.lat,
     longitude: truck.lng,
     lpgLevelPercent: Math.round((remaining / (loaded || 1)) * 100),

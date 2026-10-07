@@ -17,6 +17,8 @@ function TourTrackingDetailPage() {
   const storeCheckpoints = useToursStore((s) => s.checkpoints)
   const checkpointsLoading = useToursStore((s) => s.checkpointsLoading[tourId] ?? false)
   const toursLoading = useToursStore((s) => s.loading)
+  const hasLoaded = useToursStore((s) => s.hasLoaded)
+  const isPending = toursLoading || checkpointsLoading || !hasLoaded
 
   useEffect(() => {
     useToursStore.getState().fetchTours()
@@ -38,9 +40,9 @@ function TourTrackingDetailPage() {
     return (
       <PageShell>
         <PageHeader
-          title={toursLoading || checkpointsLoading ? 'Chargement de la tournée' : 'Tournée introuvable'}
+          title={isPending ? 'Chargement de la tournée' : 'Tournée introuvable'}
           description={
-            toursLoading || checkpointsLoading
+            isPending
               ? 'Lecture en cours des données temps réel…'
               : `Aucune tournée ne correspond à l'identifiant ${tourId}.`
           }

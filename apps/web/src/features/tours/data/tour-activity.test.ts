@@ -50,6 +50,35 @@ describe('buildTourActivity', () => {
     expect(Array.isArray(activity.events)).toBe(true)
   })
 
+  it('safely builds external tour with null vehicle_id and empty vehicles', () => {
+    const externalTour = {
+      id: '165b09b6-d634-4283-bdab-90d0598600cf',
+      tour_code: 'TRP-EXT-01',
+      marketeur_org_id: 'org-0002-sctm-0000-000000000001',
+      execution_mode: 'EXTERNAL' as const,
+      transporter_org_id: 'org-0010-translog----000000000001',
+      vehicle_id: null,
+      driver_id: null,
+      livreur_user_id: null,
+      type: 'VRAC' as const,
+      status: 'PENDINGTRANSPORTERACK' as const,
+      requested_quantity: 15,
+      loaded_quantity: null,
+      delivered_quantity: null,
+      started_at: null,
+      closed_at: null,
+      created_at: '2026-10-07T10:00:00Z',
+      updated_at: '2026-10-07T10:00:00Z',
+      deleted_at: null,
+      created_by: 'user-01',
+      updated_by: 'user-01',
+    }
+    const act = buildTourActivity(externalTour, 0, { vehicles: [] })
+    expect(act.truck).toBeDefined()
+    expect(act.truck.current_location).toBeDefined()
+    expect(act.latestTelemetry).toBeDefined()
+  })
+
   it('getRouteTripsView alias returns the same rows', () => {
     expect(getRouteTripsView().map((t) => t.id)).toEqual(
       getTourActivity().map((t) => t.id),

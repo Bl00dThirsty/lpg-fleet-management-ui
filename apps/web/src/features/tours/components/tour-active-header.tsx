@@ -49,7 +49,7 @@ export function TourActiveHeader({
             </CardDescription>
           </div>
           <span className='text-xs text-muted-foreground'>
-            {executionModeLabels[trip.execution_mode]} · {trips.length} mission
+            {executionModeLabels[trip.execution_mode] || trip.execution_mode} · {trips.length} mission
             {trips.length > 1 ? 's' : ''} dans la sélection
           </span>
         </div>
@@ -60,7 +60,7 @@ export function TourActiveHeader({
             {trip.reference}
           </p>
           <p className='text-sm text-muted-foreground'>
-            {trip.originSite.name} → {trip.destinationSite.name}
+            {trip.originSite?.name || '—'} → {trip.destinationSite?.name || '—'}
           </p>
         </div>
         <div className='flex flex-col gap-2 sm:flex-row sm:items-center'>
@@ -81,8 +81,8 @@ export function TourActiveHeader({
             <SelectContent>
               {trips.map((candidate) => (
                 <SelectItem key={candidate.id} value={candidate.id}>
-                  {candidate.reference} — {candidate.originSite.city} /{' '}
-                  {candidate.destinationSite.city}
+                  {candidate.reference} — {candidate.originSite?.city || '—'} /{' '}
+                  {candidate.destinationSite?.city || '—'}
                 </SelectItem>
               ))}
             </SelectContent>
