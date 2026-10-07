@@ -23,3 +23,19 @@ export function formatPercent(value: number): string {
   if (!Number.isFinite(value)) return '—'
   return `${Math.round(value)} %`
 }
+
+/** Format a number with French locale separators (virgule décimale, espaces fines). */
+export function formatNumberFr(value: number, fractionDigits = 1): string {
+  if (!Number.isFinite(value)) return '—'
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(value)
+}
+
+/** Format a percentage with French locale (espace avant le %, virgule décimale). */
+export function formatPercentFr(value: number, fractionDigits = 1): string {
+  if (!Number.isFinite(value)) return '—'
+  return `${formatNumberFr(value, fractionDigits)} %`
+}
+

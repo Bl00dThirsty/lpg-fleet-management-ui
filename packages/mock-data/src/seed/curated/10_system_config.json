@@ -99,6 +99,18 @@
       "requires_restart": false
     },
     {
+      "id": "set-0007b-tour-live-refresh",
+      "setting_key": "tournee.live_refresh_interval_seconds",
+      "setting_value": "5",
+      "value_type": "NUMBER",
+      "category": "TOURNEE",
+      "description": "Intervalle d'actualisation automatique en direct des tournées et livraisons PDA, en secondes",
+      "is_encrypted": false,
+      "min_value": 1,
+      "max_value": 60,
+      "requires_restart": false
+    },
+    {
       "id": "set-0008-audit-retention",
       "setting_key": "audit.retention_years",
       "setting_value": "5",

@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, Ellipsis } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Ellipsis, Minus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -7,89 +7,63 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { formatTm } from '@/features/map/utils/format'
+import type { Role } from '@/config/rbac/roles'
+import {
+  type KpiCard,
+  buildKpiStrip,
+  formatKpiDelta,
+  type DeltaTone,
+} from '../data/kpi-cards'
 
 export interface LpgKpiStripProps {
-  totalDeliveredTM?: number
-  totalTransportedTM?: number
+  role: Role
+  periodLabel: string
   activeTrips?: number
+  plannedTrips?: number
   activeTrucks?: number
   totalTrucks?: number
-  scdpReserveTM?: number
-  scdpCapacityTM?: number
-  snhReserveTM?: number
-  snhCapacityTM?: number
+  openAlerts?: number
+}
+
+const TONE_CLASS: Record<DeltaTone, string> = {
+  good: 'border-transparent bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+  bad: 'border-transparent bg-destructive/10 text-destructive',
+  neutral: 'border-transparent bg-muted text-muted-foreground',
+}
+
+function DeltaBadge({ card }: { card: KpiCard }) {
+  if (!card.delta) return null
+  const { delta } = card
+  return (
+    <Badge className={TONE_CLASS[delta.tone]}>
+      {delta.direction === 'up' ? (
+        <ArrowUpRight className='mr-0.5 size-3.5' />
+      ) : delta.direction === 'down' ? (
+        <ArrowDownRight className='mr-0.5 size-3.5' />
+      ) : (
+        <Minus className='mr-0.5 size-3.5' />
+      )}
+      {formatKpiDelta(delta)}
+    </Badge>
+  )
 }
 
 export function LpgKpiStrip({
-  totalDeliveredTM = 2338.5,
-  totalTransportedTM = 2480.0,
-  scdpReserveTM = 70.6,
-  scdpCapacityTM = 110.0,
-  snhReserveTM = 48.0,
-  snhCapacityTM = 60.0,
+  role,
+  periodLabel,
+  activeTrips,
+  plannedTrips,
+  activeTrucks,
+  totalTrucks,
+  openAlerts,
 }: LpgKpiStripProps) {
-  // Gaz hors réseau : Vrac (~65%) et Bouteilles de 50 kg (~35%)
-  const vracVolumeTM = totalDeliveredTM > 0 ? totalDeliveredTM * 0.65 : 1428.5
-  const bottlesVolumeTM = totalDeliveredTM > 0 ? totalDeliveredTM * 0.35 : 785.0
-  // Conversion physique stricte : 1 TM = 1000 kg = 20 bouteilles de 50 kg
-  const bottles50kgCount = Math.round(bottlesVolumeTM * 20)
-
-  const scdpFillRate = Math.round((scdpReserveTM / Math.max(scdpCapacityTM, 1)) * 100)
-  const snhFillRate = Math.round((snhReserveTM / Math.max(snhCapacityTM, 1)) * 100)
-
-  const kpis = [
-    {
-      id: 'vrac',
-      title: 'Volume GPL Vrac Suivi',
-      value: formatTm(vracVolumeTM),
-      delta: '4.8%',
-      isPositive: true,
-      baseline: '1 362,8 TM',
-      period: totalTransportedTM > 0 ? `${formatTm(vracVolumeTM)} livrés / ${formatTm(totalTransportedTM * 0.65)}` : '30 derniers jours',
-      note: 'Cuves industrielles & gros consommateurs',
-    },
-    {
-      id: 'bouteilles50kg',
-      title: 'Bouteilles 50 kg Traçables',
-      value: `${(bottles50kgCount / 1000).toFixed(1)}k btl`,
-      delta: '3.2%',
-      isPositive: true,
-      baseline: '24,1k btl',
-      period: `${formatTm(bottlesVolumeTM)} équiv. (1 TM = 20 btl)`,
-      note: `${bottles50kgCount.toLocaleString('fr-FR')} unités sous scellés`,
-    },
-    {
-      id: 'scdp',
-      title: 'Réserves GPL SCDP',
-      value: formatTm(scdpReserveTM),
-      delta: `${scdpFillRate}%`,
-      isPositive: scdpFillRate >= 40,
-      baseline: `${formatTm(scdpCapacityTM)} nominal`,
-      period: 'Dépôts Bonabéri, Kribi, Yaoundé',
-      note: 'Stock relais & sécurité d’approvisionnement',
-    },
-    {
-      id: 'snh',
-      title: 'Disponibilité GPL SNH',
-      value: formatTm(snhReserveTM),
-      delta: `${snhFillRate}%`,
-      isPositive: snhFillRate >= 40,
-      baseline: `${formatTm(snhCapacityTM)} nominal`,
-      period: 'Terminal amont Bipaga (Kribi)',
-      note: 'Extraction gazière & chargement direct',
-    },
-    {
-      id: 'conformite',
-      title: 'Conformité Traçabilité',
-      value: '98.6%',
-      delta: '0.9%',
-      isPositive: true,
-      baseline: '97.7%',
-      period: 'écarts de pesée < 0.5%',
-      note: 'Scans RFID & réconciliations',
-    },
-  ]
+  const kpis = buildKpiStrip(role, {
+    activeTrips,
+    plannedTrips,
+    activeTrucks,
+    totalTrucks,
+    openAlerts,
+  })
 
   return (
     <div className='overflow-hidden rounded-xl border bg-card shadow-xs ring-1 ring-foreground/10'>
@@ -122,29 +96,25 @@ export function LpgKpiStrip({
                 <div className='font-manrope text-2xl font-semibold leading-none tracking-tight text-foreground'>
                   {kpi.value}
                 </div>
-                <Badge
-                  className={
-                    kpi.isPositive
-                      ? 'border-transparent bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
-                      : 'border-transparent bg-destructive/10 text-destructive'
-                  }
-                >
-                  {kpi.isPositive ? (
-                    <ArrowUpRight className='mr-0.5 size-3.5' />
-                  ) : (
-                    <ArrowDownRight className='mr-0.5 size-3.5' />
-                  )}
-                  {kpi.delta}
-                </Badge>
+                <DeltaBadge card={kpi} />
               </div>
 
               <div className='flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground'>
-                <span>
-                  from <span className='font-medium text-foreground'>{kpi.baseline}</span>
-                </span>
-                <span>•</span>
-                <span>{kpi.period}</span>
+                {kpi.baseline ? (
+                  <>
+                    <span>
+                      vs{' '}
+                      <span className='font-medium text-foreground'>{kpi.baseline}</span>
+                    </span>
+                    <span>•</span>
+                  </>
+                ) : null}
+                <span>{periodLabel}</span>
               </div>
+
+              {kpi.note ? (
+                <p className='text-xs text-muted-foreground'>{kpi.note}</p>
+              ) : null}
             </CardContent>
           </Card>
         ))}

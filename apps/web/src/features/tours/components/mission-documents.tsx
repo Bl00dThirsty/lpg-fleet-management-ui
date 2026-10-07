@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dialog'
 import { useAuthStore } from '@/store/auth-store'
 import type { RouteTripViewStop } from '../data/tour-activity'
+import { getTourLiveRefreshIntervalMs } from '../lib/use-tour-live-refresh'
 
 export interface MissionDocumentsProps {
   missionId: string
@@ -78,6 +79,7 @@ export function MissionDocuments({ missionId, stops }: MissionDocumentsProps) {
         `/tours/${encodeURIComponent(missionId)}/documents`
       ),
     staleTime: 0,
+    refetchInterval: getTourLiveRefreshIntervalMs(),
   })
 
   const selected = query.data?.find((d) => d.id === selectedId)

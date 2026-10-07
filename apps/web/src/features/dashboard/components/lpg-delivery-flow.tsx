@@ -16,35 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-const monthlyBreakdown = [
-  { monthOffset: 11, vrac: 92, bottles50kg: 50 },  // mai (total 142)
-  { monthOffset: 10, vrac: 110, bottles50kg: 58 }, // juin (total 168)
-  { monthOffset: 9,  vrac: 100, bottles50kg: 55 }, // juil (total 155)
-  { monthOffset: 8,  vrac: 124, bottles50kg: 65 }, // août (total 189)
-  { monthOffset: 7,  vrac: 138, bottles50kg: 72 }, // sept (total 210)
-  { monthOffset: 6,  vrac: 162, bottles50kg: 83 }, // oct (total 245)
-  { monthOffset: 5,  vrac: 152, bottles50kg: 78 }, // nov (total 230)
-  { monthOffset: 4,  vrac: 142, bottles50kg: 73 }, // déc (total 215)
-  { monthOffset: 3,  vrac: 172, bottles50kg: 88 }, // janv (total 260)
-  { monthOffset: 2,  vrac: 164, bottles50kg: 84 }, // févr (total 248)
-  { monthOffset: 1,  vrac: 155, bottles50kg: 80 }, // mars (total 235)
-  { monthOffset: 0,  vrac: 180, bottles50kg: 92 }, // avr (total 272)
-]
-
-const quarterlyBreakdown = [
-  { label: 'T2 2025', vrac: 330, bottles50kg: 180 },
-  { label: 'T3 2025', vrac: 420, bottles50kg: 224 },
-  { label: 'T4 2025', vrac: 460, bottles50kg: 245 },
-  { label: 'T1 2026', vrac: 495, bottles50kg: 260 },
-]
-
-const recent30DaysBreakdown = [
-  { label: 'Sem 1', vrac: 32, bottles50kg: 16 },
-  { label: 'Sem 2', vrac: 34, bottles50kg: 18 },
-  { label: 'Sem 3', vrac: 38, bottles50kg: 20 },
-  { label: 'Sem 4', vrac: 41, bottles50kg: 21 },
-]
+import {
+  type DeliveryFlowRange,
+  buildDeliveryFlowSeries,
+} from '../data/delivery-flow'
 
 const deliveryFlowChartConfig = {
   vrac: {
@@ -57,37 +32,10 @@ const deliveryFlowChartConfig = {
   },
 } satisfies ChartConfig
 
-const axisMonthFormatter = new Intl.DateTimeFormat('fr-FR', { month: 'short' })
-
 export function LpgDeliveryFlow() {
-  const [timeRange, setTimeRange] = useState<'last-30-days' | 'last-quarter' | 'last-12-months'>(
-    'last-12-months'
-  )
+  const [timeRange, setTimeRange] = useState<DeliveryFlowRange>('last-12-months')
 
-  let chartData: Array<{ label: string; vrac: number; bottles50kg: number; total: number }>
-
-  if (timeRange === 'last-30-days') {
-    chartData = recent30DaysBreakdown.map((item) => ({
-      ...item,
-      total: item.vrac + item.bottles50kg,
-    }))
-  } else if (timeRange === 'last-quarter') {
-    chartData = quarterlyBreakdown.map((item) => ({
-      ...item,
-      total: item.vrac + item.bottles50kg,
-    }))
-  } else {
-    chartData = monthlyBreakdown.map((item) => {
-      const date = new Date(2026, 3, 1) // Référence avril 2026
-      date.setMonth(date.getMonth() - item.monthOffset)
-      return {
-        label: axisMonthFormatter.format(date),
-        vrac: item.vrac,
-        bottles50kg: item.bottles50kg,
-        total: item.vrac + item.bottles50kg,
-      }
-    })
-  }
+  const chartData = buildDeliveryFlowSeries(timeRange)
 
   const totalVracTM = chartData.reduce((sum, item) => sum + item.vrac, 0)
   const totalBottlesTM = chartData.reduce((sum, item) => sum + item.bottles50kg, 0)
@@ -112,7 +60,7 @@ export function LpgDeliveryFlow() {
           <CardAction>
             <Select
               value={timeRange}
-              onValueChange={(val: string) => setTimeRange(val as 'last-30-days' | 'last-quarter' | 'last-12-months')}
+              onValueChange={(val: string) => setTimeRange(val as DeliveryFlowRange)}
             >
               <SelectTrigger size='sm' className='min-w-40'>
                 <SelectValue placeholder='Sélectionner la période' />
@@ -131,7 +79,6 @@ export function LpgDeliveryFlow() {
         <CardContent>
           <div className='grid grid-cols-1 gap-6 lg:grid-cols-12'>
             <div className='lg:col-span-8 flex flex-col justify-between'>
-              {/* Legend bar */}
               <div className='mb-3 flex items-center justify-end gap-5 text-xs'>
                 <div className='flex items-center gap-2'>
                   <span
@@ -155,15 +102,13 @@ export function LpgDeliveryFlow() {
                 </div>
               </div>
 
-              {/* Multiple Grouped Bar Chart with Striped / Rayures Pattern */}
               <ChartContainer
                 config={deliveryFlowChartConfig}
                 className='h-72 w-full'
               >
                 <BarChart
                   data={chartData}
-                  margin={{ left: 0, right: 0, top: 10, bottom: 0 }}
-                  barGap={3}
+                  margin={{ left: 4, right: 8, top: 10, bottom: 0 }}
                 >
                   <defs>
                     <pattern
@@ -223,7 +168,13 @@ export function LpgDeliveryFlow() {
                     axisLine={false}
                     className='text-xs font-medium'
                   />
-                  <YAxis hide />
+                  <YAxis
+                    width={48}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value: number) => `${value} TM`}
+                    className='text-xs'
+                  />
                   <ChartTooltip
                     content={
                       <ChartTooltipContent
@@ -231,22 +182,30 @@ export function LpgDeliveryFlow() {
                           `${Number(val).toLocaleString('fr-FR')} TM`,
                           name === 'vrac' ? 'GPL Vrac' : 'Bouteilles 50 kg',
                         ]}
+                        labelFormatter={(label, payload) => {
+                          const total = (payload ?? []).reduce(
+                            (sum, item) => sum + Number(item.value ?? 0),
+                            0
+                          )
+                          return `${label} · total ${total.toLocaleString('fr-FR')} TM`
+                        }}
                       />
                     }
                   />
                   <Bar
                     dataKey='vrac'
                     name='vrac'
+                    stackId='volume'
                     fill='url(#lpg-vrac-pattern)'
                     stroke='#f59e0b'
                     strokeOpacity={0.8}
                     strokeWidth={1}
-                    radius={[4, 4, 0, 0]}
                     maxBarSize={timeRange === 'last-12-months' ? 18 : 34}
                   />
                   <Bar
                     dataKey='bottles50kg'
                     name='bottles50kg'
+                    stackId='volume'
                     fill='url(#lpg-bottles-pattern)'
                     stroke='#10b981'
                     strokeOpacity={0.8}
@@ -284,7 +243,7 @@ export function LpgDeliveryFlow() {
                     </span>
                   </div>
                   <p className='text-xs text-muted-foreground'>
-                    {validationRate}% des livraisons certifiées sans écart de pesée ni litige.
+                    {validationRate} % des livraisons certifiées sans écart de pesée ni litige.
                   </p>
                 </div>
 

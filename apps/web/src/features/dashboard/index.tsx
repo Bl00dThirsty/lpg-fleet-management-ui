@@ -1,17 +1,20 @@
 import { useMemo, useState } from 'react'
 import { ArrowDownToLine } from 'lucide-react'
+import { fr } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { type Role } from '@/config/rbac/roles'
 import { Main } from '@/components/layout/main'
 import { useAuthStore } from '@/store/auth-store'
 import { useRoleStore } from '@/store/role-store'
 import { buildDashboardView } from './data/dashboard'
+import { isOrgDashboardRole } from './data/kpi-cards'
 import { LpgKpiStrip } from './components/lpg-kpi-strip'
 import { LpgDeliveryFlow } from './components/lpg-delivery-flow'
-import { RegionalTraceabilityQuality } from './components/regional-traceability-quality'
+import { RegionalVolumeShare } from './components/regional-volume-share'
 import { RegionalVolumeCadence } from './components/regional-volume-cadence'
+import { OrgFocusCard } from './components/org-focus-card'
 import { DateRangePicker, type DateRangeValue } from '@/components/date-range-picker'
-import { subDays } from 'date-fns'
+import { format, subDays } from 'date-fns'
 
 export function DashboardPage({ role }: { role?: Role } = {}) {
   const user = useAuthStore((s) => s.user)
@@ -51,6 +54,12 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
           ? 'Tracking en temps réel des camions citernes et plateaux 50 kg en tournée.'
           : 'Vue consolidée et simplifiée de la distribution de GPL hors réseau pour le top management.'
 
+  const orgRole = isOrgDashboardRole(effectiveRole)
+  const periodLabel =
+    dateRange?.from && dateRange.to
+      ? `${format(dateRange.from, 'd MMM', { locale: fr })} – ${format(dateRange.to, 'd MMM yyyy', { locale: fr })}`
+      : ''
+
   return (
     <Main fluid className='space-y-6 bg-muted/20 pb-10'>
       {/* En-tête exécutif */}
@@ -82,35 +91,43 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
         </div>
       </section>
 
-      {/* Bloc 1 : Bandeau KPI Exécutif (Vrac, 50kg, Réserves SCDP & SNH, Conformité) */}
+      {/* Bloc 1 : Bandeau KPI (cartes propres à chaque rôle) */}
       <section>
         <LpgKpiStrip
-          totalDeliveredTM={dashboard.overview.totalDeliveredTM}
-          totalTransportedTM={dashboard.overview.totalTransportedTM}
+          role={effectiveRole}
+          periodLabel={periodLabel}
           activeTrips={dashboard.overview.activeTrips}
+          plannedTrips={dashboard.overview.plannedTrips}
           activeTrucks={dashboard.overview.activeTrucks}
           totalTrucks={dashboard.overview.totalTrucks}
-          scdpReserveTM={dashboard.overview.scdpReserveTM}
-          scdpCapacityTM={dashboard.overview.scdpCapacityTM}
-          snhReserveTM={dashboard.overview.snhReserveTM}
-          snhCapacityTM={dashboard.overview.snhCapacityTM}
+          openAlerts={dashboard.overview.openAlerts}
         />
       </section>
 
-      {/* Bloc 2 : Flux des Livraisons Hors Réseau (Tonnages mensuels & Bons validés) */}
+      {/* Bloc 2 : Flux des Livraisons Hors Réseau (colonnes empilées) */}
       <section>
         <LpgDeliveryFlow />
       </section>
 
-      {/* Bloc 3 : Qualité de Traçabilité (10 Régions) & Cadence des Volumes Livrés (1 Mois) */}
-      <section className='grid grid-cols-1 gap-6 xl:grid-cols-12'>
-        <div className='xl:col-span-7'>
-          <RegionalTraceabilityQuality />
-        </div>
-        <div className='xl:col-span-5'>
-          <RegionalVolumeCadence />
-        </div>
-      </section>
+      {/* Bloc 3 : régulateur = répartition régionale + cadence ; comptes org = panneau propre */}
+      {orgRole ? (
+        <section>
+          <OrgFocusCard
+            role={effectiveRole}
+            activeTrucks={dashboard.overview.activeTrucks}
+            totalTrucks={dashboard.overview.totalTrucks}
+          />
+        </section>
+      ) : (
+        <section className='grid grid-cols-1 gap-6 xl:grid-cols-12'>
+          <div className='xl:col-span-7'>
+            <RegionalVolumeShare />
+          </div>
+          <div className='xl:col-span-5'>
+            <RegionalVolumeCadence />
+          </div>
+        </section>
+      )}
     </Main>
   )
 }

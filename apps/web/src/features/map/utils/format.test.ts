@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatTm, formatBtl, formatPercent } from './format'
+import { formatTm, formatBtl, formatPercent, formatNumberFr, formatPercentFr } from './format'
 
 const NARROW_NO_BREAK_SPACE = '\u202f'
 
@@ -29,3 +29,24 @@ describe('formatPercent', () => {
     expect(formatPercent(73.4)).toBe('73 %')
   })
 })
+
+describe('formatNumberFr', () => {
+  it('formats decimals with French comma separator', () => {
+    expect(formatNumberFr(29.9)).toBe('29,9')
+    expect(formatNumberFr(1428.5)).toBe(`1${NARROW_NO_BREAK_SPACE}428,5`)
+  })
+  it('handles non-finite values safely', () => {
+    expect(formatNumberFr(Number.NaN)).toBe('—')
+  })
+})
+
+describe('formatPercentFr', () => {
+  it('formats percentages with French comma and trailing percent', () => {
+    expect(formatPercentFr(29.88)).toBe('29,9 %')
+    expect(formatPercentFr(100)).toBe('100,0 %')
+  })
+  it('handles non-finite values safely', () => {
+    expect(formatPercentFr(Number.NaN)).toBe('—')
+  })
+})
+
