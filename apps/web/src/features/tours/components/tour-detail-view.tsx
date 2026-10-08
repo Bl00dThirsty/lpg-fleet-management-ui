@@ -139,7 +139,6 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
 
   return (
     <div className='space-y-4'>
-      <MissionDocuments key={trip.id} missionId={trip.id} stops={trip.stops} />
       {trip.scheduled_at && (
         <p className='text-sm text-muted-foreground'>
           Enlèvement prévu le {formatDateTime(trip.scheduled_at)}
@@ -284,8 +283,17 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           </div>
 
           <div className='rounded-lg border border-border bg-card p-4 shadow-xs'>
-            <p className='text-sm font-semibold mb-3'>Équipe engagée</p>
+            <p className='text-sm font-semibold mb-3'>Résumé de l’activité</p>
             <div className='space-y-2 text-sm'>
+              <InfoRow
+                label='Transporteur'
+                value={trip.transporter_name ?? 'Flotte interne'}
+              />
+              <InfoRow label='Départ' value={formatDateTime(trip.startedAt)} />
+              <InfoRow
+                label='Arrivée estimée'
+                value={formatDateTime(trip.expectedArrivalAt)}
+              />
               <InfoRow label='Camion' value={trip.vehicle_plate ?? '—'} />
               <InfoRow label='Chauffeur' value={trip.driver_name ?? '—'} />
               <InfoRow
@@ -294,23 +302,25 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
               />
               <InfoRow
                 label='Position courante'
-                value={trip.truck?.current_location ?? 'En attente d’affectation'}
+                value={
+                  trip.truck?.current_location ?? 'En attente d’affectation'
+                }
               />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {import.meta.env.VITE_API_MODE !== 'http' && (
-        <Card>
-          <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
-            <div>
-              <CardTitle>Actions de la tournée</CardTitle>
-              <CardDescription>
-                Transitions validées par le serveur — un refus est affiché sans
-                modifier le suivi.
-              </CardDescription>
-            </div>
+      <Card>
+        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
+          <div>
+            <CardTitle>Actions de la tournée</CardTitle>
+            <CardDescription>
+              Transitions validées par le serveur — un refus est affiché sans
+              modifier le suivi.
+            </CardDescription>
+          </div>
+          {import.meta.env.VITE_API_MODE !== 'http' && (
             <Button
               onClick={() => setPdaModalOpen(true)}
               variant='outline'
@@ -319,18 +329,18 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
               <Smartphone className='size-4' />
               Simulateur PDA Livreur (Terrain)
             </Button>
-          </CardHeader>
-          <CardContent className='space-y-3'>
-            <TourActions tour={trip} checkpoints={tourCheckpoints} />
-            {closeBlockedByCheckpoints && (
-              <p className='text-sm text-amber-700 dark:text-amber-300'>
-                Clôture impossible : tous les points de contrôle doivent être
-                terminés ou sautés.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardHeader>
+        <CardContent className='space-y-3'>
+          <TourActions tour={trip} checkpoints={tourCheckpoints} />
+          {closeBlockedByCheckpoints && (
+            <p className='text-sm text-amber-700 dark:text-amber-300'>
+              Clôture impossible : tous les points de contrôle doivent être
+              terminés ou sautés.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <section className='w-full'>
         <TourCorridorMap
@@ -486,6 +496,13 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                     <p className='mt-3 text-sm text-muted-foreground'>
                       {stop.note}
                     </p>
+
+                    <MissionDocuments
+                      missionId={trip.id}
+                      stops={trip.stops}
+                      checkpointId={stop.id}
+                      missionKind={trip.mission_kind ?? 'DELIVERY'}
+                    />
 
                     {import.meta.env.VITE_API_MODE !== 'http' && (
                       <StopCheckpointControls

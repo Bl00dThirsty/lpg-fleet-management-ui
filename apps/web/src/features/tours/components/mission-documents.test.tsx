@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { useAuthStore } from '@/store/auth-store'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -12,38 +13,70 @@ const setup = () =>
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <MissionDocuments missionId="pickup-test" />
-    </QueryClientProvider>,
+      <MissionDocuments missionId='pickup-test' />
+    </QueryClientProvider>
   )
-afterEach(() => vi.restoreAllMocks())
+const originalUser = useAuthStore.getState().user
+beforeEach(() =>
+  useAuthStore.setState({
+    user: {
+      id: 'test-admin',
+      email: 'admin@test.local',
+      first_name: 'Test',
+      last_name: 'Admin',
+      system_role: 'SUPERADMIN',
+      org_type: 'REGULATEUR',
+      site_ids: [],
+    },
+  })
+)
+afterEach(() => {
+  vi.restoreAllMocks()
+  useAuthStore.setState({ user: originalUser })
+})
 
 describe('mission documents', () => {
+  it('hides uploads for a read-only account', async () => {
+    useAuthStore.setState({
+      user: {
+        ...useAuthStore.getState().user!,
+        system_role: 'AGENT',
+        custom_roles: [],
+      },
+    })
+    vi.spyOn(apiAdapter, 'request').mockResolvedValue([])
+    const screen = await setup()
+    await expect
+      .element(
+        screen.getByRole('button', { name: 'Téléverser le justificatif' })
+      )
+      .not.toBeInTheDocument()
+  })
+
   it('explains when the driver has not sent any proof', async () => {
     vi.spyOn(apiAdapter, 'request').mockResolvedValue([])
     const screen = await setup()
     await expect
       .element(
         screen.getByText(
-          'Aucun document transmis par le livreur pour le moment.',
-        ),
+          'Aucun document transmis par le livreur pour le moment.'
+        )
       )
       .toBeInTheDocument()
   })
 
   it('opens the proof and refreshes its private URL', async () => {
-    const request = vi
-      .spyOn(apiAdapter, 'request')
-      .mockResolvedValue([
-        {
-          id: 'loading',
-          label: 'Bon d’enlèvement',
-          captured_at: null,
-          url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-        },
-      ])
+    const request = vi.spyOn(apiAdapter, 'request').mockResolvedValue([
+      {
+        id: 'loading',
+        label: 'Bon d’enlèvement',
+        captured_at: null,
+        url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+      },
+    ])
     const screen = await setup()
     await userEvent.click(
-      screen.getByRole('button', { name: /Bon d’enlèvement/ }),
+      screen.getByRole('button', { name: /Bon d’enlèvement/ })
     )
     await expect.element(screen.getByRole('dialog')).toBeVisible()
     await expect
@@ -67,28 +100,28 @@ describe('mission documents', () => {
       .element(screen.getByText('PDF', { exact: true }))
       .toBeInTheDocument()
     await userEvent.click(
-      screen.getByRole('button', { name: /Bon de livraison BL-001/ }),
+      screen.getByRole('button', { name: /Bon de livraison BL-001/ })
     )
     await expect.element(screen.getByRole('dialog')).toBeVisible()
     await expect
-      .element(screen.getByRole('link', { name: /Ouvrir dans un nouvel onglet/ }))
+      .element(
+        screen.getByRole('link', { name: /Ouvrir dans un nouvel onglet/ })
+      )
       .toBeInTheDocument()
   })
 
-  it('opens the PDF import dialog when clicking Importer sous forme de PDF', async () => {
+  it('opens the PDF import dialog when clicking Téléverser le justificatif', async () => {
     vi.spyOn(apiAdapter, 'request').mockResolvedValue([])
     const screen = await setup()
     const importBtn = screen.getByRole('button', {
-      name: /Importer sous forme de PDF/,
+      name: /Téléverser le justificatif/,
     })
     await expect.element(importBtn).toBeVisible()
     await userEvent.click(importBtn)
 
     await expect
       .element(
-        screen.getByText(
-          "Ajoutez un bon de livraison ou d'enlèvement scanné en PDF (5 Mo maximum).",
-        ),
+        screen.getByText('Ajoutez un bon scanné au format PDF, JPEG ou PNG.')
       )
       .toBeVisible()
   })

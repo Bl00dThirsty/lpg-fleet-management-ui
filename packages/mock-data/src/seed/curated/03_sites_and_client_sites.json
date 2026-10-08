@@ -6489,6 +6489,16 @@
       "deleted_at": null,
       "created_by": "user-0007-sctm-marketeur",
       "updated_by": "user-0007-sctm-marketeur"
+    },
+    {
+      "id": "0e5524aa-73cc-4e68-a4da-1e5949bd1160",
+      "org_id": "org-0016-dovv-client-000000000001",
+      "is_active": true,
+      "payment_terms": 30,
+      "credit_limit": 0,
+      "created_at": "2026-10-08T03:58:37.094Z",
+      "updated_at": "2026-10-08T03:58:37.094Z",
+      "deleted_at": null
     }
   ],
   "client_sites": [
@@ -6623,7 +6633,10 @@
       "region": "LITTORAL",
       "name": "DOVV Douala 1er",
       "address": "Boulevard de la Liberté, Akwa, Douala",
-      "geo_point": [9.704, 4.051],
+      "geo_point": [
+        9.704,
+        4.051
+      ],
       "geo_confidence_score": 95,
       "delivery_count": 82,
       "is_verified": true,
@@ -6642,46 +6655,52 @@
     {
       "id": "csite-0022-dovv-opep",
       "client_org_id": "org-0016-dovv-client-000000000001",
-      "region": "LITTORAL",
-      "name": "DOVV OPEP 2e",
-      "address": "Rue Njo-Njo, Bonapriso, Douala",
-      "geo_point": [9.715, 4.032],
-      "geo_confidence_score": 93,
+      "region": "CENTRE",
+      "name": "DOVV Opep",
+      "address": "Opep, Yaoundé",
+      "geo_point": [
+        11.564058005327091,
+        3.8674535260724783
+      ],
+      "geo_confidence_score": 0,
       "delivery_count": 64,
-      "is_verified": true,
-      "verified_at": "2024-05-12T10:00:00Z",
+      "is_verified": false,
+      "verified_at": null,
       "current_marketeur_org_id": "org-0002-sctm-0000-000000000001",
       "site_contact_name": "Sandrine KAMGA",
       "site_contact_phone": "+237699223344",
       "is_active": true,
       "created_at": "2023-02-10T08:00:00Z",
-      "updated_at": "2024-11-20T10:00:00Z",
+      "updated_at": "2026-10-08T03:58:37.094Z",
       "deleted_at": null,
       "created_by": "user-0007-sctm-marketeur",
       "updated_by": "user-0007-sctm-marketeur",
-      "verified_by": "user-0003-csph-supervisor"
+      "verified_by": null
     },
     {
       "id": "csite-0023-dovv-bastos",
       "client_org_id": "org-0016-dovv-client-000000000001",
       "region": "CENTRE",
-      "name": "DOVV Bastos 3e",
-      "address": "Rond-point Bastos, Yaoundé",
-      "geo_point": [11.512, 3.885],
-      "geo_confidence_score": 96,
+      "name": "DOVV Bastos",
+      "address": "Bastos, Yaoundé",
+      "geo_point": [
+        11.509708527395427,
+        3.8931714687015564
+      ],
+      "geo_confidence_score": 0,
       "delivery_count": 78,
-      "is_verified": true,
-      "verified_at": "2024-05-15T10:00:00Z",
+      "is_verified": false,
+      "verified_at": null,
       "current_marketeur_org_id": "org-0002-sctm-0000-000000000001",
       "site_contact_name": "Marc TIENTCHEU",
       "site_contact_phone": "+237699334455",
       "is_active": true,
       "created_at": "2023-03-01T08:00:00Z",
-      "updated_at": "2024-11-20T10:00:00Z",
+      "updated_at": "2026-10-08T03:58:37.094Z",
       "deleted_at": null,
       "created_by": "user-0007-sctm-marketeur",
       "updated_by": "user-0007-sctm-marketeur",
-      "verified_by": "user-0003-csph-supervisor"
+      "verified_by": null
     },
     {
       "id": "csite-0024-dovv-mvan",
@@ -6689,7 +6708,10 @@
       "region": "CENTRE",
       "name": "DOVV Mvan 4e",
       "address": "Carrefour Mvan, Yaoundé",
-      "geo_point": [11.528, 3.821],
+      "geo_point": [
+        11.528,
+        3.821
+      ],
       "geo_confidence_score": 91,
       "delivery_count": 55,
       "is_verified": true,
@@ -6704,6 +6726,50 @@
       "created_by": "user-0007-sctm-marketeur",
       "updated_by": "user-0007-sctm-marketeur",
       "verified_by": "user-0003-csph-supervisor"
+    },
+    {
+      "id": "8bf73f46-8248-47df-9d90-adb91ccf5a71",
+      "client_org_id": "org-0016-dovv-client-000000000001",
+      "current_marketeur_org_id": "org-0002-sctm-0000-000000000001",
+      "name": "DOVV Essos",
+      "region": "CENTRE",
+      "address": "Essos, Yaoundé",
+      "geo_point": [
+        11.540261758285174,
+        3.8740303466534582
+      ],
+      "is_verified": false,
+      "verified_at": null,
+      "verified_by": null,
+      "geo_confidence_score": 0,
+      "updated_at": "2026-10-08T03:58:37.094Z",
+      "status": "UNASSIGNED",
+      "delivery_count": 0,
+      "is_active": true,
+      "created_at": "2026-10-08T03:58:37.094Z",
+      "deleted_at": null
+    },
+    {
+      "id": "3b912ca6-d602-4211-9669-493d4b8fdb18",
+      "client_org_id": "org-0016-dovv-client-000000000001",
+      "current_marketeur_org_id": "org-0002-sctm-0000-000000000001",
+      "name": "DOVV Mimboman",
+      "region": "CENTRE",
+      "address": "Mimboman, Yaoundé",
+      "geo_point": [
+        11.572595242995828,
+        3.861552287240034
+      ],
+      "is_verified": false,
+      "verified_at": null,
+      "verified_by": null,
+      "geo_confidence_score": 0,
+      "updated_at": "2026-10-08T03:58:37.094Z",
+      "status": "UNASSIGNED",
+      "delivery_count": 0,
+      "is_active": true,
+      "created_at": "2026-10-08T03:58:37.094Z",
+      "deleted_at": null
     }
   ],
   "user_site_assignments": [

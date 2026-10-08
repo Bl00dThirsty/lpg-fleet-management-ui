@@ -1,11 +1,19 @@
 import { lazy, Suspense } from 'react'
-import { AlertTriangle, Copy, FileText, PackageOpen, Truck } from 'lucide-react'
+import { MissionDocuments } from '@/features/tours/components/mission-documents'
+import { TourActions } from '@/features/tours/components/tour-actions'
+import {
+  Activity,
+  AlertTriangle,
+  Copy,
+  MapPin,
+  PackageOpen,
+  Truck,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import type { Organization } from '@lpg/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useToursStore } from '@/store/tours-store'
 import { cn } from '@/lib/utils'
 import { formatTm } from '@/features/map/utils/format'
 import {
@@ -30,13 +38,6 @@ export function MarketerBulkTourDetails({
   trip: TourActivity
   marketer: Organization
 }) {
-  const deliveryEvents = useToursStore((state) => state.deliveryEvents)
-  const documents = deliveryEvents.filter(
-    (event) =>
-      event.tour_id === trip.id &&
-      event.proof_url &&
-      /^https?:\/\//i.test(event.proof_url)
-  )
   const alerts = trip.events.filter((event) => event.severity !== 'low')
 
   async function copyReference() {
@@ -75,9 +76,6 @@ export function MarketerBulkTourDetails({
           <TabsTrigger className={tabClass} value='overview'>
             Vue d’ensemble
           </TabsTrigger>
-          <TabsTrigger className={tabClass} value='documents'>
-            Documents & BL
-          </TabsTrigger>
           <TabsTrigger className={tabClass} value='activity'>
             Journal d’activité
           </TabsTrigger>
@@ -104,12 +102,10 @@ export function MarketerBulkTourDetails({
                 >
                   {tourStatusLabels[trip.tourneeStatus]}
                 </Badge>
-                <span>{trip.progressPercent}% complété</span>
-                <span className='text-muted-foreground'>
-                  · ETA : {formatBulkTourDate(trip.expectedArrivalAt)}
-                </span>
+                <TourActions tour={trip} />
               </div>
             </div>
+
             <div className='flex items-center justify-between gap-3 border-y py-3'>
               <div className='flex min-w-0 items-center gap-3'>
                 <span className='grid size-9 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold'>
@@ -128,6 +124,7 @@ export function MarketerBulkTourDetails({
                   : 'Externalisée'}
               </Badge>
             </div>
+
             <h4 className='text-sm font-medium'>Détails du transport</h4>
             <dl className='grid grid-cols-2 gap-x-4 gap-y-5 border-b pb-4 text-xs xl:grid-cols-4'>
               <div>
@@ -157,6 +154,72 @@ export function MarketerBulkTourDetails({
                 </dd>
               </div>
             </dl>
+
+            {/* Section Résumé de l'activité */}
+            <div className='space-y-3 rounded-lg border bg-muted/15 p-4'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <Activity className='size-4 text-primary' />
+                  <h4 className='text-xs font-semibold uppercase tracking-wider text-foreground'>
+                    Résumé de l'activité
+                  </h4>
+                </div>
+                <div className='flex items-center gap-2 text-xs text-muted-foreground'>
+                  <span>{trip.progressPercent}% complété</span>
+                  <span>
+                    · ETA : {formatBulkTourDate(trip.expectedArrivalAt)}
+                  </span>
+                </div>
+              </div>
+              <div className='h-2 w-full rounded-full bg-muted overflow-hidden'>
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-all duration-300',
+                    trip.status === 'incident'
+                      ? 'bg-rose-500'
+                      : trip.status === 'completed'
+                        ? 'bg-emerald-500'
+                        : 'bg-primary'
+                  )}
+                  style={{ width: `${trip.progressPercent}%` }}
+                />
+              </div>
+              <div className='grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-xs'>
+                <div className='rounded-md border bg-card p-2.5'>
+                  <span className='text-muted-foreground block text-[11px]'>
+                    Volume initial
+                  </span>
+                  <span className='font-semibold mt-0.5 block'>
+                    {formatTm(trip.loadedQuantity)}
+                  </span>
+                </div>
+                <div className='rounded-md border bg-card p-2.5'>
+                  <span className='text-muted-foreground block text-[11px]'>
+                    Volume livré
+                  </span>
+                  <span className='font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5 block'>
+                    {formatTm(trip.deliveredQuantity)}
+                  </span>
+                </div>
+                <div className='rounded-md border bg-card p-2.5'>
+                  <span className='text-muted-foreground block text-[11px]'>
+                    Volume restant
+                  </span>
+                  <span className='font-semibold mt-0.5 block'>
+                    {formatTm(trip.remainingQuantity)}
+                  </span>
+                </div>
+                <div className='rounded-md border bg-card p-2.5'>
+                  <span className='text-muted-foreground block text-[11px]'>
+                    Étapes validées
+                  </span>
+                  <span className='font-semibold mt-0.5 block'>
+                    {trip.completed_checkpoints} / {trip.checkpoint_count}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {alerts.map((event) => (
               <div
                 key={event.id}
@@ -169,37 +232,129 @@ export function MarketerBulkTourDetails({
                 </div>
               </div>
             ))}
-            <div className='flex flex-wrap justify-between gap-3 text-xs text-muted-foreground'>
+
+            {/* Section Étapes de livraison & Bons de validation (BL) */}
+            <div className='space-y-3 pt-2'>
+              <div className='flex items-center justify-between'>
+                <h4 className='text-sm font-semibold flex items-center gap-2'>
+                  <MapPin className='size-4 text-primary' />
+                  Étapes de livraison & Bons de validation (BL)
+                </h4>
+                <Badge variant='outline' className='text-xs'>
+                  {trip.stops.length} étape{trip.stops.length > 1 ? 's' : ''}
+                </Badge>
+              </div>
+
+              <div className='space-y-3'>
+                {trip.stops.map((stop, idx) => {
+                  const isCompleted =
+                    stop.completed || trip.tourneeStatus === 'CLOSED'
+                  const isCurrent =
+                    !isCompleted && stop.id === trip.nextStop?.id
+
+                  return (
+                    <div
+                      key={stop.id}
+                      className={cn(
+                        'rounded-lg border bg-card p-3.5 shadow-2xs space-y-2.5 transition',
+                        isCompleted
+                          ? 'border-emerald-500/30'
+                          : isCurrent
+                            ? 'border-primary/50 shadow-xs'
+                            : 'border-border'
+                      )}
+                    >
+                      <div className='flex items-center justify-between gap-2'>
+                        <div className='flex items-center gap-2'>
+                          <span
+                            className={cn(
+                              'flex size-6 items-center justify-center rounded-full text-xs font-semibold',
+                              isCompleted
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                                : isCurrent
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-muted text-muted-foreground'
+                            )}
+                          >
+                            {idx + 1}
+                          </span>
+                          <span className='font-medium text-sm text-foreground'>
+                            {stop.title}
+                          </span>
+                          <Badge variant='secondary' className='text-[10px]'>
+                            {stop.role === 'loading'
+                              ? 'Chargement'
+                              : 'Livraison'}
+                          </Badge>
+                        </div>
+                        <Badge
+                          variant='outline'
+                          className={cn(
+                            'text-[10px]',
+                            isCompleted
+                              ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-950/20'
+                              : isCurrent
+                                ? 'border-primary/40 text-primary bg-primary/5'
+                                : 'text-muted-foreground'
+                          )}
+                        >
+                          {isCompleted
+                            ? 'Validé'
+                            : isCurrent
+                              ? 'En cours'
+                              : 'À venir'}
+                        </Badge>
+                      </div>
+
+                      <div className='grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-muted-foreground'>
+                        <div>
+                          <span className='block text-[11px] opacity-75'>
+                            Destinataire / Site
+                          </span>
+                          <span className='font-medium text-foreground'>
+                            {stop.clientName ||
+                              stop.pointName ||
+                              stop.site.name}
+                          </span>
+                        </div>
+                        <div>
+                          <span className='block text-[11px] opacity-75'>
+                            Quantité
+                          </span>
+                          <span className='font-medium text-foreground'>
+                            {stop.expectedQuantity != null
+                              ? formatTm(stop.expectedQuantity)
+                              : '—'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className='block text-[11px] opacity-75'>
+                            Localité
+                          </span>
+                          <span className='font-medium text-foreground'>
+                            {stop.city || stop.site.city || 'Cameroun'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <MissionDocuments
+                        missionId={trip.id}
+                        stops={trip.stops}
+                        checkpointId={stop.id}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className='flex flex-wrap justify-between gap-3 text-xs text-muted-foreground pt-2'>
               <span>Livreur : {trip.livreur_name ?? 'Non affecté'}</span>
               <span>
                 {trip.completed_checkpoints} / {trip.checkpoint_count} étapes
                 terminées · {formatTm(trip.deliveredQuantity)} livrées
               </span>
             </div>
-          </TabsContent>
-          <TabsContent value='documents' className='m-0 p-5'>
-            {documents.length ? (
-              <ul className='space-y-3'>
-                {documents.map((document) => (
-                  <li key={document.id}>
-                    <a
-                      href={document.proof_url}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='flex items-center gap-3 rounded-(--radius) border p-4 text-sm hover:bg-muted'
-                    >
-                      <FileText className='size-4' />
-                      Justificatif de livraison —{' '}
-                      {document.site_name ?? `Étape ${document.sequence}`}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className='grid min-h-40 place-items-center rounded-(--radius) border border-dashed p-5 text-center text-sm text-muted-foreground'>
-                Aucun bon de livraison ni justificatif joint à cette tournée.
-              </div>
-            )}
           </TabsContent>
           <TabsContent value='activity' className='m-0 p-5'>
             <ol className='space-y-5 border-l pl-5'>

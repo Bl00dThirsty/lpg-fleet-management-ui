@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,8 +16,14 @@ import {
   Info,
 } from 'lucide-react'
 import { api } from '@lpg/api-client'
-import { hasPermission } from '@lpg/permissions'
-import type { DeliveryTour } from '@lpg/types'
+import { hasEffectivePermission } from '@lpg/permissions'
+import { deriveContractStatus } from '@/features/transporter-contracts/lib/contract-status'
+import type {
+  DeliveryTour,
+  TransporterContract,
+  Site,
+  ClientSite,
+} from '@lpg/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -49,10 +55,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { useToursStore, type TourDraft } from '@/store/tours-store'
 import { useAuthStore } from '@/store/auth-store'
 import { useRoleStore } from '@/store/role-store'
-import {
-  canEditTour,
-  EDITABLE_STATUSES,
-} from '../data/tour-machine'
+import { canEditTour, EDITABLE_STATUSES } from '../data/tour-machine'
 import { tourStatusLabels } from '../data/tour-activity'
 import {
   organizations as defaultOrganizations,
@@ -68,14 +71,27 @@ import {
   isTourLivreur,
   extractUserRoleCodes,
 } from '../lib/tour-create-helpers'
+import { useQueryClient } from '@tanstack/react-query'
+import { invalidateResource } from '@/lib/api/invalidation'
 import { STATUS_CLASS } from './tour-actions'
+
+import { buildDraftTourActivity } from '../lib/tour-draft-preview'
+const TourCorridorMap = lazy(() =>
+  import('./tour-corridor-map').then((m) => ({ default: m.TourCorridorMap }))
+)
 
 interface TourEditPageProps {
   tourId: string
+  onSaved?: () => void
+  onBusyChange?: (busy: boolean) => void
 }
 
 const tourEditSchema = z
   .object({
+    scheduled_at: z
+      .string()
+      .optional()
+      .refine((v) => !v || Number.isFinite(Date.parse(v)), 'Date invalide'),
     execution_mode: z.enum(['INTERNAL', 'EXTERNAL']),
     type: z.enum(['VRAC', 'BOUTEILLES50KG']),
     requested_quantity: z
@@ -163,7 +179,12 @@ const tourEditSchema = z
 
 type TourEditFormValues = z.infer<typeof tourEditSchema>
 
-export function TourEditPage({ tourId }: TourEditPageProps) {
+export function TourEditPage({
+  tourId,
+  onSaved,
+  onBusyChange,
+}: TourEditPageProps) {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const activeRole = useRoleStore((s) => s.activeRole)
   const authUser = useAuthStore((s) => s.user)
@@ -171,10 +192,14 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
 
   const tours = useToursStore((s) => s.tours)
   const toursLoading = useToursStore((s) => s.loading)
-  const tourCheckpoints = useToursStore(
-    (s) =>
-      s.checkpointsByTour[tourId] ??
-      s.checkpoints.filter((c) => (c.tournee_id ?? c.tour_id) === tourId)
+  const allCheckpoints = useToursStore((s) => s.checkpoints)
+  const fetchedCheckpoints = useToursStore((s) => s.checkpointsByTour[tourId])
+  const checkpointsLoading = useToursStore((s) => s.checkpointsLoading[tourId])
+  const tourCheckpoints = useMemo(
+    () =>
+      fetchedCheckpoints ??
+      allCheckpoints.filter((c) => (c.tournee_id ?? c.tour_id) === tourId),
+    [fetchedCheckpoints, allCheckpoints, tourId]
   )
 
   const tour: DeliveryTour | undefined = useMemo(
@@ -184,34 +209,66 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
 
   const [submitting, setSubmitting] = useState(false)
 
+  const [contracts, setContracts] = useState<TransporterContract[]>([])
+
   // External options
-  const [orgs, setOrgs] = useState<Array<{ id: string; name: string; type: string }>>([])
-  const [vehicles, setVehicles] = useState<Array<{ id: string; license_plate: string; type: string; org_id?: string }>>([])
-  const [drivers, setDrivers] = useState<Array<{ id: string; first_name?: string; last_name?: string; org_id?: string; is_active?: boolean }>>([])
-  const [candidates, setCandidates] = useState<Array<{ id: string; first_name?: string; last_name?: string; org_id?: string; is_active?: boolean }>>([])
-  const [roleCodesById, setRoleCodesById] = useState<Record<string, string[]>>({})
-  const [rawSites, setRawSites] = useState<Array<{ id: string; name: string; org_id?: string }>>([])
-  const [rawClientSites, setRawClientSites] = useState<Array<{ id: string; name: string; current_marketeur_org_id?: string; client_org_id?: string }>>([])
+  const [orgs, setOrgs] = useState<
+    Array<{ id: string; name: string; type: string }>
+  >([])
+  const [vehicles, setVehicles] = useState<
+    Array<{ id: string; license_plate: string; type: string; org_id?: string }>
+  >([])
+  const [drivers, setDrivers] = useState<
+    Array<{
+      id: string
+      first_name?: string
+      last_name?: string
+      org_id?: string
+      is_active?: boolean
+    }>
+  >([])
+  const [candidates, setCandidates] = useState<
+    Array<{
+      id: string
+      first_name?: string
+      last_name?: string
+      org_id?: string
+      is_active?: boolean
+    }>
+  >([])
+  const [roleCodesById, setRoleCodesById] = useState<Record<string, string[]>>(
+    {}
+  )
+  const [rawSites, setRawSites] = useState<Site[]>([])
+  const [rawClientSites, setRawClientSites] = useState<ClientSite[]>([])
 
   useEffect(() => {
     useToursStore.getState().fetchTours()
-    useToursStore.getState().fetchCheckpoints(tourId).catch(() => undefined)
+    useToursStore
+      .getState()
+      .fetchCheckpoints(tourId)
+      .catch(() => undefined)
   }, [tourId])
 
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const [orgRes, vehRes, usrRes, siteRes, csRes, drvRes] = await Promise.allSettled([
-          api.organizations.list({ size: 200 }),
-          api.vehicles.list({ size: 200 }),
-          api.users.list({ size: 200 }),
-          api.sites.list({ size: 200 }),
-          api.clientSites.list({ size: 200 }),
-          api.drivers.list({ size: 200 }),
-        ])
+        const [orgRes, vehRes, usrRes, siteRes, csRes, drvRes, contractRes] =
+          await Promise.allSettled([
+            api.organizations.list({ size: 200 }),
+            api.vehicles.list({ size: 200 }),
+            api.users.list({ size: 200 }),
+            api.sites.list({ size: 200 }),
+            api.clientSites.list({ size: 200 }),
+            api.drivers.list({ size: 200 }),
+            api.transporterContracts.list({ size: 200 }),
+          ])
 
         if (cancelled) return
+        setContracts(
+          contractRes.status === 'fulfilled' ? contractRes.value.data : []
+        )
 
         const orgData =
           orgRes.status === 'fulfilled' &&
@@ -227,7 +284,14 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
           vehRes.value.data.length > 0
             ? vehRes.value.data
             : defaultVehicles
-        setVehicles(vehData as Array<{ id: string; license_plate: string; type: string; org_id?: string }>)
+        setVehicles(
+          vehData as Array<{
+            id: string
+            license_plate: string
+            type: string
+            org_id?: string
+          }>
+        )
 
         const usrData =
           usrRes.status === 'fulfilled' &&
@@ -241,7 +305,14 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
           ),
           authUser
         )
-        setCandidates(rows as Array<{ id: string; first_name?: string; last_name?: string; org_id?: string }>)
+        setCandidates(
+          rows as Array<{
+            id: string
+            first_name?: string
+            last_name?: string
+            org_id?: string
+          }>
+        )
 
         const drvData =
           drvRes.status === 'fulfilled' &&
@@ -249,7 +320,14 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
           drvRes.value.data.length > 0
             ? drvRes.value.data
             : defaultDrivers
-        setDrivers(drvData as Array<{ id: string; first_name?: string; last_name?: string; org_id?: string }>)
+        setDrivers(
+          drvData as Array<{
+            id: string
+            first_name?: string
+            last_name?: string
+            org_id?: string
+          }>
+        )
 
         let siteData =
           siteRes.status === 'fulfilled' &&
@@ -262,7 +340,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
             (s) => s.org_id === authUser.org_id
           )
         }
-        setRawSites(siteData as Array<{ id: string; name: string; org_id?: string }>)
+        setRawSites(siteData as Site[])
 
         let csData =
           csRes.status === 'fulfilled' &&
@@ -271,13 +349,18 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
             ? csRes.value.data
             : defaultClientSites
         if (!isRegulator && authUser?.org_id) {
-          csData = (csData as Array<{ current_marketeur_org_id?: string; client_org_id?: string }>).filter(
+          csData = (
+            csData as Array<{
+              current_marketeur_org_id?: string
+              client_org_id?: string
+            }>
+          ).filter(
             (s) =>
               s.current_marketeur_org_id === authUser.org_id ||
               s.client_org_id === authUser.org_id
           )
         }
-        setRawClientSites(csData as Array<{ id: string; name: string; current_marketeur_org_id?: string; client_org_id?: string }>)
+        setRawClientSites(csData as ClientSite[])
 
         // Resolve livreur role codes
         const codeMap: Record<string, string[]> = {}
@@ -318,7 +401,13 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
   // Populate form once tour and checkpoints are ready
   const [formInitialized, setFormInitialized] = useState(false)
   useEffect(() => {
-    if (!tour || formInitialized) return
+    if (
+      !tour ||
+      formInitialized ||
+      checkpointsLoading ||
+      !tourCheckpoints.length
+    )
+      return
 
     const sortedCheckpoints = [...tourCheckpoints].sort(
       (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0)
@@ -327,8 +416,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
     const firstCheckpoint = sortedCheckpoints[0]
     const stopCheckpoints = sortedCheckpoints.slice(1)
 
-    const sourceSiteId =
-      tour.source_site_id ?? firstCheckpoint?.site_id ?? ''
+    const sourceSiteId = tour.source_site_id ?? firstCheckpoint?.site_id ?? ''
 
     const stops =
       stopCheckpoints.length > 0
@@ -342,6 +430,14 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
       tour.type === 'BOUTEILLES50KG' ? 'BOUTEILLES50KG' : 'VRAC'
 
     form.reset({
+      scheduled_at: tour.scheduled_at
+        ? new Date(
+            new Date(tour.scheduled_at).getTime() -
+              new Date(tour.scheduled_at).getTimezoneOffset() * 60000
+          )
+            .toISOString()
+            .slice(0, 16)
+        : '',
       execution_mode: tour.execution_mode ?? 'INTERNAL',
       type: normalizedType,
       requested_quantity: tour.requested_quantity ?? 0,
@@ -353,7 +449,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
       client_stops: stops,
     })
     setFormInitialized(true)
-  }, [tour, tourCheckpoints, form, formInitialized])
+  }, [tour, tourCheckpoints, form, formInitialized, checkpointsLoading])
 
   const watchMode = form.watch('execution_mode')
   const watchType = form.watch('type')
@@ -367,40 +463,80 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
     )
   }, [watchStops])
 
+  const sourceSiteId = form.watch('source_site_id')
+  const previewTrip = useMemo(
+    () =>
+      buildDraftTourActivity(
+        {
+          sourceSiteId,
+          type: watchType,
+          execution_mode: watchMode,
+          requested_quantity: watchQuantity,
+          marketeur_org_id: tour?.marketeur_org_id,
+          checkpoints: (watchStops ?? []).map((stop, index) => ({
+            client_site_id: stop.client_site_id,
+            sequence: index + 2,
+            expected_quantity: stop.expected_quantity,
+          })),
+        },
+        { sourceSites: rawSites, clientSites: rawClientSites }
+      ),
+    [
+      sourceSiteId,
+      watchType,
+      watchMode,
+      watchQuantity,
+      watchStops,
+      tour?.marketeur_org_id,
+      rawSites,
+      rawClientSites,
+    ]
+  )
   const unitLabel = watchType === 'VRAC' ? 'TM' : 'btl'
 
   // Filtered lists
   const transporters = useMemo(
-    () => orgs.filter((o) => o.type === 'TRANSPORTEUR'),
-    [orgs]
+    () =>
+      orgs.filter(
+        (o) =>
+          o.type === 'TRANSPORTEUR' &&
+          (o.id === tour?.transporter_org_id ||
+            contracts.some(
+              (c) =>
+                c.transporter_org_id === o.id &&
+                c.marketeur_org_id === tour?.marketeur_org_id &&
+                deriveContractStatus(c) === 'ACTIVE'
+            ))
+      ),
+    [orgs, contracts, tour]
   )
 
   const availableVehicles = useMemo(() => {
     if (watchMode === 'EXTERNAL') return []
     const mktId = tour?.marketeur_org_id ?? authUser?.org_id
-    if (!isRegulator && mktId) {
-      return vehicles.filter((v) => v.org_id === mktId)
+    if (mktId) {
+      return vehicles.filter((v) => v.org_id === mktId && v.type === watchType)
     }
     return vehicles
-  }, [watchMode, tour, authUser, isRegulator, vehicles])
+  }, [watchMode, watchType, tour, authUser, vehicles])
 
   const availableDrivers = useMemo(() => {
     if (watchMode === 'EXTERNAL') return []
     const mktId = tour?.marketeur_org_id ?? authUser?.org_id
-    if (!isRegulator && mktId) {
+    if (mktId) {
       return drivers.filter((d) => d.org_id === mktId)
     }
     return drivers
-  }, [watchMode, tour, authUser, isRegulator, drivers])
+  }, [watchMode, tour, authUser, drivers])
 
   const availableLivreurs = useMemo(() => {
     if (watchMode === 'EXTERNAL') return []
     const mktId = tour?.marketeur_org_id ?? authUser?.org_id
     return candidates.filter((c) => {
-      if (!isRegulator && mktId && c.org_id !== mktId) return false
+      if (mktId && c.org_id !== mktId) return false
       return isTourLivreur(c, roleCodesById[c.id])
     })
-  }, [watchMode, tour, authUser, isRegulator, candidates, roleCodesById])
+  }, [watchMode, tour, authUser, candidates, roleCodesById])
 
   if (toursLoading && !tour) {
     return (
@@ -432,7 +568,11 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
   }
 
   const isEditable = canEditTour(tour)
-  const canWrite = hasPermission(activeRole, 'tours.write')
+  const canWrite = hasEffectivePermission(
+    activeRole,
+    'tours.write',
+    authUser?.custom_roles
+  )
 
   if (!canWrite) {
     return (
@@ -466,8 +606,13 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
             <div>
               <p className='font-semibold'>Statut non modifiable</p>
               <p className='text-sm'>
-                Le statut actuel est <strong>{tourStatusLabels[tour.status] ?? tour.status}</strong>.
-                Seules les tournées au statut {EDITABLE_STATUSES.map((s) => tourStatusLabels[s] ?? s).join(', ')} peuvent être modifiées.
+                Le statut actuel est{' '}
+                <strong>{tourStatusLabels[tour.status] ?? tour.status}</strong>.
+                Seules les tournées au statut{' '}
+                {EDITABLE_STATUSES.map((s) => tourStatusLabels[s] ?? s).join(
+                  ', '
+                )}{' '}
+                peuvent être modifiées.
               </p>
             </div>
           </div>
@@ -483,11 +628,47 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
   }
 
   async function onSubmit(values: TourEditFormValues) {
+    if (
+      values.execution_mode === 'EXTERNAL' &&
+      values.transporter_org_id !== tour?.transporter_org_id &&
+      !contracts.some(
+        (c) =>
+          c.transporter_org_id === values.transporter_org_id &&
+          c.marketeur_org_id === tour?.marketeur_org_id &&
+          deriveContractStatus(c) === 'ACTIVE'
+      )
+    ) {
+      form.setError('transporter_org_id', {
+        message: 'Un contrat actif et accepté est obligatoire.',
+      })
+      return
+    }
+    if (values.execution_mode === 'INTERNAL') {
+      const choices = {
+        vehicle_id: availableVehicles,
+        driver_id: availableDrivers,
+        livreur_user_id: availableLivreurs,
+      }
+      for (const key of [
+        'vehicle_id',
+        'driver_id',
+        'livreur_user_id',
+      ] as const) {
+        if (!choices[key].some((row) => row.id === values[key])) {
+          form.setError(key, {
+            message:
+              'Sélectionnez une affectation autorisée pour ce marketeur.',
+          })
+          return
+        }
+      }
+    }
     setSubmitting(true)
+    onBusyChange?.(true)
     try {
       const checkpoints = [
         {
-          id: `cp-${tour!.id}-1`,
+          id: tourCheckpoints.find((c) => c.sequence === 1)?.id,
           sequence: 1,
           tournee_id: tour!.id,
           site_id: values.source_site_id,
@@ -495,7 +676,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
           status: 'PENDING' as const,
         },
         ...values.client_stops.map((stop, idx) => ({
-          id: `cp-${tour!.id}-${idx + 2}`,
+          id: tourCheckpoints.find((c) => c.sequence === idx + 2)?.id,
           sequence: idx + 2,
           tournee_id: tour!.id,
           client_site_id: stop.client_site_id,
@@ -505,6 +686,9 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
       ]
 
       const patch: Partial<TourDraft> = {
+        scheduled_at: values.scheduled_at
+          ? new Date(values.scheduled_at).toISOString()
+          : undefined,
         execution_mode: values.execution_mode,
         type: values.type,
         requested_quantity: values.requested_quantity,
@@ -515,17 +699,25 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
             ? values.transporter_org_id
             : null,
         vehicle_id:
-          values.execution_mode === 'INTERNAL' ? values.vehicle_id : null,
+          values.execution_mode === 'INTERNAL'
+            ? values.vehicle_id
+            : tour!.vehicle_id,
         driver_id:
-          values.execution_mode === 'INTERNAL' ? values.driver_id : null,
+          values.execution_mode === 'INTERNAL'
+            ? values.driver_id
+            : tour!.driver_id,
         livreur_user_id:
-          values.execution_mode === 'INTERNAL' ? values.livreur_user_id : null,
+          values.execution_mode === 'INTERNAL'
+            ? values.livreur_user_id
+            : tour!.livreur_user_id,
         checkpoints,
       }
 
       await useToursStore.getState().updateTourAsync(tour!.id, patch)
+      invalidateResource(queryClient, 'tours')
       toast.success('Tournée mise à jour avec succès')
-      navigate({ to: '/tour-tracking/$tourId', params: { tourId } })
+      if (onSaved) onSaved()
+      else navigate({ to: '/tour-tracking/$tourId', params: { tourId } })
     } catch (err) {
       toast.error(
         err instanceof Error
@@ -534,6 +726,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
       )
     } finally {
       setSubmitting(false)
+      onBusyChange?.(false)
     }
   }
 
@@ -573,10 +766,28 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                 <CardTitle>Cargaison & Mode d'exécution</CardTitle>
               </div>
               <CardDescription>
-                Définissez le type de produit, la quantité globale et le mode d'acheminement.
+                Définissez le type de produit, la quantité globale et le mode
+                d'acheminement.
               </CardDescription>
             </CardHeader>
             <CardContent className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <FormField
+                control={form.control}
+                name='scheduled_at'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Départ prévu</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='datetime-local'
+                        {...field}
+                        value={field.value ?? ''}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name='execution_mode'
@@ -584,7 +795,8 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                   <FormItem>
                     <FormLabel>Mode d'exécution</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
+                      disabled={submitting || tour.status !== 'DRAFT'}
+                      onValueChange={(value) => { if (value) field.onChange(value) }}
                       value={field.value}
                     >
                       <FormControl>
@@ -614,8 +826,9 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                     <FormItem>
                       <FormLabel>Transporteur partenaire</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => { if (value) field.onChange(value) }}
                         value={field.value ?? ''}
+                        disabled={submitting || tour.status === 'ACKNOWLEDGED'}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -642,10 +855,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type de cargaison</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={(value) => { if (value) field.onChange(value) }} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder='Sélectionner le type' />
@@ -668,12 +878,16 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                 name='requested_quantity'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Quantité totale demandée ({unitLabel})</FormLabel>
+                    <FormLabel>
+                      Quantité totale demandée ({unitLabel})
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type='number'
                         step={watchType === 'VRAC' ? '0.01' : '1'}
-                        placeholder={watchType === 'VRAC' ? 'ex: 20.5' : 'ex: 150'}
+                        placeholder={
+                          watchType === 'VRAC' ? 'ex: 20.5' : 'ex: 150'
+                        }
                         value={field.value ?? ''}
                         onChange={(e) =>
                           field.onChange(
@@ -703,7 +917,8 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                   <CardTitle>Équipage de la tournée (Interne)</CardTitle>
                 </div>
                 <CardDescription>
-                  Affectez le véhicule, le chauffeur et le livreur de votre organisation.
+                  Affectez le véhicule, le chauffeur et le livreur de votre
+                  organisation.
                 </CardDescription>
               </CardHeader>
               <CardContent className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -714,7 +929,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                     <FormItem>
                       <FormLabel>Camion / Véhicule</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => { if (value) field.onChange(value) }}
                         value={field.value ?? ''}
                       >
                         <FormControl>
@@ -742,7 +957,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                     <FormItem>
                       <FormLabel>Chauffeur</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => { if (value) field.onChange(value) }}
                         value={field.value ?? ''}
                       >
                         <FormControl>
@@ -770,7 +985,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                     <FormItem>
                       <FormLabel>Livreur</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => { if (value) field.onChange(value) }}
                         value={field.value ?? ''}
                       >
                         <FormControl>
@@ -797,7 +1012,10 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
               <CardContent className='flex items-center gap-3 pt-6 text-sm text-muted-foreground'>
                 <Info className='size-5 text-indigo-500 shrink-0' />
                 <p>
-                  En mode <strong>Externalisé</strong>, l'équipage (véhicule, chauffeur, livreur) sera affecté directement par le transporteur sélectionné au moment d'accuser réception de la tournée.
+                  En mode <strong>Externalisé</strong>, l'équipage (véhicule,
+                  chauffeur, livreur) sera affecté directement par le
+                  transporteur sélectionné au moment d'accuser réception de la
+                  tournée.
                 </p>
               </CardContent>
             </Card>
@@ -812,14 +1030,17 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                   <CardTitle>Itinéraire & Points de passage</CardTitle>
                 </div>
                 <CardDescription>
-                  Séquence 1 : Chargement au dépôt. Séquences suivantes : Arrêts clients.
+                  Séquence 1 : Chargement au dépôt. Séquences suivantes : Arrêts
+                  clients.
                 </CardDescription>
               </div>
               <Button
                 type='button'
                 variant='outline'
                 size='sm'
-                onClick={() => append({ client_site_id: '', expected_quantity: 0 })}
+                onClick={() =>
+                  append({ client_site_id: '', expected_quantity: 0 })
+                }
               >
                 <Plus className='size-4 mr-1' />
                 Ajouter un arrêt client
@@ -843,7 +1064,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                     <FormItem>
                       <FormLabel>Dépôt / Entrepôt de chargement</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => { if (value) field.onChange(value) }}
                         value={field.value}
                       >
                         <FormControl>
@@ -872,7 +1093,11 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                     Arrêts clients ({fields.length})
                   </span>
                   <span className='text-xs text-muted-foreground'>
-                    Total arrêts : <strong>{totalStopsQuantity} {unitLabel}</strong> / {watchQuantity || 0} {unitLabel}
+                    Total arrêts :{' '}
+                    <strong>
+                      {totalStopsQuantity} {unitLabel}
+                    </strong>{' '}
+                    / {watchQuantity || 0} {unitLabel}
                   </span>
                 </div>
 
@@ -895,7 +1120,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                               Site de livraison client
                             </FormLabel>
                             <Select
-                              onValueChange={field.onChange}
+                              onValueChange={(value) => { if (value) field.onChange(value) }}
                               value={field.value}
                             >
                               <FormControl>
@@ -962,15 +1187,46 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                   </div>
                 ))}
 
-                {Math.abs(totalStopsQuantity - (watchQuantity || 0)) > 0.001 && (
+                {Math.abs(totalStopsQuantity - (watchQuantity || 0)) >
+                  0.001 && (
                   <p className='text-xs text-amber-600 dark:text-amber-400'>
-                    Attention : la somme des livraisons prévues ({totalStopsQuantity} {unitLabel}) n'est pas égale à la quantité demandée ({watchQuantity || 0} {unitLabel}).
+                    Attention : la somme des livraisons prévues (
+                    {totalStopsQuantity} {unitLabel}) n'est pas égale à la
+                    quantité demandée ({watchQuantity || 0} {unitLabel}).
                   </p>
                 )}
               </div>
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>Itinéraire prévu</CardTitle>
+              <CardDescription>
+                Le tracé s’actualise selon le dépôt et l’ordre des livraisons.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {previewTrip ? (
+                <Suspense
+                  fallback={<p role='status'>Chargement de la carte…</p>}
+                >
+                  <TourCorridorMap
+                    trip={previewTrip}
+                    preview
+                    formatDateTime={(date) =>
+                      date ? new Date(date).toLocaleString('fr-FR') : '—'
+                    }
+                  />
+                </Suspense>
+              ) : (
+                <p className='text-sm text-muted-foreground'>
+                  Sélectionnez le dépôt et des sites de livraison disposant de
+                  coordonnées GPS.
+                </p>
+              )}
+            </CardContent>
+          </Card>
           {/* Actions de soumission */}
           <div className='flex items-center justify-end gap-3 pt-4 border-t'>
             <Button asChild variant='outline'>
@@ -978,7 +1234,7 @@ export function TourEditPage({ tourId }: TourEditPageProps) {
                 Annuler
               </Link>
             </Button>
-            <Button type='submit' disabled={submitting}>
+            <Button type='submit' disabled={submitting || !formInitialized}>
               {submitting && <Loader2 className='size-4 mr-2 animate-spin' />}
               Enregistrer les modifications
             </Button>

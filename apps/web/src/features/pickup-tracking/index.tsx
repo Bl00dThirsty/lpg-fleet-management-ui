@@ -1,3 +1,5 @@
+import { TourActions } from '@/features/tours/components/tour-actions'
+import { toTourActivities } from '@/features/tours/data/tour-activity'
 import { useToursStore } from '@/store/tours-store'
 import { useEffect, useMemo, useState } from 'react'
 import {
@@ -72,6 +74,13 @@ function StageStepper({ stage }: { stage: number }) {
 
 function LivePickupCard({ pickup }: { pickup: PickupTrackView }) {
   const [expanded, setExpanded] = useState(false)
+  const mission = useToursStore((s) => s.tours.find((t) => t.id === pickup.id))
+  const checkpoints = useToursStore((s) => s.checkpoints)
+  const activity = useMemo(
+    () =>
+      mission ? toTourActivities([mission], { checkpoints })[0] : undefined,
+    [mission, checkpoints]
+  )
   return (
     <div className='rounded-lg border bg-card p-4 transition-shadow hover:shadow-sm'>
       <div className='flex items-center justify-between gap-3'>
@@ -131,6 +140,14 @@ function LivePickupCard({ pickup }: { pickup: PickupTrackView }) {
               : '—'}
           </p>
           <p>Départ : {new Date(pickup.started_at).toLocaleString('fr-FR')}</p>
+          {activity && (
+            <TourActions
+              tour={activity}
+              checkpoints={checkpoints.filter(
+                (c) => c.tournee_id === pickup.id
+              )}
+            />
+          )}
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { useClientDirectory } from '../data/use-client-directory'
 import { Building2, MapPin, Users, Mail } from 'lucide-react'
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@lpg/ui'
 import {
@@ -22,9 +23,10 @@ export function ClientDetailsSheet({
   open,
   onOpenChange,
 }: ClientDetailsSheetProps) {
+  const directory = useClientDirectory()
   if (!client) return null
 
-  const sites = getClientSites(client.orgId)
+  const sites = getClientSites(client.orgId, directory.sites)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -84,10 +86,13 @@ export function ClientDetailsSheet({
                         </CardTitle>
                       </CardHeader>
                       <CardContent className='space-y-3'>
-                       {/* <DetailLine label='ID' value={client.id} /> */}
+                        {/* <DetailLine label='ID' value={client.id} /> */}
                         <DetailLine label='Nom' value={client.name} />
                         <DetailLine label='Region' value={client.region} />
-                        <DetailLine label='Sites' value={`${client.clientSiteCount}`} />
+                        <DetailLine
+                          label='Sites'
+                          value={`${client.clientSiteCount}`}
+                        />
                       </CardContent>
                     </Card>
 
@@ -100,7 +105,10 @@ export function ClientDetailsSheet({
                       </CardHeader>
                       <CardContent className='space-y-3'>
                         <DetailLine label='Nom' value={client.contactName} />
-                        <DetailLine label='Téléphone' value={client.contactPhone} />
+                        <DetailLine
+                          label='Téléphone'
+                          value={client.contactPhone}
+                        />
                         <DetailLine label='Email' value={client.contactEmail} />
                       </CardContent>
                     </Card>
@@ -122,7 +130,9 @@ export function ClientDetailsSheet({
                       </CardHeader>
                       <CardContent className='space-y-3'>
                         {sites.length === 0 ? (
-                          <p className='text-sm text-muted-foreground'>Aucun site.</p>
+                          <p className='text-sm text-muted-foreground'>
+                            Aucun site.
+                          </p>
                         ) : (
                           sites.map((site) => (
                             <ClientSiteRow key={site.id} site={site} />

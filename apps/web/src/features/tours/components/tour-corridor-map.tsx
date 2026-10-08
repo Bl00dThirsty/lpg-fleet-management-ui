@@ -22,10 +22,15 @@ import { siteTypeLabels } from '@/features/sites/data/sites'
 import { type RouteTripView } from '../data/tour-activity'
 import { formatTm } from '@/features/map/utils/format'
 import { useRoadRoutes } from '@/features/map/data/road-routes'
-import { projectOnRoad, type RoadRoute, type RoadCoordinate } from '@/features/map/lib/road-routing'
+import {
+  projectOnRoad,
+  type RoadRoute,
+  type RoadCoordinate,
+} from '@/features/map/lib/road-routing'
 
 type TourCorridorMapProps = {
   compact?: boolean
+  preview?: boolean
   trip: RouteTripView
   formatDateTime: (value: string) => string
   formatQuantity?: (value: number) => string
@@ -70,9 +75,9 @@ const stopRoleStyles = {
     style: 'diamond' as const,
   },
   delivery: {
-    color: [245, 158, 11, 0.96] as [number, number, number, number],
+    color: [56, 189, 248, 0.96] as [number, number, number, number],
     label: 'Livraison',
-    style: 'square' as const,
+    style: 'diamond' as const,
   },
 } as const
 
@@ -81,6 +86,7 @@ export function TourCorridorMap({
   formatDateTime,
   formatQuantity,
   compact = false,
+  preview = false,
 }: TourCorridorMapProps) {
   const { resolvedTheme } = useTheme()
   const mapTheme = resolvedTheme
@@ -95,11 +101,15 @@ export function TourCorridorMap({
   const validStops = useMemo(() => {
     const raw: RoadCoordinate[] = [
       [trip.originSite.longitude, trip.originSite.latitude],
-      ...trip.stops.map((stop): RoadCoordinate => [stop.site.longitude, stop.site.latitude]),
+      ...trip.stops.map((stop): RoadCoordinate => [
+        stop.site.longitude,
+        stop.site.latitude,
+      ]),
       [trip.destinationSite.longitude, trip.destinationSite.latitude],
     ]
     return raw.filter(
-      ([lng, lat]) => (lng !== 0 || lat !== 0) && Number.isFinite(lng) && Number.isFinite(lat)
+      ([lng, lat]) =>
+        (lng !== 0 || lat !== 0) && Number.isFinite(lng) && Number.isFinite(lat)
     )
   }, [trip.originSite, trip.stops, trip.destinationSite])
 
@@ -136,7 +146,9 @@ export function TourCorridorMap({
     })
 
     map.basemap?.load?.().catch(() => {
-      map.basemap = createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light')
+      map.basemap = createRobustBasemap(
+        initialTheme === 'dark' ? 'dark' : 'light'
+      )
     })
 
     const view = new MapView({
@@ -166,8 +178,13 @@ export function TourCorridorMap({
         setIsReady(true)
       })
       .catch((err: unknown) => {
-        console.warn('Tour corridor map view warning, switching to robust basemap:', err)
-        map.basemap = createRobustBasemap(initialTheme === 'dark' ? 'dark' : 'light')
+        console.warn(
+          'Tour corridor map view warning, switching to robust basemap:',
+          err
+        )
+        map.basemap = createRobustBasemap(
+          initialTheme === 'dark' ? 'dark' : 'light'
+        )
         setLoadFailed(false)
         setIsReady(true)
       })
@@ -202,60 +219,66 @@ export function TourCorridorMap({
 
     if (!isReady || !graphicsLayer || !view) return
 
-     const graphics = createRouteGraphics(trip, mapTheme, formatQuantity ?? formatTmDefault, road)
+    const graphics = createRouteGraphics(
+      trip,
+      mapTheme,
+      formatQuantity ?? formatTmDefault,
+      road,
+      preview
+    )
 
     graphicsLayer.removeAll()
     graphicsLayer.addMany(graphics)
 
-    void view
-      .goTo(graphics)
-      .catch(() => undefined)
-  }, [isReady, mapTheme, trip, formatQuantity, road])
+    void view.goTo(graphics).catch(() => undefined)
+  }, [isReady, mapTheme, trip, formatQuantity, road, preview])
 
   const mapCanvas = (
-        <div
-          className={cn(
-            'fleet-arcgis-map relative h-[400px] overflow-hidden rounded-lg bg-muted/55 shadow-inner',
-            mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light',
-            compact && 'h-[300px] rounded-none shadow-none'
-          )}
-          data-map-theme={mapTheme}
+    <div
+      className={cn(
+        'fleet-arcgis-map relative h-[400px] overflow-hidden rounded-lg bg-muted/55 shadow-inner',
+        mapTheme === 'dark' ? 'calcite-mode-dark' : 'calcite-mode-light',
+        compact && 'h-[300px] rounded-none shadow-none'
+      )}
+      data-map-theme={mapTheme}
+    >
+      <div ref={mapContainerRef} className='absolute inset-0 h-full w-full' />
+      <div className='pointer-events-none absolute top-4 right-4 flex flex-wrap gap-2'>
+        <Badge className='gap-1 bg-background/90 text-foreground shadow-sm backdrop-blur'>
+          <Truck className='size-3.5 text-sky-500' />
+          {trip.truck?.license_plate || trip.truck?.id || 'Véhicule en attente'}
+        </Badge>
+        <Badge
+          variant='outline'
+          className='border-transparent bg-background/90 shadow-sm backdrop-blur'
         >
-          <div
-            ref={mapContainerRef}
-            className='absolute inset-0 h-full w-full'
-          />
-          <div className='pointer-events-none absolute top-4 right-4 flex flex-wrap gap-2'>
-            <Badge className='gap-1 bg-background/90 text-foreground shadow-sm backdrop-blur'>
-              <Truck className='size-3.5 text-sky-500' />
-              {trip.truck?.license_plate || trip.truck?.id || 'Véhicule en attente'}
-            </Badge>
-            <Badge
-              variant='outline'
-              className='border-transparent bg-background/90 shadow-sm backdrop-blur'
-            >
-              ArcGIS
-            </Badge>
-          </div>
+          ArcGIS
+        </Badge>
+      </div>
 
-          <div role='status' className='absolute bottom-3 left-3 rounded-lg bg-background/95 px-3 py-2 text-xs shadow-sm'>
-            {roadQuery?.isError ? roadQuery?.error?.message : roadQuery?.isPending
-              ? 'Calcul du trajet routier…'
-              : 'Itinéraire routier ArcGIS'}
-          </div>
-          {!isReady && !loadFailed ? (
-            <div className='pointer-events-none absolute inset-0 flex items-center justify-center bg-background/40 text-sm text-muted-foreground backdrop-blur-[1px]'>
-              Chargement de la carte ArcGIS...
-            </div>
-          ) : null}
-
-          {loadFailed ? (
-            <div className='absolute inset-x-4 top-16 rounded-lg border border-amber-500/30 bg-background/95 px-3 py-2 text-sm text-amber-700 shadow-sm backdrop-blur dark:text-amber-300'>
-              La carte ArcGIS n'a pas pu charger. Verifie la cle API et les
-              restrictions de domaine.
-            </div>
-          ) : null}
+      <div
+        role='status'
+        className='absolute bottom-3 left-3 rounded-lg bg-background/95 px-3 py-2 text-xs shadow-sm'
+      >
+        {roadQuery?.isError
+          ? roadQuery?.error?.message
+          : roadQuery?.isPending
+            ? 'Calcul du trajet routier…'
+            : 'Itinéraire routier ArcGIS'}
+      </div>
+      {!isReady && !loadFailed ? (
+        <div className='pointer-events-none absolute inset-0 flex items-center justify-center bg-background/40 text-sm text-muted-foreground backdrop-blur-[1px]'>
+          Chargement de la carte ArcGIS...
         </div>
+      ) : null}
+
+      {loadFailed ? (
+        <div className='absolute inset-x-4 top-16 rounded-lg border border-amber-500/30 bg-background/95 px-3 py-2 text-sm text-amber-700 shadow-sm backdrop-blur dark:text-amber-300'>
+          La carte ArcGIS n'a pas pu charger. Verifie la cle API et les
+          restrictions de domaine.
+        </div>
+      ) : null}
+    </div>
   )
 
   if (compact) {
@@ -278,14 +301,21 @@ export function TourCorridorMap({
               className='gap-1 border-transparent bg-background/70'
             >
               <RouteIcon className='size-3.5' />
-              {road ? road.distanceKm.toFixed(1) : '—'} km
+              {road
+                ? new Intl.NumberFormat('fr-FR', {
+                    maximumFractionDigits: 1,
+                  }).format(road.distanceKm)
+                : '—'}{' '}
+              km
             </Badge>
             <Badge
               variant='outline'
               className='gap-1 border-transparent bg-background/70'
             >
               <Clock3 className='size-3.5' />
-              {formatDateTime(trip.lastUpdatedAt)}
+              {road
+                ? `${Math.round(road.durationMin)} min estimées`
+                : 'Durée indisponible'}
             </Badge>
           </div>
         </div>
@@ -314,17 +344,19 @@ export function TourCorridorMap({
                 {total}
               </span>
             ))}
-          <span className='inline-flex items-center gap-2 rounded-full bg-muted/35 px-2.5 py-1 shadow-xs'>
-            <span className='size-2 rounded-full bg-sky-500' />
-            Position camion
-          </span>
+          {!preview && (
+            <span className='inline-flex items-center gap-2 rounded-full bg-muted/35 px-2.5 py-1 shadow-xs'>
+              <span className='size-2 rounded-full bg-sky-500' />
+              Position camion
+            </span>
+          )}
           <span className='inline-flex items-center gap-2 rounded-full bg-muted/35 px-2.5 py-1 shadow-xs'>
             <span className='size-5 rounded-full bg-sky-500/15 ring-1 ring-sky-500/30' />
             Itinéraire routier
           </span>
         </div>
 
-        <MapSignals trip={trip} formatDateTime={formatDateTime} />
+        {!preview && <MapSignals trip={trip} formatDateTime={formatDateTime} />}
 
         <div className='flex flex-wrap gap-2 text-xs text-muted-foreground'>
           {trip.stops.map((stop) => (
@@ -374,8 +406,17 @@ function MapSignals({
   )
 }
 
-function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuantity: (value: number) => string, road?: RoadRoute) {
-  const displayPosition = (longitude: number, latitude: number): RoadCoordinate =>
+function createRouteGraphics(
+  trip: RouteTripView,
+  mapTheme: MapTheme,
+  formatQuantity: (value: number) => string,
+  road?: RoadRoute,
+  preview = false
+) {
+  const displayPosition = (
+    longitude: number,
+    latitude: number
+  ): RoadCoordinate =>
     road && (import.meta.env.VITE_API_MODE ?? 'fake') === 'fake'
       ? projectOnRoad([longitude, latitude], road.paths)
       : [longitude, latitude]
@@ -392,7 +433,7 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
     },
     popupTemplate: {
       title: `Tournée ${trip.reference}`,
-    content: createRoutePopupContent(trip, formatQuantity ?? formatTmDefault),
+      content: createRoutePopupContent(trip, formatQuantity ?? formatTmDefault),
     },
   })
 
@@ -416,7 +457,13 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
         },
         popupTemplate: {
           title: `Trace GPS ${trip.reference}`,
-          content: createTelemetryPopupContent(trip, point.recordedAt, point.lpgLevelPercent, point.estimatedVolume, formatQuantity ?? formatTmDefault),
+          content: createTelemetryPopupContent(
+            trip,
+            point.recordedAt,
+            point.lpgLevelPercent,
+            point.estimatedVolume,
+            formatQuantity ?? formatTmDefault
+          ),
         },
       })
   )
@@ -449,8 +496,14 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
 
   const currentTruckGraphic = new Graphic({
     geometry: new Point({
-      longitude: displayPosition(trip.latestTelemetry.longitude, trip.latestTelemetry.latitude)[0],
-      latitude: displayPosition(trip.latestTelemetry.longitude, trip.latestTelemetry.latitude)[1],
+      longitude: displayPosition(
+        trip.latestTelemetry.longitude,
+        trip.latestTelemetry.latitude
+      )[0],
+      latitude: displayPosition(
+        trip.latestTelemetry.longitude,
+        trip.latestTelemetry.latitude
+      )[1],
       spatialReference: { wkid: 4326 },
     }),
     symbol: {
@@ -461,14 +514,25 @@ function createRouteGraphics(trip: RouteTripView, mapTheme: MapTheme, formatQuan
     },
     popupTemplate: {
       title: `${trip.truck?.license_plate || trip.truck?.id || 'Véhicule'} - position courante`,
-      content: createCurrentTruckPopupContent(trip, formatQuantity ?? formatTmDefault),
+      content: createCurrentTruckPopupContent(
+        trip,
+        formatQuantity ?? formatTmDefault
+      ),
     },
   })
 
-  return [...(road ? [routeGraphic] : []), ...breadcrumbGraphics, ...stopGraphics, currentTruckGraphic]
+  return [
+    ...(road ? [routeGraphic] : []),
+    ...breadcrumbGraphics,
+    ...stopGraphics,
+    ...(preview ? [] : [currentTruckGraphic]),
+  ]
 }
 
-function createRoutePopupContent(trip: RouteTripView, formatQuantity: (value: number) => string) {
+function createRoutePopupContent(
+  trip: RouteTripView,
+  formatQuantity: (value: number) => string
+) {
   return `
     <div class="fleet-truck-popup">
       ${popupLine('Client', trip.customerName)}
@@ -497,8 +561,12 @@ function createStopPopupContent(
   `
 }
 
-function createCurrentTruckPopupContent(trip: RouteTripView, formatQuantity: (value: number) => string) {
-  const truckPlate = trip.truck?.license_plate || trip.truck?.id || 'Non assigné'
+function createCurrentTruckPopupContent(
+  trip: RouteTripView,
+  formatQuantity: (value: number) => string
+) {
+  const truckPlate =
+    trip.truck?.license_plate || trip.truck?.id || 'Non assigné'
   const location = trip.truck?.current_location ?? 'En attente d’affectation'
   return `
     <div class="fleet-truck-popup">
@@ -517,7 +585,7 @@ function createTelemetryPopupContent(
   recordedAt: string,
   lpgLevelPercent: number,
   estimatedVolume: number,
-  formatQuantity: (value: number) => string,
+  formatQuantity: (value: number) => string
 ) {
   return `
     <div class="fleet-truck-popup">
@@ -571,9 +639,7 @@ function getArcgisViewTheme(mapTheme: MapTheme) {
 }
 
 function getOutlineColor(mapTheme: MapTheme): [number, number, number, number] {
-  return mapTheme === 'dark'
-    ? [226, 232, 240, 0.95]
-    : [255, 255, 255, 0.95]
+  return mapTheme === 'dark' ? [226, 232, 240, 0.95] : [255, 255, 255, 0.95]
 }
 
 function rgbaFromTuple(value: [number, number, number, number]) {

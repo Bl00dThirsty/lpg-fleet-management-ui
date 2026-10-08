@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '@lpg/api-client'
-import type { ExecutionMode, TourneeType } from '@lpg/types'
+import type { ClientSite, Site, ExecutionMode, TourneeType } from '@lpg/types'
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,11 @@ import {
   toRequestedQuantity,
   type CheckpointDraftRow,
 } from '../lib/tour-create-helpers'
+
+import { buildDraftTourActivity } from '../lib/tour-draft-preview'
+const TourCorridorMap = lazy(() =>
+  import('./tour-corridor-map').then((m) => ({ default: m.TourCorridorMap }))
+)
 
 interface TourCreateDialogProps {
   open: boolean
@@ -79,6 +84,7 @@ interface DriverOption {
 }
 
 interface RawSite {
+  geo_point?: Site['geo_point']
   id: string
   name: string
   org_id?: string
@@ -90,6 +96,7 @@ interface RawSite {
 }
 
 interface RawClientSite {
+  geo_point?: ClientSite['geo_point']
   id: string
   name: string
   client_org_id?: string
@@ -113,7 +120,7 @@ function getCachedRoleCodes(id: string): string[] | undefined {
 
 async function resolveRoleCodesBatched(
   ids: string[],
-  isCancelled: () => boolean,
+  isCancelled: () => boolean
 ): Promise<Record<string, string[]>> {
   const out: Record<string, string[]> = {}
   const BATCH_SIZE = 8
@@ -130,7 +137,7 @@ async function resolveRoleCodesBatched(
         } catch {
           return { id, codes: null as string[] | null }
         }
-      }),
+      })
     )
     for (const r of results) {
       if (r.codes) out[r.id] = r.codes
@@ -147,7 +154,9 @@ export function TourCreateDialog({
   const authUser = useAuthStore((s) => s.user)
   const isRegulator = canViewAllTourCrew(authUser)
   const [crewError, setCrewError] = useState<string | null>(null)
-  const [tourCode, setTourCode] = useState(() => `TRP-${Math.floor(1000 + Math.random() * 9000)}`)
+  const [tourCode, setTourCode] = useState(
+    () => `TRP-${Math.floor(1000 + Math.random() * 9000)}`
+  )
   const [executionMode, setExecutionMode] = useState<ExecutionMode>('INTERNAL')
   const [cargoType, setCargoType] = useState<TourneeType>('BOUTEILLES50KG')
   const [quantity, setQuantity] = useState<number>(50)
@@ -163,7 +172,9 @@ export function TourCreateDialog({
   const [vehicles, setVehicles] = useState<VehicleOption[]>([])
   const [candidates, setCandidates] = useState<CandidateUser[]>([])
   const [drivers, setDrivers] = useState<DriverOption[]>([])
-  const [roleCodesById, setRoleCodesById] = useState<Record<string, string[]>>({})
+  const [roleCodesById, setRoleCodesById] = useState<Record<string, string[]>>(
+    {}
+  )
   const [rolesResolving, setRolesResolving] = useState(false)
   const [rawSites, setRawSites] = useState<RawSite[]>([])
   const [rawClientSites, setRawClientSites] = useState<RawClientSite[]>([])
@@ -172,6 +183,41 @@ export function TourCreateDialog({
   // Checkpoints: Séquence 1 = Dépôt (chargement), Séquences 2..N = Client sites (livraisons)
   const [clientStops, setClientStops] = useState<CheckpointDraftRow[]>([])
   const [checkpointError, setCheckpointError] = useState<string | null>(null)
+
+  const previewTrip = useMemo(
+    () =>
+      buildDraftTourActivity(
+        {
+          sourceSiteId: depotSiteId,
+          type: cargoType,
+          execution_mode: executionMode,
+          requested_quantity: quantity,
+          marketeur_org_id: marketerId,
+          vehicle_id: vehicleId,
+          checkpoints: clientStops.map((s, i) => ({
+            site_id: '',
+            client_site_id: s.destinationId,
+            sequence: i + 2,
+            expected_quantity: Number(s.plannedQuantity) || 0,
+          })),
+        },
+        {
+          sourceSites: rawSites as Site[],
+          clientSites: rawClientSites as ClientSite[],
+        }
+      ),
+    [
+      depotSiteId,
+      cargoType,
+      executionMode,
+      quantity,
+      marketerId,
+      vehicleId,
+      clientStops,
+      rawSites,
+      rawClientSites,
+    ]
+  )
 
   // Fetch or fallback data
   useEffect(() => {
@@ -186,73 +232,107 @@ export function TourCreateDialog({
 
     ;(async () => {
       try {
-        const [orgRes, vehRes, usrRes, siteRes, csRes, drvRes] = await Promise.allSettled([
-          api.organizations.list({ size: 200 }),
-          api.vehicles.list({ size: 200 }),
-          api.users.list({ size: 200 }),
-          api.sites.list({ size: 200 }),
-          api.clientSites.list({ size: 200 }),
-          api.drivers.list({ size: 200 }),
-        ])
+        const [orgRes, vehRes, usrRes, siteRes, csRes, drvRes] =
+          await Promise.allSettled([
+            api.organizations.list({ size: 200 }),
+            api.vehicles.list({ size: 200 }),
+            api.users.list({ size: 200 }),
+            api.sites.list({ size: 200 }),
+            api.clientSites.list({ size: 200 }),
+            api.drivers.list({ size: 200 }),
+          ])
 
         if (cancelled) return
 
         // Organizations (with fallback)
-        const orgData = (orgRes.status === 'fulfilled' && Array.isArray(orgRes.value?.data) && orgRes.value.data.length > 0)
-          ? orgRes.value.data
-          : defaultOrganizations
+        const orgData =
+          orgRes.status === 'fulfilled' &&
+          Array.isArray(orgRes.value?.data) &&
+          orgRes.value.data.length > 0
+            ? orgRes.value.data
+            : defaultOrganizations
         setOrgs(orgData as OrgOption[])
 
         // Vehicles (with fallback)
-        const vehData = (vehRes.status === 'fulfilled' && Array.isArray(vehRes.value?.data) && vehRes.value.data.length > 0)
-          ? vehRes.value.data
-          : defaultVehicles
+        const vehData =
+          vehRes.status === 'fulfilled' &&
+          Array.isArray(vehRes.value?.data) &&
+          vehRes.value.data.length > 0
+            ? vehRes.value.data
+            : defaultVehicles
         setVehicles(vehData as VehicleOption[])
 
         // Users & Candidates (with fallback)
-        const usrData = (usrRes.status === 'fulfilled' && Array.isArray(usrRes.value?.data) && usrRes.value.data.length > 0)
-          ? usrRes.value.data
-          : defaultUsers
-        const rows = filterTourCrew((usrData as CandidateUser[]).filter((u) => !!u && typeof u.id === 'string'), authUser)
+        const usrData =
+          usrRes.status === 'fulfilled' &&
+          Array.isArray(usrRes.value?.data) &&
+          usrRes.value.data.length > 0
+            ? usrRes.value.data
+            : defaultUsers
+        const rows = filterTourCrew(
+          (usrData as CandidateUser[]).filter(
+            (u) => !!u && typeof u.id === 'string'
+          ),
+          authUser
+        )
         setCandidates(rows)
 
         // Drivers
-        const drvData = (drvRes.status === 'fulfilled' && Array.isArray(drvRes.value?.data) && drvRes.value.data.length > 0)
-          ? drvRes.value.data
-          : defaultDrivers
+        const drvData =
+          drvRes.status === 'fulfilled' &&
+          Array.isArray(drvRes.value?.data) &&
+          drvRes.value.data.length > 0
+            ? drvRes.value.data
+            : defaultDrivers
         setDrivers(drvData as DriverOption[])
 
         // Sites (with fallback)
-        let siteData = (siteRes.status === 'fulfilled' && Array.isArray(siteRes.value?.data) && siteRes.value.data.length > 0)
-          ? siteRes.value.data
-          : defaultSites
+        let siteData =
+          siteRes.status === 'fulfilled' &&
+          Array.isArray(siteRes.value?.data) &&
+          siteRes.value.data.length > 0
+            ? siteRes.value.data
+            : defaultSites
         if (!isRegulator && authUser?.org_id) {
           siteData = (siteData as RawSite[]).filter(
-            (s) => s.org_id === authUser.org_id || s.organization_id === authUser.org_id,
+            (s) =>
+              s.org_id === authUser.org_id ||
+              s.organization_id === authUser.org_id
           )
         }
         setRawSites(siteData as RawSite[])
 
         // Client Sites (with fallback)
-        let csData = (csRes.status === 'fulfilled' && Array.isArray(csRes.value?.data) && csRes.value.data.length > 0)
-          ? csRes.value.data
-          : defaultClientSites
+        let csData =
+          csRes.status === 'fulfilled' &&
+          Array.isArray(csRes.value?.data) &&
+          csRes.value.data.length > 0
+            ? csRes.value.data
+            : defaultClientSites
         if (!isRegulator && authUser?.org_id) {
           csData = (csData as RawClientSite[]).filter(
-            (s) => s.current_marketeur_org_id === authUser.org_id || s.client_org_id === authUser.org_id,
+            (s) =>
+              s.current_marketeur_org_id === authUser.org_id ||
+              s.client_org_id === authUser.org_id
           )
         }
         setRawClientSites(csData as RawClientSite[])
 
         // Keep marketers in their own organization; regulators may choose any marketer.
         const marketers = (orgData as OrgOption[]).filter(
-          (o) => o.type === 'MARKETEUR' || o.type === 'MKT' || o.type?.toUpperCase().includes('MARKET'),
+          (o) =>
+            o.type === 'MARKETEUR' ||
+            o.type === 'MKT' ||
+            o.type?.toUpperCase().includes('MARKET')
         )
-        const defaultMkt = marketers.find((m) => m.id === authUser?.org_id) ??
+        const defaultMkt =
+          marketers.find((m) => m.id === authUser?.org_id) ??
           (canViewAllTourCrew(authUser) ? marketers[0] : undefined)
         setMarketerId(defaultMkt?.id ?? '')
 
-        const transporters = (orgData as OrgOption[]).filter((o) => o.type === 'TRANSPORTEUR')
+        const transporters = (orgData as OrgOption[]).filter(
+          (o) => o.type === 'TRANSPORTEUR'
+        )
         if (transporters[0]) {
           setTransporterId(transporters[0].id)
         }
@@ -274,7 +354,10 @@ export function TourCreateDialog({
 
         if (needsDetail.length > 0 && !cancelled) {
           setRolesResolving(true)
-          const resolved = await resolveRoleCodesBatched(needsDetail, () => cancelled)
+          const resolved = await resolveRoleCodesBatched(
+            needsDetail,
+            () => cancelled
+          )
           if (!cancelled) {
             setRoleCodesById((prev) => ({ ...prev, ...resolved }))
             setRolesResolving(false)
@@ -282,7 +365,11 @@ export function TourCreateDialog({
         }
       } catch (err) {
         if (cancelled) return
-        setDataError(err instanceof Error ? err.message : 'Erreur chargement données de référence.')
+        setDataError(
+          err instanceof Error
+            ? err.message
+            : 'Erreur chargement données de référence.'
+        )
       }
     })()
 
@@ -294,8 +381,11 @@ export function TourCreateDialog({
   // Filter available Marketers (MKT vs MARKETEUR bug resolved)
   const availableMarketers = useMemo(() => {
     return orgs.filter(
-      (o) => (o.type === 'MARKETEUR' || o.type === 'MKT' || o.type?.toUpperCase().includes('MARKET')) &&
-        (isRegulator || Boolean(authUser?.org_id && o.id === authUser.org_id)),
+      (o) =>
+        (o.type === 'MARKETEUR' ||
+          o.type === 'MKT' ||
+          o.type?.toUpperCase().includes('MARKET')) &&
+        (isRegulator || Boolean(authUser?.org_id && o.id === authUser.org_id))
     )
   }, [orgs, authUser, isRegulator])
 
@@ -304,15 +394,21 @@ export function TourCreateDialog({
   }, [orgs])
 
   const availableVehicles = useMemo(() => {
-    return filterTourCrew(vehicles, authUser).filter((v) => v.type === cargoType)
+    return filterTourCrew(vehicles, authUser).filter(
+      (v) => v.type === cargoType
+    )
   }, [vehicles, cargoType, authUser])
 
-  const availableDrivers = useMemo(() => filterTourCrew(drivers, authUser), [drivers, authUser])
+  const availableDrivers = useMemo(
+    () => filterTourCrew(drivers, authUser),
+    [drivers, authUser]
+  )
   const livreurs = useMemo(
-    () => filterTourCrew(candidates, authUser).filter((candidate) =>
-      isTourLivreur(candidate, roleCodesById[candidate.id]),
-    ),
-    [candidates, roleCodesById, authUser],
+    () =>
+      filterTourCrew(candidates, authUser).filter((candidate) =>
+        isTourLivreur(candidate, roleCodesById[candidate.id])
+      ),
+    [candidates, roleCodesById, authUser]
   )
 
   // Clear stale choices on identity/data changes; never retain out-of-scope IDs.
@@ -340,13 +436,14 @@ export function TourCreateDialog({
     if (!marketerId) return []
     // 1. Sites of this marketer org
     const orgSites = rawSites.filter(
-      (s) => s.org_id === marketerId || s.organization_id === marketerId,
+      (s) => s.org_id === marketerId || s.organization_id === marketerId
     )
     const primaryRegion = orgSites[0]?.region || 'LITTORAL'
 
     // Strict isolation: non-regulators only see sites of their own marketer organisation.
     // Regulators who pick a marketer see that marketer's sites (or rawSites if none configured).
-    const candidateSites = (!isRegulator || orgSites.length > 0) ? orgSites : rawSites
+    const candidateSites =
+      !isRegulator || orgSites.length > 0 ? orgSites : rawSites
 
     // Sort: sites in primary region first, then depots / filling centres, then alphabetical
     return [...candidateSites].sort((a, b) => {
@@ -355,11 +452,15 @@ export function TourCreateDialog({
       if (aInRegion !== bInRegion) return bInRegion - aInRegion
 
       const aIsDepot = a.functions?.some((f) =>
-        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f),
-      ) ? 1 : 0
+        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f)
+      )
+        ? 1
+        : 0
       const bIsDepot = b.functions?.some((f) =>
-        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f),
-      ) ? 1 : 0
+        ['CENTREEMPLISSEUR', 'ENTREPOT', 'DEP', 'FIL'].includes(f)
+      )
+        ? 1
+        : 0
       if (aIsDepot !== bIsDepot) return bIsDepot - aIsDepot
 
       return a.name.localeCompare(b.name)
@@ -368,7 +469,10 @@ export function TourCreateDialog({
 
   // Auto-select first depot
   useEffect(() => {
-    if (marketerDepotOptions.length > 0 && (!depotSiteId || !marketerDepotOptions.some((d) => d.id === depotSiteId))) {
+    if (
+      marketerDepotOptions.length > 0 &&
+      (!depotSiteId || !marketerDepotOptions.some((d) => d.id === depotSiteId))
+    ) {
       setDepotSiteId(marketerDepotOptions[0]?.id ?? '')
     }
   }, [marketerDepotOptions, depotSiteId])
@@ -387,12 +491,21 @@ export function TourCreateDialog({
     // Restrict client sites to this marketer's clients
     const targetMkt = !isRegulator ? authUser?.org_id : marketerId
     const relevantClientSites = targetMkt
-      ? rawClientSites.filter((s) => s.current_marketeur_org_id === targetMkt || s.client_org_id === targetMkt)
+      ? rawClientSites.filter(
+          (s) =>
+            s.current_marketeur_org_id === targetMkt ||
+            s.client_org_id === targetMkt
+        )
       : rawClientSites
-    const sitesToUse = relevantClientSites.length > 0 ? relevantClientSites : rawClientSites
+    const sitesToUse =
+      relevantClientSites.length > 0 ? relevantClientSites : rawClientSites
 
     // Group client sites
-    const groups: Array<{ clientOrgId: string; clientName: string; sites: RawClientSite[] }> = []
+    const groups: Array<{
+      clientOrgId: string
+      clientName: string
+      sites: RawClientSite[]
+    }> = []
 
     // Sort sites: matching depot's region first!
     const sortedSites = [...sitesToUse].sort((a, b) => {
@@ -410,7 +523,9 @@ export function TourCreateDialog({
     }
 
     for (const [cOrgId, sList] of Object.entries(sitesByOrg)) {
-      const orgName = orgMap.get(cOrgId) || (cOrgId.includes('dovv') ? 'Supermarchés DOVV SA' : 'Clients Réseau')
+      const orgName =
+        orgMap.get(cOrgId) ||
+        (cOrgId.includes('dovv') ? 'Supermarchés DOVV SA' : 'Clients Réseau')
       groups.push({
         clientOrgId: cOrgId,
         clientName: orgName,
@@ -431,8 +546,13 @@ export function TourCreateDialog({
   useEffect(() => {
     if (open && clientStops.length === 0 && rawClientSites.length > 0) {
       // Find DOVV or same-region client sites
-      const sameRegionClients = rawClientSites.filter((s) => s.region === currentRegion)
-      const initialSites = sameRegionClients.length >= 2 ? sameRegionClients.slice(0, 2) : rawClientSites.slice(0, 2)
+      const sameRegionClients = rawClientSites.filter(
+        (s) => s.region === currentRegion
+      )
+      const initialSites =
+        sameRegionClients.length >= 2
+          ? sameRegionClients.slice(0, 2)
+          : rawClientSites.slice(0, 2)
 
       const perStopQty = Math.round(quantity / (initialSites.length || 1))
       setClientStops(
@@ -441,16 +561,17 @@ export function TourCreateDialog({
           destinationId: s.id,
           sequence: idx + 2, // Séquence 1 est le dépôt !
           plannedQuantity: perStopQty,
-        })),
+        }))
       )
     }
   }, [open, rawClientSites, currentRegion, quantity, clientStops.length])
 
   function addClientStop() {
     const nextSeq = clientStops.length + 2 // After depot sequence 1
-    const availableSite = rawClientSites.find(
-      (s) => !clientStops.some((cs) => cs.destinationId === s.id),
-    ) || rawClientSites[0]
+    const availableSite =
+      rawClientSites.find(
+        (s) => !clientStops.some((cs) => cs.destinationId === s.id)
+      ) || rawClientSites[0]
 
     setClientStops((prev) => [
       ...prev,
@@ -464,7 +585,9 @@ export function TourCreateDialog({
   }
 
   function updateClientStop(index: number, patch: Partial<CheckpointDraftRow>) {
-    setClientStops((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)))
+    setClientStops((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, ...patch } : r))
+    )
   }
 
   function removeClientStop(index: number) {
@@ -478,7 +601,10 @@ export function TourCreateDialog({
 
   // Total planned by client stops
   const clientPlannedTotal = useMemo(() => {
-    return clientStops.reduce((sum, r) => sum + (Number(r.plannedQuantity) || 0), 0)
+    return clientStops.reduce(
+      (sum, r) => sum + (Number(r.plannedQuantity) || 0),
+      0
+    )
   }, [clientStops])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -489,12 +615,15 @@ export function TourCreateDialog({
       setCrewError('Sélectionnez une organisation autorisée.')
       return
     }
-    if (executionMode === 'INTERNAL' && (
-      !availableDrivers.some((driver) => driver.id === driverId) ||
-      !livreurs.some((livreur) => livreur.id === livreurId) ||
-      !availableVehicles.some((vehicle) => vehicle.id === vehicleId)
-    )) {
-      setCrewError('Sélectionnez un véhicule, un chauffeur et un livreur autorisés pour votre organisation.')
+    if (
+      executionMode === 'INTERNAL' &&
+      (!availableDrivers.some((driver) => driver.id === driverId) ||
+        !livreurs.some((livreur) => livreur.id === livreurId) ||
+        !availableVehicles.some((vehicle) => vehicle.id === vehicleId))
+    ) {
+      setCrewError(
+        'Sélectionnez un véhicule, un chauffeur et un livreur autorisés pour votre organisation.'
+      )
       return
     }
     if (!depotSiteId) {
@@ -502,7 +631,9 @@ export function TourCreateDialog({
       return
     }
     if (clientStops.length === 0) {
-      toast.error('Ajoutez au moins un site client pour la livraison (Séquence 2..N)')
+      toast.error(
+        'Ajoutez au moins un site client pour la livraison (Séquence 2..N)'
+      )
       return
     }
 
@@ -542,7 +673,8 @@ export function TourCreateDialog({
         transporter_org_id: executionMode === 'EXTERNAL' ? transporterId : null,
         vehicle_id: executionMode === 'INTERNAL' ? vehicleId || null : null,
         driver_id: executionMode === 'INTERNAL' ? driverId || null : null,
-        livreur_user_id: executionMode === 'INTERNAL' ? livreurId || null : null,
+        livreur_user_id:
+          executionMode === 'INTERNAL' ? livreurId || null : null,
         checkpoints: allCheckpointsPayload,
       }
 
@@ -551,7 +683,9 @@ export function TourCreateDialog({
       const tourId = created.id
 
       // Séquence 1 (dépôt) + Séquences 2..N (clients) checkpoints registered
-      for (const cp of (import.meta.env.VITE_API_MODE === 'http' ? [] : allCheckpointsPayload)) {
+      for (const cp of import.meta.env.VITE_API_MODE === 'http'
+        ? []
+        : allCheckpointsPayload) {
         try {
           await api.tours.addCheckpoint(tourId, {
             siteId: cp.site_id,
@@ -563,7 +697,9 @@ export function TourCreateDialog({
       }
 
       // Auto-transition:
-      const currentTour = useToursStore.getState().tours.find((t) => t.id === tourId)
+      const currentTour = useToursStore
+        .getState()
+        .tours.find((t) => t.id === tourId)
       const currentStatus = currentTour?.status ?? created.tourneeStatus
 
       if (executionMode === 'INTERNAL') {
@@ -575,17 +711,25 @@ export function TourCreateDialog({
             useToursStore.getState().performAction(tourId, 'plan')
           }
         }
-        toast.success(`Tournée ${tourCode} planifiée avec succès ! Statut : PLANNED (1 Dépôt + ${clientStops.length} arrêts clients)`)
+        toast.success(
+          `Tournée ${tourCode} planifiée avec succès ! Statut : PLANNED (1 Dépôt + ${clientStops.length} arrêts clients)`
+        )
       } else {
         if (currentStatus !== 'PENDINGTRANSPORTERACK') {
           try {
-            await useToursStore.getState().performActionAsync(tourId, 'send-to-transporter')
+            await useToursStore
+              .getState()
+              .performActionAsync(tourId, 'send-to-transporter')
           } catch (error) {
             if (import.meta.env.VITE_API_MODE === 'http') throw error
-            useToursStore.getState().performAction(tourId, 'send-to-transporter')
+            useToursStore
+              .getState()
+              .performAction(tourId, 'send-to-transporter')
           }
         }
-        toast.success(`Tournée ${tourCode} transmise au transporteur ! Statut : PENDINGTRANSPORTERACK`)
+        toast.success(
+          `Tournée ${tourCode} transmise au transporteur ! Statut : PENDINGTRANSPORTERACK`
+        )
       }
 
       onOpenChange(false)
@@ -609,13 +753,15 @@ export function TourCreateDialog({
               Planification d'une Tournée de Distribution (Flux 2)
             </DialogTitle>
             <DialogDescription className='text-xs'>
-              Workflow de distribution : Dépôt régional en Séquence 1 (chargement) suivi des livraisons clients (Séquences 2..N).
+              Workflow de distribution : Dépôt régional en Séquence 1
+              (chargement) suivi des livraisons clients (Séquences 2..N).
             </DialogDescription>
           </DialogHeader>
 
           {dataError && (
             <div className='rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-700'>
-              Mode démonstration actif — Utilisation des données référentielles locales ({dataError}).
+              Mode démonstration actif — Utilisation des données référentielles
+              locales ({dataError}).
             </div>
           )}
 
@@ -625,29 +771,43 @@ export function TourCreateDialog({
             </div>
           )}
 
-          {crewError && <p role='alert' className='text-sm text-destructive'>{crewError}</p>}
+          {crewError && (
+            <p role='alert' className='text-sm text-destructive'>
+              {crewError}
+            </p>
+          )}
           {/* SECTION 1: Paramètres généraux */}
           <div className='rounded-lg border bg-muted/20 p-3 space-y-3'>
             <div className='text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between'>
               <span>1. Paramètres & Cargaison</span>
-              <span className='font-mono text-primary font-bold'>{tourCode}</span>
+              <span className='font-mono text-primary font-bold'>
+                {tourCode}
+              </span>
             </div>
 
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
               <div>
-                <label className='block text-xs font-medium text-foreground mb-1'>Mode d'exécution</label>
+                <label className='block text-xs font-medium text-foreground mb-1'>
+                  Mode d'exécution
+                </label>
                 <select
                   value={executionMode}
-                  onChange={(e) => setExecutionMode(e.target.value as ExecutionMode)}
+                  onChange={(e) =>
+                    setExecutionMode(e.target.value as ExecutionMode)
+                  }
                   className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                 >
                   <option value='INTERNAL'>Interne (Flotte propre)</option>
-                  <option value='EXTERNAL'>Sous-traitance (Transporteur agréé)</option>
+                  <option value='EXTERNAL'>
+                    Sous-traitance (Transporteur agréé)
+                  </option>
                 </select>
               </div>
 
               <div>
-                <label className='block text-xs font-medium text-foreground mb-1'>Type de cargaison</label>
+                <label className='block text-xs font-medium text-foreground mb-1'>
+                  Type de cargaison
+                </label>
                 <select
                   value={cargoType}
                   onChange={(e) => {
@@ -657,7 +817,9 @@ export function TourCreateDialog({
                   }}
                   className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                 >
-                  <option value='BOUTEILLES50KG'>Bouteilles 50 kg (Plateau — BTL)</option>
+                  <option value='BOUTEILLES50KG'>
+                    Bouteilles 50 kg (Plateau — BTL)
+                  </option>
                   <option value='VRAC'>VRAC (Citerne — TM)</option>
                 </select>
               </div>
@@ -706,7 +868,9 @@ export function TourCreateDialog({
 
               {executionMode === 'EXTERNAL' ? (
                 <div>
-                  <label className='block text-xs font-medium text-foreground mb-1'>Transporteur agréé</label>
+                  <label className='block text-xs font-medium text-foreground mb-1'>
+                    Transporteur agréé
+                  </label>
                   <select
                     value={transporterId}
                     onChange={(e) => setTransporterId(e.target.value)}
@@ -731,7 +895,11 @@ export function TourCreateDialog({
                   >
                     {availableVehicles.map((v) => (
                       <option key={v.id} value={v.id}>
-                        {v.license_plate} ({v.max_bottle_count ? `${v.max_bottle_count} btl` : `${v.max_volume} TM`})
+                        {v.license_plate} (
+                        {v.max_bottle_count
+                          ? `${v.max_bottle_count} btl`
+                          : `${v.max_volume} TM`}
+                        )
                       </option>
                     ))}
                   </select>
@@ -743,7 +911,8 @@ export function TourCreateDialog({
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1'>
                 <div>
                   <label className='block text-xs font-medium text-foreground mb-1'>
-                    Chauffeur (Rôle DRIVER){rolesResolving ? ' (chargement...)' : ''}
+                    Chauffeur (Rôle DRIVER)
+                    {rolesResolving ? ' (chargement...)' : ''}
                   </label>
                   <select
                     aria-label='Chauffeur'
@@ -751,10 +920,17 @@ export function TourCreateDialog({
                     onChange={(e) => setDriverId(e.target.value)}
                     className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                   >
-                    <option value=''>{availableDrivers.length ? 'Choisir un chauffeur' : 'Aucun chauffeur disponible dans votre organisation'}</option>
+                    <option value=''>
+                      {availableDrivers.length
+                        ? 'Choisir un chauffeur'
+                        : 'Aucun chauffeur disponible dans votre organisation'}
+                    </option>
                     {availableDrivers.map((d) => (
                       <option key={d.id} value={d.id}>
-                        {d.first_name} {d.last_name} {d.license_number ? `— Permis: ${d.license_number}` : ''}
+                        {d.first_name} {d.last_name}{' '}
+                        {d.license_number
+                          ? `— Permis: ${d.license_number}`
+                          : ''}
                       </option>
                     ))}
                   </select>
@@ -770,7 +946,11 @@ export function TourCreateDialog({
                     onChange={(e) => setLivreurId(e.target.value)}
                     className='w-full rounded-md border bg-background px-3 py-1.5 text-xs shadow-xs focus:ring-1 focus:ring-primary'
                   >
-                    <option value=''>{livreurs.length ? 'Choisir un livreur' : 'Aucun livreur disponible dans votre organisation'}</option>
+                    <option value=''>
+                      {livreurs.length
+                        ? 'Choisir un livreur'
+                        : 'Aucun livreur disponible dans votre organisation'}
+                    </option>
                     {livreurs.map((u) => (
                       <option key={u.id} value={u.id}>
                         {u.first_name} {u.last_name}
@@ -800,7 +980,8 @@ export function TourCreateDialog({
 
             <div>
               <label className='block text-[11px] font-medium text-muted-foreground mb-1'>
-                Sélectionnez le Dépôt / Centre Emplisseur (Région {currentRegion} prioritaire)
+                Sélectionnez le Dépôt / Centre Emplisseur (Région{' '}
+                {currentRegion} prioritaire)
               </label>
               <select
                 value={depotSiteId}
@@ -808,22 +989,26 @@ export function TourCreateDialog({
                 className='w-full rounded-md border bg-background px-3 py-2 text-xs font-medium shadow-xs focus:ring-1 focus:ring-primary'
               >
                 {marketerDepotOptions.map((s) => {
-                  const isMyOrg = s.org_id === marketerId || s.organization_id === marketerId
+                  const isMyOrg =
+                    s.org_id === marketerId || s.organization_id === marketerId
                   const isSameRegion = s.region === currentRegion
-                  const tag = isMyOrg && isSameRegion
-                    ? 'Mon Dépôt Régional'
-                    : isSameRegion
-                      ? 'Région Principale'
-                      : ''
+                  const tag =
+                    isMyOrg && isSameRegion
+                      ? 'Mon Dépôt Régional'
+                      : isSameRegion
+                        ? 'Région Principale'
+                        : ''
                   return (
                     <option key={s.id} value={s.id}>
-                      {tag ? `[${tag}] ` : ''}{s.name} ({s.region})
+                      {tag ? `[${tag}] ` : ''}
+                      {s.name} ({s.region})
                     </option>
                   )
                 })}
               </select>
               <p className='mt-1 text-[11px] text-muted-foreground'>
-                Le camion commence par charger la cargaison au dépôt sélectionné avant de partir vers les clients.
+                Le camion commence par charger la cargaison au dépôt sélectionné
+                avant de partir vers les clients.
               </p>
             </div>
           </div>
@@ -839,7 +1024,13 @@ export function TourCreateDialog({
                   Séquences de Livraison Client (Région {currentRegion} d'abord)
                 </span>
               </div>
-              <Button type='button' variant='outline' size='sm' onClick={addClientStop} className='text-xs h-7 gap-1'>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={addClientStop}
+                className='text-xs h-7 gap-1'
+              >
                 <Plus className='size-3.5' />
                 Ajouter un arrêt client
               </Button>
@@ -861,14 +1052,17 @@ export function TourCreateDialog({
                     </label>
                     <select
                       value={stop.destinationId}
-                      onChange={(e) => updateClientStop(i, { destinationId: e.target.value })}
+                      onChange={(e) =>
+                        updateClientStop(i, { destinationId: e.target.value })
+                      }
                       className='w-full rounded border bg-background px-2 py-1 text-xs'
                     >
                       {clientOrgGroups.map((grp) => (
                         <optgroup key={grp.clientOrgId} label={grp.clientName}>
                           {grp.sites.map((s) => (
                             <option key={s.id} value={s.id}>
-                              {s.region === currentRegion ? '' : ''}{s.name} ({s.region})
+                              {s.region === currentRegion ? '' : ''}
+                              {s.name} ({s.region})
                             </option>
                           ))}
                         </optgroup>
@@ -885,7 +1079,11 @@ export function TourCreateDialog({
                       min={1}
                       step={cargoType === 'VRAC' ? '0.1' : '1'}
                       value={stop.plannedQuantity}
-                      onChange={(e) => updateClientStop(i, { plannedQuantity: Number(e.target.value) })}
+                      onChange={(e) =>
+                        updateClientStop(i, {
+                          plannedQuantity: Number(e.target.value),
+                        })
+                      }
                       className='w-full rounded border bg-background px-2 py-1 text-xs text-center'
                     />
                   </div>
@@ -907,7 +1105,13 @@ export function TourCreateDialog({
             <div className='flex items-center justify-between text-xs text-muted-foreground border-t pt-2'>
               <span>
                 Total planifié aux clients :{' '}
-                <strong className={clientPlannedTotal === quantity ? 'text-emerald-600' : 'text-amber-600'}>
+                <strong
+                  className={
+                    clientPlannedTotal === quantity
+                      ? 'text-emerald-600'
+                      : 'text-amber-600'
+                  }
+                >
                   {clientPlannedTotal} / {quantity} {quantityUnit}
                 </strong>
               </span>
@@ -927,6 +1131,31 @@ export function TourCreateDialog({
             </div>
           </div>
 
+          <section aria-label='Aperçu routier' className='space-y-3'>
+            <h3 className='font-semibold'>Aperçu de l’itinéraire</h3>
+            {previewTrip ? (
+              <Suspense fallback={<p role='status'>Chargement de la carte…</p>}>
+                <TourCorridorMap
+                  trip={previewTrip}
+                  preview
+                  formatDateTime={() => 'Planification'}
+                  formatQuantity={(v) =>
+                    new Intl.NumberFormat('fr-FR').format(v) +
+                    (cargoType === 'VRAC' ? ' TM' : ' btl')
+                  }
+                />
+              </Suspense>
+            ) : (
+              <p
+                role='status'
+                className='rounded-md border border-dashed p-4 text-sm text-muted-foreground'
+              >
+                Sélectionnez le dépôt et les arrêts disposant de coordonnées GPS
+                pour calculer le trajet. Aucun emplacement manquant n’est
+                estimé.
+              </p>
+            )}
+          </section>
           <DialogFooter className='gap-2 sm:gap-0 pt-2'>
             <Button
               type='button'
@@ -942,7 +1171,9 @@ export function TourCreateDialog({
               disabled={submitting || !depotSiteId || clientStops.length === 0}
               className='text-xs font-semibold'
             >
-              {submitting ? 'Planification en cours...' : 'Créer et Planifier la tournée (PLANNED)'}
+              {submitting
+                ? 'Planification en cours...'
+                : 'Créer et Planifier la tournée (PLANNED)'}
             </Button>
           </DialogFooter>
         </form>

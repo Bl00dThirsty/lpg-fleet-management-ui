@@ -5,12 +5,26 @@ import { useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/layout/page-header'
 import { PageShell, SectionCard } from '@/components/layout/page'
 import { Button } from '@/components/ui/button'
-import type { SiteRole, SiteRow, TransitionRequest } from './lib/site-status-machine'
+import type {
+  SiteRole,
+  SiteRow,
+  TransitionRequest,
+} from './lib/site-status-machine'
 import { canTransition } from './lib/site-status-machine'
 import { SitesTable } from './components/sites-table'
 import { SiteStatusBadge } from './components/site-status-badge'
-import { defaultThresholds, getSiteRows, getClientSiteRows, getVerificationInbox } from './data/site-lifecycle'
-import { clientSiteFields, clientSiteFromForm, siteFields, siteFromForm } from './data/sites-crud'
+import {
+  defaultThresholds,
+  getSiteRows,
+  getClientSiteRows,
+  getVerificationInbox,
+} from './data/site-lifecycle'
+import {
+  clientSiteFields,
+  clientSiteFromForm,
+  siteFields,
+  siteFromForm,
+} from './data/sites-crud'
 import { EntityFormSheet, useEntityPermission } from '@/components/entity-crud'
 import { Plus } from 'lucide-react'
 import {
@@ -23,26 +37,34 @@ import {
 import { assertPermission } from '@/lib/security/guards'
 import { useAuthStore } from '@/store/auth-store'
 
-export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role: SiteRole }) {
+export function SitesScreen({
+  kind,
+  role,
+}: {
+  kind: 'site' | 'client_site'
+  role: SiteRole
+}) {
   const perm = useEntityPermission('sites')
   const navigate = useNavigate()
   const authUser = useAuthStore((s) => s.user)
   const [rows, setRows] = useState<SiteRow[]>(() =>
-    kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser),
+    kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser)
   )
   const [creating, setCreating] = useState(false)
 
   const [prevDeps, setPrevDeps] = useState({ kind, authUser })
   if (prevDeps.kind !== kind || prevDeps.authUser !== authUser) {
     setPrevDeps({ kind, authUser })
-    setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
+    setRows(
+      kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser)
+    )
   }
 
   const openOnMap = useCallback(
     (row: SiteRow) => {
       navigate({ to: '/map', search: { site: row.id } })
     },
-    [navigate],
+    [navigate]
   )
 
   const handleAction = (row: SiteRow, request: TransitionRequest) => {
@@ -61,9 +83,24 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
       toast.error('Transition non autorisée.')
       return
     }
-    setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, status: result.nextStatus! } : r)))
-    const labels: Record<string, string> = { verify: 'vérifié', suspend: 'suspendu', reject: 'rejeté', reassign: 'réassigné' }
-    toast[request.kind === 'reject' ? 'error' : request.kind === 'suspend' ? 'warning' : 'success'](`${row.name} marqué comme ${labels[request.kind]}`)
+    setRows((prev) =>
+      prev.map((r) =>
+        r.id === row.id ? { ...r, status: result.nextStatus! } : r
+      )
+    )
+    const labels: Record<string, string> = {
+      verify: 'vérifié',
+      suspend: 'suspendu',
+      reject: 'rejeté',
+      reassign: 'réassigné',
+    }
+    toast[
+      request.kind === 'reject'
+        ? 'error'
+        : request.kind === 'suspend'
+          ? 'warning'
+          : 'success'
+    ](`${row.name} marqué comme ${labels[request.kind]}`)
   }
 
   const handleDelete = useCallback(
@@ -72,27 +109,32 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
         if (kind === 'site') await api.sites.remove(row.id)
         else await api.clientSites.remove(row.id)
         toast.success(`Site ${row.name} supprimé.`)
-        setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
+        setRows(
+          kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser)
+        )
       } catch {
         toast.error('Échec de la suppression.')
       }
     },
-    [kind, authUser],
+    [kind, authUser]
   )
 
   const handleCreate = useCallback(
     async (values: Record<string, unknown>) => {
       try {
-        if (kind === 'site') await api.sites.create(siteFromForm(values) as never)
+        if (kind === 'site')
+          await api.sites.create(siteFromForm(values) as never)
         else await api.clientSites.create(clientSiteFromForm(values) as never)
         toast.success(kind === 'site' ? 'Site créé.' : 'Site client créé.')
         setCreating(false)
-        setRows(kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser))
+        setRows(
+          kind === 'site' ? getSiteRows(authUser) : getClientSiteRows(authUser)
+        )
       } catch {
         toast.error('Échec de la création.')
       }
     },
-    [kind, authUser],
+    [kind, authUser]
   )
 
   const regionCount = new Set(rows.map((r) => r.region)).size
@@ -111,9 +153,9 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
               >
                 Gérer les clients
               </Button>
-              <Button onClick={() => navigate({ to: '/clients/new' })}>
+              <Button onClick={() => setCreating(true)}>
                 <Plus className='mr-1 h-4 w-4' />
-                Nouveau client
+                Nouveau site client
               </Button>
             </div>
           ) : perm.canCreate ? (
@@ -125,7 +167,13 @@ export function SitesScreen({ kind, role }: { kind: 'site' | 'client_site'; role
         }
       />
       <SectionCard>
-        <SitesTable rows={rows} role={role} onAction={handleAction} onDelete={handleDelete} onOpenMap={openOnMap} />
+        <SitesTable
+          rows={rows}
+          role={role}
+          onAction={handleAction}
+          onDelete={handleDelete}
+          onOpenMap={openOnMap}
+        />
       </SectionCard>
 
       <EntityFormSheet
@@ -146,10 +194,17 @@ export function SiteVerificationsScreen({ role }: { role: SiteRole }) {
   const navigate = useNavigate()
   const [openRow, setOpenRow] = useState<SiteRow | null>(null)
   const authUser = useAuthStore((s) => s.user)
-  const [inbox, setInbox] = useState<SiteRow[]>(() => getVerificationInbox(authUser))
+  const [inbox, setInbox] = useState<SiteRow[]>(() =>
+    getVerificationInbox(authUser)
+  )
   const handleAction = (row: SiteRow, request: TransitionRequest) => {
-    if (request.kind === 'verify') { setInbox((prev) => prev.filter((r) => r.id !== row.id)); toast.success(`${row.name} vérifié`) }
-    else if (request.kind === 'suspend' || request.kind === 'reject') { setInbox((prev) => prev.filter((r) => r.id !== row.id)); toast.info(`${row.name} retiré de la file`) }
+    if (request.kind === 'verify') {
+      setInbox((prev) => prev.filter((r) => r.id !== row.id))
+      toast.success(`${row.name} vérifié`)
+    } else if (request.kind === 'suspend' || request.kind === 'reject') {
+      setInbox((prev) => prev.filter((r) => r.id !== row.id))
+      toast.info(`${row.name} retiré de la file`)
+    }
     setOpenRow(null)
   }
   const openOnMap = (row: SiteRow) => {
@@ -157,24 +212,53 @@ export function SiteVerificationsScreen({ role }: { role: SiteRole }) {
   }
   return (
     <PageShell>
-      <PageHeader title='File de vérification' description={`${inbox.length} site(s) en attente de validation par AGENT/ADMIN/SUPERADMIN.`} />
-      <SectionCard><SitesTable rows={inbox} role={role} onAction={handleAction} onOpenMap={openOnMap} /></SectionCard>
+      <PageHeader
+        title='File de vérification'
+        description={`${inbox.length} site(s) en attente de validation par AGENT/ADMIN/SUPERADMIN.`}
+      />
+      <SectionCard>
+        <SitesTable
+          rows={inbox}
+          role={role}
+          onAction={handleAction}
+          onOpenMap={openOnMap}
+        />
+      </SectionCard>
       {openRow && (
-        <Dialog open onOpenChange={(open) => { if (!open) setOpenRow(null) }}>
+        <Dialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setOpenRow(null)
+          }}
+        >
           <DialogContent className='max-w-md'>
             <DialogHeader>
-              <DialogTitle>{openRow.name} <span className='font-mono text-xs text-muted-foreground'>({openRow.id})</span></DialogTitle>
+              <DialogTitle>
+                {openRow.name}{' '}
+                <span className='font-mono text-xs text-muted-foreground'>
+                  ({openRow.id})
+                </span>
+              </DialogTitle>
               <DialogDescription>
                 Fiche synthétique du site dans la file de vérification.
               </DialogDescription>
             </DialogHeader>
             <div className='space-y-1 text-sm'>
-              <p>Statut: <SiteStatusBadge row={openRow} thresholds={defaultThresholds} /></p>
+              <p>
+                Statut:{' '}
+                <SiteStatusBadge row={openRow} thresholds={defaultThresholds} />
+              </p>
               <p>Livraisons: {openRow.delivery_count}</p>
               <p>Confiance geo: {openRow.geo_confidence_score}/100</p>
               <p>Région: {openRow.region}</p>
             </div>
-            <Button variant='ghost' className='mt-4' onClick={() => setOpenRow(null)}>Fermer</Button>
+            <Button
+              variant='ghost'
+              className='mt-4'
+              onClick={() => setOpenRow(null)}
+            >
+              Fermer
+            </Button>
           </DialogContent>
         </Dialog>
       )}

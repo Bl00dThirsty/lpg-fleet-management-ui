@@ -39,9 +39,11 @@ export function PickupsCreateWizard({
   open,
   onOpenChange,
   onCreated,
+  editTourId,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  editTourId?: string
   onCreated: (id: string) => void
 }) {
   const user = useAuthStore((s) => s.user)
@@ -71,10 +73,32 @@ export function PickupsCreateWizard({
   const data = options.data
   useEffect(() => {
     if (open) {
-      form.reset()
+      const tour = useToursStore
+        .getState()
+        .tours.find((t) => t.id === editTourId)
+      if (tour) {
+        const date = tour.scheduled_at ? new Date(tour.scheduled_at) : null
+        const localDate =
+          date && !Number.isNaN(date.getTime())
+            ? new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+                .toISOString()
+                .slice(0, 16)
+            : ''
+        form.reset({
+          marketeur_org_id: tour.marketeur_org_id,
+          source_site_id: tour.source_site_id ?? '',
+          destination_site_id: tour.destination_site_id ?? '',
+          scheduled_at: localDate,
+          type: tour.type,
+          requested_quantity: tour.requested_quantity,
+          vehicle_id: tour.vehicle_id ?? '',
+          driver_id: tour.driver_id ?? '',
+          livreur_user_id: tour.livreur_user_id ?? '',
+        })
+      } else form.reset()
       setStep(0)
     }
-  }, [open, form])
+  }, [open, form, editTourId])
   const destinations =
     data?.destinations.filter(
       (s) =>
@@ -174,13 +198,20 @@ export function PickupsCreateWizard({
       return
     }
     try {
-      const saved = await useToursStore.getState().createPickupAsync({
+      const draft = {
         ...value,
         scheduled_at: new Date(value.scheduled_at).toISOString(),
-      })
+      }
+      const saved = editTourId
+        ? await useToursStore.getState().updatePickupAsync(editTourId, draft)
+        : await useToursStore.getState().createPickupAsync(draft)
       invalidateResource(qc, 'pickups')
       invalidateResource(qc, 'tours')
-      toast.success('Enlèvement planifié et transmis au livreur')
+      toast.success(
+        editTourId
+          ? 'Enlèvement modifié'
+          : 'Enlèvement planifié et transmis au livreur'
+      )
       onOpenChange(false)
       onCreated(saved.id)
     } catch (error) {
@@ -196,7 +227,9 @@ export function PickupsCreateWizard({
     >
       <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
         <DialogHeader>
-          <DialogTitle>Planifier un enlèvement</DialogTitle>
+          <DialogTitle>
+            {editTourId ? 'Modifier l’enlèvement' : 'Planifier un enlèvement'}
+          </DialogTitle>
           <DialogDescription>
             Du dépôt SNH ou SCDP vers le site du marketeur.
           </DialogDescription>
@@ -378,7 +411,9 @@ export function PickupsCreateWizard({
                     {form.formState.isSubmitting && (
                       <Loader2 className='mr-2 size-4 animate-spin' />
                     )}
-                    Planifier l’enlèvement
+                    {editTourId
+                      ? 'Enregistrer les modifications'
+                      : 'Planifier l’enlèvement'}
                   </Button>
                 )}
               </DialogFooter>

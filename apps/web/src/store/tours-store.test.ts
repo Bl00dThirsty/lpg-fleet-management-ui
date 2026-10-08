@@ -5,7 +5,11 @@ import { useAuthStore } from './auth-store'
 import { PERMISSION_DENIED } from '@/lib/security/guards'
 import { curated } from '@lpg/mock-data'
 import type { DeliveryTour } from '@lpg/types'
-import { tourStatusLabels, getTourCargo, getTourVolume } from '@/features/tours/data/tour-activity'
+import {
+  tourStatusLabels,
+  getTourCargo,
+  getTourVolume,
+} from '@/features/tours/data/tour-activity'
 import { useContractsStore } from './contracts-store'
 
 const MARKETEUR_ORG = 'org-0002-sctm-0000-000000000001'
@@ -25,7 +29,13 @@ const SUPERADMIN_USER = {
 }
 
 function setAuthUser(system_role: 'SUPERADMIN' | 'AGENT') {
-  useAuthStore.setState({ user: { ...SUPERADMIN_USER, id: `u-${system_role.toLowerCase()}`, system_role } })
+  useAuthStore.setState({
+    user: {
+      ...SUPERADMIN_USER,
+      id: `u-${system_role.toLowerCase()}`,
+      system_role,
+    },
+  })
 }
 
 function freshSeed() {
@@ -37,7 +47,7 @@ function freshSeed() {
 
 function freshCuratedWithActiveCerts() {
   const oneYearFromNow = new Date(
-    Date.now() + 365 * 24 * 3600 * 1000,
+    Date.now() + 365 * 24 * 3600 * 1000
   ).toISOString()
   return {
     ...curated,
@@ -52,23 +62,67 @@ function freshCuratedWithActiveCerts() {
               v.certificate_issued_at ?? new Date().toISOString(),
             certificate_expiry_at: oneYearFromNow,
           }
-        : v,
+        : v
     ),
   }
 }
 
 function inject(tour: Partial<DeliveryTour> & Pick<DeliveryTour, 'id'>) {
-  useToursStore.setState((s) => ({ tours: [...s.tours, { ...tour } as DeliveryTour] }))
+  useToursStore.setState((s) => ({
+    tours: [...s.tours, { ...tour } as DeliveryTour],
+  }))
 }
 
 describe('tours store', () => {
+  it('refuses an empty cancellation reason before requesting the API', async () => {
+    inject({
+      id: 'cancel-guard',
+      status: 'PLANNED',
+      execution_mode: 'INTERNAL',
+    })
+    const request = vi.spyOn(api.tours, 'cancel')
+    await expect(
+      useToursStore
+        .getState()
+        .performActionAsync('cancel-guard', 'cancel', { reason: '  ' })
+    ).rejects.toThrow(/motif/i)
+    expect(request).not.toHaveBeenCalled()
+    expect(
+      useToursStore.getState().tours.find((t) => t.id === 'cancel-guard')
+        ?.status
+    ).toBe('PLANNED')
+  })
+  it('refuses to change the mode after planning before writing', async () => {
+    inject({ id: 'edit-guard', status: 'PLANNED', execution_mode: 'INTERNAL' })
+    const request = vi.spyOn(api.tours, 'update')
+    await expect(
+      useToursStore
+        .getState()
+        .updateTourAsync('edit-guard', { execution_mode: 'EXTERNAL' })
+    ).rejects.toThrow(/mode/i)
+    expect(request).not.toHaveBeenCalled()
+  })
+  it('refuses a document assigned to another mission step', async () => {
+    inject({
+      id: 'document-guard',
+      status: 'PLANNED',
+      execution_mode: 'INTERNAL',
+    })
+    await expect(
+      useToursStore.getState().uploadMissionDocument('document-guard', {
+        label: 'BL',
+        file_base64: 'AA==',
+        checkpoint_id: 'foreign-step',
+      })
+    ).rejects.toThrow('Étape inconnue')
+  })
   beforeEach(() => {
     useToursStore.setState(freshSeed())
     useContractsStore.setState((state) => ({
       contracts: state.contracts.map((contract) =>
         contract.transporter_org_id === TRANSPORTEUR_ORG
           ? { ...contract, transporter_accepted_at: '2026-01-01T00:00:00.000Z' }
-          : contract,
+          : contract
       ),
     }))
     // Guards read the live auth state: a SUPERADMIN clears every permission
@@ -95,15 +149,15 @@ describe('tours store', () => {
           vehicle_id: VEHICLE_ID,
           driver_id: DRIVER_ID,
           livreur_user_id: LIVREUR_ID,
-        }),
+        })
       ).toThrow(PERMISSION_DENIED)
     })
 
     it('throws PERMISSION_DENIED for performAction when the role lacks the action permission', () => {
       setAuthUser('AGENT')
-      expect(() => useToursStore.getState().performAction('tour-005', 'acknowledge')).toThrow(
-        PERMISSION_DENIED,
-      )
+      expect(() =>
+        useToursStore.getState().performAction('tour-005', 'acknowledge')
+      ).toThrow(PERMISSION_DENIED)
     })
 
     it('throws PERMISSION_DENIED when a MARKETEUR creates a tour for another org', () => {
@@ -130,7 +184,7 @@ describe('tours store', () => {
           vehicle_id: VEHICLE_ID,
           driver_id: DRIVER_ID,
           livreur_user_id: LIVREUR_ID,
-        }),
+        })
       ).toThrow(PERMISSION_DENIED)
     })
 
@@ -181,7 +235,9 @@ describe('tours store', () => {
       expect(view.originSite.id).toBeDefined()
       expect(typeof view.progressPercent).toBe('number')
       expect(useToursStore.getState().tours.length).toBe(countBefore + 1)
-      expect(useToursStore.getState().tours.find((t) => t.id === view.id)).toBeDefined()
+      expect(
+        useToursStore.getState().tours.find((t) => t.id === view.id)
+      ).toBeDefined()
     })
 
     it('creates a valid EXTERNAL tour without crew (transporter assigns later)', () => {
@@ -195,7 +251,9 @@ describe('tours store', () => {
 
       expect(view.tourneeStatus).toBe('PENDINGTRANSPORTERACK')
       expect(view.execution_mode).toBe('EXTERNAL')
-      expect(tourStatusLabels[view.tourneeStatus]).toBe('En attente transporteur')
+      expect(tourStatusLabels[view.tourneeStatus]).toBe(
+        'En attente transporteur'
+      )
       expect(getTourCargo(view)).toBe('Bouteilles 50 kg')
       expect(getTourVolume(view)).toBe('200 btl')
     })
@@ -207,7 +265,7 @@ describe('tours store', () => {
           execution_mode: 'INTERNAL',
           type: 'VRAC',
           requested_quantity: 3000,
-        }),
+        })
       ).toThrow(/chk_tournee_internal/)
     })
 
@@ -218,7 +276,7 @@ describe('tours store', () => {
           execution_mode: 'EXTERNAL',
           type: 'BOUTEILLES50KG',
           requested_quantity: 120,
-        }),
+        })
       ).toThrow(/chk_tournee_external/)
     })
 
@@ -246,8 +304,16 @@ describe('tours store', () => {
         driver_id: DRIVER_ID,
         livreur_user_id: LIVREUR_ID,
         checkpoints: [
-          { site_id: 'site-0001-sctm-bonaberi', sequence: 1, expected_quantity: 3000 },
-          { client_site_id: 'csite-0001-shc-principal', sequence: 2, expected_quantity: 2000 },
+          {
+            site_id: 'site-0001-sctm-bonaberi',
+            sequence: 1,
+            expected_quantity: 3000,
+          },
+          {
+            client_site_id: 'csite-0001-shc-principal',
+            sequence: 2,
+            expected_quantity: 2000,
+          },
         ],
       })
 
@@ -276,7 +342,7 @@ describe('tours store', () => {
           driver_id: DRIVER_ID,
           livreur_user_id: LIVREUR_ID,
           checkpoints: [{ sequence: 1, expected_quantity: 5000 }],
-        }),
+        })
       ).toThrow(/chk_checkpoint_exclusive/)
     })
 
@@ -290,8 +356,14 @@ describe('tours store', () => {
           vehicle_id: VEHICLE_ID,
           driver_id: DRIVER_ID,
           livreur_user_id: LIVREUR_ID,
-          checkpoints: [{ site_id: 'site-0001-sctm-bonaberi', sequence: 1, expected_quantity: 0 }],
-        }),
+          checkpoints: [
+            {
+              site_id: 'site-0001-sctm-bonaberi',
+              sequence: 1,
+              expected_quantity: 0,
+            },
+          ],
+        })
       ).toThrow(/chk_checkpoint_quantity/)
     })
 
@@ -306,24 +378,32 @@ describe('tours store', () => {
           driver_id: DRIVER_ID,
           livreur_user_id: LIVREUR_ID,
           checkpoints: [
-            { site_id: 'site-0001-sctm-bonaberi', sequence: 0, expected_quantity: 3000 },
+            {
+              site_id: 'site-0001-sctm-bonaberi',
+              sequence: 0,
+              expected_quantity: 3000,
+            },
           ],
-        }),
+        })
       ).toThrow(/chk_checkpoint_sequence/)
     })
   })
 
   describe('performAction', () => {
     it('acknowledges an EXTERNAL PENDINGTRANSPORTERACK tour with the transporter crew and stamps the assignment time', () => {
-      const view = useToursStore.getState().performAction('tour-005', 'acknowledge', {
-        vehicle_id: 'veh-0026-lt3346eg',
-        driver_id: 'driver-0002-anastlere-mousso',
-        livreur_user_id: 'user-0028-express-chauffeur',
-        assigned_by_transporter_user_id: 'user-0028-express-chauffeur',
-      })
+      const view = useToursStore
+        .getState()
+        .performAction('tour-005', 'acknowledge', {
+          vehicle_id: 'veh-0026-lt3346eg',
+          driver_id: 'driver-0002-anastlere-mousso',
+          livreur_user_id: 'user-0028-express-chauffeur',
+          assigned_by_transporter_user_id: 'user-0028-express-chauffeur',
+        })
       expect(view.tourneeStatus).toBe('ACKNOWLEDGED')
       expect(tourStatusLabels[view.tourneeStatus]).toBe('Accusée')
-      const stored = useToursStore.getState().tours.find((t) => t.id === 'tour-005')!
+      const stored = useToursStore
+        .getState()
+        .tours.find((t) => t.id === 'tour-005')!
       expect(stored.status).toBe('ACKNOWLEDGED')
       expect(typeof stored.transporter_assigned_at).toBe('string')
       expect(stored.transporter_assigned_at).toBeTruthy()
@@ -334,7 +414,7 @@ describe('tours store', () => {
 
     it('rejects an acknowledge without a transporter crew (no bare status flip)', () => {
       expect(() =>
-        useToursStore.getState().performAction('tour-005', 'acknowledge'),
+        useToursStore.getState().performAction('tour-005', 'acknowledge')
       ).toThrow(/équipage/)
     })
 
@@ -342,7 +422,9 @@ describe('tours store', () => {
       const view = useToursStore.getState().performAction('tour-009', 'start')
       expect(view.tourneeStatus).toBe('INPROGRESS')
       expect(tourStatusLabels[view.tourneeStatus]).toBe('En transit')
-      const stored = useToursStore.getState().tours.find((t) => t.id === 'tour-009')!
+      const stored = useToursStore
+        .getState()
+        .tours.find((t) => t.id === 'tour-009')!
       expect(stored.status).toBe('INPROGRESS')
       expect(typeof stored.started_at).toBe('string')
       expect(stored.started_at).toBeTruthy()
@@ -351,15 +433,17 @@ describe('tours store', () => {
     it('throws when the action is not legal from the current status', () => {
       // tour-005 is PENDINGTRANSPORTERACK: `start` targets INPROGRESS, which is not the
       // immediate next on the EXTERNAL chain, so it is disallowed.
-      expect(() => useToursStore.getState().performAction('tour-005', 'start')).toThrow(
-        /Transition interdite/,
-      )
+      expect(() =>
+        useToursStore.getState().performAction('tour-005', 'start')
+      ).toThrow(/Transition interdite/)
     })
 
     it('throws when the tour id does not exist', () => {
-      expect(() => useToursStore.getState().performAction('does-not-exist', 'cancel')).toThrow(
-        /Tournée introuvable/,
-      )
+      expect(() =>
+        useToursStore.getState().performAction('does-not-exist', 'cancel', {
+          reason: 'Annulation demandée par le client',
+        })
+      ).toThrow(/Tournée introuvable/)
     })
 
     it('blocks a non-cancel action when the tour fails validation', () => {
@@ -386,9 +470,9 @@ describe('tours store', () => {
         updated_at: '2026-06-01T00:00:00.000Z',
       }
       inject(bad)
-      expect(() => useToursStore.getState().performAction('synthetic-bad', 'close')).toThrow(
-        /chk_tournee_dates/,
-      )
+      expect(() =>
+        useToursStore.getState().performAction('synthetic-bad', 'close')
+      ).toThrow(/chk_tournee_dates/)
     })
 
     it('still permits cancel on an invalid tour (validation is skipped for cancel)', () => {
@@ -413,7 +497,11 @@ describe('tours store', () => {
         updated_at: '2026-06-01T00:00:00.000Z',
       }
       inject(bad)
-      const view = useToursStore.getState().performAction('synthetic-cancel-ok', 'cancel')
+      const view = useToursStore
+        .getState()
+        .performAction('synthetic-cancel-ok', 'cancel', {
+          reason: 'Annulation demandée par le client',
+        })
       expect(view.tourneeStatus).toBe('CANCELLED')
       expect(tourStatusLabels[view.tourneeStatus]).toBe('Annulée')
     })
@@ -442,7 +530,9 @@ describe('tours store', () => {
       expect(stored.vehicle_id).toBe('veh-0022-lt9902tl')
       expect(stored.driver_id).toBe('driver-0001-samuel-abanda')
       expect(stored.livreur_user_id).toBe('user-0025-translog-dispatcher')
-      expect(stored.assigned_by_transporter_user_id).toBe('user-0024-translog-admin')
+      expect(stored.assigned_by_transporter_user_id).toBe(
+        'user-0024-translog-admin'
+      )
       expect(typeof stored.transporter_assigned_at).toBe('string')
     })
 
@@ -460,7 +550,7 @@ describe('tours store', () => {
           vehicle_id: 'veh-0001-lt1123ub',
           driver_id: 'driver-0001-samuel-abanda',
           livreur_user_id: 'user-0025-translog-dispatcher',
-        }),
+        })
       ).toThrow(/n'appartient pas à l'organisation du transporteur/)
 
       // The optimistic write was rolled back: the tour stays pending.
@@ -472,7 +562,9 @@ describe('tours store', () => {
 
   describe('views (slice filtering)', () => {
     it('returns all tours for the ALL slice', () => {
-      expect(useToursStore.getState().views('ALL').length).toBe(curated.delivery_tours.length)
+      expect(useToursStore.getState().views('ALL').length).toBe(
+        curated.delivery_tours.length
+      )
     })
 
     it('partitions INTERNAL vs EXTERNAL', () => {
@@ -482,7 +574,9 @@ describe('tours store', () => {
 
     it('surfaces only PENDINGTRANSPORTERACK tours', () => {
       expect(useToursStore.getState().views('PENDING').length).toBe(1)
-      expect(useToursStore.getState().views('PENDING')[0]!.tourneeStatus).toBe('PENDINGTRANSPORTERACK')
+      expect(useToursStore.getState().views('PENDING')[0]!.tourneeStatus).toBe(
+        'PENDINGTRANSPORTERACK'
+      )
     })
 
     it('surfaces in-progress tours (INPROGRESS or CHECKPOINTACTIVE)', () => {
@@ -508,14 +602,18 @@ describe('tours store', () => {
     })
 
     it('reflects subsequent store mutations', () => {
-      expect(useToursStore.getState().viewById('tour-005')!.tourneeStatus).toBe('PENDINGTRANSPORTERACK')
+      expect(useToursStore.getState().viewById('tour-005')!.tourneeStatus).toBe(
+        'PENDINGTRANSPORTERACK'
+      )
       useToursStore.getState().performAction('tour-005', 'acknowledge', {
         vehicle_id: 'veh-0026-lt3346eg',
         driver_id: 'driver-0002-anastlere-mousso',
         livreur_user_id: 'user-0028-express-chauffeur',
         assigned_by_transporter_user_id: 'user-0028-express-chauffeur',
       })
-      expect(useToursStore.getState().viewById('tour-005')!.tourneeStatus).toBe('ACKNOWLEDGED')
+      expect(useToursStore.getState().viewById('tour-005')!.tourneeStatus).toBe(
+        'ACKNOWLEDGED'
+      )
     })
   })
 
@@ -557,14 +655,18 @@ describe('tours store', () => {
       const closed = useToursStore.getState().performAction('tour-008', 'close')
       expect(closed.tourneeStatus).toBe('CLOSED')
       expect(tourStatusLabels[closed.tourneeStatus]).toBe('Livrée')
-      const stored = useToursStore.getState().tours.find((t) => t.id === 'tour-008')!
+      const stored = useToursStore
+        .getState()
+        .tours.find((t) => t.id === 'tour-008')!
       expect(stored.status).toBe('CLOSED')
       expect(typeof stored.closed_at).toBe('string')
       expect(stored.closed_at).toBeTruthy()
 
-      expect(() => useToursStore.getState().performAction('tour-008', 'cancel')).toThrow(
-        /Transition interdite/,
-      )
+      expect(() =>
+        useToursStore.getState().performAction('tour-008', 'cancel', {
+          reason: 'Annulation demandée par le client',
+        })
+      ).toThrow(/Transition interdite/)
     })
 
     it('throws when a button action is not legal at the current status (no skip-ahead)', () => {
@@ -581,35 +683,67 @@ describe('tours store', () => {
       // INPROGRESS, which is not the immediate next on the EXTERNAL chain, so
       // it is disallowed until the transporter acknowledges.
       expect(() => useToursStore.getState().performAction(id, 'start')).toThrow(
-        /Transition interdite/,
+        /Transition interdite/
       )
     })
   })
 })
 
-
 describe('marketer crew assignment guards', () => {
-  const draft = { marketeur_org_id: MARKETEUR_ORG, execution_mode: 'INTERNAL' as const, type: 'VRAC' as const, requested_quantity: 10, vehicle_id: VEHICLE_ID, driver_id: DRIVER_ID, livreur_user_id: LIVREUR_ID }
+  const draft = {
+    marketeur_org_id: MARKETEUR_ORG,
+    execution_mode: 'INTERNAL' as const,
+    type: 'VRAC' as const,
+    requested_quantity: 10,
+    vehicle_id: VEHICLE_ID,
+    driver_id: DRIVER_ID,
+    livreur_user_id: LIVREUR_ID,
+  }
   beforeEach(() => {
     useToursStore.setState(freshSeed())
-    useAuthStore.setState({ user: { ...SUPERADMIN_USER, system_role: 'MARKETEUR', org_id: MARKETEUR_ORG, org_type: 'MARKETEUR' } })
+    useAuthStore.setState({
+      user: {
+        ...SUPERADMIN_USER,
+        system_role: 'MARKETEUR',
+        org_id: MARKETEUR_ORG,
+        org_type: 'MARKETEUR',
+      },
+    })
   })
   afterEach(() => vi.restoreAllMocks())
   it('rejects a foreign driver without changing tours', () => {
     const foreign = curated.drivers.find((row) => row.org_id !== MARKETEUR_ORG)!
     const before = useToursStore.getState().tours
-    expect(() => useToursStore.getState().createTour({ ...draft, driver_id: foreign.id })).toThrow('votre organisation')
+    expect(() =>
+      useToursStore.getState().createTour({ ...draft, driver_id: foreign.id })
+    ).toThrow('votre organisation')
     expect(useToursStore.getState().tours).toBe(before)
   })
   it('rejects a foreign livreur', () => {
-    const foreign = curated.users.find((row) => row.org_id !== MARKETEUR_ORG && row.system_role === 'LIVREUR')!
-    expect(() => useToursStore.getState().createTour({ ...draft, livreur_user_id: foreign.id })).toThrow('votre organisation')
+    const foreign = curated.users.find(
+      (row) => row.org_id !== MARKETEUR_ORG && row.system_role === 'LIVREUR'
+    )!
+    expect(() =>
+      useToursStore
+        .getState()
+        .createTour({ ...draft, livreur_user_id: foreign.id })
+    ).toThrow('votre organisation')
   })
   it('rejects a cross-organization async request before saving', async () => {
-    vi.spyOn(api.drivers, 'getById').mockResolvedValue({ id: 'foreign', org_id: 'another-org', is_active: true })
-    vi.spyOn(api.users, 'getById').mockResolvedValue(curated.users.find((row) => row.id === LIVREUR_ID)!)
+    vi.spyOn(api.drivers, 'getById').mockResolvedValue({
+      id: 'foreign',
+      org_id: 'another-org',
+      is_active: true,
+    })
+    vi.spyOn(api.users, 'getById').mockResolvedValue(
+      curated.users.find((row) => row.id === LIVREUR_ID)!
+    )
     const save = vi.spyOn(api.tours, 'create')
-    await expect(useToursStore.getState().createTourAsync({ ...draft, driver_id: 'foreign' })).rejects.toThrow('votre organisation')
+    await expect(
+      useToursStore
+        .getState()
+        .createTourAsync({ ...draft, driver_id: 'foreign' })
+    ).rejects.toThrow('votre organisation')
     expect(save).not.toHaveBeenCalled()
   })
 })
@@ -622,7 +756,9 @@ describe('updateTourAsync', () => {
   afterEach(() => vi.restoreAllMocks())
 
   it('updates an editable tour quantity and checkpoints', async () => {
-    const tour = useToursStore.getState().tours.find((t) => t.status === 'PLANNED')!
+    const tour = useToursStore
+      .getState()
+      .tours.find((t) => t.status === 'PLANNED')!
     vi.spyOn(api.tours, 'update').mockResolvedValueOnce({
       ...tour,
       requested_quantity: 42,
@@ -637,10 +773,13 @@ describe('updateTourAsync', () => {
   })
 
   it('rejects editing a tour that is not in an editable status', async () => {
-    const closed = useToursStore.getState().tours.find((t) => t.status === 'CLOSED')!
+    const closed = useToursStore
+      .getState()
+      .tours.find((t) => t.status === 'CLOSED')!
     await expect(
-      useToursStore.getState().updateTourAsync(closed.id, { requested_quantity: 99 })
+      useToursStore
+        .getState()
+        .updateTourAsync(closed.id, { requested_quantity: 99 })
     ).rejects.toThrow(/ne peut plus être modifiée/)
   })
 })
-

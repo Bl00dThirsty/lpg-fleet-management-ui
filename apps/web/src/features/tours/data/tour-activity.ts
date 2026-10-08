@@ -200,7 +200,21 @@ export const routeAttentionOptions = [
   value: RouteEventSeverity
 }>
 
+function parseGeoCoordinates(geo_point: unknown): { lat: number; lng: number } {
+  if (Array.isArray(geo_point) && geo_point.length >= 2) {
+    const a = Number(geo_point[0])
+    const b = Number(geo_point[1])
+    if (Number.isFinite(a) && Number.isFinite(b)) {
+      if (a > 8 && b < 8) return { lng: a, lat: b }
+      if (b > 8 && a < 8) return { lng: b, lat: a }
+      return { lng: a, lat: b }
+    }
+  }
+  return { lat: 4.05, lng: 9.76 }
+}
+
 function clientSiteToSite(cs: ClientSite): Site {
+  const coords = parseGeoCoordinates(cs.geo_point)
   return {
     id: cs.id,
     name: cs.name,
@@ -208,8 +222,8 @@ function clientSiteToSite(cs: ClientSite): Site {
     city: cityFromAddress(cs.address),
     region: cs.region,
     operator: 'Client Distributeur',
-    latitude: Array.isArray(cs.geo_point) ? (cs.geo_point[0] ?? 4.05) : 4.05,
-    longitude: Array.isArray(cs.geo_point) ? (cs.geo_point[1] ?? 9.76) : 9.76,
+    latitude: coords.lat,
+    longitude: coords.lng,
     description: cs.address || '',
     status: 'active' as const,
   }
@@ -307,10 +321,7 @@ function requireTruck(truckId: string | null | undefined): Truck {
   if (!truckId) return trucks[0] ?? placeholderTruck()
   const truck = truckById().get(truckId)
   if (truck) return truck
-  return (
-    trucks[0] ??
-    placeholderTruck(truckId)
-  )
+  return trucks[0] ?? placeholderTruck(truckId)
 }
 
 export function routeStatusFromTournee(status: TourneeStatus): RouteTripStatus {

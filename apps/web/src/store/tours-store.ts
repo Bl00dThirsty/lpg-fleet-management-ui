@@ -15,7 +15,6 @@ import { useUsersStore } from '@/store/users-store'
 import { emitWs } from '@/lib/ws/mock-ws'
 import { useContractsStore } from '@/store/contracts-store'
 import { useAuthStore } from '@/store/auth-store'
-import type { Role } from '@lpg/permissions'
 import type {
   PickupPlan,
   Checkpoint,
@@ -56,6 +55,8 @@ export interface TourDraft {
   execution_mode: ExecutionMode
   type: TourneeType
   requested_quantity: number
+  scheduled_at?: string | null
+  destination_site_id?: string | null
   sourceSiteId?: string | null
   source_site_id?: string | null
   transporter_org_id?: string | null
@@ -87,6 +88,10 @@ export interface ActionExtraParams {
 }
 
 interface ToursState {
+  uploadMissionDocument: (
+    id: string,
+    document: { label: string; file_base64: string; checkpoint_id?: string }
+  ) => Promise<void>
   tours: DeliveryTour[]
   checkpoints: Checkpoint[]
   checkpointsByTour: Record<string, Checkpoint[]>
@@ -104,6 +109,7 @@ interface ToursState {
 
   fetchTours: (force?: boolean, silent?: boolean) => Promise<void>
   createPickupAsync: (draft: PickupPlan) => Promise<DeliveryTour>
+  updatePickupAsync: (id: string, draft: PickupPlan) => Promise<DeliveryTour>
   fetchCheckpoints: (
     tourId: string,
     force?: boolean,
@@ -294,6 +300,34 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     }
   },
 
+  async uploadMissionDocument(id, document) {
+    const user = useAuthStore.getState().user
+    const tour = get().tours.find((t) => t.id === id)
+    if (!user || !tour) throw new Error(PERMISSION_DENIED)
+    assertActorPermission(
+      user,
+      tour.mission_kind === 'PICKUP' ? 'pickups.write' : 'tours.write'
+    )
+    assertMissionAccess(tour)
+    if (
+      document.checkpoint_id &&
+      !get().checkpoints.some(
+        (c) =>
+          c.id === document.checkpoint_id && (c.tournee_id ?? c.tour_id) === id
+      )
+    )
+      throw new Error('Étape inconnue.')
+    await apiAdapter.request(
+      '/tours/' + encodeURIComponent(id) + '/documents',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(document),
+      }
+    )
+    emitWs('tour:update', { id }, user.id)
+  },
+
   async createPickupAsync(draft: PickupPlan) {
     const user = useAuthStore.getState().user
     if (!user) throw new Error(PERMISSION_DENIED)
@@ -321,6 +355,47 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       lastFetchedAt: 0,
     })
     emitWs('pickup:update', { id: saved.id }, user.id)
+    return saved
+  },
+
+  async updatePickupAsync(id: string, draft: PickupPlan) {
+    const current = get().tours.find((t) => t.id === id)
+    const user = useAuthStore.getState().user
+    if (!user || !current || current.mission_kind !== 'PICKUP')
+      throw new Error(PERMISSION_DENIED)
+    assertActorPermission(user, 'pickups.write')
+    assertMissionAccess(current)
+    if (!canEditTour(current))
+      throw new Error('Cet enlèvement ne peut plus être modifié.')
+    if (
+      !canViewAllTourCrew(user) &&
+      (draft.marketeur_org_id !== user.org_id ||
+        (user.site_ids?.length &&
+          !user.site_ids.includes(draft.destination_site_id)))
+    )
+      throw new Error(PERMISSION_DENIED)
+    const saved = (await api.tours.update(id, {
+      ...draft,
+      checkpoints: [
+        {
+          site_id: draft.source_site_id,
+          sequence: 1,
+          expected_quantity: draft.requested_quantity,
+        },
+        {
+          site_id: draft.destination_site_id,
+          sequence: 2,
+          expected_quantity: draft.requested_quantity,
+        },
+      ],
+    })) as DeliveryTour
+    if (!saved?.id) throw new Error('Réponse serveur invalide.')
+    set({
+      tours: get().tours.map((t) => (t.id === id ? saved : t)),
+      lastFetchedAt: 0,
+    })
+    await get().fetchCheckpoints(id, true)
+    emitWs('pickup:update', { id }, user.id)
     return saved
   },
 
@@ -530,13 +605,14 @@ export const useToursStore = create<ToursState>()((set, get) => ({
   async updateTourAsync(id: string, patch: Partial<TourDraft>) {
     const user = useAuthStore.getState().user
     if (!user) throw new Error(PERMISSION_DENIED)
-    assertPermission(user.system_role, 'tours.write')
+    assertActorPermission(user, 'tours.write')
 
     const current = get().tours.find((t) => t.id === id)
     if (!current) {
       throw new Error(`Tournée introuvable : ${id}`)
     }
 
+    assertMissionAccess(current)
     if (!canEditTour(current)) {
       throw new Error(
         `Cette tournée ne peut plus être modifiée (statut actuel: ${current.status}).`
@@ -550,6 +626,24 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       throw new Error(PERMISSION_DENIED)
     }
 
+    if (
+      current.status !== 'DRAFT' &&
+      patch.execution_mode &&
+      patch.execution_mode !== current.execution_mode
+    ) {
+      throw new Error(
+        'Le mode d’exécution ne peut plus changer après la planification.'
+      )
+    }
+    if (
+      current.status === 'ACKNOWLEDGED' &&
+      patch.transporter_org_id !== undefined &&
+      patch.transporter_org_id !== current.transporter_org_id
+    ) {
+      throw new Error(
+        'Le transporteur ne peut plus changer après son acquittement.'
+      )
+    }
     const mergedMode = patch.execution_mode ?? current.execution_mode
     if (!canViewAllTourCrew(user) && mergedMode === 'INTERNAL') {
       const driverId =
@@ -673,8 +767,8 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     patch?: TourCrewPatch | ActionExtraParams
   ) {
     const actor = useAuthStore.getState().user
-    const role: Role = actor?.system_role ?? 'LIVREUR'
-    assertPermission(role, ACTION_PERMISSION[action])
+    if (!actor) throw new Error(PERMISSION_DENIED)
+    assertActorPermission(actor, ACTION_PERMISSION[action])
     const normalizedPatch: TourCrewPatch = {
       vehicle_id: patch?.vehicle_id ?? (patch as ActionExtraParams)?.vehicleId,
       driver_id: patch?.driver_id ?? (patch as ActionExtraParams)?.driverId,
@@ -703,6 +797,9 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       throw new Error(`Tournée introuvable : ${id}`)
     }
     const current = tours[index]!
+    assertMissionAccess(current)
+    if (action === 'cancel' && !(patch as ActionExtraParams)?.reason?.trim())
+      throw new Error('Le motif d’annulation est obligatoire.')
     const allowed = tourActions(current)
     if (!allowed.includes(action)) {
       throw new Error(`Transition interdite à l'état ${current.status}`)
@@ -741,6 +838,34 @@ export const useToursStore = create<ToursState>()((set, get) => ({
     action: TourAction,
     extra?: ActionExtraParams
   ) {
+    const actor = useAuthStore.getState().user
+    const current = get().tours.find((t) => t.id === id)
+    if (!actor || !current) throw new Error(PERMISSION_DENIED)
+    assertActorPermission(
+      actor,
+      current.mission_kind === 'PICKUP'
+        ? 'pickups.write'
+        : ACTION_PERMISSION[action]
+    )
+    assertMissionAccess(current)
+    if (!tourActions(current).includes(action))
+      throw new Error('Transition non autorisée.')
+    if (action === 'cancel' && !extra?.reason?.trim())
+      throw new Error('Le motif d’annulation est obligatoire.')
+    if (
+      action === 'close' &&
+      get()
+        .checkpoints.filter((c) => (c.tournee_id ?? c.tour_id) === id)
+        .some((c) => c.status !== 'COMPLETED' && c.status !== 'SKIPPED')
+    )
+      throw new Error('Terminez les étapes avant de clôturer.')
+    if (
+      action === 'acknowledge' &&
+      !(extra?.vehicle_id && extra?.driver_id && extra?.livreur_user_id)
+    )
+      throw new Error(
+        'Affectez le véhicule, le chauffeur et le livreur du transporteur.'
+      )
     let saved: DeliveryTour | null = null
     try {
       let updated: unknown
@@ -799,6 +924,7 @@ export const useToursStore = create<ToursState>()((set, get) => ({
       tours: get().tours.map((t) => (t.id === id ? saved! : t)),
       error: null,
     })
+    emitWs('tour:update', { id }, actor.id)
     return toTourActivities([saved], { checkpoints: get().checkpoints })[0]!
   },
 
@@ -1210,3 +1336,25 @@ useAuthStore.subscribe((state, previous) => {
     })
   }
 })
+
+function assertMissionAccess(tour: DeliveryTour): void {
+  const user = useAuthStore.getState().user
+  if (!user) throw new Error(PERMISSION_DENIED)
+  if (canViewAllTourCrew(user)) return
+  if (user.system_role === 'LIVREUR' && tour.livreur_user_id === user.id) return
+  if (
+    user.system_role === 'TRANSPORTEUR' &&
+    tour.transporter_org_id === user.org_id
+  )
+    return
+  const siteIds = user.site_ids ?? []
+  if (tour.created_by === user.id) return
+  if (
+    (tour.marketeur_org_id === user.org_id || user.system_role === 'AGENT') &&
+    siteIds.some(
+      (id) => id === tour.source_site_id || id === tour.destination_site_id
+    )
+  )
+    return
+  throw new Error(PERMISSION_DENIED)
+}

@@ -1,3 +1,4 @@
+import { canEditClientSite, buildClientSitePatch } from './client-sites.ts'
 import {
   ExecutionError,
   validateLoading,
@@ -623,6 +624,21 @@ Deno.serve(async (req) => {
       })
       if (!result?.[0]) fail(502, 'Site non enregistré.')
       return reply(result[0].payload, 201)
+    }
+    const clientSiteMatch = path.match(/^\/client-sites\/([^/]+)$/)
+    if (clientSiteMatch && req.method === 'PATCH') {
+      const id = decodeURIComponent(clientSiteMatch[1])
+      const current = await resource('client-sites', id)
+      if (!current || current.deleted_at) fail(404, 'Site client introuvable.')
+      if (!canEditClientSite(profile, current)) fail(403, 'Modification du site client non autorisée.')
+      let payload
+      try { payload = buildClientSitePatch(current, body, profile.account_id, new Date().toISOString()) }
+      catch (error) { fail(400, error instanceof Error ? error.message : 'Site invalide.') }
+      const duplicates = await rest('dispatch_resources?kind=eq.client-sites&payload->>client_org_id=eq.' + encodeURIComponent(current.client_org_id) + '&payload->>name=eq.' + encodeURIComponent(payload.name))
+      if (duplicates.some((row: any) => row.id !== id && !row.payload.deleted_at)) fail(409, 'Ce nom de site existe déjà pour ce client.')
+      const result = await rest('dispatch_resources?kind=eq.client-sites&id=eq.' + encodeURIComponent(id), 'PATCH', { payload })
+      if (!result?.[0]) fail(502, 'Site client non enregistré.')
+      return reply(result[0].payload)
     }
     if (path === '/client-sites' && req.method === 'POST') {
       const clientOrgId = String(body.client_org_id ?? '').trim()

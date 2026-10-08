@@ -1,9 +1,8 @@
-import { curated } from '@lpg/mock-data'
 import type {
   Client as CuratedClient,
   ClientSite as CuratedClientSite,
   Organization as CuratedOrganization,
-} from '@lpg/mock-data'
+} from '@lpg/types'
 import type { Region } from '@lpg/types'
 
 export type ClientStatus = 'ACTIVE' | 'INACTIVE'
@@ -40,71 +39,86 @@ export interface ClientSiteView {
   delivery_count?: number
   status: ClientStatus
   verified: boolean
+  site_contact_name?: string
+  site_contact_phone?: string
   verified_at?: string | null
 }
 
 export function getClients(
-  clients: CuratedClient[] = curated.clients as CuratedClient[],
+  clients: CuratedClient[] = [],
+  orgs: CuratedOrganization[] = [],
+  clientSites: CuratedClientSite[] = []
 ): ClientView[] {
-  const orgs = curated.organizations as CuratedOrganization[]
-  const clientSites = curated.client_sites as CuratedClientSite[]
-
-  return clients.map((client) => {
-    const org = orgs.find((o) => o.id === client.org_id)
-    const clientSitesOf = clientSites.filter(
-      (s) => s.client_org_id === client.org_id,
-    )
-    const region = clientSitesOf[0]?.region ?? 'CENTRE'
-    return {
-      id: client.id,
-      orgId: client.org_id,
-      name: org?.name ?? '—',
-      registrationNumber: org?.registration_number ?? '—',
-      taxId: client.tax_id ?? org?.tax_id ?? '—',
-      industrySector: client.industry_sector ?? '—',
-      billingAddress: client.billing_address ?? '—',
-      paymentTerms: client.payment_terms ?? 30,
-      creditLimit: client.credit_limit ?? 0,
-      contactName: client.primary_contact_name ?? '—',
-      contactPhone: client.primary_contact_phone ?? '—',
-      contactEmail: client.primary_contact_email ?? '—',
-      clientSiteCount: clientSitesOf.length,
-      region,
-      status: client.is_active ? 'ACTIVE' : 'INACTIVE',
-      created_at: client.created_at ?? '2026-01-01',
-      updated_at: client.updated_at ?? '2026-01-01',
-    }
-  })
+  return clients
+    .filter((client) => !client.deleted_at)
+    .map((client) => {
+      const org = orgs.find((o) => o.id === client.org_id)
+      const clientSitesOf = clientSites.filter(
+        (s) => s.client_org_id === client.org_id && !s.deleted_at
+      )
+      const region = clientSitesOf[0]?.region ?? 'CENTRE'
+      return {
+        id: client.id,
+        orgId: client.org_id,
+        name: org?.name ?? '—',
+        registrationNumber: org?.registration_number ?? '—',
+        taxId: client.tax_id ?? org?.tax_id ?? '—',
+        industrySector: client.industry_sector ?? '—',
+        billingAddress: client.billing_address ?? '—',
+        paymentTerms: client.payment_terms ?? 30,
+        creditLimit: client.credit_limit ?? 0,
+        contactName: client.primary_contact_name ?? '—',
+        contactPhone: client.primary_contact_phone ?? '—',
+        contactEmail: client.primary_contact_email ?? '—',
+        clientSiteCount: clientSitesOf.length,
+        region,
+        status: client.is_active ? 'ACTIVE' : 'INACTIVE',
+        created_at: client.created_at ?? '2026-01-01',
+        updated_at: client.updated_at ?? '2026-01-01',
+      }
+    })
 }
 
-export function getClientSites(clientOrgId: string): ClientSiteView[] {
-  const clientSites = curated.client_sites as CuratedClientSite[]
+export function getClientSites(
+  clientOrgId: string,
+  clientSites: CuratedClientSite[] = []
+): ClientSiteView[] {
   return clientSites
-    .filter((s) => s.client_org_id === clientOrgId)
+    .filter((s) => s.client_org_id === clientOrgId && !s.deleted_at)
     .map((site) => ({
       id: site.id,
       name: site.name,
       region: site.region,
       address: site.address,
       geo_point: site.geo_point,
-      latitude: site.geo_point && site.geo_point.length >= 2 ? site.geo_point[1] : undefined,
-      longitude: site.geo_point && site.geo_point.length >= 2 ? site.geo_point[0] : undefined,
+      latitude:
+        site.geo_point && site.geo_point.length >= 2
+          ? site.geo_point[1]
+          : undefined,
+      longitude:
+        site.geo_point && site.geo_point.length >= 2
+          ? site.geo_point[0]
+          : undefined,
       geo_confidence_score: site.geo_confidence_score,
       delivery_count: site.delivery_count,
       status: site.is_active ? 'ACTIVE' : 'INACTIVE',
       verified: site.is_verified,
       verified_at: site.verified_at,
+      site_contact_name: site.site_contact_name,
+      site_contact_phone: site.site_contact_phone,
     }))
 }
 
 export function getClientById(
   clientId: string,
-  clientList?: CuratedClient[],
+  clientList: CuratedClient[] = [],
+  orgs: CuratedOrganization[] = [],
+  clientSites: CuratedClientSite[] = []
 ): { client: ClientView; sites: ClientSiteView[] } | null {
-  const all = getClients(clientList)
+  const all = getClients(clientList, orgs, clientSites)
   const found = all.find((c) => c.id === clientId || c.orgId === clientId)
   if (!found) return null
-  const sites = getClientSites(found.orgId)
+  const sites = getClientSites(found.orgId, clientSites)
   return { client: found, sites }
 }
 
