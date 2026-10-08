@@ -60,6 +60,7 @@ import { Route as AuthenticatedPerformanceIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedPermissionsIndexRouteImport } from './routes/_authenticated/permissions/index'
 import { Route as AuthenticatedPickupTrackingIndexRouteImport } from './routes/_authenticated/pickup-tracking/index'
 import { Route as AuthenticatedPickupsIndexRouteImport } from './routes/_authenticated/pickups/index'
+import { Route as AuthenticatedPickupsNewRouteImport } from './routes/_authenticated/pickups/new'
 import { Route as AuthenticatedQuotasIndexRouteImport } from './routes/_authenticated/quotas/index'
 import { Route as AuthenticatedRecomputeIndexRouteImport } from './routes/_authenticated/recompute/index'
 import { Route as AuthenticatedReconciliationsIndexRouteImport } from './routes/_authenticated/reconciliations/index'
@@ -79,6 +80,7 @@ import { Route as AuthenticatedSystemHealthIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedSystemMetricsIndexRouteImport } from './routes/_authenticated/system-metrics/index'
 import { Route as AuthenticatedTourTrackingIndexRouteImport } from './routes/_authenticated/tour-tracking/index'
 import { Route as AuthenticatedTourTrackingTourIdRouteImport } from './routes/_authenticated/tour-tracking/$tourId'
+import { Route as AuthenticatedTourTrackingNewRouteImport } from './routes/_authenticated/tour-tracking/new'
 import { Route as AuthenticatedToursIndexRouteImport } from './routes/_authenticated/tours/index'
 import { Route as AuthenticatedTransporterContractsIndexRouteImport } from './routes/_authenticated/transporter-contracts/index'
 import { Route as AuthenticatedTransportersIndexRouteImport } from './routes/_authenticated/transporters/index'
@@ -390,6 +392,11 @@ const AuthenticatedPickupsIndexRoute =
     path: '/pickups/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPickupsNewRoute = AuthenticatedPickupsNewRouteImport.update({
+  id: '/pickups/new',
+  path: '/pickups/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedQuotasIndexRoute =
   AuthenticatedQuotasIndexRouteImport.update({
     id: '/quotas/',
@@ -502,6 +509,12 @@ const AuthenticatedTourTrackingTourIdRoute =
     path: '/tour-tracking/$tourId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTourTrackingNewRoute =
+  AuthenticatedTourTrackingNewRouteImport.update({
+    id: '/tour-tracking/new',
+    path: '/tour-tracking/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedToursIndexRoute = AuthenticatedToursIndexRouteImport.update({
   id: '/tours/',
   path: '/tours/',
@@ -596,10 +609,12 @@ export interface FileRoutesByFullPath {
   '/clients/new': typeof AuthenticatedClientsNewRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/organizations/new': typeof AuthenticatedOrganizationsNewRoute
+  '/pickups/new': typeof AuthenticatedPickupsNewRoute
   '/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
   '/settings/system': typeof AuthenticatedSettingsSystemRoute
   '/tour-tracking/$tourId': typeof AuthenticatedTourTrackingTourIdRoute
+  '/tour-tracking/new': typeof AuthenticatedTourTrackingNewRoute
   '/transporters/$transporterId': typeof AuthenticatedTransportersTransporterIdRoute
   '/trucks/$truckId': typeof AuthenticatedTrucksTruckIdRoute
   '/alert-rules/': typeof AuthenticatedAlertRulesIndexRoute
@@ -679,10 +694,12 @@ export interface FileRoutesByTo {
   '/clients/new': typeof AuthenticatedClientsNewRoute
   '/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/organizations/new': typeof AuthenticatedOrganizationsNewRoute
+  '/pickups/new': typeof AuthenticatedPickupsNewRoute
   '/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/settings/profile': typeof AuthenticatedSettingsProfileRoute
   '/settings/system': typeof AuthenticatedSettingsSystemRoute
   '/tour-tracking/$tourId': typeof AuthenticatedTourTrackingTourIdRoute
+  '/tour-tracking/new': typeof AuthenticatedTourTrackingNewRoute
   '/transporters/$transporterId': typeof AuthenticatedTransportersTransporterIdRoute
   '/trucks/$truckId': typeof AuthenticatedTrucksTruckIdRoute
   '/alert-rules': typeof AuthenticatedAlertRulesIndexRoute
@@ -766,10 +783,12 @@ export interface FileRoutesById {
   '/_authenticated/clients/new': typeof AuthenticatedClientsNewRoute
   '/_authenticated/marketers/$marketerId': typeof AuthenticatedMarketersMarketerIdRoute
   '/_authenticated/organizations/new': typeof AuthenticatedOrganizationsNewRoute
+  '/_authenticated/pickups/new': typeof AuthenticatedPickupsNewRoute
   '/_authenticated/settings/notification-groups': typeof AuthenticatedSettingsNotificationGroupsRoute
   '/_authenticated/settings/profile': typeof AuthenticatedSettingsProfileRoute
   '/_authenticated/settings/system': typeof AuthenticatedSettingsSystemRoute
   '/_authenticated/tour-tracking/$tourId': typeof AuthenticatedTourTrackingTourIdRoute
+  '/_authenticated/tour-tracking/new': typeof AuthenticatedTourTrackingNewRoute
   '/_authenticated/transporters/$transporterId': typeof AuthenticatedTransportersTransporterIdRoute
   '/_authenticated/trucks/$truckId': typeof AuthenticatedTrucksTruckIdRoute
   '/_authenticated/alert-rules/': typeof AuthenticatedAlertRulesIndexRoute
@@ -853,10 +872,12 @@ export interface FileRouteTypes {
     | '/clients/new'
     | '/marketers/$marketerId'
     | '/organizations/new'
+    | '/pickups/new'
     | '/settings/notification-groups'
     | '/settings/profile'
     | '/settings/system'
     | '/tour-tracking/$tourId'
+    | '/tour-tracking/new'
     | '/transporters/$transporterId'
     | '/trucks/$truckId'
     | '/alert-rules/'
@@ -936,10 +957,12 @@ export interface FileRouteTypes {
     | '/clients/new'
     | '/marketers/$marketerId'
     | '/organizations/new'
+    | '/pickups/new'
     | '/settings/notification-groups'
     | '/settings/profile'
     | '/settings/system'
     | '/tour-tracking/$tourId'
+    | '/tour-tracking/new'
     | '/transporters/$transporterId'
     | '/trucks/$truckId'
     | '/alert-rules'
@@ -1022,10 +1045,12 @@ export interface FileRouteTypes {
     | '/_authenticated/clients/new'
     | '/_authenticated/marketers/$marketerId'
     | '/_authenticated/organizations/new'
+    | '/_authenticated/pickups/new'
     | '/_authenticated/settings/notification-groups'
     | '/_authenticated/settings/profile'
     | '/_authenticated/settings/system'
     | '/_authenticated/tour-tracking/$tourId'
+    | '/_authenticated/tour-tracking/new'
     | '/_authenticated/transporters/$transporterId'
     | '/_authenticated/trucks/$truckId'
     | '/_authenticated/alert-rules/'
@@ -1461,6 +1486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPickupsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pickups/new': {
+      id: '/_authenticated/pickups/new'
+      path: '/pickups/new'
+      fullPath: '/pickups/new'
+      preLoaderRoute: typeof AuthenticatedPickupsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/quotas/': {
       id: '/_authenticated/quotas/'
       path: '/quotas'
@@ -1592,6 +1624,13 @@ declare module '@tanstack/react-router' {
       path: '/tour-tracking/$tourId'
       fullPath: '/tour-tracking/$tourId'
       preLoaderRoute: typeof AuthenticatedTourTrackingTourIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tour-tracking/new': {
+      id: '/_authenticated/tour-tracking/new'
+      path: '/tour-tracking/new'
+      fullPath: '/tour-tracking/new'
+      preLoaderRoute: typeof AuthenticatedTourTrackingNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tours/': {
@@ -1742,10 +1781,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientsNewRoute: typeof AuthenticatedClientsNewRoute
   AuthenticatedMarketersMarketerIdRoute: typeof AuthenticatedMarketersMarketerIdRoute
   AuthenticatedOrganizationsNewRoute: typeof AuthenticatedOrganizationsNewRoute
+  AuthenticatedPickupsNewRoute: typeof AuthenticatedPickupsNewRoute
   AuthenticatedSettingsNotificationGroupsRoute: typeof AuthenticatedSettingsNotificationGroupsRoute
   AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute
   AuthenticatedSettingsSystemRoute: typeof AuthenticatedSettingsSystemRoute
   AuthenticatedTourTrackingTourIdRoute: typeof AuthenticatedTourTrackingTourIdRoute
+  AuthenticatedTourTrackingNewRoute: typeof AuthenticatedTourTrackingNewRoute
   AuthenticatedTransportersTransporterIdRoute: typeof AuthenticatedTransportersTransporterIdRoute
   AuthenticatedTrucksTruckIdRoute: typeof AuthenticatedTrucksTruckIdRoute
   AuthenticatedAlertRulesIndexRoute: typeof AuthenticatedAlertRulesIndexRoute
@@ -1820,11 +1861,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientsNewRoute: AuthenticatedClientsNewRoute,
   AuthenticatedMarketersMarketerIdRoute: AuthenticatedMarketersMarketerIdRoute,
   AuthenticatedOrganizationsNewRoute: AuthenticatedOrganizationsNewRoute,
+  AuthenticatedPickupsNewRoute: AuthenticatedPickupsNewRoute,
   AuthenticatedSettingsNotificationGroupsRoute:
     AuthenticatedSettingsNotificationGroupsRoute,
   AuthenticatedSettingsProfileRoute: AuthenticatedSettingsProfileRoute,
   AuthenticatedSettingsSystemRoute: AuthenticatedSettingsSystemRoute,
   AuthenticatedTourTrackingTourIdRoute: AuthenticatedTourTrackingTourIdRoute,
+  AuthenticatedTourTrackingNewRoute: AuthenticatedTourTrackingNewRoute,
   AuthenticatedTransportersTransporterIdRoute:
     AuthenticatedTransportersTransporterIdRoute,
   AuthenticatedTrucksTruckIdRoute: AuthenticatedTrucksTruckIdRoute,

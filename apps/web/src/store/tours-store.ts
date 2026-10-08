@@ -374,15 +374,18 @@ export const useToursStore = create<ToursState>()((set, get) => ({
           !user.site_ids.includes(draft.destination_site_id)))
     )
       throw new Error(PERMISSION_DENIED)
+    const existingCheckpoints = await get().fetchCheckpoints(id)
     const saved = (await api.tours.update(id, {
       ...draft,
       checkpoints: [
         {
+          ...existingCheckpoints.find((cp) => cp.sequence === 1),
           site_id: draft.source_site_id,
           sequence: 1,
           expected_quantity: draft.requested_quantity,
         },
         {
+          ...existingCheckpoints.find((cp) => cp.sequence === 2),
           site_id: draft.destination_site_id,
           sequence: 2,
           expected_quantity: draft.requested_quantity,

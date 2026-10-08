@@ -64,7 +64,7 @@ export const REGIONAL_MONTHLY_STATS: RegionalMonthlyStat[] = [
     name: 'Sud-Ouest',
     volumeTM: 124.6,
     deliveries: 85,
-    color: '#64748b',
+    color: '#14b8a6',
     colorClass:
       'bg-teal-500/15 text-teal-700 dark:text-teal-300 border-teal-500/30',
   },
@@ -73,16 +73,16 @@ export const REGIONAL_MONTHLY_STATS: RegionalMonthlyStat[] = [
     name: 'Nord',
     volumeTM: 112.3,
     deliveries: 80,
-    color: '#64748b',
+    color: '#ec4899',
     colorClass:
-      'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+      'bg-pink-500/15 text-pink-700 dark:text-pink-300 border-pink-500/30',
   },
   {
     code: 'AD',
     name: 'Adamaoua',
     volumeTM: 98.5,
     deliveries: 70,
-    color: '#64748b',
+    color: '#06b6d4',
     colorClass:
       'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
   },
@@ -91,7 +91,7 @@ export const REGIONAL_MONTHLY_STATS: RegionalMonthlyStat[] = [
     name: 'Est',
     volumeTM: 74.0,
     deliveries: 55,
-    color: '#64748b',
+    color: '#f97316',
     colorClass:
       'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
   },
@@ -100,7 +100,7 @@ export const REGIONAL_MONTHLY_STATS: RegionalMonthlyStat[] = [
     name: 'Nord-Ouest',
     volumeTM: 68.2,
     deliveries: 50,
-    color: '#64748b',
+    color: '#84cc16',
     colorClass:
       'bg-lime-500/15 text-lime-700 dark:text-lime-300 border-lime-500/30',
   },
@@ -147,6 +147,7 @@ export const DELIVERY_CADENCE_DATA = [
 ]
 
 export interface RegionalShareChartItem {
+  code: string
   name: string
   value: number
   formattedValue: string
@@ -175,32 +176,22 @@ export function computeTotalRegionalVolume(
   return Math.round(sum * 10) / 10
 }
 
-/** Prépare les données pour le graphique donut et les cartes régionales */
+/** Prépare les données pour le graphique donut (10 régions) et les cartes régionales */
 export function buildRegionalShareSummary(
   stats: RegionalMonthlyStat[] = REGIONAL_MONTHLY_STATS
 ): RegionalShareSummary {
   const totalVolume = computeTotalRegionalVolume(stats)
   const top4 = stats.slice(0, 4)
-  const others = stats.slice(4)
-  const othersVolume = Math.round(others.reduce((acc, r) => acc + r.volumeTM, 0) * 10) / 10
   const topVolume = top4.reduce((acc, r) => acc + r.volumeTM, 0)
 
-  const chartData: RegionalShareChartItem[] = [
-    ...top4.map((r) => ({
-      name: r.name,
-      value: r.volumeTM,
-      formattedValue: formatTm(r.volumeTM),
-      percentage: totalVolume > 0 ? formatPercentFr((r.volumeTM / totalVolume) * 100) : '0,0 %',
-      color: r.color,
-    })),
-    {
-      name: 'Autres régions',
-      value: othersVolume,
-      formattedValue: formatTm(othersVolume),
-      percentage: totalVolume > 0 ? formatPercentFr((othersVolume / totalVolume) * 100) : '0,0 %',
-      color: '#8b5cf6',
-    },
-  ]
+  const chartData: RegionalShareChartItem[] = stats.map((r) => ({
+    code: r.code,
+    name: r.name,
+    value: r.volumeTM,
+    formattedValue: formatTm(r.volumeTM),
+    percentage: totalVolume > 0 ? formatPercentFr((r.volumeTM / totalVolume) * 100) : '0,0 %',
+    color: r.color,
+  }))
 
   const regionCards: RegionCardItem[] = stats.map((r) => ({
     ...r,

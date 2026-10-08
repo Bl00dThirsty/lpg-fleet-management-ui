@@ -1,6 +1,7 @@
+import { MissionWorkflow } from './mission-workflow'
+import { MissionQuantityEditor } from './mission-quantity-editor'
 import { MissionDocuments } from './mission-documents'
 import { useMemo, useState } from 'react'
-import { Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -139,221 +140,107 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
 
   return (
     <div className='space-y-4'>
-      {trip.scheduled_at && (
-        <p className='text-sm text-muted-foreground'>
-          Enlèvement prévu le {formatDateTime(trip.scheduled_at)}
-        </p>
-      )}
-      <Card className='overflow-hidden border border-border shadow-sm'>
-        <div className='border-b border-border bg-card px-6 py-5 text-card-foreground'>
-          <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
-            <div className='space-y-3'>
-              <div className='flex flex-wrap items-center gap-2'>
-                <Badge variant='outline'>{trip.reference}</Badge>
-                <StatusBadge
-                  activity={trip.mission_kind === 'PICKUP' ? 'PICKUP' : 'TOUR'}
-                  value={trip.tourneeStatus}
-                  showCode
-                />
-                <Badge variant='outline'>
-                  {routeSeverityLabels[trip.attentionLevel]}
-                </Badge>
-                {import.meta.env.VITE_API_MODE !== 'http' && (
-                  <Button
-                    size='sm'
-                    variant='outline'
-                    className='h-6 px-2.5 text-xs font-medium shadow-xs flex items-center gap-1.5 ml-1'
-                    onClick={() => setPdaModalOpen(true)}
-                  >
-                    <Smartphone className='size-3.5' />
-                    Terminal PDA Livreur
-                  </Button>
-                )}
-              </div>
-
-              <div className='space-y-1'>
-                <h2 className='text-2xl font-bold tracking-tight text-foreground flex items-center gap-2'>
-                  {trip.originSite.name}
-                  <span className='text-muted-foreground font-normal'>→</span>
-                  {trip.destinationSite.name}
-                </h2>
-                <p className='max-w-3xl text-xs text-muted-foreground'>
-                  {trip.mission_kind === 'PICKUP' ? 'Enlèvement' : 'Tournée'}{' '}
-                  {trip.reference} pour {trip.customerName}. Suivi logistique et
-                  étapes terrain.
-                </p>
-              </div>
-            </div>
-
-            <div className='grid gap-3 sm:grid-cols-3'>
-              <HeroMetric
-                label='Charge initiale'
-                value={formatQuantity(trip.loadedQuantity, trip.tourneeType)}
-              />
-              <HeroMetric
-                label='Volume livré'
-                value={formatQuantity(trip.deliveredQuantity, trip.tourneeType)}
-              />
-              <HeroMetric
-                label='ETA'
-                value={formatDateTime(trip.expectedArrivalAt)}
-              />
-            </div>
-          </div>
-        </div>
-
-        <CardContent className='grid gap-4 p-6 lg:grid-cols-[minmax(0,1fr)_320px]'>
-          <div className='space-y-4'>
-            <div>
-              <div className='flex items-center justify-between text-sm'>
-                <div>
-                  <p className='font-medium'>
-                    {trip.mission_kind === 'PICKUP'
-                      ? 'Progression de l’enlèvement'
-                      : 'Progression de la tournée'}
-                  </p>
-                  <p className='text-muted-foreground'>
-                    {trip.progressPercent}% du corridor logistique couvert
-                  </p>
-                </div>
-                <Badge
-                  variant='outline'
-                  className='border-transparent bg-muted/35 text-foreground'
-                >
-                  Prochaine étape: {trip.nextStop?.site.name ?? '—'}
-                </Badge>
-              </div>
-
-              <div className='mt-4 h-3 rounded-full bg-muted'>
-                <div
-                  className={cn(
-                    'h-full rounded-full',
-                    trip.status === 'incident'
-                      ? 'bg-rose-500'
-                      : trip.status === 'completed'
-                        ? 'bg-emerald-500'
-                        : 'bg-sky-500'
-                  )}
-                  style={{ width: `${trip.progressPercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className='grid gap-3 md:grid-cols-3'>
-              <DetailSignal
-                label='Écart non justifié'
-                value={
-                  trip.unaccounted > 0
-                    ? formatQuantity(trip.unaccounted, trip.tourneeType)
-                    : trip.tourneeType === 'VRAC'
-                      ? '0 TM'
-                      : '0 btl'
-                }
-                hint={
-                  trip.unaccounted > 0
-                    ? 'À expliquer avant clôture'
-                    : 'Bilan de charge cohérent'
-                }
-              />
-              <DetailSignal
-                label='Étapes couvertes'
-                value={`${trip.completed_checkpoints}/${trip.checkpoint_count}`}
-                hint={`${trip.checkpoint_count - trip.completed_checkpoints} restantes`}
-              />
-              <DetailSignal
-                label='Dernier ping'
-                value={formatDateTime(trip.lastUpdatedAt)}
-                hint={
-                  trip.onTime
-                    ? 'Tournée dans la fenêtre attendue'
-                    : 'Suivi resserré nécessaire'
-                }
-              />
-              <DetailSignal
-                label='Volume restant'
-                value={formatQuantity(trip.remainingQuantity, trip.tourneeType)}
-                hint={`${trip.remainingPercent}% de la charge initiale`}
-              />
-              <DetailSignal
-                label='Livraison comptabilisée'
-                value={formatQuantity(trip.deliveredQuantity, trip.tourneeType)}
-                hint={`${trip.deliveredPercent}% déjà affectés`}
-              />
-            </div>
-          </div>
-
-          <div className='rounded-lg border border-border bg-card p-4 shadow-xs'>
-            <p className='text-sm font-semibold mb-3'>Résumé de l’activité</p>
-            <div className='space-y-2 text-sm'>
-              <InfoRow
-                label='Transporteur'
-                value={trip.transporter_name ?? 'Flotte interne'}
-              />
-              <InfoRow label='Départ' value={formatDateTime(trip.startedAt)} />
-              <InfoRow
-                label='Arrivée estimée'
-                value={formatDateTime(trip.expectedArrivalAt)}
-              />
-              <InfoRow label='Camion' value={trip.vehicle_plate ?? '—'} />
-              <InfoRow label='Chauffeur' value={trip.driver_name ?? '—'} />
-              <InfoRow
-                label='Responsable mission'
-                value={trip.livreur_name ?? '—'}
-              />
-              <InfoRow
-                label='Position courante'
-                value={
-                  trip.truck?.current_location ?? 'En attente d’affectation'
-                }
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <Card>
-        <CardHeader className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
-          <div>
-            <CardTitle>Actions de la tournée</CardTitle>
-            <CardDescription>
-              Transitions validées par le serveur — un refus est affiché sans
-              modifier le suivi.
-            </CardDescription>
+        <CardHeader className='space-y-4'>
+          <div className='flex flex-wrap items-center justify-between gap-3'>
+            <div className='flex items-center gap-3'>
+              <Badge variant='outline'>{trip.reference}</Badge>
+              <StatusBadge
+                activity={trip.mission_kind === 'PICKUP' ? 'PICKUP' : 'TOUR'}
+                value={
+                  trip.mission_kind === 'PICKUP'
+                    ? (trip.pickup_status ?? trip.tourneeStatus)
+                    : trip.tourneeStatus
+                }
+              />
+            </div>
+            <TourActions tour={trip} checkpoints={tourCheckpoints} />
           </div>
-          {import.meta.env.VITE_API_MODE !== 'http' && (
-            <Button
-              onClick={() => setPdaModalOpen(true)}
-              variant='outline'
-              className='font-medium shadow-xs shrink-0 flex items-center gap-2'
-            >
-              <Smartphone className='size-4' />
-              Simulateur PDA Livreur (Terrain)
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent className='space-y-3'>
-          <TourActions tour={trip} checkpoints={tourCheckpoints} />
+          <CardTitle>
+            {trip.originSite.name} → {trip.destinationSite.name}
+          </CardTitle>
+          <CardDescription>
+            {trip.customerName} · {trip.transporter_name ?? 'Flotte interne'}
+          </CardDescription>
+          <MissionWorkflow trip={trip} />
           {closeBlockedByCheckpoints && (
-            <p className='text-sm text-amber-700 dark:text-amber-300'>
-              Clôture impossible : tous les points de contrôle doivent être
-              terminés ou sautés.
+            <p className='text-sm text-destructive'>
+              Terminez ou justifiez chaque étape avant de clôturer la mission.
             </p>
           )}
+        </CardHeader>
+        <CardContent className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+          <div>
+            <p className='text-xs text-muted-foreground'>Quantité prévue</p>
+            {trip.mission_kind === 'PICKUP' ? (
+              <MissionQuantityEditor
+                tourId={trip.id}
+                value={trip.requested_quantity}
+              />
+            ) : (
+              <p className='mt-2 font-semibold'>
+                {formatQuantity(trip.requested_quantity, trip.tourneeType)}
+              </p>
+            )}
+          </div>
+          <div>
+            <p className='text-xs text-muted-foreground'>Créneau prévu</p>
+            <p className='mt-2 font-semibold'>
+              {formatDateTime(trip.scheduled_at ?? '')}
+            </p>
+          </div>
+          <div>
+            <p className='text-xs text-muted-foreground'>
+              Véhicule · Chauffeur
+            </p>
+            <p className='mt-2 font-semibold'>
+              {trip.vehicle_plate ?? 'À affecter'} ·{' '}
+              {trip.driver_name ?? 'À affecter'}
+            </p>
+          </div>
+          <div>
+            <p className='text-xs text-muted-foreground'>Livreur</p>
+            <p className='mt-2 font-semibold'>
+              {trip.livreur_name ?? 'À affecter'}
+            </p>
+          </div>
         </CardContent>
       </Card>
-
-      <section className='w-full'>
-        <TourCorridorMap
-          trip={trip}
-          formatDateTime={formatDateTime}
-          formatQuantity={(v) => formatQuantity(v, trip.tourneeType)}
-        />
-      </section>
-
-      <section className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]'>
+      <details className='rounded-lg border bg-card p-4'>
+        <summary className='cursor-pointer text-sm font-medium'>
+          Itinéraire et suivi cartographique
+        </summary>
+        <div className='mt-4'>
+          <TourCorridorMap
+            trip={trip}
+            formatDateTime={formatDateTime}
+            formatQuantity={(v) => formatQuantity(v, trip.tourneeType)}
+          />
+        </div>
+      </details>
+      <details className='rounded-lg border bg-card p-4'>
+        <summary className='cursor-pointer text-sm font-medium'>
+          Bilan et informations de suivi
+        </summary>
+        <div className='mt-4 grid gap-3 sm:grid-cols-3'>
+          <TripListMetric
+            label='Quantité livrée'
+            value={formatQuantity(trip.deliveredQuantity, trip.tourneeType)}
+          />
+          <TripListMetric
+            label='Dernière actualisation'
+            value={formatDateTime(trip.lastUpdatedAt)}
+          />
+          <TripListMetric
+            label='Étapes terminées'
+            value={`${trip.completed_checkpoints}/${trip.checkpoint_count}`}
+          />
+        </div>
+      </details>
+      <section className='space-y-4'>
         <Card>
           <CardHeader>
-            <CardTitle>Timeline d'exécution</CardTitle>
+            <CardTitle>Étapes et justificatifs</CardTitle>
             <CardDescription>
               Lecture métier de la tournée, du chargement à la livraison.
             </CardDescription>
@@ -493,6 +380,20 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
                       />
                     </div>
 
+                    {stop.role !== 'loading' &&
+                      trip.mission_kind !== 'PICKUP' &&
+                      liveCp?.client_site_id && (
+                        <div className='mt-3'>
+                          <span className='text-xs text-muted-foreground'>
+                            Quantité prévue ·{' '}
+                          </span>
+                          <MissionQuantityEditor
+                            tourId={trip.id}
+                            checkpointId={stop.id}
+                            value={liveCp.expected_quantity ?? 0}
+                          />
+                        </div>
+                      )}
                     <p className='mt-3 text-sm text-muted-foreground'>
                       {stop.note}
                     </p>
@@ -525,66 +426,73 @@ export function TourDetailView({ trip }: TourDetailViewProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Alertes et coordination</CardTitle>
-            <CardDescription>
-              Points de vigilance pour le suivi operationnel.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-4'>
-            <div className='rounded-lg border border-border bg-card px-4 py-4 shadow-xs'>
-              <p className='text-sm font-semibold'>SLA & anomalies</p>
-              {trip.sla_transporter_no_ack && (
-                <p className='mt-2 flex items-center gap-1.5 font-medium text-amber-800 dark:text-amber-200'>
-                  Accusé transporteur absent (SLA &gt; 4 h)
-                  {trip.anomaly_ids.length > 0 && (
-                    <span className='text-xs font-normal text-amber-600'>
-                      {trip.anomaly_ids.join(', ')}
-                    </span>
-                  )}
-                </p>
-              )}
-              {trip.sla_unassigned_too_long && (
-                <p className='mt-1 flex items-center gap-1.5 font-medium text-amber-800 dark:text-amber-200'>
-                  Tournée non assignée trop longtemps (SLA &gt; 12 h)
-                </p>
-              )}
-              {!trip.sla_transporter_no_ack &&
-                !trip.sla_unassigned_too_long && (
-                  <p className='mt-2 text-sm text-muted-foreground'>
-                    Aucun signalement SLA actif sur cette tournée.
+        <details className='rounded-lg border bg-card p-4'>
+          <summary className='cursor-pointer text-sm font-medium'>
+            Alertes et journal d’activité
+          </summary>
+          <Card className='mt-4 border-0 shadow-none'>
+            <CardHeader>
+              <CardTitle>Alertes et coordination</CardTitle>
+              <CardDescription>
+                Points de vigilance pour le suivi operationnel.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='rounded-lg border border-border bg-card px-4 py-4 shadow-xs'>
+                <p className='text-sm font-semibold'>SLA & anomalies</p>
+                {trip.sla_transporter_no_ack && (
+                  <p className='mt-2 flex items-center gap-1.5 font-medium text-amber-800 dark:text-amber-200'>
+                    Délai d’accusé transporteur dépassé
+                    {trip.anomaly_ids.length > 0 && (
+                      <span className='text-xs font-normal text-amber-600'>
+                        {trip.anomaly_ids.join(', ')}
+                      </span>
+                    )}
                   </p>
                 )}
-            </div>
-
-            <Separator />
-
-            <div className='space-y-3'>
-              {trip.events.map((event) => (
-                <div
-                  key={event.id}
-                  className='rounded-lg border border-border bg-card px-4 py-4 shadow-xs'
-                >
-                  <div className='flex items-start justify-between gap-3'>
-                    <div>
-                      <p className='text-sm font-semibold'>{event.title}</p>
-                      <p className='mt-1 text-sm text-muted-foreground'>
-                        {event.description}
-                      </p>
-                    </div>
-                    <Badge className={cn(routeSeverityClasses[event.severity])}>
-                      {routeSeverityLabels[event.severity]}
-                    </Badge>
-                  </div>
-                  <p className='mt-3 text-xs text-muted-foreground'>
-                    {formatDateTime(event.occurredAt)}
+                {trip.sla_unassigned_too_long && (
+                  <p className='mt-1 flex items-center gap-1.5 font-medium text-amber-800 dark:text-amber-200'>
+                    Délai d’affectation dépassé
                   </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                )}
+                {!trip.sla_transporter_no_ack &&
+                  !trip.sla_unassigned_too_long && (
+                    <p className='mt-2 text-sm text-muted-foreground'>
+                      Aucun signalement SLA actif sur cette tournée.
+                    </p>
+                  )}
+              </div>
+
+              <Separator />
+
+              <div className='space-y-3'>
+                {trip.events.map((event) => (
+                  <div
+                    key={event.id}
+                    className='rounded-lg border border-border bg-card px-4 py-4 shadow-xs'
+                  >
+                    <div className='flex items-start justify-between gap-3'>
+                      <div>
+                        <p className='text-sm font-semibold'>{event.title}</p>
+                        <p className='mt-1 text-sm text-muted-foreground'>
+                          {event.description}
+                        </p>
+                      </div>
+                      <Badge
+                        className={cn(routeSeverityClasses[event.severity])}
+                      >
+                        {routeSeverityLabels[event.severity]}
+                      </Badge>
+                    </div>
+                    <p className='mt-3 text-xs text-muted-foreground'>
+                      {formatDateTime(event.occurredAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </details>
       </section>
 
       <Dialog
@@ -676,50 +584,6 @@ function StopCheckpointControls({
       <Button size='sm' variant='outline' onClick={onSkip} disabled={disabled}>
         Sauter le point
       </Button>
-    </div>
-  )
-}
-
-function HeroMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className='min-w-[130px] rounded-lg border border-border bg-muted/40 px-4 py-2.5 shadow-xs'>
-      <p className='text-xs font-medium tracking-wide text-muted-foreground uppercase'>
-        {label}
-      </p>
-      <p className='mt-1 text-lg font-bold text-foreground'>{value}</p>
-    </div>
-  )
-}
-
-function DetailSignal({
-  label,
-  value,
-  hint,
-}: {
-  label: string
-  value: string
-  hint: string
-}) {
-  return (
-    <div className='rounded-lg border border-border bg-card p-4 shadow-xs'>
-      <div className='text-xs font-medium uppercase tracking-wide text-muted-foreground'>
-        {label}
-      </div>
-      <p className='mt-2 text-xl font-bold tracking-tight text-foreground'>
-        {value}
-      </p>
-      <p className='mt-1 text-xs text-muted-foreground'>{hint}</p>
-    </div>
-  )
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className='flex items-baseline justify-between gap-2 border-b border-border/40 pb-2.5 last:border-0 last:pb-0'>
-      <span className='text-xs text-muted-foreground'>{label}</span>
-      <span className='text-xs font-semibold text-foreground text-right truncate max-w-[190px]'>
-        {value || '—'}
-      </span>
     </div>
   )
 }

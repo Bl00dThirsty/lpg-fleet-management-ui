@@ -73,4 +73,25 @@ describe('sidebar feature availability', () => {
     )
     expect(items.some((item) => item.url === '/finance')).toBe(false)
   })
+
+  it('does not contain duplicate items or duplicate labels in sidebar for any role', () => {
+    for (const role of ROLES) {
+      const groups = buildSidebarFor(role).navGroups
+      for (const group of groups) {
+        const titles = group.items.map((i) => i.title)
+        const uniqueTitles = new Set(titles)
+        expect(
+          uniqueTitles.size,
+          `Duplicate label in role ${role} group ${group.title}: ${titles.join(', ')}`,
+        ).toBe(titles.length)
+
+        const urls = group.items.map((i) => i.url)
+        const uniqueUrls = new Set(urls)
+        expect(
+          uniqueUrls.size,
+          `Duplicate URL in role ${role} group ${group.title}: ${urls.join(', ')}`,
+        ).toBe(urls.length)
+      }
+    }
+  })
 })

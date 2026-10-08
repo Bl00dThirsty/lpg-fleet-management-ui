@@ -1,5 +1,7 @@
 const LABEL_MAP: Record<string, string> = {
   login: 'Connexion',
+  new: 'Création',
+  'tour-tracking': 'Tournées',
   dashboard: 'Tableau de bord',
   trucks: 'Camions',
   marketers: 'Marketeurs',

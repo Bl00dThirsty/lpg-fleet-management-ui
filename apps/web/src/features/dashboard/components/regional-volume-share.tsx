@@ -1,12 +1,19 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Cell, Label, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { buildRegionalShareSummary } from '../data/regional-stats'
 
 export function RegionalVolumeShare() {
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null)
   const { chartData, topSharePercent, regionCards, formattedTotalVolume } = useMemo(
     () => buildRegionalShareSummary(),
     []
+  )
+
+  const activeItem = useMemo(
+    () => (hoveredCode ? chartData.find((item) => item.code === hoveredCode) : null),
+    [hoveredCode, chartData]
   )
 
   return (
@@ -34,36 +41,51 @@ export function RegionalVolumeShare() {
                     nameKey='name'
                     innerRadius={66}
                     outerRadius={92}
-                    paddingAngle={4}
-                    cornerRadius={5}
+                    paddingAngle={3}
+                    cornerRadius={4}
                     strokeWidth={0}
+                    onMouseEnter={(_, index) => setHoveredCode(chartData[index]?.code ?? null)}
+                    onMouseLeave={() => setHoveredCode(null)}
                   >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
+                    {chartData.map((entry) => {
+                      const isHovered = hoveredCode === entry.code
+                      const isMuted = hoveredCode !== null && !isHovered
+                      return (
+                        <Cell
+                          key={`cell-${entry.code}`}
+                          fill={entry.color}
+                          opacity={isMuted ? 0.35 : 1}
+                          stroke={isHovered ? 'var(--foreground)' : 'transparent'}
+                          strokeWidth={isHovered ? 2 : 0}
+                          className='transition-all duration-150 cursor-pointer outline-none'
+                        />
+                      )
+                    })}
                     <Label
                       content={({ viewBox }) => {
                         if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                          const cx = viewBox.cx
+                          const cy = viewBox.cy || 0
                           return (
                             <text
-                              x={viewBox.cx}
-                              y={viewBox.cy}
+                              x={cx}
+                              y={cy}
                               textAnchor='middle'
                               dominantBaseline='middle'
                             >
                               <tspan
-                                x={viewBox.cx}
-                                y={(viewBox.cy || 0) - 10}
+                                x={cx}
+                                y={cy - 10}
                                 className='fill-muted-foreground text-xs font-medium'
                               >
-                                Volume livré
+                                {activeItem ? activeItem.name : 'Volume livré'}
                               </tspan>
                               <tspan
-                                x={viewBox.cx}
-                                y={(viewBox.cy || 0) + 16}
+                                x={cx}
+                                y={cy + 16}
                                 className='fill-foreground text-2xl font-bold tracking-tight'
                               >
-                                {formattedTotalVolume}
+                                {activeItem ? activeItem.formattedValue : formattedTotalVolume}
                               </tspan>
                             </text>
                           )
@@ -103,33 +125,46 @@ export function RegionalVolumeShare() {
           </div>
 
           <div className='lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5'>
-            {regionCards.map((r) => (
-              <div
-                key={r.code}
-                className='flex flex-col justify-between rounded-md border border-border bg-card p-2.5 shadow-2xs hover:bg-muted/20 transition-colors'
-              >
-                <div className='flex items-center justify-between text-xs'>
-                  <div className='flex items-center gap-1.5 min-w-0'>
-                    <span
-                      className='h-3 w-1 rounded-full shrink-0'
-                      style={{ backgroundColor: r.color }}
-                    />
-                    <span className='font-semibold text-foreground truncate'>
-                      {r.name}
+            {regionCards.map((r) => {
+              const isHovered = hoveredCode === r.code
+              const isMuted = hoveredCode !== null && !isHovered
+              return (
+                <div
+                  key={r.code}
+                  onMouseEnter={() => setHoveredCode(r.code)}
+                  onMouseLeave={() => setHoveredCode(null)}
+                  className={cn(
+                    'flex flex-col justify-between rounded-md border p-2.5 shadow-2xs transition-all cursor-pointer',
+                    isHovered
+                      ? 'border-primary/50 bg-primary/5 shadow-xs scale-[1.01]'
+                      : isMuted
+                        ? 'border-border/60 bg-card opacity-50'
+                        : 'border-border bg-card hover:bg-muted/20'
+                  )}
+                >
+                  <div className='flex items-center justify-between text-xs'>
+                    <div className='flex items-center gap-1.5 min-w-0'>
+                      <span
+                        className='h-3 w-1 rounded-full shrink-0 transition-transform'
+                        style={{ backgroundColor: r.color }}
+                      />
+                      <span className='font-semibold text-foreground truncate'>
+                        {r.name}
+                      </span>
+                    </div>
+                    <span className='font-bold text-foreground tabular-nums'>
+                      {r.formattedVolume}
                     </span>
                   </div>
-                  <span className='font-bold text-foreground tabular-nums'>
-                    {r.formattedVolume}
-                  </span>
+                  <div className='mt-1 flex items-center justify-between gap-2 text-[11px] text-muted-foreground'>
+                    <span className='truncate'>{r.deliveries} livraisons</span>
+                    <span className='font-medium text-foreground/80 tabular-nums'>
+                      {r.share}
+                    </span>
+                  </div>
                 </div>
-                <div className='mt-1 flex items-center justify-between gap-2 text-[11px] text-muted-foreground'>
-                  <span className='truncate'>{r.deliveries} livraisons</span>
-                  <span className='font-medium text-foreground/80 tabular-nums'>
-                    {r.share}
-                  </span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </CardContent>

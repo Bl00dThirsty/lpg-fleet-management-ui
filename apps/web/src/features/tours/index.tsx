@@ -1,3 +1,5 @@
+import { hasEffectivePermission } from '@lpg/permissions'
+import { useAuthStore } from '@/store/auth-store'
 import { useMemo, useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus, Smartphone } from 'lucide-react'
@@ -7,7 +9,6 @@ import { Button } from '@lpg/ui'
 import { useToursStore } from '@/store/tours-store'
 import { TourActiveHeader } from './components/tour-active-header'
 import { ToursTable } from './components/tours-table'
-import { TourCreateDialog } from './components/tour-create-dialog'
 import { TourPdaSimulatorModal } from './components/tour-pda-simulator-modal'
 import { type TourSlice } from './data/tour-activity'
 import { useTourLiveRefresh } from './lib/use-tour-live-refresh'
@@ -22,9 +23,9 @@ const SLICES: { value: TourSlice; label: string }[] = [
 ]
 
 export function ToursPage() {
+  const user = useAuthStore((s) => s.user)
   const navigate = useNavigate()
   const [slice, setSlice] = useState<TourSlice>('ALL')
-  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [pdaModalOpen, setPdaModalOpen] = useState(false)
   const storeTours = useToursStore((s) => s.tours)
   const storeCheckpoints = useToursStore((s) => s.checkpoints)
@@ -70,13 +71,20 @@ export function ToursPage() {
               Simulateur PDA ({selectedTrip.reference})
             </Button>
           )}
-          <Button
-            onClick={() => setCreateDialogOpen(true)}
-            className='flex items-center gap-2'
-          >
-            <Plus className='h-4 w-4' />
-            Nouvelle tournée
-          </Button>
+          {user &&
+            hasEffectivePermission(
+              user.system_role,
+              'tours.create',
+              user.custom_roles
+            ) && (
+              <Button
+                onClick={() => navigate({ to: '/tour-tracking/new' })}
+                className='flex items-center gap-2'
+              >
+                <Plus className='h-4 w-4' />
+                Nouvelle tournée
+              </Button>
+            )}
         </div>
       </div>
 
@@ -114,14 +122,6 @@ export function ToursPage() {
           onOpenDetails={(row) => openDetail(row.id)}
         />
       </SectionCard>
-
-      <TourCreateDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onSuccess={() => {
-          setSelectedId(undefined)
-        }}
-      />
 
       {selectedTrip && (
         <TourPdaSimulatorModal

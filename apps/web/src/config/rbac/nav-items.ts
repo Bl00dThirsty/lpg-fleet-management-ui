@@ -696,7 +696,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
         title: 'Tournées',
         collapsible: true,
         defaultOpen: true,
-        items: ['tours', 'tour-tracking'],
+        items: ['tours'],
       },
       {
         title: 'Enlèvements',
@@ -777,7 +777,7 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
         title: 'Tournées',
         collapsible: true,
         defaultOpen: true,
-        items: ['tours', 'tour-tracking'],
+        items: ['tours'],
       },
       {
         title: 'Enlèvements',

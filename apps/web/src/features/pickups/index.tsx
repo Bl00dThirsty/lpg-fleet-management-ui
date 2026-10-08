@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/auth-store'
 import { TourActiveHeader } from '@/features/tours/components/tour-active-header'
 import { TourDetailView } from '@/features/tours/components/tour-detail-view'
 import { ToursTable } from '@/features/tours/components/tours-table'
-import { PickupsCreateWizard } from './components/pickups-create-wizard'
+import { useNavigate } from '@tanstack/react-router'
 import { useTourLiveRefresh } from '@/features/tours/lib/use-tour-live-refresh'
 import type { Role } from '@/config/rbac/roles'
 
@@ -20,7 +20,7 @@ export function PickupsPage({
   role: Role
   marketerId?: string
 }) {
-  const [createOpen, setCreateOpen] = useState(false)
+  const navigate = useNavigate()
   const [detailId, setDetailId] = useState<string>()
   const [filter, setFilter] = useState('ALL')
   const rows = useToursStore((s) => s.tours)
@@ -73,7 +73,7 @@ export function PickupsPage({
               'pickups.create',
               user?.custom_roles
             ) && (
-              <Button onClick={() => setCreateOpen(true)}>
+              <Button onClick={() => navigate({ to: '/pickups/new' })}>
                 <Plus className='mr-2 size-4' />
                 Planifier un enlèvement
               </Button>
@@ -96,11 +96,6 @@ export function PickupsPage({
             <ArrowLeft className='mr-2 size-4' />
             Tous les enlèvements
           </Button>
-          <TourActiveHeader
-            trip={selected}
-            trips={trips}
-            onSelectTrip={setDetailId}
-          />
           <TourDetailView trip={selected} />
         </>
       ) : (
@@ -144,11 +139,6 @@ export function PickupsPage({
           </SectionCard>
         </>
       )}
-      <PickupsCreateWizard
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={setDetailId}
-      />
     </PageShell>
   )
 }

@@ -19,15 +19,24 @@ describe('regional-stats', () => {
     expect(total).toBe(2151.1)
   })
 
-  it('builds regional share summary with Top 4 + Autres régions', () => {
+  it('builds regional share summary with all 10 regions on chartData', () => {
     const summary = buildRegionalShareSummary()
     expect(summary.totalVolume).toBe(2151.1)
-    expect(summary.chartData).toHaveLength(5)
+    expect(summary.chartData).toHaveLength(10)
+    expect(summary.chartData[0]?.code).toBe('LT')
     expect(summary.chartData[0]?.name).toBe('Littoral')
     expect(summary.chartData[0]?.formattedValue).toMatch(/642,8 TM/)
     expect(summary.chartData[0]?.percentage).toMatch(/29,9 %/)
 
-    expect(summary.chartData[4]?.name).toBe('Autres régions')
+    expect(summary.chartData[9]?.code).toBe('NW')
+    expect(summary.chartData[9]?.name).toBe('Nord-Ouest')
+    expect(summary.chartData[9]?.formattedValue).toMatch(/68,2 TM/)
+    expect(summary.chartData[9]?.percentage).toMatch(/3,2 %/)
+
+    // All 10 regions have unique colors assigned
+    const uniqueColors = new Set(summary.chartData.map((d) => d.color))
+    expect(uniqueColors.size).toBe(10)
+
     expect(summary.regionCards).toHaveLength(10)
 
     // Verify all regionCards have localized formatted volumes and shares

@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
   Form,
   FormControl,
   FormField,
@@ -40,7 +39,9 @@ export function PickupsCreateWizard({
   onOpenChange,
   onCreated,
   editTourId,
+  fullPage = false,
 }: {
+  fullPage?: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
   editTourId?: string
@@ -218,11 +219,203 @@ export function PickupsCreateWizard({
       toast.error(extractErrorMessage(error))
     }
   }
+  const content = (
+    <>
+      <ol className='flex gap-2 text-xs'>
+        {steps.map((label, i) => (
+          <li
+            key={label}
+            className={`flex-1 rounded-md p-3 ${i === step ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+          >
+            {i + 1}. {label}
+          </li>
+        ))}
+      </ol>
+      {options.isPending ? (
+        <p role='status'>Chargement des dépôts et de l’équipage…</p>
+      ) : options.isError ? (
+        <div role='alert'>
+          <p>Référentiel indisponible.</p>
+          <Button onClick={() => options.refetch()}>Réessayer</Button>
+        </div>
+      ) : (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(submit)} className='space-y-4'>
+            {step === 0 && (
+              <div className='grid gap-4 sm:grid-cols-2'>
+                {user?.system_role !== 'MARKETEUR' &&
+                  select(
+                    'marketeur_org_id',
+                    'Marketeur',
+                    data?.organizations ?? []
+                  )}
+                {select(
+                  'source_site_id',
+                  'Dépôt d’enlèvement',
+                  data?.sources ?? []
+                )}
+                {select(
+                  'destination_site_id',
+                  'Site destinataire',
+                  destinations
+                )}
+                <FormField
+                  control={form.control}
+                  name='scheduled_at'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date et heure prévues</FormLabel>
+                      <FormControl>
+                        <Input type='datetime-local' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+            {step === 1 && (
+              <div className='grid gap-4 sm:grid-cols-2'>
+                {select('type', 'Produit', [
+                  { id: 'VRAC', name: 'GPL vrac (TM)' },
+                  { id: 'BOUTEILLES50KG', name: 'Bouteilles 50 kg (btl)' },
+                ])}
+                <FormField
+                  control={form.control}
+                  name='requested_quantity'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Quantité ({values.type === 'VRAC' ? 'TM' : 'btl'})
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          step={values.type === 'VRAC' ? 'any' : '1'}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === '' ? 0 : Number(e.target.value)
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {select(
+                  'vehicle_id',
+                  'Véhicule',
+                  vehicles.map((v) => ({ id: v.id, name: v.license_plate }))
+                )}
+                {select(
+                  'driver_id',
+                  'Chauffeur',
+                  drivers.map((v) => ({
+                    id: v.id,
+                    name: `${v.first_name} ${v.last_name}`,
+                  }))
+                )}
+                {select(
+                  'livreur_user_id',
+                  'Livreur',
+                  users.map((v) => ({
+                    id: v.id,
+                    name: `${v.first_name} ${v.last_name}`,
+                  }))
+                )}
+              </div>
+            )}
+            {step === 2 && (
+              <div className='space-y-3 rounded-lg border p-4 text-sm'>
+                <p className='font-semibold'>
+                  {name(values.source_site_id, data?.sources)} →{' '}
+                  {name(values.destination_site_id, destinations)}
+                </p>
+                <p>
+                  {new Date(values.scheduled_at).toLocaleString('fr-FR')} ·{' '}
+                  {values.requested_quantity}{' '}
+                  {values.type === 'VRAC' ? 'TM' : 'btl'}
+                </p>
+                <p>
+                  Véhicule :{' '}
+                  {
+                    vehicles.find((v) => v.id === values.vehicle_id)
+                      ?.license_plate
+                  }
+                </p>
+                <p>
+                  Chauffeur :{' '}
+                  {drivers.find((v) => v.id === values.driver_id)?.first_name}{' '}
+                  {drivers.find((v) => v.id === values.driver_id)?.last_name}
+                </p>
+                <p>
+                  Livreur :{' '}
+                  {
+                    users.find((v) => v.id === values.livreur_user_id)
+                      ?.first_name
+                  }{' '}
+                  {
+                    users.find((v) => v.id === values.livreur_user_id)
+                      ?.last_name
+                  }
+                </p>
+                <p className='text-muted-foreground'>
+                  Le livreur devra photographier le bon au dépôt avant de
+                  confirmer la réception à destination.
+                </p>
+              </div>
+            )}
+            {form.formState.errors.root && (
+              <p role='alert' className='text-sm text-destructive'>
+                {form.formState.errors.root.message}
+              </p>
+            )}
+            <div className='sticky bottom-0 flex justify-end gap-3 border-t bg-background/95 py-4'>
+              <Button
+                type='button'
+                variant='outline'
+                disabled={form.formState.isSubmitting}
+                onClick={() => (step ? setStep(step - 1) : onOpenChange(false))}
+              >
+                {step ? 'Précédent' : 'Annuler'}
+              </Button>
+              {step < 2 ? (
+                <Button key='next-step' type='button' onClick={next}>
+                  Suivant
+                </Button>
+              ) : (
+                <Button
+                  key='submit-plan'
+                  type='submit'
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting && (
+                    <Loader2 className='mr-2 size-4 animate-spin' />
+                  )}
+                  {editTourId
+                    ? 'Enregistrer les modifications'
+                    : 'Planifier l’enlèvement'}
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
+      )}
+    </>
+  )
+  if (fullPage)
+    return (
+      <div className='mx-auto w-full max-w-4xl space-y-8 rounded-lg border bg-card p-6 sm:p-8'>
+        {content}
+      </div>
+    )
   return (
     <Dialog
       open={open}
-      onOpenChange={(v) => {
-        if (!form.formState.isSubmitting) onOpenChange(v)
+      onOpenChange={(value) => {
+        if (!form.formState.isSubmitting) onOpenChange(value)
       }}
     >
       <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
@@ -231,195 +424,10 @@ export function PickupsCreateWizard({
             {editTourId ? 'Modifier l’enlèvement' : 'Planifier un enlèvement'}
           </DialogTitle>
           <DialogDescription>
-            Du dépôt SNH ou SCDP vers le site du marketeur.
+            Du dépôt vers le site destinataire.
           </DialogDescription>
         </DialogHeader>
-        <ol className='flex gap-2 text-xs'>
-          {steps.map((label, i) => (
-            <li
-              key={label}
-              className={`flex-1 rounded-md p-3 ${i === step ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
-            >
-              {i + 1}. {label}
-            </li>
-          ))}
-        </ol>
-        {options.isPending ? (
-          <p role='status'>Chargement des dépôts et de l’équipage…</p>
-        ) : options.isError ? (
-          <div role='alert'>
-            <p>Référentiel indisponible.</p>
-            <Button onClick={() => options.refetch()}>Réessayer</Button>
-          </div>
-        ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(submit)} className='space-y-4'>
-              {step === 0 && (
-                <div className='grid gap-4 sm:grid-cols-2'>
-                  {user?.system_role !== 'MARKETEUR' &&
-                    select(
-                      'marketeur_org_id',
-                      'Marketeur',
-                      data?.organizations ?? []
-                    )}
-                  {select(
-                    'source_site_id',
-                    'Dépôt d’enlèvement',
-                    data?.sources ?? []
-                  )}
-                  {select(
-                    'destination_site_id',
-                    'Site destinataire',
-                    destinations
-                  )}
-                  <FormField
-                    control={form.control}
-                    name='scheduled_at'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Date et heure prévues</FormLabel>
-                        <FormControl>
-                          <Input type='datetime-local' {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-              {step === 1 && (
-                <div className='grid gap-4 sm:grid-cols-2'>
-                  {select('type', 'Produit', [
-                    { id: 'VRAC', name: 'GPL vrac (TM)' },
-                    { id: 'BOUTEILLES50KG', name: 'Bouteilles 50 kg (btl)' },
-                  ])}
-                  <FormField
-                    control={form.control}
-                    name='requested_quantity'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Quantité ({values.type === 'VRAC' ? 'TM' : 'btl'})
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            step={values.type === 'VRAC' ? 'any' : '1'}
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ''
-                                  ? 0
-                                  : Number(e.target.value)
-                              )
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {select(
-                    'vehicle_id',
-                    'Véhicule',
-                    vehicles.map((v) => ({ id: v.id, name: v.license_plate }))
-                  )}
-                  {select(
-                    'driver_id',
-                    'Chauffeur',
-                    drivers.map((v) => ({
-                      id: v.id,
-                      name: `${v.first_name} ${v.last_name}`,
-                    }))
-                  )}
-                  {select(
-                    'livreur_user_id',
-                    'Livreur',
-                    users.map((v) => ({
-                      id: v.id,
-                      name: `${v.first_name} ${v.last_name}`,
-                    }))
-                  )}
-                </div>
-              )}
-              {step === 2 && (
-                <div className='space-y-3 rounded-lg border p-4 text-sm'>
-                  <p className='font-semibold'>
-                    {name(values.source_site_id, data?.sources)} →{' '}
-                    {name(values.destination_site_id, destinations)}
-                  </p>
-                  <p>
-                    {new Date(values.scheduled_at).toLocaleString('fr-FR')} ·{' '}
-                    {values.requested_quantity}{' '}
-                    {values.type === 'VRAC' ? 'TM' : 'btl'}
-                  </p>
-                  <p>
-                    Véhicule :{' '}
-                    {
-                      vehicles.find((v) => v.id === values.vehicle_id)
-                        ?.license_plate
-                    }
-                  </p>
-                  <p>
-                    Chauffeur :{' '}
-                    {drivers.find((v) => v.id === values.driver_id)?.first_name}{' '}
-                    {drivers.find((v) => v.id === values.driver_id)?.last_name}
-                  </p>
-                  <p>
-                    Livreur :{' '}
-                    {
-                      users.find((v) => v.id === values.livreur_user_id)
-                        ?.first_name
-                    }{' '}
-                    {
-                      users.find((v) => v.id === values.livreur_user_id)
-                        ?.last_name
-                    }
-                  </p>
-                  <p className='text-muted-foreground'>
-                    Le livreur devra photographier le bon au dépôt avant de
-                    confirmer la réception à destination.
-                  </p>
-                </div>
-              )}
-              {form.formState.errors.root && (
-                <p role='alert' className='text-sm text-destructive'>
-                  {form.formState.errors.root.message}
-                </p>
-              )}
-              <DialogFooter>
-                <Button
-                  type='button'
-                  variant='outline'
-                  disabled={form.formState.isSubmitting}
-                  onClick={() =>
-                    step ? setStep(step - 1) : onOpenChange(false)
-                  }
-                >
-                  {step ? 'Précédent' : 'Annuler'}
-                </Button>
-                {step < 2 ? (
-                  <Button key='next-step' type='button' onClick={next}>
-                    Suivant
-                  </Button>
-                ) : (
-                  <Button
-                    key='submit-plan'
-                    type='submit'
-                    disabled={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting && (
-                      <Loader2 className='mr-2 size-4 animate-spin' />
-                    )}
-                    {editTourId
-                      ? 'Enregistrer les modifications'
-                      : 'Planifier l’enlèvement'}
-                  </Button>
-                )}
-              </DialogFooter>
-            </form>
-          </Form>
-        )}
+        {content}
       </DialogContent>
     </Dialog>
   )

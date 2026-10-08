@@ -173,17 +173,28 @@ export function createSitePopupContent(site: Site, mapTheme: MapTheme) {
   `
 }
 
-export function popupLine(label: string, value: string) {
+export function popupLine(
+  label: string,
+  value: string | undefined | null,
+  options?: { rawHtml?: boolean }
+) {
+  const safeValue = value ?? ''
+  const renderedValue = options?.rawHtml ? safeValue : escapePopupValue(String(safeValue))
   return `
     <p class="fleet-truck-popup__row">
       <strong>${label}</strong>
-      <span>${escapePopupValue(value)}</span>
+      <span>${renderedValue}</span>
     </p>
   `
 }
 
-export function escapePopupValue(value: string) {
-  return value.replace(/[&<>"']/g, (character) => {
+export function popupHtmlLine(label: string, htmlValue: string) {
+  return popupLine(label, htmlValue, { rawHtml: true })
+}
+
+export function escapePopupValue(value: string | undefined | null) {
+  if (!value) return ''
+  return String(value).replace(/[&<>"']/g, (character) => {
     const entities: Record<string, string> = {
       '&': '&amp;',
       '<': '&lt;',
