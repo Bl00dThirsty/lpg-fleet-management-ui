@@ -31,7 +31,7 @@ export function RegionalVolumeShare() {
 
       <CardContent className='pt-2'>
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-12 items-center'>
-          <div className='lg:col-span-5 flex flex-col items-center justify-center gap-3'>
+          <div className='lg:col-span-5 xl:col-span-4 flex flex-col items-center justify-center gap-3'>
             <div className='relative flex items-center justify-center size-[210px] shrink-0'>
               <ResponsiveContainer width='100%' height={210}>
                 <PieChart>
@@ -124,7 +124,7 @@ export function RegionalVolumeShare() {
             </div>
           </div>
 
-          <div className='lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-2.5'>
+          <div className='lg:col-span-7 xl:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5'>
             {regionCards.map((r) => {
               const isHovered = hoveredCode === r.code
               const isMuted = hoveredCode !== null && !isHovered

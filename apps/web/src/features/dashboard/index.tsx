@@ -11,7 +11,6 @@ import { isOrgDashboardRole } from './data/kpi-cards'
 import { LpgKpiStrip } from './components/lpg-kpi-strip'
 import { LpgDeliveryFlow } from './components/lpg-delivery-flow'
 import { RegionalVolumeShare } from './components/regional-volume-share'
-import { RegionalVolumeCadence } from './components/regional-volume-cadence'
 import { OrgFocusCard } from './components/org-focus-card'
 import { DateRangePicker, type DateRangeValue } from '@/components/date-range-picker'
 import { format, subDays } from 'date-fns'
@@ -119,13 +118,8 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
           />
         </section>
       ) : (
-        <section className='grid grid-cols-1 gap-6 xl:grid-cols-12'>
-          <div className='xl:col-span-7'>
-            <RegionalVolumeShare />
-          </div>
-          <div className='xl:col-span-5'>
-            <RegionalVolumeCadence />
-          </div>
+        <section>
+          <RegionalVolumeShare />
         </section>
       )}
     </Main>
