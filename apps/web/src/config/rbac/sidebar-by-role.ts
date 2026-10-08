@@ -55,5 +55,5 @@ export function getSidebarData(
  * drift apart.
  */
 export function landingPathFor(role: Role): string {
-  return LANDING_BY_ROLE[role] ?? '/dashboard'
+  return LANDING_BY_ROLE[role] ?? '/overview'
 }

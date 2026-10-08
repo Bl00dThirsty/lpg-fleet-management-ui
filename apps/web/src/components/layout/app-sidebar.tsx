@@ -27,7 +27,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {sidebarData.navGroups.map((group) => (
-          <NavGroup key={group.title} title={group.title} items={group.items} />
+          <NavGroup
+            key={group.title}
+            title={group.title}
+            items={group.items}
+            collapsible={group.collapsible}
+            defaultOpen={group.defaultOpen}
+          />
         ))}
       </SidebarContent>
       <SidebarFooter>

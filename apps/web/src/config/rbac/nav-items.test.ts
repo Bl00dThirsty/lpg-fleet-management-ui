@@ -21,6 +21,9 @@ const deferredIds = [
   'infra',
   'prometheus',
   'system-health',
+  'performance',
+  'reports',
+  'audit-logs',
 ]
 const deferredPaths = new Set(
   NAV_CATALOG.filter((item) => deferredIds.includes(item.id)).map(
@@ -55,11 +58,11 @@ describe('sidebar feature availability', () => {
     })
   }
 
-  it('retains the 13 requested entries for SUPERADMIN', () => {
+  it('retains the 16 requested entries for SUPERADMIN', () => {
     const items = buildSidebarFor('SUPERADMIN').navGroups.flatMap(
       (group) => group.items,
     )
-    expect(items.filter((item) => item.disabled)).toHaveLength(13)
+    expect(items.filter((item) => item.disabled)).toHaveLength(16)
     expect(items.find((item) => item.url === '/tours')?.disabled).toBe(false)
     expect(items.find((item) => item.url === '/map')?.disabled).toBe(false)
   })

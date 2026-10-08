@@ -32,6 +32,8 @@ type NavItem = NavCollapsible | NavLink
 type NavGroup = {
   title: string
   items: NavItem[]
+  collapsible?: boolean
+  defaultOpen?: boolean
 }
 
 type SidebarData = {

@@ -63,7 +63,7 @@ import {
   Warehouse,
   Wrench,
 } from 'lucide-react'
-import type { SidebarData } from '@/components/layout/types'
+import type { NavGroup, NavItem, NavLink, SidebarData } from '@/components/layout/types'
 
 export type NavIcon = React.ComponentType<{ className?: string }>
 
@@ -123,13 +123,6 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
 
   /* ----------- Dashboards ----------- */
-  {
-    id: 'dashboard',
-    label: 'Tableau de bord national',
-    icon: LayoutDashboard,
-    path: 'dashboard',
-    requires: ['dashboard.read'],
-  },
   {
     id: 'dashboard-admin',
     label: 'Tableau de bord région',
@@ -455,6 +448,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'performance',
+    comingSoon: true,
     label: 'Performance',
     icon: Activity,
     path: 'performance',
@@ -544,6 +538,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   /* ----------- REPORTS / AUDIT ----------- */
   {
     id: 'reports',
+    comingSoon: true,
     label: 'Rapports & exports',
     icon: FileBarChart,
     path: 'reports',
@@ -551,6 +546,7 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
   },
   {
     id: 'audit-logs',
+    comingSoon: true,
     label: "Journal d'audit",
     icon: ScrollText,
     path: 'audit-logs',
@@ -664,6 +660,10 @@ interface RoleGroupSpec {
   items: readonly string[]
   /** Group title shown in the sidebar. */
   title: string
+  /** Whether the group can be collapsed in the sidebar. */
+  collapsible?: boolean
+  /** Initial open/closed state. Defaults to true. */
+  defaultOpen?: boolean
 }
 
 interface RoleDecl {
@@ -689,10 +689,25 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
     groups: [
       {
         title: 'Pilotage national',
-        items: ['overview', 'map', 'finance', 'risk-scores', 'dashboard'],
+        collapsible: false,
+        items: ['overview', 'map', 'finance', 'risk-scores'],
+      },
+      {
+        title: 'Tournées',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['tours', 'tour-tracking'],
+      },
+      {
+        title: 'Enlèvements',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['pickups', 'pickup-tracking'],
       },
       {
         title: 'Entités',
+        collapsible: true,
+        defaultOpen: true,
         items: [
           'organizations',
           'marketers',
@@ -706,14 +721,14 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
           'trucks',
           'certificates',
           'devices',
+          'rfid-tags',
         ],
       },
       {
-        title: 'Opérations & Contrôle',
+        title: 'Conformité & Contrôle',
+        collapsible: true,
+        defaultOpen: true,
         items: [
-          'pickups',
-          'pickup-tracking',
-          'tours',
           'declarations',
           'reconciliations',
           'redressements',
@@ -722,18 +737,28 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
         ],
       },
       {
-        title: 'Configuration système',
+        title: 'Rapports & Audit',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['performance', 'reports', 'audit-logs'],
+      },
+      {
+        title: 'Paramètres',
+        collapsible: true,
+        defaultOpen: true,
         items: [
           'settings',
           'custom-roles',
           'notification-rules',
+          'notification-groups',
+          'permissions',
           'transporter-contracts',
-          'reports',
-          'audit-logs',
         ],
       },
       {
         title: 'Monitoring infrastructure',
+        collapsible: true,
+        defaultOpen: false,
         items: ['grafana', 'prometheus', 'system-health'],
       },
     ],
@@ -741,36 +766,67 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
   ADMIN: {
     groups: [
       {
-        title: 'Gestion',
+        title: 'Pilotage',
+        collapsible: false,
         items: [
           'overview',
-          'users',
-          'marketers',
-          'transporters',
-          'clients',
           'dashboard-admin',
         ],
       },
       {
-        title: 'Validation & Contrôle',
+        title: 'Tournées',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['tours', 'tour-tracking'],
+      },
+      {
+        title: 'Enlèvements',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['pickups', 'pickup-tracking'],
+      },
+      {
+        title: 'Gestion des entités',
+        collapsible: true,
+        defaultOpen: true,
         items: [
+          'users',
+          'marketers',
+          'transporters',
+          'clients',
           'site-verifications',
-          'pickups',
-          'declarations',
-          'reconciliations',
         ],
       },
       {
-        title: 'Anomalies & Risques',
-        items: ['anomalies', 'risk-scores', 'alert-rules'],
+        title: 'Contrôle & Risques',
+        collapsible: true,
+        defaultOpen: true,
+        items: [
+          'declarations',
+          'reconciliations',
+          'anomalies',
+          'risk-scores',
+        ],
       },
-      { title: 'Rapports', items: ['reports', 'audit-logs'] },
+      {
+        title: 'Rapports & Audit',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['reports', 'audit-logs'],
+      },
+      {
+        title: 'Paramètres',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['alert-rules'],
+      },
     ],
   },
   SUPERVISOR: {
     groups: [
       {
         title: 'Monitoring technique',
+        collapsible: false,
         items: [
           'overview',
           'infra',
@@ -781,6 +837,8 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
       },
       {
         title: 'Piste technique (Anomalies)',
+        collapsible: true,
+        defaultOpen: true,
         items: [
           'device-health',
           'gps-tracking',
@@ -788,75 +846,149 @@ const ROLE_NAV_DECL: Record<Role, RoleDecl> = {
           'anomalies-technical',
         ],
       },
-      { title: 'Risque & Recompute', items: ['risk-scores', 'recompute'] },
-      { title: 'Logs & Intégration', items: ['logs', 'integrations'] },
+      {
+        title: 'Risque & Recompute',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['risk-scores', 'recompute'],
+      },
+      {
+        title: 'Logs & Intégration',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['logs', 'integrations'],
+      },
     ],
   },
   INTEGRATEUR: {
     groups: [
       {
-        title: 'Matériel IoT',
-        items: ['overview', 'devices', 'rfid-tags', 'gps-config'],
+        title: 'Pilotage',
+        collapsible: false,
+        items: ['overview'],
       },
       {
-        title: 'Authentification & Sécurité',
-        items: ['users', 'device-assignments'],
+        title: 'Matériel IoT',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['devices', 'rfid-tags', 'device-assignments'],
       },
-      { title: 'Maintenance', items: ['maintenance', 'firmware', 'logs'] },
+      {
+        title: 'Maintenance & Sécurité',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['users', 'maintenance', 'firmware', 'logs'],
+      },
+      {
+        title: 'Paramètres',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['gps-config'],
+      },
     ],
   },
   AGENT: {
     groups: [
       {
         title: 'Suivi terrain',
+        collapsible: false,
         items: ['overview', 'marketers', 'clients', 'client-sites'],
       },
       {
+        title: 'Tournées',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['tours', 'visits'],
+      },
+      {
         title: 'Investigation (Piste métier)',
+        collapsible: true,
+        defaultOpen: true,
         items: [
           'declarations',
           'anomalies-investigation',
-          'tours',
-          'visits',
+          'reconciliations',
         ],
       },
-      { title: 'Actions', items: ['reconciliations', 'passwords'] },
+      {
+        title: 'Paramètres',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['passwords'],
+      },
     ],
   },
   MARKETEUR: {
     groups: [
       {
-        title: 'Ma flotte',
+        title: 'Pilotage & Flotte',
+        collapsible: false,
         items: [
           'overview',
+          'dashboard-marketeur',
           'vehicles',
           'drivers',
           'devices',
-          'dashboard-marketeur',
+          'clients',
         ],
       },
       {
-        title: 'Flux 1 — Approvisionnement',
-        items: ['pickups', 'pickup-tracking'],
+        title: 'Enlèvements',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['pickups', 'pickup-tracking', 'supply'],
       },
       {
-        title: 'Flux 2 — Livraison',
-        items: ['tours', 'transporter-contracts', 'clients'],
+        title: 'Tournées',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['tours', 'transporter-contracts'],
       },
       {
-        title: 'Déclarations & Performance',
-        items: ['declarations', 'performance', 'reports'],
+        title: 'Déclarations & Quotas',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['declarations', 'quotas'],
+      },
+      {
+        title: 'Rapports & Performance',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['performance', 'reports'],
       },
     ],
   },
   TRANSPORTEUR: {
     groups: [
       {
-        title: 'Opérations',
-        items: ['overview', 'tours', 'dashboard-transporteur'],
+        title: 'Pilotage',
+        collapsible: false,
+        items: ['overview', 'dashboard-transporteur'],
       },
-      { title: 'Ma flotte', items: ['vehicles', 'drivers', 'livreurs'] },
-      { title: 'Contrats & Clients', items: ['contracts', 'performance'] },
+      {
+        title: 'Tournées',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['tours'],
+      },
+      {
+        title: 'Ma flotte',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['vehicles', 'drivers', 'livreurs'],
+      },
+      {
+        title: 'Contrats',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['contracts'],
+      },
+      {
+        title: 'Performance',
+        collapsible: true,
+        defaultOpen: true,
+        items: ['performance'],
+      },
     ],
   },
   LIVREUR: {
@@ -914,7 +1046,7 @@ export function resolveFeaturePath(decl: NavItemDecl): string {
   return decl.static ? (decl.path ?? '/') : `/${decl.path ?? decl.id}`
 }
 
-function toSidebarItem(_role: Role, decl: NavItemDecl) {
+function toSidebarItem(_role: Role, decl: NavItemDecl): NavLink {
   return {
     title: decl.label,
     url: resolveFeaturePath(decl),
@@ -935,25 +1067,30 @@ export function buildSidebarFor(
   const visible = visibleIdsFor(role, customRoles)
   if (!decl) return { navGroups: [] }
 
-  const navGroups = decl.groups
-    .map((group) => {
-      const items = group.items
-        .map((id) => ITEM_BY_ID.get(id))
-        .filter((item): item is NavItemDecl => {
-          if (!item) return false
-          return visible.has(item.id)
-        })
-        .map((item) => toSidebarItem(role, item))
-      return items.length ? { title: group.title, items } : null
-    })
-    .filter(
-      (
-        group
-      ): group is {
-        title: string
-        items: ReturnType<typeof toSidebarItem>[]
-      } => group !== null
-    )
+  const navGroups: NavGroup[] = []
+
+  for (const group of decl.groups) {
+    const items: NavItem[] = group.items
+      .map((id) => ITEM_BY_ID.get(id))
+      .filter((item): item is NavItemDecl => {
+        if (!item) return false
+        return visible.has(item.id)
+      })
+      .map((item) => toSidebarItem(role, item))
+
+    if (items.length > 0) {
+      navGroups.push({
+        title: group.title,
+        items,
+        ...(group.collapsible !== undefined
+          ? { collapsible: group.collapsible }
+          : {}),
+        ...(group.defaultOpen !== undefined
+          ? { defaultOpen: group.defaultOpen }
+          : {}),
+      })
+    }
+  }
 
   return { navGroups }
 }

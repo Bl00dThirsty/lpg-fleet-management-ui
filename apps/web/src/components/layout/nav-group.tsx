@@ -29,40 +29,90 @@ import {
   type NavGroup as NavGroupProps,
 } from './types'
 
-export function NavGroup({ title, items }: NavGroupProps) {
+export function NavGroup({
+  title,
+  items,
+  collapsible,
+  defaultOpen,
+}: NavGroupProps) {
   const { state, isMobile } = useSidebar()
   const href = useLocation({ select: (location) => location.href })
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => {
-          const key = `${item.title}-${'url' in item ? item.url : ''}`
 
-          if (!('items' in item && item.items))
-            return (
-              <SidebarMenuLink key={key} item={item as NavLink} href={href} />
-            )
+  const isCollapsedIcon = state === 'collapsed' && !isMobile
 
-          if (state === 'collapsed' && !isMobile)
-            return (
-              <SidebarMenuCollapsedDropdown
-                key={key}
-                item={item as NavCollapsible}
-                href={href}
-              />
-            )
+  const hasActiveItem = items.some((item) => {
+    if ('url' in item && item.url) {
+      return (
+        href === item.url ||
+        (item.url !== '/' && href.startsWith(String(item.url) + '/'))
+      )
+    }
+    if ('items' in item && item.items) {
+      return item.items.some(
+        (sub) =>
+          href === sub.url ||
+          (sub.url !== '/' && href.startsWith(String(sub.url) + '/')),
+      )
+    }
+    return false
+  })
 
+  const groupContent = (
+    <SidebarMenu>
+      {items.map((item) => {
+        const key = `${item.title}-${'url' in item ? item.url : ''}`
+
+        if (!('items' in item && item.items))
           return (
-            <SidebarMenuCollapsible
+            <SidebarMenuLink key={key} item={item as NavLink} href={href} />
+          )
+
+        if (isCollapsedIcon)
+          return (
+            <SidebarMenuCollapsedDropdown
               key={key}
               item={item as NavCollapsible}
               href={href}
             />
           )
-        })}
-      </SidebarMenu>
-    </SidebarGroup>
+
+        return (
+          <SidebarMenuCollapsible
+            key={key}
+            item={item as NavCollapsible}
+            href={href}
+          />
+        )
+      })}
+    </SidebarMenu>
+  )
+
+  if (isCollapsedIcon || !collapsible) {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>{title}</SidebarGroupLabel>
+        {groupContent}
+      </SidebarGroup>
+    )
+  }
+
+  return (
+    <Collapsible
+      defaultOpen={defaultOpen ?? (hasActiveItem || true)}
+      className="group/collapsible"
+    >
+      <SidebarGroup>
+        <SidebarGroupLabel asChild>
+          <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between text-xs font-semibold tracking-wider hover:text-sidebar-foreground">
+            <span>{title}</span>
+            <ChevronRight className="ms-auto size-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 rtl:rotate-180" />
+          </CollapsibleTrigger>
+        </SidebarGroupLabel>
+        <CollapsibleContent>
+          {groupContent}
+        </CollapsibleContent>
+      </SidebarGroup>
+    </Collapsible>
   )
 }
 
