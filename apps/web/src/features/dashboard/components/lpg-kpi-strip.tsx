@@ -1,6 +1,12 @@
-import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Ellipsis, Minus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import type { Role } from '@/config/rbac/roles'
 import {
   type KpiCard,
@@ -13,7 +19,7 @@ import {
 export interface LpgKpiStripProps {
   role: Role
   periodLabel: string
-  metrics: KpiStripContext
+  metrics?: KpiStripContext
 }
 
 const TONE_CLASS: Record<DeltaTone, string> = {
@@ -55,6 +61,22 @@ export function LpgKpiStrip({
               <CardTitle className='text-sm font-normal text-muted-foreground'>
                 {kpi.title}
               </CardTitle>
+              <CardAction>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className='inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none'>
+                    <Ellipsis className='size-4' />
+                    <span className='sr-only'>Actions pour {kpi.title}</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end' className='w-48'>
+                    <DropdownMenuItem className='text-xs'>
+                      Voir le détail des livraisons
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className='text-xs'>
+                      Exporter les données
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardAction>
             </CardHeader>
             <CardContent className='flex flex-col gap-3 pt-0'>
               <div className='flex items-center justify-between gap-4'>

@@ -85,7 +85,7 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
   const periodLabel =
     dateRange?.from && dateRange.to
       ? `${format(dateRange.from, 'd MMM', { locale: fr })} – ${format(dateRange.to, 'd MMM yyyy', { locale: fr })}`
-      : 'Période globale (toutes dates)'
+      : '12 sept. – 9 oct. 2026'
 
   return (
     <Main fluid className='space-y-6 bg-muted/20 pb-10'>
