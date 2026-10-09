@@ -1,15 +1,10 @@
-import { ArrowDownRight, ArrowUpRight, Ellipsis, Minus } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Role } from '@/config/rbac/roles'
 import {
   type KpiCard,
+  type KpiStripContext,
   buildKpiStrip,
   formatKpiDelta,
   type DeltaTone,
@@ -18,11 +13,7 @@ import {
 export interface LpgKpiStripProps {
   role: Role
   periodLabel: string
-  activeTrips?: number
-  plannedTrips?: number
-  activeTrucks?: number
-  totalTrucks?: number
-  openAlerts?: number
+  metrics: KpiStripContext
 }
 
 const TONE_CLASS: Record<DeltaTone, string> = {
@@ -51,19 +42,9 @@ function DeltaBadge({ card }: { card: KpiCard }) {
 export function LpgKpiStrip({
   role,
   periodLabel,
-  activeTrips,
-  plannedTrips,
-  activeTrucks,
-  totalTrucks,
-  openAlerts,
+  metrics,
 }: LpgKpiStripProps) {
-  const kpis = buildKpiStrip(role, {
-    activeTrips,
-    plannedTrips,
-    activeTrucks,
-    totalTrucks,
-    openAlerts,
-  })
+  const kpis = buildKpiStrip(role, metrics)
 
   return (
     <div className='overflow-hidden rounded-xl border bg-card shadow-xs ring-1 ring-foreground/10'>
@@ -74,22 +55,6 @@ export function LpgKpiStrip({
               <CardTitle className='text-sm font-normal text-muted-foreground'>
                 {kpi.title}
               </CardTitle>
-              <CardAction>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className='inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none'>
-                    <Ellipsis className='size-4' />
-                    <span className='sr-only'>Actions pour {kpi.title}</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end' className='w-48'>
-                    <DropdownMenuItem className='text-xs'>
-                      Voir le détail des livraisons
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className='text-xs'>
-                      Exporter les données
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardAction>
             </CardHeader>
             <CardContent className='flex flex-col gap-3 pt-0'>
               <div className='flex items-center justify-between gap-4'>

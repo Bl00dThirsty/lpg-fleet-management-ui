@@ -16,10 +16,7 @@ const MARKETEUR_SITES = [
   { name: 'Cuverie Wouri Est', volumeTM: 78.2 },
   { name: 'Dépôt Bonamoussadi', volumeTM: 64.9 },
   { name: 'Site Nylon Messa', volumeTM: 51.3 },
-  { name: 'Atelier Kribi Sud', volumeTM: 43.7 },
 ]
-
-const MARKETEUR_PERIOD_VOLUME_TM = 428.5
 
 const sitesChartConfig = {
   volume: {
@@ -34,21 +31,51 @@ const fleetChartConfig = {
   'hors-ligne': { label: 'Hors ligne', color: '#64748b' },
 } satisfies ChartConfig
 
+import { useMemo } from 'react'
+import type { DeliveryTour } from '@lpg/types'
+
 type OrgFocusCardProps = {
   role: Role
   activeTrucks?: number
   totalTrucks?: number
+  tours?: readonly DeliveryTour[]
 }
 
-function MarketeurTopSites() {
-  const topVolume = MARKETEUR_SITES.reduce((sum, site) => sum + site.volumeTM, 0)
-  const share = Math.round((topVolume / MARKETEUR_PERIOD_VOLUME_TM) * 100)
+function MarketeurTopSites({ tours }: { tours?: readonly DeliveryTour[] }) {
+  const dynamicSites = useMemo(() => {
+    if (!tours || tours.length === 0) return MARKETEUR_SITES
+    const siteMap = new Map<string, number>()
+    for (const t of tours) {
+      const q = Math.max(0, t.delivered_quantity ?? t.requested_quantity ?? 0)
+      const tm = t.type === 'VRAC' ? q : q / 20
+      if (t.checkpoints && t.checkpoints.length > 0) {
+        for (const cp of t.checkpoints) {
+          const namedCp = cp as { site_name?: string; name?: string; site_id?: string }
+          const name = namedCp.site_name ?? namedCp.name ?? namedCp.site_id ?? 'Site client'
+          siteMap.set(name, (siteMap.get(name) ?? 0) + tm)
+        }
+      } else {
+        const name = t.destination_site_id ?? t.source_site_id ?? 'Site de destination'
+        siteMap.set(name, (siteMap.get(name) ?? 0) + tm)
+      }
+    }
+    const entries = Array.from(siteMap.entries()).map(([name, volumeTM]) => ({
+      name,
+      volumeTM: Math.round(volumeTM * 10) / 10,
+    })).sort((a, b) => b.volumeTM - a.volumeTM).slice(0, 5)
+
+    return entries.length > 0 ? entries : MARKETEUR_SITES
+  }, [tours])
+
+  const topVolume = Math.round(dynamicSites.reduce((sum, site) => sum + site.volumeTM, 0) * 10) / 10
+  const totalPeriod = Math.max(topVolume, 1)
+  const share = Math.min(100, Math.round((topVolume / totalPeriod) * 100))
 
   return (
     <>
       <ChartContainer config={sitesChartConfig} className='h-56 w-full'>
         <BarChart
-          data={MARKETEUR_SITES}
+          data={dynamicSites}
           layout='vertical'
           margin={{ left: 4, right: 16, top: 4, bottom: 0 }}
           accessibilityLayer
@@ -148,7 +175,7 @@ export function OrgFocusCard(props: OrgFocusCardProps) {
         </div>
       </CardHeader>
       <CardContent className='flex flex-col gap-3'>
-        {isMarketeur ? <MarketeurTopSites /> : <TransporteurFleetStatus {...props} />}
+        {isMarketeur ? <MarketeurTopSites tours={props.tours} /> : <TransporteurFleetStatus {...props} />}
       </CardContent>
     </Card>
   )

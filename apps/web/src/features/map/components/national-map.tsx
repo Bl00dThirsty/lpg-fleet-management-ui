@@ -1,3 +1,5 @@
+import type { MapMissionRoute } from '../data/map-missions'
+import { tourStatusLabels } from '@/features/tours/data/tour-activity'
 import { useEffect, useRef, useState, useMemo } from 'react'
 import Graphic from '@arcgis/core/Graphic.js'
 import ArcGISMap from '@arcgis/core/Map.js'
@@ -68,6 +70,7 @@ if (rawApiKey && rawApiKey.length > 20) {
 const CAMEROON_CENTER: [number, number] = [9.7, 4.05] // Centré sur l'axe Douala / Wouri
 
 export type NationalMapProps = {
+  missionRoutes?: MapMissionRoute[]
   routes: VracTourRoute[]
   mapTheme?: MapTheme
   className?: string
@@ -80,6 +83,7 @@ export type NationalMapProps = {
 
 export function NationalMap({
   routes,
+  missionRoutes,
   mapTheme = 'light',
   className,
   layers: externalLayers,
@@ -185,6 +189,7 @@ export function NationalMap({
       zones: new GraphicsLayer({ title: 'LPG zones' }),
       regions: new GraphicsLayer({ title: 'LPG regions' }),
       anomalies: new GraphicsLayer({ title: 'LPG anomalies' }),
+      missions: new GraphicsLayer({ title: 'Tournées réelles' }),
       selection: new GraphicsLayer({ title: 'Sites du marketeur sélectionné' }),
       routes: new GraphicsLayer({ title: 'LPG routes' }),
     }
@@ -594,6 +599,80 @@ export function NationalMap({
       )
     )
   }, [isReady, highlightedLocations])
+
+  // Real missions have their own layer: no simulated trucks or inferred GPS positions.
+  useEffect(() => {
+    const layer = layersRef.current.missions
+    if (!isReady || !layer) return
+    layer.removeAll()
+    layer.visible = activeLayers.routes
+    const graphics: Graphic[] = []
+    for (const mission of missionRoutes ?? []) {
+      const reference = mission.tour.tour_code ?? mission.tour.id
+      const popupTemplate = {
+        title: 'Tournée',
+        content:
+          popupLine('Référence', reference) +
+          popupLine('Statut', tourStatusLabels[mission.tour.status]) +
+          popupLine(
+            'Quantité',
+            String(mission.tour.requested_quantity) +
+              (mission.tour.type === 'VRAC' ? ' TM' : ' btl')
+          ),
+      }
+      if (mission.paths.length)
+        graphics.push(
+          new Graphic({
+            geometry: new Polyline({
+              paths: mission.paths,
+              spatialReference: { wkid: 4326 },
+            }),
+            symbol: {
+              type: 'simple-line',
+              color: mapTheme === 'dark' ? '#93c5fd' : '#2563eb',
+              width: 4,
+            },
+            popupTemplate,
+          })
+        )
+      mission.stops.forEach((stop, index) => {
+        if (stop.coordinates)
+          graphics.push(
+            new Graphic({
+              geometry: new Point({
+                longitude: stop.coordinates[0],
+                latitude: stop.coordinates[1],
+                spatialReference: { wkid: 4326 },
+              }),
+              symbol: {
+                type: 'simple-marker',
+                color: index === 0 ? '#10b981' : '#2563eb',
+                size: 10,
+                outline: { color: '#fff', width: 2 },
+              },
+              popupTemplate: {
+                ...popupTemplate,
+                content: popupTemplate.content + popupLine('Étape', stop.name),
+              },
+            })
+          )
+      })
+    }
+    layer.addMany(graphics)
+  }, [isReady, missionRoutes, activeLayers.routes, mapTheme])
+  const missionExtentKey = JSON.stringify(
+    (missionRoutes ?? []).map((mission) => [
+      mission.tour.id,
+      mission.stops.map((stop) => stop.coordinates),
+      mission.paths.map((path) => path.length),
+    ])
+  )
+  useEffect(() => {
+    const view = viewRef.current
+    const graphics = layersRef.current.missions?.graphics.toArray()
+    if (!isReady || !view || focusedLocation || !graphics?.length) return
+    void view.goTo(graphics, { duration: 900 }).catch(() => {})
+  }, [isReady, missionExtentKey, focusedLocation])
 
   // Fallback vectoriel GIS autonome si clé ArcGIS absente ou service injoignable
   if (loadFailed) {

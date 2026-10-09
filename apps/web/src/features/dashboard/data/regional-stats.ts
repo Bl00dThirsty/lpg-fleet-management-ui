@@ -168,6 +168,61 @@ export interface RegionalShareSummary {
   regionCards: RegionCardItem[]
 }
 
+import type { DeliveryTour } from '@lpg/types'
+
+/** Calcule les statistiques régionales enrichies par les tournées réelles du système (planifiées et livrées) */
+export function computeRegionalStatsFromTours(
+  tours?: readonly DeliveryTour[],
+  baseStats: RegionalMonthlyStat[] = REGIONAL_MONTHLY_STATS
+): RegionalMonthlyStat[] {
+  if (!tours || tours.length === 0) return baseStats
+
+  const tourVolumeByRegion: Record<string, { volumeTM: number; deliveries: number }> = {}
+  for (const stat of baseStats) {
+    tourVolumeByRegion[stat.code] = { volumeTM: 0, deliveries: 0 }
+  }
+
+  for (const tour of tours) {
+    if (tour.deleted_at || tour.mission_kind === 'PICKUP' || tour.status === 'CANCELLED') continue
+    const targetStr = `${tour.destination_site_id ?? ''} ${tour.source_site_id ?? ''} ${tour.checkpoints?.map((c) => {
+      const named = c as { site_id?: string; client_site_id?: string; site_name?: string; name?: string }
+      return `${named.site_id ?? ''} ${named.client_site_id ?? ''} ${named.site_name ?? ''} ${named.name ?? ''}`
+    }).join(' ') ?? ''}`.toLowerCase()
+
+    let code = 'LT'
+    if (targetStr.includes('yaounde') || targetStr.includes('centre') || targetStr.includes('bastos') || targetStr.includes('messa')) code = 'CE'
+    else if (targetStr.includes('bafoussam') || targetStr.includes('ouest') || targetStr.includes('dschang') || targetStr.includes('bandjoun')) code = 'OU'
+    else if (targetStr.includes('kribi') || targetStr.includes('ebolowa') || (targetStr.includes('sud') && !targetStr.includes('sud-ouest') && !targetStr.includes('sudouest'))) code = 'SU'
+    else if (targetStr.includes('maroua') || targetStr.includes('extreme') || targetStr.includes('kousseri')) code = 'EN'
+    else if (targetStr.includes('limbe') || targetStr.includes('buea') || targetStr.includes('sud-ouest') || targetStr.includes('sudouest')) code = 'SW'
+    else if (targetStr.includes('garoua') || (targetStr.includes('nord') && !targetStr.includes('nord-ouest') && !targetStr.includes('nordouest'))) code = 'NO'
+    else if (targetStr.includes('ngaoundere') || targetStr.includes('adamaoua')) code = 'AD'
+    else if (targetStr.includes('bertoua') || targetStr.includes('est')) code = 'ES'
+    else if (targetStr.includes('bamenda') || targetStr.includes('nord-ouest') || targetStr.includes('nordouest')) code = 'NW'
+    else if (targetStr.includes('douala') || targetStr.includes('bonaberi') || targetStr.includes('wouri') || targetStr.includes('littoral')) code = 'LT'
+
+    const quantity = ['PLANNED', 'ACKNOWLEDGED', 'PENDINGTRANSPORTERACK'].includes(tour.status)
+      ? Math.max(0, tour.requested_quantity ?? 0)
+      : Math.max(0, tour.delivered_quantity ?? tour.requested_quantity ?? 0)
+    const tm = tour.type === 'VRAC' ? quantity : quantity / 20
+
+    const targetRegion = tourVolumeByRegion[code]
+    if (targetRegion) {
+      targetRegion.volumeTM += tm
+      targetRegion.deliveries += 1
+    }
+  }
+
+  return baseStats.map((r) => {
+    const extra = tourVolumeByRegion[r.code] ?? { volumeTM: 0, deliveries: 0 }
+    return {
+      ...r,
+      volumeTM: Math.round((r.volumeTM + extra.volumeTM) * 10) / 10,
+      deliveries: r.deliveries + extra.deliveries,
+    }
+  })
+}
+
 /** Calcule le volume total cumulé des régions */
 export function computeTotalRegionalVolume(
   stats: RegionalMonthlyStat[] = REGIONAL_MONTHLY_STATS

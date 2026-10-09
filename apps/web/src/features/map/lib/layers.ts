@@ -47,13 +47,13 @@ export const LAYER_LABELS: Record<MapLayerKey, string> = {
   regions: 'Régions (10)',
   anomalies: 'Alertes & Anomalies',
   vrac: 'Volume VRAC (TM)',
-  routes: 'Itinéraires VRAC (Traçabilité)',
+  routes: 'Itinéraires des tournées',
 }
 
 export function buildLayerSpecs(
   view: NationalMapView,
   theme: MapTheme,
-  toggles: Record<MapLayerKey, boolean>,
+  toggles: Record<MapLayerKey, boolean>
 ): MapLayerSpec[] {
   const specs: MapLayerSpec[] = []
 
@@ -69,7 +69,10 @@ export function buildLayerSpecs(
         size: token.size,
       },
       content: (f) =>
-        buildSitePopupContent(f as Parameters<typeof buildSitePopupContent>[0], theme),
+        buildSitePopupContent(
+          f as Parameters<typeof buildSitePopupContent>[0],
+          theme
+        ),
     })
   }
 
@@ -85,7 +88,10 @@ export function buildLayerSpecs(
         size: token.size,
       },
       content: (f) =>
-        buildClientSitePopupContent(f as Parameters<typeof buildClientSitePopupContent>[0], theme),
+        buildClientSitePopupContent(
+          f as Parameters<typeof buildClientSitePopupContent>[0],
+          theme
+        ),
     })
   }
 
@@ -95,7 +101,11 @@ export function buildLayerSpecs(
       label: LAYER_LABELS.zones,
       enabled: true,
       marker: { icon: 'zone', color: '#6366F1', size: 12 },
-      content: (f) => buildZonePopupContent(f as Parameters<typeof buildZonePopupContent>[0], theme),
+      content: (f) =>
+        buildZonePopupContent(
+          f as Parameters<typeof buildZonePopupContent>[0],
+          theme
+        ),
     })
   }
 
@@ -106,7 +116,10 @@ export function buildLayerSpecs(
       enabled: true,
       marker: { icon: 'region', color: '#3B82F6', size: 20 },
       content: (f) =>
-        buildRegionPopupContent(f as Parameters<typeof buildRegionPopupContent>[0], theme),
+        buildRegionPopupContent(
+          f as Parameters<typeof buildRegionPopupContent>[0],
+          theme
+        ),
     })
   }
 
@@ -117,7 +130,10 @@ export function buildLayerSpecs(
       enabled: true,
       marker: { icon: 'anomaly', color: '#EF4444', size: 16 },
       content: (f) =>
-        buildAnomalyPopupContent(f as Parameters<typeof buildAnomalyPopupContent>[0], theme),
+        buildAnomalyPopupContent(
+          f as Parameters<typeof buildAnomalyPopupContent>[0],
+          theme
+        ),
     })
   }
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowDownToLine } from 'lucide-react'
 import { fr } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
@@ -6,30 +6,58 @@ import { type Role } from '@/config/rbac/roles'
 import { Main } from '@/components/layout/main'
 import { useAuthStore } from '@/store/auth-store'
 import { useRoleStore } from '@/store/role-store'
-import { buildDashboardView } from './data/dashboard'
+import { useToursStore } from '@/store/tours-store'
 import { isOrgDashboardRole } from './data/kpi-cards'
+import { summarizeTours } from './lib/tour-metrics'
+import { canSeeMapMission, missionDay } from '@/features/map/lib/mission-filters'
+import { useTourLiveRefresh } from '@/features/tours/lib/use-tour-live-refresh'
 import { LpgKpiStrip } from './components/lpg-kpi-strip'
 import { LpgDeliveryFlow } from './components/lpg-delivery-flow'
 import { RegionalVolumeShare } from './components/regional-volume-share'
 import { OrgFocusCard } from './components/org-focus-card'
 import { DateRangePicker, type DateRangeValue } from '@/components/date-range-picker'
-import { format, subDays } from 'date-fns'
+import { format } from 'date-fns'
 
 export function DashboardPage({ role }: { role?: Role } = {}) {
   const user = useAuthStore((s) => s.user)
   const activeRole = useRoleStore((s) => s.activeRole)
   const effectiveRole = role ?? activeRole ?? (user?.system_role as Role) ?? 'SUPERADMIN'
 
-  const [dateRange, setDateRange] = useState<DateRangeValue>({
-    from: subDays(new Date(), 27),
-    to: new Date(),
-  })
+  const [dateRange, setDateRange] = useState<DateRangeValue>(undefined)
 
-  // Préservation intégrale des liaisons backend et de l'hydratation des données
-  const dashboard = useMemo(
-    () => buildDashboardView(effectiveRole, user?.org_id, user?.org_name),
-    [effectiveRole, user?.org_id, user?.org_name]
-  )
+  const tours = useToursStore((s) => s.tours)
+  const hasLoaded = useToursStore((s) => s.hasLoaded)
+  const fetchTours = useToursStore((s) => s.fetchTours)
+
+  useEffect(() => {
+    if (!hasLoaded) {
+      void fetchTours()
+    }
+  }, [hasLoaded, fetchTours])
+
+  useTourLiveRefresh(undefined, !!user)
+
+  const effectiveUser = useMemo(() => {
+    if (!user) return null
+    return { ...user, system_role: effectiveRole }
+  }, [user, effectiveRole])
+
+  const filteredTours = useMemo(() => {
+    const scoped = tours.filter((t) => canSeeMapMission(t, effectiveUser))
+    const fromStr = dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : null
+    const toStr = dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : null
+    if (!fromStr && !toStr) return scoped
+
+    return scoped.filter((t) => {
+      const day = missionDay(t)
+      if (!day) return true
+      if (fromStr && day < fromStr) return false
+      if (toStr && day > toStr) return false
+      return true
+    })
+  }, [tours, effectiveUser, dateRange])
+
+  const metrics = useMemo(() => summarizeTours(filteredTours), [filteredTours])
 
   const heading =
     effectiveRole === 'SUPERADMIN'
@@ -57,7 +85,7 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
   const periodLabel =
     dateRange?.from && dateRange.to
       ? `${format(dateRange.from, 'd MMM', { locale: fr })} – ${format(dateRange.to, 'd MMM yyyy', { locale: fr })}`
-      : ''
+      : 'Période globale (toutes dates)'
 
   return (
     <Main fluid className='space-y-6 bg-muted/20 pb-10'>
@@ -76,6 +104,7 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
           <DateRangePicker
             value={dateRange}
             onValueChange={setDateRange}
+            placeholder='Toutes les périodes'
             className='h-9 rounded-lg bg-background text-xs shadow-none'
           />
           <Button
@@ -95,17 +124,13 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
         <LpgKpiStrip
           role={effectiveRole}
           periodLabel={periodLabel}
-          activeTrips={dashboard.overview.activeTrips}
-          plannedTrips={dashboard.overview.plannedTrips}
-          activeTrucks={dashboard.overview.activeTrucks}
-          totalTrucks={dashboard.overview.totalTrucks}
-          openAlerts={dashboard.overview.openAlerts}
+          metrics={metrics}
         />
       </section>
 
       {/* Bloc 2 : Flux des Livraisons Hors Réseau (colonnes empilées) */}
       <section>
-        <LpgDeliveryFlow />
+        <LpgDeliveryFlow tours={filteredTours} />
       </section>
 
       {/* Bloc 3 : régulateur = répartition régionale + cadence ; comptes org = panneau propre */}
@@ -113,13 +138,14 @@ export function DashboardPage({ role }: { role?: Role } = {}) {
         <section>
           <OrgFocusCard
             role={effectiveRole}
-            activeTrucks={dashboard.overview.activeTrucks}
-            totalTrucks={dashboard.overview.totalTrucks}
+            activeTrucks={metrics.active}
+            totalTrucks={metrics.total}
+            tours={filteredTours}
           />
         </section>
       ) : (
         <section>
-          <RegionalVolumeShare />
+          <RegionalVolumeShare tours={filteredTours} />
         </section>
       )}
     </Main>

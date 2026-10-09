@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Search, MapPin, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,7 +17,9 @@ import {
 export function MarketerSearch({
   onSelect,
   onFocus,
+  children,
 }: {
+  children?: ReactNode
   onSelect: (entry: MarketerMapEntry | null) => void
   onFocus: (coordinates: [number, number]) => void
 }) {
@@ -90,12 +92,16 @@ export function MarketerSearch({
           )}
         </CommandList>
       </CommandDialog>
+      {children}
       {selected && (
-        <section
+        <details
           aria-label='Détails du marketeur'
           className='max-h-[45dvh] overflow-auto rounded-lg border bg-background p-4 shadow-md'
         >
-          <div className='flex items-center justify-between gap-2'>
+          <summary className='cursor-pointer text-sm font-medium'>
+            Sites du marketeur
+          </summary>
+          <div className='mt-3 flex items-center justify-between gap-2'>
             <h2 className='font-semibold'>{selected.organization.name}</h2>
             <Button
               size='icon'
@@ -143,7 +149,7 @@ export function MarketerSearch({
               )
             })}
           </ul>
-        </section>
+        </details>
       )}
     </div>
   )

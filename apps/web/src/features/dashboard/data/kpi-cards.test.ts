@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { Role } from '@/config/rbac/roles'
 import {
   buildKpiStrip,
   computeDeltaPercent,
@@ -44,73 +43,56 @@ describe('delta helpers', () => {
   })
 })
 
-const ORG_ROLES: Role[] = ['MARKETEUR', 'TRANSPORTEUR']
-const REGULATOR_ROLES: Role[] = ['SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'AGENT', 'INTEGRATEUR']
-
 describe('buildKpiStrip', () => {
-  it.each(ORG_ROLES)('%s never sees SCDP or SNH reserve cards', (role) => {
-    const ids = buildKpiStrip(role).map((card) => card.id)
-    const titles = buildKpiStrip(role).map((card) => card.title).join(' ')
-    expect(ids).not.toContain('scdp')
-    expect(ids).not.toContain('snh')
-    expect(titles).not.toContain('SCDP')
-    expect(titles).not.toContain('SNH')
+  const mockContext = {
+    total: 10,
+    planned: 2,
+    waiting: 1,
+    acknowledged: 1,
+    active: 3,
+    closed: 2,
+    cancelled: 1,
+    draft: 0,
+    plannedVrac: 25,
+    plannedBottles: 150,
+    deliveredVrac: 14.8,
+    deliveredBottles: 200,
+    undated: 0,
+  }
+
+  it('builds 5 KPI cards with live tour metrics', () => {
+    const strip = buildKpiStrip('SUPERADMIN', mockContext)
+    expect(strip).toHaveLength(5)
+    const ids = strip.map((c) => c.id)
+    expect(ids).toEqual(['tournees', 'planned', 'planned-volume', 'vrac', 'bouteilles50kg'])
+
+    const tourneesCard = strip.find((c) => c.id === 'tournees')!
+    expect(tourneesCard.title).toBe('Tournées de la période')
+    expect(tourneesCard.value).toBe('10')
+    expect(tourneesCard.note).toContain('3 en cours · 2 clôturées')
+
+    const plannedCard = strip.find((c) => c.id === 'planned')!
+    expect(plannedCard.title).toBe('Tournées planifiées')
+    expect(plannedCard.value).toBe('2')
+    expect(plannedCard.note).toContain('1 acceptées · 1 en attente transporteur')
+
+    const plannedVolumeCard = strip.find((c) => c.id === 'planned-volume')!
+    expect(plannedVolumeCard.title).toBe('Quantités à livrer')
+    expect(plannedVolumeCard.value).toMatch(/25.*TM/)
+
+    const vracCard = strip.find((c) => c.id === 'vrac')!
+    expect(vracCard.title).toBe('Vrac effectivement livré')
+    expect(vracCard.value).toMatch(/14,8.*TM/)
+
+    const bottlesCard = strip.find((c) => c.id === 'bouteilles50kg')!
+    expect(bottlesCard.title).toBe('Bouteilles 50 kg livrées')
+    expect(bottlesCard.value).toMatch(/200.*btl/)
   })
 
-  it.each(REGULATOR_ROLES)('%s keeps the national reserve and conformity cards', (role) => {
-    const strip = buildKpiStrip(role)
-    const ids = strip.map((card) => card.id)
-    expect(ids).toEqual(['vrac', 'bouteilles50kg', 'scdp', 'snh', 'conformite-pesee'])
-  })
-
-  it('reworks the last regulator card as "Conformité de pesée" with a point delta', () => {
-    const strip = buildKpiStrip('SUPERADMIN')
-    const card = strip[strip.length - 1]!
-    expect(card.title).toBe('Conformité de pesée')
-    expect(card.value).toBe('98,6 %')
-    expect(card.delta).toMatchObject({ unit: 'pt', value: 0.9, tone: 'good' })
-    expect(card.baseline).toBe('97,7 %')
-  })
-
-  it('keeps every regulator delta arithmetically consistent with its baseline', () => {
-    for (const card of buildKpiStrip('SUPERADMIN')) {
-      if (!card.delta || card.delta.unit !== '%' || !card.baseline) continue
-      const baseline = Number(card.baseline.replace(/[^\d,−-]/g, '').replace(',', '.').replace('−', '-'))
-      const current = Number(card.value.replace(/[^\d,−-]/g, '').replace(',', '.').replace('−', '-'))
-      const expected = Math.round(((current - baseline) / baseline) * 1000) / 10
-      expect(card.delta.value).toBe(expected)
-    }
-  })
-
-  it('shows tournées with an active/closed split that sums to the total', () => {
-    const card = buildKpiStrip('MARKETEUR', { activeTrips: 2 }).find((c) => c.id === 'tournees')!
-    expect(card.value).toBe('46')
-    expect(card.note).toBe('2 actives · 44 clôturées')
-    const single = buildKpiStrip('MARKETEUR', { activeTrips: 1 }).find((c) => c.id === 'tournees')!
-    expect(single.note).toBe('1 active · 45 clôturées')
-  })
-
-  it('returns "n/a" for the tracking rate when no truck is on tour', () => {
-    const card = buildKpiStrip('TRANSPORTEUR', { activeTrucks: 0, totalTrucks: 18 }).find(
-      (c) => c.id === 'camions-traces'
-    )!
-    expect(card.value).toBe('n/a')
-    expect(card.delta).toBeNull()
-    expect(card.baseline).toBeNull()
-  })
-
-  it('computes the tracking rate over trucks on an active tour', () => {
-    const card = buildKpiStrip('TRANSPORTEUR', { activeTrucks: 12, totalTrucks: 18 }).find(
-      (c) => c.id === 'camions-traces'
-    )!
-    expect(card.value).toBe('91,7 %')
-    expect(card.note).toBe('11 / 12 camions · ping ≤ 5 min')
-    expect(card.delta).toMatchObject({ unit: 'pt', value: 2 })
-  })
-
-  it('flags more open anomalies as bad and fewer as good', () => {
-    const card = buildKpiStrip('TRANSPORTEUR').find((c) => c.id === 'anomalies-ouvertes')!
-    expect(card.delta).toMatchObject({ direction: 'down', tone: 'good', value: -40 })
+  it('gracefully handles empty context', () => {
+    const strip = buildKpiStrip('MARKETEUR')
+    expect(strip).toHaveLength(5)
+    expect(strip.find((c) => c.id === 'tournees')!.value).toBe('0')
   })
 })
 

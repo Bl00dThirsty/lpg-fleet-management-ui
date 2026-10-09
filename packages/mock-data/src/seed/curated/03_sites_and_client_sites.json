@@ -6802,6 +6802,13 @@
       "created_at": "2024-01-01T08:00:00Z"
     },
     {
+      "id": "usa-0004b",
+      "user_id": "user-0020-aza-marketeur",
+      "site_id": "site-0014-aza-yaounde",
+      "is_primary": false,
+      "created_at": "2024-01-01T08:00:00Z"
+    },
+    {
       "id": "usa-0005",
       "user_id": "user-0005-csph-investigator",
       "site_id": "site-0001-sctm-bonaberi",
@@ -6911,6 +6918,13 @@
       "user_id": "user-0021-aza-livreur",
       "site_id": "site-0015-aza-douala",
       "is_primary": true,
+      "created_at": "2024-01-01T08:00:00Z"
+    },
+    {
+      "id": "usa-0020b",
+      "user_id": "user-0021-aza-livreur",
+      "site_id": "site-0014-aza-yaounde",
+      "is_primary": false,
       "created_at": "2024-01-01T08:00:00Z"
     }
   ]

@@ -2,13 +2,14 @@ import { useMemo, useState } from 'react'
 import { Cell, Label, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { buildRegionalShareSummary } from '../data/regional-stats'
+import type { DeliveryTour } from '@lpg/types'
+import { buildRegionalShareSummary, computeRegionalStatsFromTours } from '../data/regional-stats'
 
-export function RegionalVolumeShare() {
+export function RegionalVolumeShare({ tours }: { tours?: readonly DeliveryTour[] } = {}) {
   const [hoveredCode, setHoveredCode] = useState<string | null>(null)
   const { chartData, topSharePercent, regionCards, formattedTotalVolume } = useMemo(
-    () => buildRegionalShareSummary(),
-    []
+    () => buildRegionalShareSummary(computeRegionalStatsFromTours(tours)),
+    [tours]
   )
 
   const activeItem = useMemo(

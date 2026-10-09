@@ -330,12 +330,19 @@ Deno.serve(async (req) => {
       )
       if (!profiles[0]) fail(403, 'Compte non autorisé pour cette application.')
       const profile = profiles[0]
+      const azaSites = ['site-0014-aza-yaounde', 'site-0015-aza-douala']
+      const isAza =
+        profile.account_id === 'user-0020-aza-marketeur' ||
+        profile.account_id === 'user-0021-aza-livreur'
+      const site_ids =
+        profile.details?.site_ids?.length ? profile.details.site_ids : isAza ? azaSites : []
       return reply({
         access_token: auth.access_token,
         accessToken: auth.access_token,
         refresh_token: auth.refresh_token,
         user: {
           ...profile.details,
+          site_ids,
           username: profile.account_id,
           firstName: profile.details.first_name,
           lastName: profile.details.last_name,
@@ -358,17 +365,26 @@ Deno.serve(async (req) => {
       const orgNames = new Map(
         orgRows.map((r: any) => [r.payload?.id, r.payload?.name]),
       )
+      const azaSites = ['site-0014-aza-yaounde', 'site-0015-aza-douala']
       const accounts = profileRows
-        .map((p: any) => ({
-          id: p.account_id,
-          email: emailByAuthId.get(p.auth_id) ?? p.details?.email ?? null,
-          first_name: p.details?.first_name ?? '',
-          last_name: p.details?.last_name ?? '',
-          system_role: p.system_role,
-          org_id: p.org_id,
-          org_type: p.org_type,
-          org_name: orgNames.get(p.org_id) ?? p.details?.org_name ?? '',
-        }))
+        .map((p: any) => {
+          const isAza =
+            p.account_id === 'user-0020-aza-marketeur' ||
+            p.account_id === 'user-0021-aza-livreur'
+          const site_ids =
+            p.details?.site_ids?.length ? p.details.site_ids : isAza ? azaSites : []
+          return {
+            id: p.account_id,
+            email: emailByAuthId.get(p.auth_id) ?? p.details?.email ?? null,
+            first_name: p.details?.first_name ?? '',
+            last_name: p.details?.last_name ?? '',
+            system_role: p.system_role,
+            org_id: p.org_id,
+            org_type: p.org_type,
+            org_name: orgNames.get(p.org_id) ?? p.details?.org_name ?? '',
+            site_ids,
+          }
+        })
         .filter((account: any) => account.email)
       return reply(accounts)
     }

@@ -1,9 +1,10 @@
+import { transporter_contracts } from '@lpg/mock-data'
 import { describe, expect, it } from 'vitest'
 import { getTransporterContracts, getTransporterContractSummary } from './transporter-contracts'
 
 describe('transporter-contracts view-model', () => {
   it('returns contracts with resolved orgs', () => {
-    const rows = getTransporterContracts()
+    const rows = getTransporterContracts(transporter_contracts, { view: 'org', siteIds: [] })
     expect(rows.length).toBeGreaterThanOrEqual(1)
     for (const row of rows) {
       expect(row.marketeur_name).toBeTruthy()
@@ -13,7 +14,7 @@ describe('transporter-contracts view-model', () => {
   })
 
   it('summarizes derived active, pending, and primary contracts', () => {
-    const summary = getTransporterContractSummary(getTransporterContracts())
+    const summary = getTransporterContractSummary(getTransporterContracts(transporter_contracts, { view: 'org', siteIds: [] }))
     expect(summary.active).toBeGreaterThanOrEqual(0)
     expect(summary.pending).toBeGreaterThanOrEqual(0)
     expect(summary.active + summary.pending).toBeLessThanOrEqual(summary.total)

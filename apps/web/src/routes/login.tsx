@@ -26,6 +26,7 @@ interface DirectoryAccount {
   org_id: string
   org_type: string
   org_name: string
+  site_ids?: string[]
 }
 
 function LoginPage() {
@@ -44,17 +45,25 @@ function LoginPage() {
       .request<DirectoryAccount[]>('/auth/accounts')
       .then((accounts) => {
         if (cancelled || accounts.length === 0) return
-        const directory: FakeProfile[] = accounts.map((account) => ({
-          id: account.id,
-          email: account.email,
-          first_name: account.first_name,
-          last_name: account.last_name,
-          system_role: account.system_role,
-          org_id: account.org_id,
-          org_name: account.org_name,
-          org_type: account.org_type,
-          site_ids: [],
-        }))
+        const directory: FakeProfile[] = accounts.map((account) => {
+          const fallback = fakeProfiles.find(
+            (p) => p.id === account.id || p.email === account.email
+          )
+          return {
+            id: account.id,
+            email: account.email,
+            first_name: account.first_name,
+            last_name: account.last_name,
+            system_role: account.system_role,
+            org_id: account.org_id,
+            org_name: account.org_name,
+            org_type: account.org_type,
+            site_ids:
+              account.site_ids && account.site_ids.length > 0
+                ? account.site_ids
+                : (fallback?.site_ids ?? []),
+          }
+        })
         setProfiles(directory)
         setSelectedUserId((current) =>
           directory.some((account) => account.id === current)

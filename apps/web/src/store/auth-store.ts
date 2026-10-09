@@ -18,9 +18,20 @@ interface AuthState {
 apiAdapter.setAccessTokenGetter(() => useAuthStore.getState().accessToken)
 apiAdapter.setOnUnauthorized(() => useAuthStore.getState().logout())
 
+import { fakeProfiles } from '@lpg/mock-data'
+
 async function applyAuthResult(result: AuthResult) {
+  const user = { ...result.user }
+  if (!user.site_ids || user.site_ids.length === 0) {
+    const fallback = fakeProfiles.find(
+      (p) => p.id === user.id || p.email === user.email,
+    )
+    if (fallback?.site_ids && fallback.site_ids.length > 0) {
+      user.site_ids = fallback.site_ids
+    }
+  }
   useAuthStore.setState({
-    user: result.user,
+    user,
     accessToken: result.access_token,
     refreshToken: result.refresh_token,
     status: 'authenticated',
