@@ -129,6 +129,15 @@ export function createApi(adapter: ApiAdapter) {
     deviceAssign(id: string, user_id?: string, vehicle_id?: string) {
       return request<any>(`/devices/${id}/assign`, { method: 'POST', body: JSON.stringify({ user_id, vehicle_id }), headers: { 'Content-Type': 'application/json' } })
     },
+    /**
+     * GET /api/v1/devices/stats — aggregate device-parc statistics for the
+     * Intégrateur dashboard (total, by status, by type, attention list).
+     * Backend-ready: swap the fake adapter for the HTTP adapter and this
+     * call hits the real endpoint unchanged.
+     */
+    deviceStats() {
+      return request<any>('/devices/stats')
+    },
 
     // Pickup requests (Flux 1 Approvisionnements - Spring Boot tour-service)
     pickups: {

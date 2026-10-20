@@ -5,7 +5,7 @@
  * Swap to real backend by setting VITE_API_MODE.
  */
 
-import { curated, AUTH_FIXTURES } from '@lpg/mock-data'
+import { curated, deviceStats, AUTH_FIXTURES } from '@lpg/mock-data'
 import type { ApiAdapter, AuthResult, Credentials, ListResult } from './adapter.ts'
 
 function paginate<T>(items: T[], page = 1, limit = 20): ListResult<T> {
@@ -143,6 +143,9 @@ export function createFakeAdapter(): ApiAdapter {
       const collection = name?.replace(/-/g, '_') ?? ''
 
       if (name === 'me') return delay(null as unknown as T)
+      if (path === '/devices/stats') {
+        return delay(deviceStats() as unknown as T)
+      }
       if (path === '/auth/accounts') {
         const users = (COLLECTIONS.users as any[]) || []
         const orgs = (COLLECTIONS.organizations as any[]) || []

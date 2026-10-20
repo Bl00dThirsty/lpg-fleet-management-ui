@@ -152,6 +152,13 @@ export const NAV_CATALOG: readonly NavItemDecl[] = [
     requires: ['dashboard.read'],
   },
   {
+    id: 'dashboard-integrateur',
+    label: 'Tableau de bord intégrateur',
+    icon: LayoutDashboard,
+    path: 'dashboard-integrateur',
+    requires: ['integrateur-dashboard.read'],
+  },
+  {
     id: 'super-admin',
     label: 'Tours nationales (Super Admin)',
     icon: LayoutDashboard,
