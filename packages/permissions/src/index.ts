@@ -119,6 +119,7 @@ export const PERMISSION_CATALOG = [
   { code: 'livreurs.write', category: 'fleet', label: 'Modifier les livreurs PDA' },
   { code: 'livreurs.manage', category: 'fleet', label: 'GÃ©rer les livreurs PDA' },
   { code: 'devices.read', category: 'fleet', label: 'Voir les Ã©quipements IoT' },
+  { code: 'integrateur-dashboard.read', category: 'fleet', label: 'Voir le tableau de bord IntÃ©grateur' },
   { code: 'devices.write', category: 'fleet', label: 'Modifier les Ã©quipements IoT' },
   { code: 'devices.create', category: 'fleet', label: 'CrÃ©er des Ã©quipements IoT' },
   { code: 'devices.delete', category: 'fleet', label: 'Supprimer des Ã©quipements IoT' },
@@ -334,6 +335,7 @@ const SUPERVISOR_GRANTS = [
 
 const INTEGRATEUR_GRANTS = [
   'devices.read', 'devices.write', 'devices.create', 'devices.delete', 'devices.manage',
+  'integrateur-dashboard.read',
   'pda.read', 'pda.write', 'pda.sync',
   'rfid.read', 'rfid.write', 'rfid.delete',
   'trucks.read', 'vehicle-types.read', 'vehicle-types.write', 'drivers.read',

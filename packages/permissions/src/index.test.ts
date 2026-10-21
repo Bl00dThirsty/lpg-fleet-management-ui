@@ -20,7 +20,7 @@ const ALL_CODES = new Set(PERMISSION_CATALOG.map((e) => e.code))
 
 describe('catalog integrity', () => {
   it('defines exactly 161 codes across 9 categories', () => {
-    expect(PERMISSION_CATALOG).toHaveLength(161)
+    expect(PERMISSION_CATALOG).toHaveLength(162)
     expect(new Set(PERMISSION_CATALOG.map((e) => e.category))).toHaveLength(9)
     expect(PERMISSION_CATEGORIES).toHaveLength(9)
   })
@@ -151,6 +151,15 @@ describe('CRUD codes for M3', () => {
   it('INTEGRATEUR can create and delete devices', () => {
     expect(can('INTEGRATEUR', 'create', 'devices')).toBe(true)
     expect(can('INTEGRATEUR', 'delete', 'devices')).toBe(true)
+  })
+
+  it('integrateur-dashboard.read is INTEGRATEUR-only (SUPERADMIN excepted)', () => {
+    expect(hasPermission('INTEGRATEUR', 'integrateur-dashboard.read')).toBe(true)
+    expect(hasPermission('ADMIN', 'integrateur-dashboard.read')).toBe(false)
+    expect(hasPermission('SUPERVISOR', 'integrateur-dashboard.read')).toBe(false)
+    expect(hasPermission('MARKETEUR', 'integrateur-dashboard.read')).toBe(false)
+    expect(hasPermission('TRANSPORTEUR', 'integrateur-dashboard.read')).toBe(false)
+    expect(hasPermission('LIVREUR', 'integrateur-dashboard.read')).toBe(false)
   })
 })
 

@@ -29,6 +29,7 @@ import { Route as AuthenticatedClientsNewRouteImport } from './routes/_authentic
 import { Route as AuthenticatedContractsIndexRouteImport } from './routes/_authenticated/contracts/index'
 import { Route as AuthenticatedCustomRolesIndexRouteImport } from './routes/_authenticated/custom-roles/index'
 import { Route as AuthenticatedDashboardAdminIndexRouteImport } from './routes/_authenticated/dashboard-admin/index'
+import { Route as AuthenticatedDashboardIntegrateurIndexRouteImport } from './routes/_authenticated/dashboard-integrateur/index'
 import { Route as AuthenticatedDashboardMarketeurIndexRouteImport } from './routes/_authenticated/dashboard-marketeur/index'
 import { Route as AuthenticatedDashboardSupervisorIndexRouteImport } from './routes/_authenticated/dashboard-supervisor/index'
 import { Route as AuthenticatedDashboardTransporteurIndexRouteImport } from './routes/_authenticated/dashboard-transporteur/index'
@@ -206,6 +207,12 @@ const AuthenticatedDashboardAdminIndexRoute =
   AuthenticatedDashboardAdminIndexRouteImport.update({
     id: '/dashboard-admin/',
     path: '/dashboard-admin/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardIntegrateurIndexRoute =
+  AuthenticatedDashboardIntegrateurIndexRouteImport.update({
+    id: '/dashboard-integrateur/',
+    path: '/dashboard-integrateur/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardMarketeurIndexRoute =
@@ -627,6 +634,7 @@ export interface FileRoutesByFullPath {
   '/contracts/': typeof AuthenticatedContractsIndexRoute
   '/custom-roles/': typeof AuthenticatedCustomRolesIndexRoute
   '/dashboard-admin/': typeof AuthenticatedDashboardAdminIndexRoute
+  '/dashboard-integrateur/': typeof AuthenticatedDashboardIntegrateurIndexRoute
   '/dashboard-marketeur/': typeof AuthenticatedDashboardMarketeurIndexRoute
   '/dashboard-supervisor/': typeof AuthenticatedDashboardSupervisorIndexRoute
   '/dashboard-transporteur/': typeof AuthenticatedDashboardTransporteurIndexRoute
@@ -712,6 +720,7 @@ export interface FileRoutesByTo {
   '/contracts': typeof AuthenticatedContractsIndexRoute
   '/custom-roles': typeof AuthenticatedCustomRolesIndexRoute
   '/dashboard-admin': typeof AuthenticatedDashboardAdminIndexRoute
+  '/dashboard-integrateur': typeof AuthenticatedDashboardIntegrateurIndexRoute
   '/dashboard-marketeur': typeof AuthenticatedDashboardMarketeurIndexRoute
   '/dashboard-supervisor': typeof AuthenticatedDashboardSupervisorIndexRoute
   '/dashboard-transporteur': typeof AuthenticatedDashboardTransporteurIndexRoute
@@ -801,6 +810,7 @@ export interface FileRoutesById {
   '/_authenticated/contracts/': typeof AuthenticatedContractsIndexRoute
   '/_authenticated/custom-roles/': typeof AuthenticatedCustomRolesIndexRoute
   '/_authenticated/dashboard-admin/': typeof AuthenticatedDashboardAdminIndexRoute
+  '/_authenticated/dashboard-integrateur/': typeof AuthenticatedDashboardIntegrateurIndexRoute
   '/_authenticated/dashboard-marketeur/': typeof AuthenticatedDashboardMarketeurIndexRoute
   '/_authenticated/dashboard-supervisor/': typeof AuthenticatedDashboardSupervisorIndexRoute
   '/_authenticated/dashboard-transporteur/': typeof AuthenticatedDashboardTransporteurIndexRoute
@@ -890,6 +900,7 @@ export interface FileRouteTypes {
     | '/contracts/'
     | '/custom-roles/'
     | '/dashboard-admin/'
+    | '/dashboard-integrateur/'
     | '/dashboard-marketeur/'
     | '/dashboard-supervisor/'
     | '/dashboard-transporteur/'
@@ -975,6 +986,7 @@ export interface FileRouteTypes {
     | '/contracts'
     | '/custom-roles'
     | '/dashboard-admin'
+    | '/dashboard-integrateur'
     | '/dashboard-marketeur'
     | '/dashboard-supervisor'
     | '/dashboard-transporteur'
@@ -1063,6 +1075,7 @@ export interface FileRouteTypes {
     | '/_authenticated/contracts/'
     | '/_authenticated/custom-roles/'
     | '/_authenticated/dashboard-admin/'
+    | '/_authenticated/dashboard-integrateur/'
     | '/_authenticated/dashboard-marketeur/'
     | '/_authenticated/dashboard-supervisor/'
     | '/_authenticated/dashboard-transporteur/'
@@ -1267,6 +1280,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard-admin'
       fullPath: '/dashboard-admin/'
       preLoaderRoute: typeof AuthenticatedDashboardAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard-integrateur/': {
+      id: '/_authenticated/dashboard-integrateur/'
+      path: '/dashboard-integrateur'
+      fullPath: '/dashboard-integrateur/'
+      preLoaderRoute: typeof AuthenticatedDashboardIntegrateurIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard-marketeur/': {
@@ -1798,6 +1818,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedContractsIndexRoute: typeof AuthenticatedContractsIndexRoute
   AuthenticatedCustomRolesIndexRoute: typeof AuthenticatedCustomRolesIndexRoute
   AuthenticatedDashboardAdminIndexRoute: typeof AuthenticatedDashboardAdminIndexRoute
+  AuthenticatedDashboardIntegrateurIndexRoute: typeof AuthenticatedDashboardIntegrateurIndexRoute
   AuthenticatedDashboardMarketeurIndexRoute: typeof AuthenticatedDashboardMarketeurIndexRoute
   AuthenticatedDashboardSupervisorIndexRoute: typeof AuthenticatedDashboardSupervisorIndexRoute
   AuthenticatedDashboardTransporteurIndexRoute: typeof AuthenticatedDashboardTransporteurIndexRoute
@@ -1880,6 +1901,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedContractsIndexRoute: AuthenticatedContractsIndexRoute,
   AuthenticatedCustomRolesIndexRoute: AuthenticatedCustomRolesIndexRoute,
   AuthenticatedDashboardAdminIndexRoute: AuthenticatedDashboardAdminIndexRoute,
+  AuthenticatedDashboardIntegrateurIndexRoute:
+    AuthenticatedDashboardIntegrateurIndexRoute,
   AuthenticatedDashboardMarketeurIndexRoute:
     AuthenticatedDashboardMarketeurIndexRoute,
   AuthenticatedDashboardSupervisorIndexRoute:
