@@ -9,16 +9,20 @@ import { KpiTiles } from './components/kpi-tiles'
 import { StatusBreakdown } from './components/status-breakdown'
 import { TypeBreakdown } from './components/type-breakdown'
 import { toIntegrateurDashboardData } from './data/integrateur-dashboard'
+import { pickRecentlySynced } from './lib/integrateur-dashboard'
 import type { IntegrateurDashboardData } from './data/integrateur-dashboard'
 
 function seedData(): IntegrateurDashboardData {
   return toIntegrateurDashboardData(deviceStats())
 }
 
+const RECENT_DEVICES_LIMIT = 5
+
 export function IntegrateurDashboardPage() {
-  // Seed (05_devices.json) renders immediately; the live backend aggregate
-  // (GET /api/v1/devices/stats) replaces it once wired. Until then the API
-  // call fails, so we keep the seed rather than blanking the page.
+  // Seed (05_devices.json) renders immediately; the planned backend aggregate
+  // (GET /api/v1/devices/stats — a frontend-only contract, not yet in
+  // lpg-backend) replaces it once wired. Until then the API call fails, so we
+  // keep the seed rather than blanking the page.
   const [data, setData] = useState<IntegrateurDashboardData>(() => seedData())
   const [live, setLive] = useState(false)
 
@@ -48,7 +52,7 @@ export function IntegrateurDashboardPage() {
 
       <section className='flex items-center gap-2 text-xs text-muted-foreground'>
         <span className={`size-2 rounded-full ${live ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-        {live ? 'Données temps réel' : 'Données de démonstration (seed) — endpoint /devices/stats à connecter'}
+        {live ? 'Données temps réel' : 'Données de démonstration (seed) — endpoint /api/v1/devices/stats à implémenter côté backend'}
       </section>
 
       <section>
@@ -69,9 +73,9 @@ export function IntegrateurDashboardPage() {
         </SectionCard>
         <SectionCard
           title='Parc des appareils'
-          description={`${curated.devices.length} appareils — table devices (seed 05_devices.json).`}
+          description={`${RECENT_DEVICES_LIMIT} derniers appareils synchronisés — table devices (seed 05_devices.json).`}
         >
-          <DevicesTable devices={curated.devices} />
+          <DevicesTable devices={pickRecentlySynced(curated.devices, RECENT_DEVICES_LIMIT)} />
         </SectionCard>
       </section>
     </PageShell>

@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import type { DeviceStats } from '@lpg/mock-data'
+import type { Device } from '@lpg/types'
 import {
   buildAttentionRows,
   buildStatusSlices,
   buildTypeSlices,
   computeIntegrateurKpis,
+  pickRecentlySynced,
 } from './integrateur-dashboard'
+
+function device(id: string, last_sync?: string): Device {
+  return { id, last_sync: last_sync ?? null } as Device
+}
 
 const stats: DeviceStats = {
   total: 20,
@@ -56,5 +62,30 @@ describe('buildAttentionRows', () => {
     const rows = buildAttentionRows(stats)
     expect(rows).toHaveLength(1)
     expect(rows[0]?.serial).toBe('RFID-AZA-001')
+  })
+})
+
+describe('pickRecentlySynced', () => {
+  const devices = [
+    device('a', '2024-11-30T08:00:00Z'),
+    device('b', '2024-11-28T14:00:00Z'),
+    device('c', '2024-11-29T20:00:00Z'),
+    device('d'), // never synced -> last
+    device('e', '2024-11-30T07:30:00Z'),
+    device('f', '2024-11-30T08:00:00Z'),
+  ]
+
+  it('returns the N most recently synced devices, descending', () => {
+    expect(pickRecentlySynced(devices, 3).map((d) => d.id)).toEqual(['a', 'f', 'e'])
+  })
+
+  it('puts devices without a sync timestamp last', () => {
+    const ids = pickRecentlySynced(devices, 5).map((d) => d.id)
+    expect(ids).toContain('d')
+    expect(ids[ids.length - 1]).toBe('d')
+  })
+
+  it('returns everything when limit exceeds the list', () => {
+    expect(pickRecentlySynced(devices, 10)).toHaveLength(devices.length)
   })
 })

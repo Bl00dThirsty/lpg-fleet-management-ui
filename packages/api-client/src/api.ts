@@ -132,8 +132,13 @@ export function createApi(adapter: ApiAdapter) {
     /**
      * GET /api/v1/devices/stats — aggregate device-parc statistics for the
      * Intégrateur dashboard (total, by status, by type, attention list).
-     * Backend-ready: swap the fake adapter for the HTTP adapter and this
-     * call hits the real endpoint unchanged.
+     *
+     * FRONTEND-ONLY / À VENIR : this route does NOT exist in lpg-backend yet.
+     * device-service currently exposes only POST /api/v1/devices and
+     * GET /api/v1/devices/{deviceId} (+ installations/transitions), with no
+     * list or aggregate. This contract is frozen so the backend can implement
+     * it as-is; only the Intégrateur dashboard consumes it. Until then it is
+     * resolved by the in-browser fake adapter only.
      */
     deviceStats() {
       return request<any>('/devices/stats')

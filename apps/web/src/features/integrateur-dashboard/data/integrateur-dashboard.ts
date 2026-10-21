@@ -19,6 +19,10 @@ export interface IntegrateurDashboardData {
  * View builder for the Intégrateur dashboard. Stateless: feed it the
  * payload of GET /api/v1/devices/stats (`deviceStats()` shape) and get the
  * view models consumed by the page components.
+ *
+ * NOTE: GET /api/v1/devices/stats is a frontend-only contract, not yet
+ * implemented in lpg-backend (see api-client `deviceStats`). Only the
+ * Intégrateur dashboard consumes it.
  */
 export function toIntegrateurDashboardData(stats: {
   total: number
