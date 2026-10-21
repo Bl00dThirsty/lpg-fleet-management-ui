@@ -129,21 +129,6 @@ export function createApi(adapter: ApiAdapter) {
     deviceAssign(id: string, user_id?: string, vehicle_id?: string) {
       return request<any>(`/devices/${id}/assign`, { method: 'POST', body: JSON.stringify({ user_id, vehicle_id }), headers: { 'Content-Type': 'application/json' } })
     },
-    /**
-     * GET /api/v1/devices/stats — aggregate device-parc statistics for the
-     * Intégrateur dashboard (total, by status, by type, attention list).
-     *
-     * FRONTEND-ONLY / À VENIR : this route does NOT exist in lpg-backend yet.
-     * device-service currently exposes only POST /api/v1/devices and
-     * GET /api/v1/devices/{deviceId} (+ installations/transitions), with no
-     * list or aggregate. This contract is frozen so the backend can implement
-     * it as-is; only the Intégrateur dashboard consumes it. Until then it is
-     * resolved by the in-browser fake adapter only.
-     */
-    deviceStats() {
-      return request<any>('/devices/stats')
-    },
-
     // Pickup requests (Flux 1 Approvisionnements - Spring Boot tour-service)
     pickups: {
       list(page = 0, size = 50, filters?: { marketerOrganizationId?: string; sourceSiteId?: string; status?: string }) {

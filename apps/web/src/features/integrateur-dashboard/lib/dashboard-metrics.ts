@@ -1,38 +1,18 @@
-/**
- * Pure logic for the Intégrateur dashboard.
- *
- * The Intégrateur manages the IoT device parc (GPS / PDA / RFID readers):
- * registration, vehicle assignment, installation/closure, position & state,
- * lost/stolen reporting, return to service. Commercial data (tours,
- * quantities, declarations) is out of scope — these builders only consume
- * `deviceStats()` (seeded from `05_devices.json` via `deviceStats`). The live
- * source is the planned GET /api/v1/devices/stats endpoint (frontend-only
- * contract, not yet implemented in lpg-backend).
- *
- * Battery health is intentionally NOT surfaced: the Intégrateur role does
- * not act on battery levels, so no KPI or attention row derives from it.
- */
+/** Pure dashboard metrics derived from the device inventory. */
 import type { DeviceAttention, DeviceStats } from '@lpg/mock-data'
-
-export interface IntegrateurKpis {
-  total: number
-  operational: number
-  offline: number
-}
+import type {
+  IntegrateurKpis,
+  StatusSlice,
+  TypeSlice,
+} from '../data/integrateur-dashboard'
 
 export function computeIntegrateurKpis(stats: DeviceStats): IntegrateurKpis {
   const offline = stats.byStatus.OFFLINE ?? 0
   return {
     total: stats.total,
     offline,
-    operational: stats.total - offline,
+    inMission: stats.byStatus.INMISSION ?? 0,
   }
-}
-
-export interface StatusSlice {
-  status: string
-  count: number
-  color: string
 }
 
 export const DEVICE_STATUS_COLORS: Record<string, string> = {
@@ -62,15 +42,10 @@ export function buildStatusSlices(stats: DeviceStats): StatusSlice[] {
 
 /**
  * Devices needing attention — OFFLINE only. Battery-critical devices are
- * excluded by design (see module docblock).
+ * excluded unless the device is also offline.
  */
 export function buildAttentionRows(stats: DeviceStats): DeviceAttention[] {
   return stats.attention.filter((d) => d.issue === 'OFFLINE')
-}
-
-export interface TypeSlice {
-  type: string
-  count: number
 }
 
 export function buildTypeSlices(stats: DeviceStats): TypeSlice[] {
